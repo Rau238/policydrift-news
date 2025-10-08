@@ -7,6 +7,7 @@ import ErrorMessage from '../components/ui/ErrorMessage';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import CommentSection from '../components/CommentSection';
+import SocialShare from '../components/SocialShare';
 
 const ArticleDetail = () => {
   const { slug } = useParams();
@@ -18,6 +19,7 @@ const ArticleDetail = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
+  const [relatedArticles, setRelatedArticles] = useState([]);
 
   useEffect(() => {
     fetchArticle();
@@ -57,6 +59,27 @@ const ArticleDetail = () => {
         .eq('article_id', data.id);
       
       setLikesCount(count || 0);
+
+      // Fetch related articles (same category, excluding current article)
+      const { data: relatedData } = await supabase
+        .from('articles')
+        .select(`
+          id,
+          title,
+          slug,
+          excerpt,
+          featured_image,
+          created_at,
+          view_count,
+          categories:category_id (name, slug)
+        `)
+        .eq('status', 'published')
+        .eq('category_id', data.category_id)
+        .neq('id', data.id)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      setRelatedArticles(relatedData || []);
     } catch (err) {
       console.error('Error fetching article:', err);
       setError(err.message);
@@ -310,16 +333,16 @@ const ArticleDetail = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                   </svg>
                 </button>
-
-                <button
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all"
-                  title="Share"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                  </svg>
-                </button>
               </div>
+            </div>
+
+            {/* Social Share Section */}
+            <div className="px-8 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/30">
+              <SocialShare 
+                url={window.location.href}
+                title={article.title}
+                description={article.excerpt || article.title}
+              />
             </div>
           </div>
 
@@ -408,12 +431,71 @@ const ArticleDetail = () => {
 
         {/* Related Articles Section */}
         <div className="mt-12 mb-12">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
-            More from {article.categories?.name || 'this category'}
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            You May Also Like
           </h2>
-          <div className="text-center text-slate-600 dark:text-slate-400 p-8 bg-white dark:bg-slate-800 rounded-xl">
-            <p>Related articles coming soon...</p>
-          </div>
+
+          {relatedArticles.length > 0 ? (
+            <div className="grid md:grid-cols-3 gap-6">
+              {relatedArticles.map((relatedArticle) => (
+                <Link
+                  key={relatedArticle.id}
+                  to={`/article/${relatedArticle.slug}`}
+                  className="group bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                >
+                  {/* Image */}
+                  {relatedArticle.featured_image && (
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={relatedArticle.featured_image}
+                        alt={relatedArticle.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent"></div>
+                    </div>
+                  )}
+
+                  {/* Content */}
+                  <div className="p-5">
+                    {relatedArticle.categories && (
+                      <Badge variant="secondary" className="mb-2 text-xs">
+                        {relatedArticle.categories.name}
+                      </Badge>
+                    )}
+                    <h3 className="font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {relatedArticle.title}
+                    </h3>
+                    {relatedArticle.excerpt && (
+                      <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-3">
+                        {relatedArticle.excerpt}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                      <span>{new Date(relatedArticle.created_at).toLocaleDateString()}</span>
+                      <span className="flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        {relatedArticle.view_count || 0}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-slate-600 dark:text-slate-400 p-8 bg-white dark:bg-slate-800 rounded-xl shadow-lg">
+              <svg className="w-16 h-16 mx-auto mb-4 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              <p className="text-lg font-medium mb-2">No Related Articles Found</p>
+              <p className="text-sm">Check out more articles on the <Link to="/" className="text-blue-500 hover:underline">home page</Link></p>
+            </div>
+          )}
         </div>
       </div>
     </div>

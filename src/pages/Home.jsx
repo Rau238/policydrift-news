@@ -9,15 +9,25 @@ import Badge from '../components/ui/Badge';
 const Home = () => {
   const [articles, setArticles] = useState([]);
   const [featuredArticles, setFeaturedArticles] = useState([]);
+  const [breakingNews, setBreakingNews] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedTag, setSelectedTag] = useState('all');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const ARTICLES_PER_PAGE = 12;
 
   useEffect(() => {
+    setPage(1);
+    setArticles([]);
+    setHasMore(true);
     fetchData();
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedTag]);
 
   const fetchData = async () => {
     try {
@@ -28,9 +38,31 @@ const Home = () => {
       const { data: categoriesData } = await supabase
         .from('categories')
         .select('*')
-        .order('display_order', { ascending: true });
+        .order('name', { ascending: true });
       
       setCategories(categoriesData || []);
+
+      // Fetch tags
+      const { data: tagsData } = await supabase
+        .from('tags')
+        .select('*')
+        .order('name', { ascending: true });
+      
+      setTags(tagsData || []);
+
+      // Fetch breaking news (latest 5 published articles from last 24 hours)
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      const { data: breakingData } = await supabase
+        .from('articles')
+        .select('id, title, slug, created_at')
+        .eq('status', 'published')
+        .gte('created_at', yesterday.toISOString())
+        .order('created_at', { ascending: false })
+        .limit(5);
+      
+      setBreakingNews(breakingData || []);
 
       // Fetch featured articles (top 3)
       const { data: featuredData } = await supabase
@@ -40,24 +72,27 @@ const Home = () => {
           profiles:author_id (username, avatar_url, full_name),
           categories:category_id (name, slug, color, icon)
         `)
-        .eq('published', true)
+        .eq('status', 'published')
         .eq('is_featured', true)
         .order('created_at', { ascending: false })
         .limit(3);
 
       setFeaturedArticles(featuredData || []);
 
-      // Fetch regular articles
+      // Fetch regular articles with pagination
       let query = supabase
         .from('articles')
         .select(`
           *,
           profiles:author_id (username, avatar_url, full_name),
-          categories:category_id (name, slug, color, icon)
+          categories:category_id (name, slug, color, icon),
+          article_tags (
+            tags (id, name, slug)
+          )
         `)
-        .eq('published', true)
+        .eq('status', 'published')
         .order('created_at', { ascending: false })
-        .limit(20);
+        .range((page - 1) * ARTICLES_PER_PAGE, page * ARTICLES_PER_PAGE - 1);
 
       if (selectedCategory !== 'all') {
         query = query.eq('category_id', selectedCategory);
@@ -66,12 +101,71 @@ const Home = () => {
       const { data, error: fetchError } = await query;
 
       if (fetchError) throw fetchError;
-      setArticles(data || []);
+      
+      // Check if there are more articles
+      setHasMore(data?.length === ARTICLES_PER_PAGE);
+
+      // Filter by tag if selected
+      let filteredData = data || [];
+      if (selectedTag !== 'all') {
+        filteredData = filteredData.filter(article => 
+          article.article_tags?.some(at => at.tags.id === selectedTag)
+        );
+      }
+      
+      setArticles(prev => page === 1 ? filteredData : [...prev, ...filteredData]);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+
+    try {
+      setLoadingMore(true);
+      const nextPage = page + 1;
+      setPage(nextPage);
+
+      let query = supabase
+        .from('articles')
+        .select(`
+          *,
+          profiles:author_id (username, avatar_url, full_name),
+          categories:category_id (name, slug, color, icon),
+          article_tags (
+            tags (id, name, slug)
+          )
+        `)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .range((nextPage - 1) * ARTICLES_PER_PAGE, nextPage * ARTICLES_PER_PAGE - 1);
+
+      if (selectedCategory !== 'all') {
+        query = query.eq('category_id', selectedCategory);
+      }
+
+      const { data } = await query;
+
+      // Check if there are more articles
+      setHasMore(data?.length === ARTICLES_PER_PAGE);
+
+      // Filter by tag if selected
+      let filteredData = data || [];
+      if (selectedTag !== 'all') {
+        filteredData = filteredData.filter(article => 
+          article.article_tags?.some(at => at.tags.id === selectedTag)
+        );
+      }
+
+      setArticles(prev => [...prev, ...filteredData]);
+    } catch (err) {
+      console.error('Error loading more articles:', err);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -106,6 +200,47 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
+      {/* Breaking News Ticker */}
+      {breakingNews.length > 0 && (
+        <div className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white py-2 shadow-lg sticky top-0 z-40 animate-pulse-slow">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center gap-4 overflow-hidden">
+              <div className="flex items-center gap-2 font-bold text-sm uppercase flex-shrink-0">
+                <svg className="w-5 h-5 animate-bounce" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                </svg>
+                Breaking
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <div className="animate-marquee whitespace-nowrap flex gap-8">
+                  {breakingNews.map((news, index) => (
+                    <Link
+                      key={`${news.id}-${index}`}
+                      to={`/article/${news.slug}`}
+                      className="inline-flex items-center gap-2 hover:underline text-sm font-medium"
+                    >
+                      <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                      {news.title}
+                    </Link>
+                  ))}
+                  {/* Duplicate for seamless loop */}
+                  {breakingNews.map((news, index) => (
+                    <Link
+                      key={`${news.id}-dup-${index}`}
+                      to={`/article/${news.slug}`}
+                      className="inline-flex items-center gap-2 hover:underline text-sm font-medium"
+                    >
+                      <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                      {news.title}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section with Gradient Background */}
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 text-white py-20 mb-12">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -189,8 +324,45 @@ const Home = () => {
               </div>
             )}
 
+            {/* Tags Filter - Horizontal Scroll */}
+            {tags.length > 0 && (
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
+                <h2 className="text-xl font-bold mb-4 text-slate-900 dark:text-white flex items-center gap-2">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                  Filter by Tags
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setSelectedTag('all')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      selectedTag === 'all'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                    }`}
+                  >
+                    All Tags
+                  </button>
+                  {tags.map((tag) => (
+                    <button
+                      key={tag.id}
+                      onClick={() => setSelectedTag(tag.id)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        selectedTag === tag.id
+                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
+                          : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600'
+                      }`}
+                    >
+                      #{tag.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Featured Articles - Large Cards */}
-            {featuredArticles.length > 0 && !searchQuery && selectedCategory === 'all' && (
+            {featuredArticles.length > 0 && !searchQuery && selectedCategory === 'all' && selectedTag === 'all' && (
               <section className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
@@ -304,7 +476,9 @@ const Home = () => {
             <section className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
-                  {searchQuery ? 'Search Results' : selectedCategory === 'all' ? 'Latest Articles' : 'Filtered Articles'}
+                  {searchQuery ? 'Search Results' : 
+                   (selectedCategory !== 'all' || selectedTag !== 'all') ? 'Filtered Articles' : 
+                   'Latest Articles'}
                 </h2>
                 <span className="text-slate-500 dark:text-slate-400">
                   {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''}
@@ -399,7 +573,7 @@ const Home = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                               </svg>
-                              <span>{article.views_count || 0}</span>
+                              <span>{article.view_count || 0}</span>
                             </div>
                             <div className="flex items-center gap-1" title="Read time">
                               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -412,6 +586,37 @@ const Home = () => {
                       </div>
                     </Link>
                   ))}
+                </div>
+              )}
+
+              {/* Load More Button */}
+              {!searchQuery && filteredArticles.length > 0 && hasMore && (
+                <div className="mt-12 text-center">
+                  <button
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
+                  >
+                    {loadingMore ? (
+                      <span className="flex items-center gap-2">
+                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        Load More Articles
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </span>
+                    )}
+                  </button>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-3">
+                    Showing {filteredArticles.length} articles
+                  </p>
                 </div>
               )}
             </section>
