@@ -1,0 +1,423 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
+import Loading from '../components/ui/Loading';
+import ErrorMessage from '../components/ui/ErrorMessage';
+import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
+import CommentSection from '../components/CommentSection';
+
+const ArticleDetail = () => {
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  const [article, setArticle] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+
+  useEffect(() => {
+    fetchArticle();
+    if (user) {
+      checkUserInteractions();
+    }
+  }, [slug, user]);
+
+  const fetchArticle = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data, error: fetchError } = await supabase
+        .from('articles')
+        .select(`
+          *,
+          profiles:author_id (username, avatar_url, full_name),
+          categories:category_id (name, slug)
+        `)
+        .eq('slug', slug)
+        .single();
+
+      if (fetchError) throw fetchError;
+      setArticle(data);
+
+      // Increment view count
+      await supabase
+        .from('articles')
+        .update({ views_count: (data.views_count || 0) + 1 })
+        .eq('id', data.id);
+
+      // Get likes count
+      const { count } = await supabase
+        .from('likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('article_id', data.id);
+      
+      setLikesCount(count || 0);
+    } catch (err) {
+      console.error('Error fetching article:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkUserInteractions = async () => {
+    if (!article) return;
+
+    try {
+      // Check if liked
+      const { data: likeData } = await supabase
+        .from('likes')
+        .select('id')
+        .eq('article_id', article.id)
+        .eq('user_id', user.id)
+        .single();
+      
+      setIsLiked(!!likeData);
+
+      // Check if bookmarked
+      const { data: bookmarkData } = await supabase
+        .from('bookmarks')
+        .select('id')
+        .eq('article_id', article.id)
+        .eq('user_id', user.id)
+        .single();
+      
+      setIsBookmarked(!!bookmarkData);
+    } catch (err) {
+      // Errors here are expected when no like/bookmark exists
+    }
+  };
+
+  const handleLike = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      if (isLiked) {
+        // Unlike
+        await supabase
+          .from('likes')
+          .delete()
+          .eq('article_id', article.id)
+          .eq('user_id', user.id);
+        
+        setIsLiked(false);
+        setLikesCount(prev => prev - 1);
+      } else {
+        // Like
+        await supabase
+          .from('likes')
+          .insert({ article_id: article.id, user_id: user.id });
+        
+        setIsLiked(true);
+        setLikesCount(prev => prev + 1);
+      }
+    } catch (err) {
+      console.error('Error toggling like:', err);
+    }
+  };
+
+  const handleBookmark = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      if (isBookmarked) {
+        // Remove bookmark
+        await supabase
+          .from('bookmarks')
+          .delete()
+          .eq('article_id', article.id)
+          .eq('user_id', user.id);
+        
+        setIsBookmarked(false);
+      } else {
+        // Add bookmark
+        await supabase
+          .from('bookmarks')
+          .insert({ article_id: article.id, user_id: user.id });
+        
+        setIsBookmarked(true);
+      }
+    } catch (err) {
+      console.error('Error toggling bookmark:', err);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this article?')) {
+      return;
+    }
+
+    try {
+      const { error: deleteError } = await supabase
+        .from('articles')
+        .delete()
+        .eq('id', article.id);
+
+      if (deleteError) throw deleteError;
+      navigate('/');
+    } catch (err) {
+      console.error('Error deleting article:', err);
+      alert('Failed to delete article');
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  if (loading) {
+    return <Loading fullScreen text="Loading article..." />;
+  }
+
+  if (error || !article) {
+    return (
+      <ErrorMessage
+        message={error || 'Article not found'}
+        onRetry={fetchArticle}
+        fullScreen
+      />
+    );
+  }
+
+  const isAuthor = user && article.author_id === user.id;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+      {/* Hero Section with Featured Image */}
+      {article.featured_image && (
+        <div className="relative h-[60vh] overflow-hidden">
+          <img 
+            src={article.featured_image} 
+            alt={article.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
+          
+          {/* Title Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-8">
+            <div className="container mx-auto max-w-4xl">
+              {article.categories && (
+                <Badge variant="primary" className="mb-4">
+                  {article.categories.name}
+                </Badge>
+              )}
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+                {article.title}
+              </h1>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="container mx-auto px-4 max-w-4xl">
+        <article className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl -mt-20 relative z-10 overflow-hidden">
+          {/* Article Header (if no featured image) */}
+          {!article.featured_image && (
+            <header className="p-8 border-b border-slate-200 dark:border-slate-700">
+              {article.categories && (
+                <Badge variant="primary" className="mb-4">
+                  {article.categories.name}
+                </Badge>
+              )}
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4 leading-tight">
+                {article.title}
+              </h1>
+              {article.excerpt && (
+                <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {article.excerpt}
+                </p>
+              )}
+            </header>
+          )}
+
+          {/* Author Info & Actions Bar */}
+          <div className="p-8 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              {/* Author Info */}
+              <div className="flex items-center gap-4">
+                {article.profiles?.avatar_url ? (
+                  <img
+                    src={article.profiles.avatar_url}
+                    alt={article.profiles.username}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-lg"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                    {article.profiles?.username?.[0]?.toUpperCase() || 'A'}
+                  </div>
+                )}
+                <div>
+                  <div className="font-semibold text-slate-900 dark:text-white text-lg">
+                    {article.profiles?.full_name || article.profiles?.username || 'Anonymous'}
+                  </div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                    <span>{formatDate(article.published_at || article.created_at)}</span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      {article.views_count || 0} views
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Actions */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleLike}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                    isLiked 
+                      ? 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400' 
+                      : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                  }`}
+                  title={isLiked ? 'Unlike' : 'Like'}
+                >
+                  <svg className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                  <span>{likesCount}</span>
+                </button>
+
+                <button
+                  onClick={handleBookmark}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                    isBookmarked 
+                      ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
+                      : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                  }`}
+                  title={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+                >
+                  <svg className={`w-5 h-5 ${isBookmarked ? 'fill-current' : ''}`} fill={isBookmarked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                  </svg>
+                </button>
+
+                <button
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all"
+                  title="Share"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Article Content */}
+          <div className="p-8 md:p-12">
+            {/* Excerpt */}
+            {article.excerpt && article.featured_image && (
+              <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed mb-8 pb-8 border-b border-slate-200 dark:border-slate-700">
+                {article.excerpt}
+              </p>
+            )}
+
+            {/* Main Content */}
+            <div className="prose prose-lg dark:prose-invert max-w-none">
+              {article.content.split('\n').map((paragraph, index) => (
+                paragraph.trim() && (
+                  <p key={index} className="text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+                    {paragraph}
+                  </p>
+                )
+              ))}
+            </div>
+
+            {/* Video */}
+            {article.video_url && (
+              <div className="my-12 rounded-xl overflow-hidden shadow-xl">
+                <div className="relative pt-[56.25%]">
+                  <iframe
+                    src={article.video_url}
+                    title="Article video"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Tags */}
+            {article.tags && article.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
+                {article.tags.map((tag, index) => (
+                  <span 
+                    key={index} 
+                    className="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Author Actions (Edit/Delete) */}
+          {isAuthor && (
+            <div className="p-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-t border-slate-200 dark:border-slate-700">
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  variant="primary"
+                  onClick={() => navigate(`/article/${article.slug}/edit`)}
+                  className="flex-1 sm:flex-none"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit Article
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleDelete}
+                  className="flex-1 sm:flex-none text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete Article
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Comments Section */}
+          <div className="border-t border-slate-200 dark:border-slate-700">
+            <CommentSection articleId={article.id} />
+          </div>
+        </article>
+
+        {/* Related Articles Section */}
+        <div className="mt-12 mb-12">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+            More from {article.categories?.name || 'this category'}
+          </h2>
+          <div className="text-center text-slate-600 dark:text-slate-400 p-8 bg-white dark:bg-slate-800 rounded-xl">
+            <p>Related articles coming soon...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ArticleDetail;
