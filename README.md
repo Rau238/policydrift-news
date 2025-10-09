@@ -1,6 +1,6 @@
 # 🚀 NewsHub - Modern News Website
 
-A **fully functional, production-ready** news website built with **React 19** and **Supabase**. Features include complete authentication, article management with rich media, real-time comments, social interactions, admin panel, and a stunning modern UI with light/dark mode.
+A **fully functional, production-ready** news website built with **React 19** and **Supabase**. Features include complete authentication, article management with rich media, real-time comments, social interactions, admin panel, dynamic site configuration, and a stunning modern UI with light/dark mode that works perfectly on all devices.
 
 ## 🎯 Quick Start
 
@@ -17,11 +17,13 @@ cd news-website
 npm install
 ```
 
-2. **Setup Supabase**
+2. **Setup Supabase Database**
    - Go to [Supabase Dashboard](https://supabase.com/dashboard)
    - Create a new project
-   - Go to SQL Editor and run the entire `supabase_schema.sql` file
-   - Create two storage buckets: `avatars` and `articles` (make them public)
+   - Go to **SQL Editor**
+   - Open `master_supabase_schema.sql` (single consolidated schema file)
+   - Copy the entire file and paste into SQL Editor
+   - Click **Run** to create all tables, policies, storage buckets, and seed data
 
 3. **Environment Setup**
    - Copy `.env.example` to `.env`
@@ -45,6 +47,7 @@ Visit `http://localhost:5173` to see the app!
 - **Password Management**: Reset and forgot password functionality via email
 - **User Profiles**: View, edit, avatar upload with Supabase Storage
 - **Session Management**: Automatic refresh and persistence across browser sessions
+- **Role-Based Access**: User, Editor, and Admin roles with different permissions
 
 ### 📝 Article Management ✅
 - **Create Articles**: Rich text editor with images, videos, categories, and tags
@@ -91,8 +94,46 @@ Visit `http://localhost:5173` to see the app!
 - **Admin Dashboard**: Stats overview, recent articles, users management
 - **User Management**: Toggle admin/user roles with instant updates
 - **Article Management**: View all articles table with full CRUD operations
-- **Settings Panel**: Site configuration and SEO settings
+- **Category & Tag Management**: Manage content organization
+- **Comment Moderation**: Approve/delete comments
+- **Settings Panel**: Complete site configuration (see below)
 - **Admin Layout**: Collapsible sidebar with intuitive navigation
+
+### ⚙️ Site Configuration System ✅
+- **Dynamic Site Identity**: Change site name, logo, tagline without code
+- **SEO Management**: Meta titles, descriptions, keywords, Open Graph images
+- **Social Media Integration**: Facebook, Twitter, Instagram, LinkedIn, YouTube, GitHub URLs
+- **Contact Information**: Email, phone, address displayed dynamically
+- **Advanced Settings**: 
+  - Google Analytics integration
+  - Newsletter toggle (enable/disable site-wide)
+  - Comments toggle (enable/disable globally)
+  - Custom CSS injection
+  - Custom JavaScript injection
+- **Real-time Updates**: Changes appear instantly across all open tabs
+- **Image Uploads**: Logo and OG image upload with validation
+
+### 📱 Mobile & Responsive Design ✅
+- **Mobile-First Approach**: Optimized for smallest screens first
+- **Responsive Breakpoints**: 
+  - Mobile: Default (320px+)
+  - Tablet: md: (768px+)
+  - Desktop: lg: (1024px+)
+- **Touch-Optimized**: 44x44px minimum touch targets
+- **Hamburger Menu**: Smooth slide-down navigation
+- **Mobile Search**: Collapsible search bar
+- **Responsive Grids**: 1/2/3 column layouts based on screen size
+- **Horizontal Scroll Tables**: Admin tables scroll on mobile
+- **Flexible Layouts**: All forms and content adapt to screen size
+- **No Horizontal Overflow**: Proper container constraints
+
+### 🌙 Dark Mode Implementation ✅
+- **System Detection**: Respects user's OS theme preference
+- **Manual Toggle**: Theme switcher in header
+- **Persistent Choice**: Saved to localStorage
+- **Complete Coverage**: All components support dark mode
+- **Proper Contrast**: WCAG AA compliant color ratios
+- **Smooth Transitions**: Animated theme switching
 
 ### 🔒 Security & Performance ✅
 - **Row Level Security (RLS)**: Supabase policies enforced on all tables

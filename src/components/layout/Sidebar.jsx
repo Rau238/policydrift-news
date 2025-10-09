@@ -20,9 +20,9 @@ const Sidebar = () => {
       const [articlesRes, categoriesRes] = await Promise.all([
         supabase
           .from('articles')
-          .select('id, title, slug, view_count, created_at')
+          .select('id, title, slug, views_count, created_at')
           .eq('status', 'published')
-          .order('view_count', { ascending: false })
+          .order('views_count', { ascending: false })
           .limit(5),
         supabase
           .from('categories')

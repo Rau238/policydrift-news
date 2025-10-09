@@ -2,17 +2,20 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import Loading from '../components/ui/Loading';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import CommentSection from '../components/CommentSection';
 import SocialShare from '../components/SocialShare';
+import { useSEO } from '../hooks/useSEO';
 
 const ArticleDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { settings } = useSiteSettings();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,6 +23,16 @@ const ArticleDetail = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [relatedArticles, setRelatedArticles] = useState([]);
+
+  // SEO for article page - updates when article loads
+  useSEO({
+    title: article?.title || 'Article',
+    description: article?.excerpt || article?.content?.substring(0, 160),
+    keywords: article?.tags?.join(', '),
+    image: article?.image_url,
+    url: window.location.href,
+    type: 'article'
+  });
 
   useEffect(() => {
     fetchArticle();
@@ -70,7 +83,7 @@ const ArticleDetail = () => {
           excerpt,
           featured_image,
           created_at,
-          view_count,
+          views_count,
           categories:category_id (name, slug)
         `)
         .eq('status', 'published')
@@ -424,9 +437,11 @@ const ArticleDetail = () => {
           )}
 
           {/* Comments Section */}
-          <div className="border-t border-slate-200 dark:border-slate-700">
-            <CommentSection articleId={article.id} />
-          </div>
+          {settings?.enable_comments && (
+            <div className="border-t border-slate-200 dark:border-slate-700">
+              <CommentSection articleId={article.id} />
+            </div>
+          )}
         </article>
 
         {/* Related Articles Section */}
@@ -480,7 +495,7 @@ const ArticleDetail = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        {relatedArticle.view_count || 0}
+                        {relatedArticle.views_count || 0}
                       </span>
                     </div>
                   </div>

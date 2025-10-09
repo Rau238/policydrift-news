@@ -2,19 +2,57 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useSiteSettings } from '../../contexts/SiteSettingsContext';
 
 const Header = () => {
   const { user, profile, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { settings } = useSiteSettings();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchRef = useRef(null);
+  const mobileMenuRef = useRef(null);
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path;
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
+  // Close mobile menu on click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (mobileMenuOpen && mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        // Check if click is on the hamburger button (to allow toggle)
+        const hamburgerButton = event.target.closest('button[aria-label="Toggle mobile menu"]');
+        if (!hamburgerButton) {
+          setMobileMenuOpen(false);
+        }
+      }
+    };
+    
+    if (mobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [mobileMenuOpen]);
 
   // Close search on click outside
   useEffect(() => {
@@ -41,14 +79,22 @@ const Header = () => {
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group flex-shrink-0">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300">
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-              </svg>
-            </div>
-            <div className="hidden sm:block text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
-              NewsHub
+          <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0">
+            {settings.site_logo ? (
+              <img 
+                src={settings.site_logo} 
+                alt={settings.site_name} 
+                className="h-8 sm:h-10 w-auto object-contain group-hover:scale-105 transition-transform"
+              />
+            ) : (
+              <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                </svg>
+              </div>
+            )}
+            <div className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform truncate max-w-[120px] sm:max-w-none">
+              {settings.site_name || 'NewsHub'}
             </div>
           </Link>
 
@@ -236,20 +282,15 @@ const Header = () => {
                 )}
               </div>
             ) : (
-              <>
-                <Link 
-                  to="/login" 
-                  className="px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg font-medium transition-all text-sm"
-                >
-                  Login
-                </Link>
-                <Link 
-                  to="/signup" 
-                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all text-sm"
-                >
-                  Sign Up
-                </Link>
-              </>
+              <Link 
+                to="/login" 
+                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all text-sm flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                Sign In
+              </Link>
             )}
           </div>
 
@@ -339,7 +380,10 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-slate-200 dark:border-slate-700 animate-slide-down bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+          <div 
+            ref={mobileMenuRef}
+            className="lg:hidden py-4 border-t border-slate-200 dark:border-slate-700 animate-slide-down bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm"
+          >
             {/* User Info Section (if logged in) */}
             {user && profile && (
               <div className="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
@@ -445,29 +489,16 @@ const Header = () => {
               )}
               
               {!user && (
-                <>
-                  <Link 
-                    to="/login" 
-                    className="px-4 py-3 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium transition-all flex items-center gap-3"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                    </svg>
-                    <span>Login</span>
-                  </Link>
-                  
-                  <Link 
-                    to="/signup" 
-                    className="px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium text-center flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                    </svg>
-                    <span>Sign Up</span>
-                  </Link>
-                </>
+                <Link 
+                  to="/login" 
+                  className="px-5 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium text-center flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  <span>Sign In</span>
+                </Link>
               )}
             </nav>
           </div>

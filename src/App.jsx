@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { SiteSettingsProvider } from './contexts/SiteSettingsContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import AdminRoute from './components/AdminRoute';
@@ -10,8 +11,7 @@ import Home from './pages/Home';
 import ArticleDetail from './pages/ArticleDetail';
 import CreateArticle from './pages/CreateArticle';
 import Bookmarks from './pages/Bookmarks';
-import Login from './pages/auth/Login';
-import Signup from './pages/auth/Signup';
+import Auth from './pages/auth/Auth';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Profile from './pages/auth/Profile';
 
@@ -29,7 +29,8 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
+        <SiteSettingsProvider>
+          <Router>
           <Routes>
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
@@ -53,8 +54,8 @@ function App() {
                     <Route path="/article/:slug/edit" element={<CreateArticle />} />
                     <Route path="/create-article" element={<CreateArticle />} />
                     <Route path="/bookmarks" element={<Bookmarks />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/login" element={<Auth />} />
+                    <Route path="/signup" element={<Auth />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/profile" element={<Profile />} />
                   </Routes>
@@ -64,6 +65,7 @@ function App() {
             } />
           </Routes>
         </Router>
+      </SiteSettingsProvider>
       </AuthProvider>
     </ThemeProvider>
   );
