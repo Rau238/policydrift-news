@@ -1,314 +1,626 @@
-# 🚀 NewsHub - Modern News Website
+# 🚀 NewsHub - Modern News Website# 🚀 NewsHub - Modern News Website
 
-A **fully functional, production-ready** news website built with **React 19** and **Supabase**. Features include complete authentication, article management with rich media, real-time comments, social interactions, admin panel, dynamic site configuration, and a stunning modern UI with light/dark mode that works perfectly on all devices.
 
-## 🎯 Quick Start
 
-### Prerequisites
+A **production-ready** news website built with **React 19** and **Supabase**. Features complete authentication, article management, admin panel with 80+ dynamic content fields, comments, bookmarks, and a stunning modern UI with dark mode.A **fully functional, production-ready** news website built with **React 19** and **Supabase**. Features include complete authentication, article management with rich media, real-time comments, social interactions, admin panel, dynamic site configuration, and a stunning modern UI with light/dark mode that works perfectly on all devices.
+
+
+
+---## 🎯 Quick Start
+
+
+
+## ⚡ Quick Start### Prerequisites
+
 - Node.js 18+ installed
-- Supabase account (free tier works)
 
-### Installation
+### Prerequisites- Supabase account (free tier works)
 
-1. **Clone and Install**
-```bash
-git clone <repository-url>
-cd news-website
-npm install
+- Node.js 18+
+
+- Supabase account ([free tier](https://supabase.com))### Installation
+
+
+
+### 1. Install Dependencies1. **Clone and Install**
+
+```bash```bash
+
+git clone <your-repo-url>git clone <repository-url>
+
+cd news-websitecd news-website
+
+npm installnpm install
+
+``````
+
+
+
+### 2. Setup Database2. **Setup Supabase Database**
+
+1. Create a new project at [Supabase Dashboard](https://supabase.com/dashboard)   - Go to [Supabase Dashboard](https://supabase.com/dashboard)
+
+2. Go to **SQL Editor**   - Create a new project
+
+3. Open `supabase-schema.sql` from this project   - Go to **SQL Editor**
+
+4. Copy the **entire file** and paste into SQL Editor   - Open `master_supabase_schema.sql` (single consolidated schema file)
+
+5. Click **Run** ▶️   - Copy the entire file and paste into SQL Editor
+
+6. Wait for success message (creates tables, policies, storage, seed data)   - Click **Run** to create all tables, policies, storage buckets, and seed data
+
+
+
+### 3. Configure Environment3. **Environment Setup**
+
+Create `.env` file in the root:   - Copy `.env.example` to `.env`
+
+```env   - Add your Supabase credentials:
+
+VITE_SUPABASE_URL=https://your-project-id.supabase.co```env
+
+VITE_SUPABASE_ANON_KEY=your-anon-key-hereVITE_SUPABASE_URL=your_project_url
+
+```VITE_SUPABASE_ANON_KEY=your_anon_key
+
 ```
 
-2. **Setup Supabase Database**
-   - Go to [Supabase Dashboard](https://supabase.com/dashboard)
-   - Create a new project
-   - Go to **SQL Editor**
-   - Open `master_supabase_schema.sql` (single consolidated schema file)
-   - Copy the entire file and paste into SQL Editor
-   - Click **Run** to create all tables, policies, storage buckets, and seed data
-
-3. **Environment Setup**
-   - Copy `.env.example` to `.env`
-   - Add your Supabase credentials:
-```env
-VITE_SUPABASE_URL=your_project_url
-VITE_SUPABASE_ANON_KEY=your_anon_key
-```
+Get these values from: Supabase Dashboard → Project Settings → API
 
 4. **Run Development Server**
-```bash
-npm run dev
+
+### 4. Start Development Server```bash
+
+```bashnpm run dev
+
+npm run dev```
+
 ```
 
 Visit `http://localhost:5173` to see the app!
 
+Visit: `http://localhost:5173`
+
 ## ✨ Live Features
 
+---
+
 ### 🔐 Authentication & User Management ✅
-- **Sign Up/Sign In**: Full email & password authentication with session management
+
+## 🎯 Key Features- **Sign Up/Sign In**: Full email & password authentication with session management
+
 - **Password Management**: Reset and forgot password functionality via email
-- **User Profiles**: View, edit, avatar upload with Supabase Storage
-- **Session Management**: Automatic refresh and persistence across browser sessions
-- **Role-Based Access**: User, Editor, and Admin roles with different permissions
 
-### 📝 Article Management ✅
-- **Create Articles**: Rich text editor with images, videos, categories, and tags
+### 🔐 Authentication- **User Profiles**: View, edit, avatar upload with Supabase Storage
+
+- Email/password signup & login- **Session Management**: Automatic refresh and persistence across browser sessions
+
+- Password reset via email- **Role-Based Access**: User, Editor, and Admin roles with different permissions
+
+- User profiles with avatars
+
+- Role-based access (User, Editor, Admin)### 📝 Article Management ✅
+
+- Session persistence- **Create Articles**: Rich text editor with images, videos, categories, and tags
+
 - **Edit Articles**: Author-only editing with automatic slug updates
-- **Delete Articles**: Confirmation modals with cascade deletion
-- **Article Discovery**: Home grid, real-time search, category filters, trending sidebar
-- **View Articles**: Full detail pages with author info, stats, and embedded media
 
-### 💬 Real-time Comment System ✅
-- **Live Comments**: Instant updates without page refresh using Supabase subscriptions
-- **Nested Replies**: Full threaded comment system with unlimited nesting
-- **Edit/Delete**: Users can manage their own comments
+### 📰 Article Management- **Delete Articles**: Confirmation modals with cascade deletion
+
+- Rich text editor for content- **Article Discovery**: Home grid, real-time search, category filters, trending sidebar
+
+- Image upload & management- **View Articles**: Full detail pages with author info, stats, and embedded media
+
+- Categories & tags
+
+- Draft/Published/Archived states### 💬 Real-time Comment System ✅
+
+- Featured articles- **Live Comments**: Instant updates without page refresh using Supabase subscriptions
+
+- View counter- **Nested Replies**: Full threaded comment system with unlimited nesting
+
+- SEO-friendly slugs- **Edit/Delete**: Users can manage their own comments
+
 - **User Attribution**: Avatars, usernames, and relative timestamps ("5m ago")
-- **Optimistic UI**: Instant feedback before server confirmation
 
-### ❤️ Social Features ✅
-- **Likes**: Like/unlike articles with real-time counters and state management
-- **Bookmarks**: Save articles with dedicated bookmarks page
-- **Share**: Share buttons ready for social media integration
+### 💬 Social Features- **Optimistic UI**: Instant feedback before server confirmation
 
-### 🎨 Modern UI/UX ✅
-- **Theme System**: Light/Dark mode with system detection and smooth transitions
+- Nested comments with replies
+
+- Article bookmarks### ❤️ Social Features ✅
+
+- Like/reaction system- **Likes**: Like/unlike articles with real-time counters and state management
+
+- User profiles- **Bookmarks**: Save articles with dedicated bookmarks page
+
+- Social sharing- **Share**: Share buttons ready for social media integration
+
+
+
+### 🎨 Admin Panel (8 Tabs)### 🎨 Modern UI/UX ✅
+
+Navigate to `/admin` after creating an admin account:- **Theme System**: Light/Dark mode with system detection and smooth transitions
+
 - **Responsive Design**: Mobile-first, fully optimized for all devices
-- **Navigation**: Sticky header with user menu, comprehensive footer, trending sidebar
-- **UI Components**: Beautiful reusable components (Buttons, Inputs, Cards, Modals, Dropdowns)
-- **Custom Styling**: Glassmorphism effects, gradients, smooth animations
-- **Loading States**: Skeleton screens, spinners, and optimistic updates
-- **Error Handling**: User-friendly error messages with retry functionality
 
-### 🔔 Real-time Features ✅
-- **Live Comments**: Comments appear instantly across all clients
-- **Live Likes**: Like counts update in real-time for all users
-- **Live Bookmarks**: Bookmark changes sync across sessions
-- **Optimistic Updates**: Immediate UI feedback for better UX
+1. **Dashboard** - Analytics & statistics- **Navigation**: Sticky header with user menu, comprehensive footer, trending sidebar
 
-### 🔍 Search & Discovery ✅
-- **Keyword Search**: Real-time filtering by title and excerpt
-- **Categories**: Organized content by topics with color-coded badges
-- **Tags**: Additional content labeling and filtering
-- **Trending**: Most viewed articles in sidebar widget
+2. **Articles** - Manage all articles- **UI Components**: Beautiful reusable components (Buttons, Inputs, Cards, Modals, Dropdowns)
 
-### 🛡️ Admin Panel ✅
-- **AdminRoute Protection**: Role-based access control with redirect
-- **Admin Dashboard**: Stats overview, recent articles, users management
-- **User Management**: Toggle admin/user roles with instant updates
-- **Article Management**: View all articles table with full CRUD operations
-- **Category & Tag Management**: Manage content organization
-- **Comment Moderation**: Approve/delete comments
+3. **Categories** - Organize content- **Custom Styling**: Glassmorphism effects, gradients, smooth animations
+
+4. **Tags** - Tag management- **Loading States**: Skeleton screens, spinners, and optimistic updates
+
+5. **Comments** - Moderate discussions- **Error Handling**: User-friendly error messages with retry functionality
+
+6. **Users** - User management
+
+7. **Settings** - 80+ dynamic content fields:### 🔔 Real-time Features ✅
+
+   - Site identity (name, logo, tagline)- **Live Comments**: Comments appear instantly across all clients
+
+   - SEO settings- **Live Likes**: Like counts update in real-time for all users
+
+   - Contact information- **Live Bookmarks**: Bookmark changes sync across sessions
+
+   - Social media links- **Optimistic Updates**: Immediate UI feedback for better UX
+
+   - Legal content (privacy, terms)
+
+   - Company info (mission, vision, values)### 🔍 Search & Discovery ✅
+
+   - About Us content- **Keyword Search**: Real-time filtering by title and excerpt
+
+   - Feature toggles (RSS, newsletter, comments)- **Categories**: Organized content by topics with color-coded badges
+
+   - Theme customization- **Tags**: Additional content labeling and filtering
+
+   - And much more!- **Trending**: Most viewed articles in sidebar widget
+
+
+
+### 🎨 User Experience### 🛡️ Admin Panel ✅
+
+- **Responsive Design** - Works on all devices- **AdminRoute Protection**: Role-based access control with redirect
+
+- **Dark Mode** - System-aware theme switching- **Admin Dashboard**: Stats overview, recent articles, users management
+
+- **Fast Performance** - Optimized with Vite- **User Management**: Toggle admin/user roles with instant updates
+
+- **Modern UI** - Tailwind CSS with beautiful components- **Article Management**: View all articles table with full CRUD operations
+
+- **Loading States** - Skeleton screens for better UX- **Category & Tag Management**: Manage content organization
+
+- **Error Handling** - Clear error messages- **Comment Moderation**: Approve/delete comments
+
 - **Settings Panel**: Complete site configuration (see below)
-- **Admin Layout**: Collapsible sidebar with intuitive navigation
 
-### ⚙️ Site Configuration System ✅
-- **Dynamic Site Identity**: Change site name, logo, tagline without code
-- **SEO Management**: Meta titles, descriptions, keywords, Open Graph images
-- **Social Media Integration**: Facebook, Twitter, Instagram, LinkedIn, YouTube, GitHub URLs
-- **Contact Information**: Email, phone, address displayed dynamically
-- **Advanced Settings**: 
-  - Google Analytics integration
-  - Newsletter toggle (enable/disable site-wide)
+### 📄 Dynamic Pages- **Admin Layout**: Collapsible sidebar with intuitive navigation
+
+All content is managed from the admin panel:
+
+- Home page### ⚙️ Site Configuration System ✅
+
+- About Us- **Dynamic Site Identity**: Change site name, logo, tagline without code
+
+- Contact- **SEO Management**: Meta titles, descriptions, keywords, Open Graph images
+
+- Privacy Policy- **Social Media Integration**: Facebook, Twitter, Instagram, LinkedIn, YouTube, GitHub URLs
+
+- Terms of Service- **Contact Information**: Email, phone, address displayed dynamically
+
+- RSS Feed (toggleable)- **Advanced Settings**: 
+
+- Footer links  - Google Analytics integration
+
+- Header navigation  - Newsletter toggle (enable/disable site-wide)
+
   - Comments toggle (enable/disable globally)
-  - Custom CSS injection
+
+---  - Custom CSS injection
+
   - Custom JavaScript injection
-- **Real-time Updates**: Changes appear instantly across all open tabs
+
+## 🏗️ Tech Stack- **Real-time Updates**: Changes appear instantly across all open tabs
+
 - **Image Uploads**: Logo and OG image upload with validation
 
-### 📱 Mobile & Responsive Design ✅
-- **Mobile-First Approach**: Optimized for smallest screens first
-- **Responsive Breakpoints**: 
-  - Mobile: Default (320px+)
-  - Tablet: md: (768px+)
+- **Frontend**: React 19, React Router 7, Tailwind CSS
+
+- **Backend**: Supabase (PostgreSQL + Auth + Storage)### 📱 Mobile & Responsive Design ✅
+
+- **Rich Text**: React Quill- **Mobile-First Approach**: Optimized for smallest screens first
+
+- **Icons**: Heroicons- **Responsive Breakpoints**: 
+
+- **Build Tool**: Vite  - Mobile: Default (320px+)
+
+- **Hosting Ready**: Deploy to Vercel, Netlify, or any static host  - Tablet: md: (768px+)
+
   - Desktop: lg: (1024px+)
-- **Touch-Optimized**: 44x44px minimum touch targets
+
+---- **Touch-Optimized**: 44x44px minimum touch targets
+
 - **Hamburger Menu**: Smooth slide-down navigation
-- **Mobile Search**: Collapsible search bar
+
+## 📁 Project Structure- **Mobile Search**: Collapsible search bar
+
 - **Responsive Grids**: 1/2/3 column layouts based on screen size
-- **Horizontal Scroll Tables**: Admin tables scroll on mobile
-- **Flexible Layouts**: All forms and content adapt to screen size
-- **No Horizontal Overflow**: Proper container constraints
 
-### 🌙 Dark Mode Implementation ✅
-- **System Detection**: Respects user's OS theme preference
-- **Manual Toggle**: Theme switcher in header
-- **Persistent Choice**: Saved to localStorage
-- **Complete Coverage**: All components support dark mode
-- **Proper Contrast**: WCAG AA compliant color ratios
-- **Smooth Transitions**: Animated theme switching
+```- **Horizontal Scroll Tables**: Admin tables scroll on mobile
 
-### 🔒 Security & Performance ✅
-- **Row Level Security (RLS)**: Supabase policies enforced on all tables
-- **Authentication Security**: Password hashing, secure sessions, email verification
-- **Data Validation**: Client-side and database constraints
-- **File Upload Limits**: 2MB avatars, 5MB article images
-- **CSS Code Splitting**: Optimized bundle sizes
-- **Lazy Loading**: Images and components loaded on demand
-- **Efficient Queries**: Indexed database operations with proper joins
+news-website/- **Flexible Layouts**: All forms and content adapt to screen size
 
----
+├── src/- **No Horizontal Overflow**: Proper container constraints
 
-## 🛠️ Tech Stack
+│   ├── components/          # Reusable UI components
 
-### Frontend
-```
-React 19.1.1
+│   │   ├── layout/         # Header, Footer, Sidebar### 🌙 Dark Mode Implementation ✅
+
+│   │   └── ui/             # Button, Card, Input, etc.- **System Detection**: Respects user's OS theme preference
+
+│   ├── contexts/            # React contexts- **Manual Toggle**: Theme switcher in header
+
+│   │   ├── AuthContext.jsx        # Authentication state- **Persistent Choice**: Saved to localStorage
+
+│   │   ├── SiteSettingsContext.jsx # Dynamic content- **Complete Coverage**: All components support dark mode
+
+│   │   └── ThemeContext.jsx       # Dark mode- **Proper Contrast**: WCAG AA compliant color ratios
+
+│   ├── pages/              # Route pages- **Smooth Transitions**: Animated theme switching
+
+│   │   ├── admin/          # Admin panel pages
+
+│   │   ├── auth/           # Login, signup, profile### 🔒 Security & Performance ✅
+
+│   │   ├── Home.jsx- **Row Level Security (RLS)**: Supabase policies enforced on all tables
+
+│   │   ├── ArticleDetail.jsx- **Authentication Security**: Password hashing, secure sessions, email verification
+
+│   │   ├── AboutUs.jsx- **Data Validation**: Client-side and database constraints
+
+│   │   ├── Contact.jsx- **File Upload Limits**: 2MB avatars, 5MB article images
+
+│   │   ├── PrivacyPolicy.jsx- **CSS Code Splitting**: Optimized bundle sizes
+
+│   │   └── TermsOfService.jsx- **Lazy Loading**: Images and components loaded on demand
+
+│   ├── lib/- **Efficient Queries**: Indexed database operations with proper joins
+
+│   │   └── supabase.js     # Supabase client
+
+│   └── App.jsx             # Main app with routing---
+
+├── public/                  # Static assets
+
+├── supabase-schema.sql     # 🎯 Single source of truth for DB## 🛠️ Tech Stack
+
+├── .env                     # Environment variables (create this)
+
+├── package.json### Frontend
+
+└── README.md```
+
+```React 19.1.1
+
 ├── Routing: React Router DOM 7.9.3
-├── Styling: Tailwind CSS 3.4.1
+
+---├── Styling: Tailwind CSS 3.4.1
+
 ├── Icons: Heroicons 2.2.0
-├── UI Components: Headless UI 2.2.9
+
+## 🚀 Deployment├── UI Components: Headless UI 2.2.9
+
 └── Build: Vite 7.1.7
+
+### Build for Production```
+
+```bash
+
+npm run build### Backend
+
+``````
+
+Supabase
+
+### Deploy to Vercel├── Database: PostgreSQL with Row Level Security
+
+```bash├── Authentication: Supabase Auth with email verification
+
+npm install -g vercel├── Storage: File uploads (avatars, article images)
+
+vercel├── Real-time: Live subscriptions for comments, likes, bookmarks
+
+```└── API: @supabase/supabase-js 2.74.0
+
 ```
 
-### Backend
-```
-Supabase
-├── Database: PostgreSQL with Row Level Security
-├── Authentication: Supabase Auth with email verification
-├── Storage: File uploads (avatars, article images)
-├── Real-time: Live subscriptions for comments, likes, bookmarks
-└── API: @supabase/supabase-js 2.74.0
-```
+### Deploy to Netlify
+
+1. Build: `npm run build`---
+
+2. Publish directory: `dist`
+
+3. Add environment variables in Netlify dashboard## 📋 Prerequisites
+
+
+
+### Environment Variables- **Node.js** 18+ and npm
+
+Make sure to set these in your hosting platform:- **Supabase account** ([sign up free](https://supabase.com))
+
+- `VITE_SUPABASE_URL`- Basic knowledge of React and SQL
+
+- `VITE_SUPABASE_ANON_KEY`
 
 ---
-
-## 📋 Prerequisites
-
-- **Node.js** 18+ and npm
-- **Supabase account** ([sign up free](https://supabase.com))
-- Basic knowledge of React and SQL
 
 ---
 
 ## 🚀 Quick Start
 
+## 👤 Creating Your First Admin Account
+
 ### 1. Clone the Repository
 
-```bash
-git clone <your-repo-url>
-cd news-website
-cd news-website
-```
+1. Start the app: `npm run dev`
+
+2. Click "Sign Up" and create an account```bash
+
+3. Go to Supabase Dashboard → Table Editor → `profiles` tablegit clone <your-repo-url>
+
+4. Find your user rowcd news-website
+
+5. Change `role` from `user` to `admin`cd news-website
+
+6. Refresh the app```
+
+7. Navigate to `/admin` - you now have full access!
 
 ### 2. Install Dependencies
 
+---
+
 ```bash
-npm install
+
+## 🔧 Common Tasksnpm install
+
 ```
 
-### 3. Set Up Supabase
+### Update Site Settings
 
-1. Create a new project at [supabase.com](https://supabase.com)
-2. Go to the SQL Editor in your Supabase dashboard
-3. Copy and paste all SQL commands from `SUPABASE_SCHEMA.md` to create:
-   - Tables (profiles, articles, categories, comments, likes, bookmarks)
+1. Login as admin### 3. Set Up Supabase
+
+2. Go to `/admin`
+
+3. Click "Settings" tab1. Create a new project at [supabase.com](https://supabase.com)
+
+4. Update any of the 80+ fields2. Go to the SQL Editor in your Supabase dashboard
+
+5. Click "Save Settings"3. Copy and paste all SQL commands from `SUPABASE_SCHEMA.md` to create:
+
+6. Changes appear instantly across the site   - Tables (profiles, articles, categories, comments, likes, bookmarks)
+
    - Row Level Security policies
-   - Storage buckets
-   - Functions and triggers
-   - Real-time subscriptions
 
-### 4. Configure Environment Variables
+### Create a New Article   - Storage buckets
 
-1. Copy `.env.example` to `.env`:
+1. Go to `/admin/articles`   - Functions and triggers
+
+2. Click "Create New Article"   - Real-time subscriptions
+
+3. Fill in title, content, category
+
+4. Upload featured image### 4. Configure Environment Variables
+
+5. Add tags
+
+6. Click "Publish" or "Save as Draft"1. Copy `.env.example` to `.env`:
+
    ```bash
-   cp .env.example .env
-   ```
 
-2. Fill in your Supabase credentials:
+### Manage Users   cp .env.example .env
+
+1. Go to `/admin/users`   ```
+
+2. View all registered users
+
+3. Change roles or deactivate accounts2. Fill in your Supabase credentials:
+
    ```env
-   VITE_SUPABASE_URL=your_supabase_project_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+
+### Moderate Comments   VITE_SUPABASE_URL=your_supabase_project_url
+
+1. Go to `/admin/comments`   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+2. Approve/reject/delete comments   ```
+
+3. View by article or user
 
    You can find these values in your Supabase project settings under **API**.
 
+---
+
 ### 5. Run the Development Server
 
-```bash
-npm run dev
-```
+## 🛠️ Customization
 
-The app will be available at `http://localhost:5173`
+```bash
+
+### Change Theme Colorsnpm run dev
+
+Go to Admin → Settings → Appearance tab:```
+
+- Primary color
+
+- Secondary colorThe app will be available at `http://localhost:5173`
+
+- Font family
 
 ## Project Structure
 
-```
-news-website/
-├── public/                 # Static assets
-├── src/
-│   ├── components/        # Reusable components
-│   │   ├── layout/       # Header, Footer, Sidebar
-│   │   └── ui/           # Button, Input, Card, Loading, etc.
-│   ├── contexts/         # React Context providers
-│   │   ├── AuthContext.jsx
-│   │   └── ThemeContext.jsx
-│   ├── lib/              # Utilities and configurations
-│   │   └── supabase.js   # Supabase client setup
-│   ├── pages/            # Page components
-│   │   ├── auth/        # Login, Signup, Profile, etc.
-│   │   ├── Home.jsx
-│   │   └── ...
-│   ├── App.jsx           # Main app component with routing
-│   ├── App.css
-│   ├── index.css         # Global styles and CSS variables
-│   └── main.jsx          # App entry point
-├── .env.example          # Environment variables template
-├── SUPABASE_SCHEMA.md    # Complete database schema
-└── README.md             # This file
+Or edit `tailwind.config.js` directly.
+
 ```
 
-## Key Components
+### Add New Categoriesnews-website/
+
+Admin → Categories → "Create New Category"├── public/                 # Static assets
+
+├── src/
+
+### Configure Social Media│   ├── components/        # Reusable components
+
+Admin → Settings → Social Media tab → Add your profile URLs│   │   ├── layout/       # Header, Footer, Sidebar
+
+│   │   └── ui/           # Button, Input, Card, Loading, etc.
+
+### Update Legal Pages│   ├── contexts/         # React Context providers
+
+Admin → Settings → Legal Information tab:│   │   ├── AuthContext.jsx
+
+- Privacy Policy last updated│   │   └── ThemeContext.jsx
+
+- Terms of Service last updated│   ├── lib/              # Utilities and configurations
+
+- Legal jurisdiction│   │   └── supabase.js   # Supabase client setup
+
+- DPO information│   ├── pages/            # Page components
+
+│   │   ├── auth/        # Login, Signup, Profile, etc.
+
+---│   │   ├── Home.jsx
+
+│   │   └── ...
+
+## 📊 Database Schema│   ├── App.jsx           # Main app component with routing
+
+│   ├── App.css
+
+The `supabase-schema.sql` file contains:│   ├── index.css         # Global styles and CSS variables
+
+- ✅ 12 tables (profiles, articles, categories, tags, comments, etc.)│   └── main.jsx          # App entry point
+
+- ✅ 80+ site_settings columns for dynamic content├── .env.example          # Environment variables template
+
+- ✅ Row Level Security (RLS) policies for public access├── SUPABASE_SCHEMA.md    # Complete database schema
+
+- ✅ Storage buckets (avatars, articles, site-assets)└── README.md             # This file
+
+- ✅ Indexes for performance```
+
+- ✅ Triggers for auto-updating timestamps
+
+- ✅ Functions for view counting## Key Components
+
+- ✅ Seed data (default categories, tags, settings)
 
 ### Contexts
 
+---
+
 - **AuthContext**: Manages user authentication, profile, and auth-related operations
-- **ThemeContext**: Handles light/dark mode toggle with localStorage persistence
 
-### Layout Components
+## 🐛 Troubleshooting- **ThemeContext**: Handles light/dark mode toggle with localStorage persistence
 
-- **Header**: Navigation, search, theme toggle, user menu
+
+
+### "Invalid API Key" Error### Layout Components
+
+- Check your `.env` file has correct Supabase credentials
+
+- Restart dev server after changing `.env`- **Header**: Navigation, search, theme toggle, user menu
+
 - **Footer**: Links, categories, social media
-- **Sidebar**: Trending articles, newsletter signup, categories
 
-### UI Components
+### "Failed to Fetch" Error- **Sidebar**: Trending articles, newsletter signup, categories
 
-- **Button**: Multiple variants (primary, secondary, outline, ghost, danger)
-- **Input**: Form inputs with validation and error states
-- **Card**: Container component with elevation and hover effects
+- Verify Supabase project is active
+
+- Check RLS policies are enabled (run schema file)### UI Components
+
+
+
+### Images Not Uploading- **Button**: Multiple variants (primary, secondary, outline, ghost, danger)
+
+- Check storage buckets exist in Supabase- **Input**: Form inputs with validation and error states
+
+- Verify storage policies in SQL Editor- **Card**: Container component with elevation and hover effects
+
 - **Loading**: Loading spinner with optional full-screen mode
-- **ErrorMessage**: Error display with retry functionality
 
-## Available Scripts
+### Articles Not Showing- **ErrorMessage**: Error display with retry functionality
 
-```bash
-# Development server
-npm run dev
+- Make sure article status is "published"
 
-# Build for production
+- Check published_at date is in the past## Available Scripts
+
+
+
+### Can't Access Admin Panel```bash
+
+- Verify your user role is "admin" in `profiles` table# Development server
+
+- Logout and login againnpm run dev
+
+
+
+---# Build for production
+
 npm run build
 
+## 📝 License
+
 # Preview production build
-npm run preview
 
-# Lint code
+MIT License - feel free to use this for your own projects!npm run preview
+
+
+
+---# Lint code
+
 npm run lint
-```
 
-## Database Schema
+## 🙏 Support```
 
-See `SUPABASE_SCHEMA.md` for the complete database schema including:
-- Table structures
-- Row Level Security policies
+
+
+If you encounter issues:## Database Schema
+
+1. Check the Troubleshooting section above
+
+2. Verify your Supabase schema is set up correctlySee `SUPABASE_SCHEMA.md` for the complete database schema including:
+
+3. Check browser console for detailed error messages- Table structures
+
+4. Ensure all environment variables are set- Row Level Security policies
+
 - Storage bucket configurations
-- Functions and triggers
+
+---- Functions and triggers
+
 - Real-time setup instructions
+
+## 🎉 You're All Set!
 
 ## Authentication Flow
 
-1. **Sign Up**: Users create an account with email/password and username
-2. **Email Verification**: Supabase sends a verification email
-3. **Profile Creation**: A trigger automatically creates a profile entry
-4. **Sign In**: Users log in with email/password
-5. **Session Management**: Supabase handles sessions with automatic refresh
+Your modern news website is ready to go. Start by:
+
+1. ✅ Creating your admin account1. **Sign Up**: Users create an account with email/password and username
+
+2. ✅ Configuring site settings in the admin panel2. **Email Verification**: Supabase sends a verification email
+
+3. ✅ Adding some categories3. **Profile Creation**: A trigger automatically creates a profile entry
+
+4. ✅ Creating your first article4. **Sign In**: Users log in with email/password
+
+5. ✅ Customizing the theme and branding5. **Session Management**: Supabase handles sessions with automatic refresh
+
 6. **Password Reset**: Users can reset forgotten passwords via email
+
+Happy publishing! 🚀📰
 
 ## Deployment
 

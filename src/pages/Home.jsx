@@ -11,13 +11,9 @@ const Home = () => {
   const [articles, setArticles] = useState([]);
   const [featuredArticles, setFeaturedArticles] = useState([]);
   const [breakingNews, setBreakingNews] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedTag, setSelectedTag] = useState('all');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -30,32 +26,13 @@ const Home = () => {
   });
 
   useEffect(() => {
-    setPage(1);
-    setArticles([]);
-    setHasMore(true);
     fetchData();
-  }, [selectedCategory, selectedTag]);
+  }, []);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
-
-      // Fetch categories
-      const { data: categoriesData } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name', { ascending: true });
-      
-      setCategories(categoriesData || []);
-
-      // Fetch tags
-      const { data: tagsData } = await supabase
-        .from('tags')
-        .select('*')
-        .order('name', { ascending: true });
-      
-      setTags(tagsData || []);
 
       // Fetch breaking news (latest 5 published articles from last 24 hours)
       const yesterday = new Date();
@@ -87,7 +64,7 @@ const Home = () => {
       setFeaturedArticles(featuredData || []);
 
       // Fetch regular articles with pagination
-      let query = supabase
+      const { data, error: fetchError } = await supabase
         .from('articles')
         .select(`
           *,
@@ -101,26 +78,12 @@ const Home = () => {
         .order('created_at', { ascending: false })
         .range((page - 1) * ARTICLES_PER_PAGE, page * ARTICLES_PER_PAGE - 1);
 
-      if (selectedCategory !== 'all') {
-        query = query.eq('category_id', selectedCategory);
-      }
-
-      const { data, error: fetchError } = await query;
-
       if (fetchError) throw fetchError;
       
       // Check if there are more articles
       setHasMore(data?.length === ARTICLES_PER_PAGE);
-
-      // Filter by tag if selected
-      let filteredData = data || [];
-      if (selectedTag !== 'all') {
-        filteredData = filteredData.filter(article => 
-          article.article_tags?.some(at => at.tags.id === selectedTag)
-        );
-      }
       
-      setArticles(prev => page === 1 ? filteredData : [...prev, ...filteredData]);
+      setArticles(prev => page === 1 ? (data || []) : [...prev, ...(data || [])]);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError(err.message);
@@ -137,7 +100,7 @@ const Home = () => {
       const nextPage = page + 1;
       setPage(nextPage);
 
-      let query = supabase
+      const { data } = await supabase
         .from('articles')
         .select(`
           *,
@@ -151,24 +114,10 @@ const Home = () => {
         .order('created_at', { ascending: false })
         .range((nextPage - 1) * ARTICLES_PER_PAGE, nextPage * ARTICLES_PER_PAGE - 1);
 
-      if (selectedCategory !== 'all') {
-        query = query.eq('category_id', selectedCategory);
-      }
-
-      const { data } = await query;
-
       // Check if there are more articles
       setHasMore(data?.length === ARTICLES_PER_PAGE);
 
-      // Filter by tag if selected
-      let filteredData = data || [];
-      if (selectedTag !== 'all') {
-        filteredData = filteredData.filter(article => 
-          article.article_tags?.some(at => at.tags.id === selectedTag)
-        );
-      }
-
-      setArticles(prev => [...prev, ...filteredData]);
+      setArticles(prev => [...prev, ...(data || [])]);
     } catch (err) {
       console.error('Error loading more articles:', err);
     } finally {
@@ -295,81 +244,8 @@ const Home = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Content */}
           <div className="flex-1 space-y-12">
-            {/* Categories Filter - Horizontal Scroll */}
-            {categories.length > 0 && (
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
-                <h2 className="text-xl font-bold mb-4 text-slate-900 dark:text-white">Browse by Category</h2>
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600">
-                  <button
-                    onClick={() => setSelectedCategory('all')}
-                    className={`px-6 py-2.5 rounded-xl font-medium whitespace-nowrap transition-all ${
-                      selectedCategory === 'all'
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
-                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-                    }`}
-                  >
-                    All Articles
-                  </button>
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
-                      className={`px-6 py-2.5 rounded-xl font-medium whitespace-nowrap transition-all flex items-center gap-2 ${
-                        selectedCategory === category.id
-                          ? 'text-white shadow-lg scale-105'
-                          : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-                      }`}
-                      style={selectedCategory === category.id ? {
-                        backgroundColor: category.color
-                      } : {}}
-                    >
-                      <span>{category.icon}</span>
-                      <span>{category.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Tags Filter - Horizontal Scroll */}
-            {tags.length > 0 && (
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
-                <h2 className="text-xl font-bold mb-4 text-slate-900 dark:text-white flex items-center gap-2">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                  </svg>
-                  Filter by Tags
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setSelectedTag('all')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      selectedTag === 'all'
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-                    }`}
-                  >
-                    All Tags
-                  </button>
-                  {tags.map((tag) => (
-                    <button
-                      key={tag.id}
-                      onClick={() => setSelectedTag(tag.id)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                        selectedTag === tag.id
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
-                          : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600'
-                      }`}
-                    >
-                      #{tag.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Featured Articles - Large Cards */}
-            {featuredArticles.length > 0 && !searchQuery && selectedCategory === 'all' && selectedTag === 'all' && (
+            {featuredArticles.length > 0 && !searchQuery && (
               <section className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
@@ -483,9 +359,7 @@ const Home = () => {
             <section className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
-                  {searchQuery ? 'Search Results' : 
-                   (selectedCategory !== 'all' || selectedTag !== 'all') ? 'Filtered Articles' : 
-                   'Latest Articles'}
+                  {searchQuery ? 'Search Results' : 'Latest Articles'}
                 </h2>
                 <span className="text-slate-500 dark:text-slate-400">
                   {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''}

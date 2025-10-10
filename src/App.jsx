@@ -15,6 +15,15 @@ import Auth from './pages/auth/Auth';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Profile from './pages/auth/Profile';
 
+// Info & Legal Pages
+import AboutUs from './pages/AboutUs';
+import Contact from './pages/Contact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import Sitemap from './pages/Sitemap';
+import RSSFeed from './pages/RSSFeed';
+import Accessibility from './pages/Accessibility';
+
 // Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -58,6 +67,15 @@ function App() {
                     <Route path="/signup" element={<Auth />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/profile" element={<Profile />} />
+                    
+                    {/* Info & Legal Pages */}
+                    <Route path="/about" element={<AboutUs />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/terms-of-service" element={<TermsOfService />} />
+                    <Route path="/sitemap" element={<Sitemap />} />
+                    <Route path="/rss" element={<RSSFeed />} />
+                    <Route path="/accessibility" element={<Accessibility />} />
                   </Routes>
                 </main>
                 <Footer />

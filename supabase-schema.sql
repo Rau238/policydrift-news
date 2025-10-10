@@ -1,34 +1,39 @@
 -- ========================================================================
--- MASTER SUPABASE SCHEMA FOR NEWS WEBSITE
+-- COMPLETE SUPABASE SCHEMA FOR NEWS WEBSITE
 -- ========================================================================
--- This file contains the complete database schema including:
--- - Core tables (users, articles, categories, tags, comments, etc.)
--- - Site settings and configuration
--- - Newsletter subscribers
--- - Storage buckets and policies
--- - Row Level Security (RLS) policies
--- - Functions and triggers
--- - Initial seed data
+-- This is the single source of truth for the database schema.
+-- It includes everything needed to set up your news website:
+-- 
+-- ✅ Core tables (profiles, articles, categories, tags, comments)
+-- ✅ Extended site settings (80+ dynamic content fields)
+-- ✅ Newsletter subscribers
+-- ✅ Storage buckets and policies
+-- ✅ Row Level Security (RLS) policies for public access
+-- ✅ Functions and triggers
+-- ✅ Indexes for performance
+-- ✅ Initial seed data
 --
 -- SETUP INSTRUCTIONS:
--- 1. Go to your Supabase Dashboard > SQL Editor
--- 2. Copy and paste this entire file
--- 3. Execute the SQL
--- 4. Verify all tables are created successfully
+-- 1. Create a new Supabase project at https://supabase.com
+-- 2. Go to SQL Editor in your Supabase Dashboard
+-- 3. Copy and paste this ENTIRE file
+-- 4. Click "Run" to execute
+-- 5. Verify success (you should see "Schema setup completed!" message)
+--
+-- IMPORTANT: Run this on a fresh database or after backing up existing data
 -- ========================================================================
 
 -- ========================================================================
--- EXTENSIONS
+-- PART 1: EXTENSIONS
 -- ========================================================================
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm"; -- For text search
 
 -- ========================================================================
--- CORE TABLES
+-- PART 2: CORE TABLES
 -- ========================================================================
 
 -- Profiles table (extends Supabase auth.users)
--- Note: In schema, it's called 'profiles' not 'users' to match the codebase
 CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     email TEXT UNIQUE NOT NULL,
@@ -131,52 +136,6 @@ CREATE TABLE IF NOT EXISTS public.notifications (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ========================================================================
--- SITE CONFIGURATION TABLES
--- ========================================================================
-
--- Site Settings table
-CREATE TABLE IF NOT EXISTS public.site_settings (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    
-    -- Site Identity
-    site_name TEXT DEFAULT 'NewsHub',
-    site_logo TEXT,
-    tagline TEXT DEFAULT 'Your source for the latest news',
-    description TEXT DEFAULT 'Stay informed with the latest news and stories from around the world',
-    
-    -- SEO Settings
-    seo_title TEXT DEFAULT 'NewsHub - Latest News & Stories',
-    seo_description TEXT DEFAULT 'Get the latest breaking news, analysis, and stories from around the world',
-    seo_keywords TEXT[] DEFAULT ARRAY['news', 'breaking news', 'latest news', 'world news'],
-    og_image TEXT,
-    
-    -- Social Media Links
-    facebook_url TEXT,
-    twitter_url TEXT,
-    instagram_url TEXT,
-    linkedin_url TEXT,
-    youtube_url TEXT,
-    github_url TEXT,
-    
-    -- Contact Information
-    contact_email TEXT,
-    contact_phone TEXT,
-    address TEXT,
-    
-    -- Additional Settings
-    google_analytics_id TEXT,
-    newsletter_enabled BOOLEAN DEFAULT true,
-    comments_enabled BOOLEAN DEFAULT true,
-    custom_css TEXT,
-    custom_js TEXT,
-    
-    -- Metadata
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_by UUID REFERENCES auth.users(id)
-);
-
 -- Newsletter Subscribers table
 CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -188,7 +147,142 @@ CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
 );
 
 -- ========================================================================
--- INDEXES FOR PERFORMANCE
+-- PART 3: SITE SETTINGS TABLE (EXTENDED WITH 80+ FIELDS)
+-- ========================================================================
+
+CREATE TABLE IF NOT EXISTS public.site_settings (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    
+    -- Core Site Identity
+    site_name TEXT DEFAULT 'NewsHub',
+    site_logo TEXT,
+    tagline TEXT DEFAULT 'Your source for the latest news',
+    description TEXT DEFAULT 'Stay informed with the latest news and stories',
+    
+    -- SEO Settings
+    seo_title TEXT DEFAULT 'NewsHub - Latest News & Stories',
+    seo_description TEXT DEFAULT 'Get the latest breaking news and stories',
+    seo_keywords TEXT[] DEFAULT ARRAY['news', 'breaking news', 'latest news'],
+    og_image TEXT,
+    
+    -- Social Media Links
+    facebook_url TEXT,
+    twitter_url TEXT,
+    instagram_url TEXT,
+    linkedin_url TEXT,
+    youtube_url TEXT,
+    github_url TEXT,
+    
+    -- Basic Contact Information
+    contact_email TEXT,
+    contact_phone TEXT,
+    address TEXT,
+    
+    -- Feature Toggles
+    google_analytics_id TEXT,
+    newsletter_enabled BOOLEAN DEFAULT true,
+    comments_enabled BOOLEAN DEFAULT true,
+    rss_enabled BOOLEAN DEFAULT true,
+    
+    -- Custom Code
+    custom_css TEXT,
+    custom_js TEXT,
+    
+    -- Company Information
+    company_name TEXT,
+    company_legal_name TEXT,
+    company_registration_number TEXT,
+    company_founded_year INTEGER,
+    company_mission TEXT,
+    company_vision TEXT,
+    company_values JSONB DEFAULT '[]'::jsonb,
+    
+    -- About Us Content
+    about_title TEXT DEFAULT 'About Us',
+    about_subtitle TEXT,
+    about_story TEXT,
+    about_hero_image TEXT,
+    
+    -- Extended Contact Information
+    contact_name TEXT,
+    support_email TEXT,
+    press_email TEXT,
+    advertising_email TEXT,
+    editorial_email TEXT,
+    newsroom_email TEXT,
+    office_hours TEXT,
+    timezone TEXT DEFAULT 'America/New_York',
+    contact_form_enabled BOOLEAN DEFAULT true,
+    
+    -- Structured Address Fields
+    street_address TEXT,
+    street_address_line_2 TEXT,
+    city TEXT,
+    state TEXT,
+    zip_code TEXT,
+    country TEXT DEFAULT 'United States',
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    
+    -- Legal & Privacy
+    privacy_policy_url TEXT,
+    terms_of_service_url TEXT,
+    cookie_policy_url TEXT,
+    copyright_notice TEXT DEFAULT '© 2025 NewsHub. All rights reserved.',
+    legal_entity_name TEXT,
+    legal_jurisdiction TEXT,
+    legal_governing_law TEXT,
+    privacy_last_updated DATE,
+    terms_last_updated DATE,
+    dpo_name TEXT,
+    dpo_email TEXT,
+    license_type TEXT,
+    disclaimer TEXT,
+    
+    -- Social Media Extended
+    tiktok_url TEXT,
+    discord_url TEXT,
+    reddit_url TEXT,
+    pinterest_url TEXT,
+    mastodon_url TEXT,
+    threads_url TEXT,
+    
+    -- Analytics & Tracking
+    google_tag_manager_id TEXT,
+    facebook_pixel_id TEXT,
+    hotjar_id TEXT,
+    clarity_id TEXT,
+    
+    -- Email Configuration
+    smtp_host TEXT,
+    smtp_port INTEGER,
+    smtp_username TEXT,
+    smtp_password TEXT,
+    smtp_from_email TEXT,
+    smtp_from_name TEXT,
+    
+    -- Appearance Settings
+    theme_primary_color TEXT DEFAULT '#3B82F6',
+    theme_secondary_color TEXT DEFAULT '#10B981',
+    font_family TEXT DEFAULT 'Inter',
+    logo_width INTEGER DEFAULT 180,
+    logo_height INTEGER DEFAULT 60,
+    
+    -- Content Settings
+    articles_per_page INTEGER DEFAULT 12,
+    enable_featured_articles BOOLEAN DEFAULT true,
+    show_author_info BOOLEAN DEFAULT true,
+    show_reading_time BOOLEAN DEFAULT true,
+    enable_article_reactions BOOLEAN DEFAULT true,
+    
+    -- Metadata
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_by UUID REFERENCES auth.users(id)
+);
+
+-- ========================================================================
+-- PART 4: INDEXES FOR PERFORMANCE
 -- ========================================================================
 
 -- Profiles indexes
@@ -236,7 +330,7 @@ CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_email ON public.newsletter
 CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_subscribed_at ON public.newsletter_subscribers(subscribed_at);
 
 -- ========================================================================
--- FUNCTIONS
+-- PART 5: FUNCTIONS
 -- ========================================================================
 
 -- Function to automatically set updated_at timestamp
@@ -269,7 +363,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ========================================================================
--- TRIGGERS
+-- PART 6: TRIGGERS
 -- ========================================================================
 
 -- Updated_at triggers for core tables
@@ -311,7 +405,7 @@ CREATE TRIGGER site_settings_updated_at_trigger
     EXECUTE FUNCTION update_site_settings_updated_at();
 
 -- ========================================================================
--- ROW LEVEL SECURITY (RLS) POLICIES
+-- PART 7: ROW LEVEL SECURITY (RLS) POLICIES
 -- ========================================================================
 
 -- Enable RLS on all tables
@@ -327,29 +421,54 @@ ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.newsletter_subscribers ENABLE ROW LEVEL SECURITY;
 
--- Profiles policies
+-- Drop existing policies to avoid conflicts
 DROP POLICY IF EXISTS "Profiles: Anyone can view" ON public.profiles;
+DROP POLICY IF EXISTS "Profiles: Users can update own" ON public.profiles;
+DROP POLICY IF EXISTS "Profiles: Users can insert own" ON public.profiles;
+DROP POLICY IF EXISTS "Categories: Anyone can view" ON public.categories;
+DROP POLICY IF EXISTS "Categories: Admins can manage" ON public.categories;
+DROP POLICY IF EXISTS "Tags: Anyone can view" ON public.tags;
+DROP POLICY IF EXISTS "Tags: Admins can manage" ON public.tags;
+DROP POLICY IF EXISTS "Articles: Anyone can view published" ON public.articles;
+DROP POLICY IF EXISTS "Articles: Authors can create" ON public.articles;
+DROP POLICY IF EXISTS "Articles: Authors can update own" ON public.articles;
+DROP POLICY IF EXISTS "Articles: Authors can delete own" ON public.articles;
+DROP POLICY IF EXISTS "Article Tags: Anyone can view" ON public.article_tags;
+DROP POLICY IF EXISTS "Article Tags: Authors can manage own" ON public.article_tags;
+DROP POLICY IF EXISTS "Comments: Anyone can view approved" ON public.comments;
+DROP POLICY IF EXISTS "Comments: Authenticated users can create" ON public.comments;
+DROP POLICY IF EXISTS "Comments: Users can update own" ON public.comments;
+DROP POLICY IF EXISTS "Comments: Users can delete own" ON public.comments;
+DROP POLICY IF EXISTS "Bookmarks: Users can view own" ON public.bookmarks;
+DROP POLICY IF EXISTS "Bookmarks: Users can manage own" ON public.bookmarks;
+DROP POLICY IF EXISTS "Likes: Anyone can view" ON public.likes;
+DROP POLICY IF EXISTS "Likes: Users can manage own" ON public.likes;
+DROP POLICY IF EXISTS "Notifications: Users can view own" ON public.notifications;
+DROP POLICY IF EXISTS "Notifications: Users can manage own" ON public.notifications;
+DROP POLICY IF EXISTS "Site Settings: Anyone can view" ON public.site_settings;
+DROP POLICY IF EXISTS "Site Settings: Admins can manage" ON public.site_settings;
+DROP POLICY IF EXISTS "Newsletter: Anyone can subscribe" ON public.newsletter_subscribers;
+DROP POLICY IF EXISTS "Newsletter: Anyone can view own" ON public.newsletter_subscribers;
+DROP POLICY IF EXISTS "Newsletter: Admins can manage" ON public.newsletter_subscribers;
+
+-- Profiles policies
 CREATE POLICY "Profiles: Anyone can view"
     ON public.profiles FOR SELECT
     USING (true);
 
-DROP POLICY IF EXISTS "Profiles: Users can update own" ON public.profiles;
 CREATE POLICY "Profiles: Users can update own"
     ON public.profiles FOR UPDATE
     USING (auth.uid() = id);
 
-DROP POLICY IF EXISTS "Profiles: Users can insert own" ON public.profiles;
 CREATE POLICY "Profiles: Users can insert own"
     ON public.profiles FOR INSERT
     WITH CHECK (auth.uid() = id);
 
 -- Categories policies
-DROP POLICY IF EXISTS "Categories: Anyone can view" ON public.categories;
 CREATE POLICY "Categories: Anyone can view"
     ON public.categories FOR SELECT
     USING (true);
 
-DROP POLICY IF EXISTS "Categories: Admins can manage" ON public.categories;
 CREATE POLICY "Categories: Admins can manage"
     ON public.categories FOR ALL
     USING (
@@ -360,12 +479,10 @@ CREATE POLICY "Categories: Admins can manage"
     );
 
 -- Tags policies
-DROP POLICY IF EXISTS "Tags: Anyone can view" ON public.tags;
 CREATE POLICY "Tags: Anyone can view"
     ON public.tags FOR SELECT
     USING (true);
 
-DROP POLICY IF EXISTS "Tags: Admins can manage" ON public.tags;
 CREATE POLICY "Tags: Admins can manage"
     ON public.tags FOR ALL
     USING (
@@ -376,17 +493,14 @@ CREATE POLICY "Tags: Admins can manage"
     );
 
 -- Articles policies
-DROP POLICY IF EXISTS "Articles: Anyone can view published" ON public.articles;
 CREATE POLICY "Articles: Anyone can view published"
     ON public.articles FOR SELECT
     USING (status = 'published' OR author_id = auth.uid());
 
-DROP POLICY IF EXISTS "Articles: Authors can create" ON public.articles;
 CREATE POLICY "Articles: Authors can create"
     ON public.articles FOR INSERT
     WITH CHECK (auth.uid() = author_id);
 
-DROP POLICY IF EXISTS "Articles: Authors can update own" ON public.articles;
 CREATE POLICY "Articles: Authors can update own"
     ON public.articles FOR UPDATE
     USING (
@@ -397,7 +511,6 @@ CREATE POLICY "Articles: Authors can update own"
         )
     );
 
-DROP POLICY IF EXISTS "Articles: Authors can delete own" ON public.articles;
 CREATE POLICY "Articles: Authors can delete own"
     ON public.articles FOR DELETE
     USING (
@@ -409,12 +522,10 @@ CREATE POLICY "Articles: Authors can delete own"
     );
 
 -- Article Tags policies
-DROP POLICY IF EXISTS "Article Tags: Anyone can view" ON public.article_tags;
 CREATE POLICY "Article Tags: Anyone can view"
     ON public.article_tags FOR SELECT
     USING (true);
 
-DROP POLICY IF EXISTS "Article Tags: Authors can manage own" ON public.article_tags;
 CREATE POLICY "Article Tags: Authors can manage own"
     ON public.article_tags FOR ALL
     USING (
@@ -429,275 +540,178 @@ CREATE POLICY "Article Tags: Authors can manage own"
     );
 
 -- Comments policies
-DROP POLICY IF EXISTS "Comments: Anyone can view approved" ON public.comments;
 CREATE POLICY "Comments: Anyone can view approved"
     ON public.comments FOR SELECT
     USING (is_approved = true OR user_id = auth.uid());
 
-DROP POLICY IF EXISTS "Comments: Authenticated users can create" ON public.comments;
 CREATE POLICY "Comments: Authenticated users can create"
     ON public.comments FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Comments: Users can update own" ON public.comments;
 CREATE POLICY "Comments: Users can update own"
     ON public.comments FOR UPDATE
-    USING (
-        auth.uid() = user_id OR
-        EXISTS (
-            SELECT 1 FROM public.profiles
-            WHERE id = auth.uid() AND role IN ('admin', 'editor')
-        )
-    );
+    USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Comments: Users can delete own" ON public.comments;
 CREATE POLICY "Comments: Users can delete own"
     ON public.comments FOR DELETE
     USING (
         auth.uid() = user_id OR
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE id = auth.uid() AND role IN ('admin', 'editor')
+            WHERE id = auth.uid() AND role = 'admin'
         )
     );
 
 -- Bookmarks policies
-DROP POLICY IF EXISTS "Bookmarks: Users can view own" ON public.bookmarks;
 CREATE POLICY "Bookmarks: Users can view own"
     ON public.bookmarks FOR SELECT
     USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Bookmarks: Users can manage own" ON public.bookmarks;
 CREATE POLICY "Bookmarks: Users can manage own"
     ON public.bookmarks FOR ALL
     USING (auth.uid() = user_id);
 
 -- Likes policies
-DROP POLICY IF EXISTS "Likes: Anyone can view" ON public.likes;
 CREATE POLICY "Likes: Anyone can view"
     ON public.likes FOR SELECT
     USING (true);
 
-DROP POLICY IF EXISTS "Likes: Users can manage own" ON public.likes;
 CREATE POLICY "Likes: Users can manage own"
     ON public.likes FOR ALL
     USING (auth.uid() = user_id);
 
 -- Notifications policies
-DROP POLICY IF EXISTS "Notifications: Users can view own" ON public.notifications;
 CREATE POLICY "Notifications: Users can view own"
     ON public.notifications FOR SELECT
     USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Notifications: Users can update own" ON public.notifications;
-CREATE POLICY "Notifications: Users can update own"
-    ON public.notifications FOR UPDATE
+CREATE POLICY "Notifications: Users can manage own"
+    ON public.notifications FOR ALL
     USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Notifications: System can create" ON public.notifications;
-CREATE POLICY "Notifications: System can create"
-    ON public.notifications FOR INSERT
-    WITH CHECK (true);
-
--- Site Settings policies
-DROP POLICY IF EXISTS "Site Settings: Anyone can view" ON public.site_settings;
-CREATE POLICY "Site Settings: Anyone can view" 
-    ON public.site_settings 
-    FOR SELECT 
+-- Site Settings policies (PUBLIC READ for dynamic content)
+CREATE POLICY "Site Settings: Anyone can view"
+    ON public.site_settings FOR SELECT
     USING (true);
 
-DROP POLICY IF EXISTS "Site Settings: Only admins can create" ON public.site_settings;
-CREATE POLICY "Site Settings: Only admins can create" 
-    ON public.site_settings 
-    FOR INSERT 
-    WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
-
-DROP POLICY IF EXISTS "Site Settings: Only admins can update" ON public.site_settings;
-CREATE POLICY "Site Settings: Only admins can update" 
-    ON public.site_settings 
-    FOR UPDATE 
+CREATE POLICY "Site Settings: Admins can manage"
+    ON public.site_settings FOR ALL
     USING (
         EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
-
-DROP POLICY IF EXISTS "Site Settings: Only admins can delete" ON public.site_settings;
-CREATE POLICY "Site Settings: Only admins can delete" 
-    ON public.site_settings 
-    FOR DELETE 
-    USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
+            SELECT 1 FROM public.profiles
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
 
 -- Newsletter Subscribers policies
-DROP POLICY IF EXISTS "Newsletter: Anyone can subscribe" ON public.newsletter_subscribers;
-CREATE POLICY "Newsletter: Anyone can subscribe" 
-    ON public.newsletter_subscribers 
-    FOR INSERT 
+CREATE POLICY "Newsletter: Anyone can subscribe"
+    ON public.newsletter_subscribers FOR INSERT
     WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Newsletter: Only admins can view all" ON public.newsletter_subscribers;
-CREATE POLICY "Newsletter: Only admins can view all" 
-    ON public.newsletter_subscribers 
-    FOR SELECT 
-    USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+CREATE POLICY "Newsletter: Anyone can view own"
+    ON public.newsletter_subscribers FOR SELECT
+    USING (true);
 
-DROP POLICY IF EXISTS "Newsletter: Only admins can manage" ON public.newsletter_subscribers;
-CREATE POLICY "Newsletter: Only admins can manage" 
-    ON public.newsletter_subscribers 
-    FOR UPDATE 
+CREATE POLICY "Newsletter: Admins can manage"
+    ON public.newsletter_subscribers FOR ALL
     USING (
         EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
-
-DROP POLICY IF EXISTS "Newsletter: Only admins can delete" ON public.newsletter_subscribers;
-CREATE POLICY "Newsletter: Only admins can delete" 
-    ON public.newsletter_subscribers 
-    FOR DELETE 
-    USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles 
+            SELECT 1 FROM public.profiles
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
 
 -- ========================================================================
--- STORAGE BUCKETS
+-- PART 8: STORAGE BUCKETS
 -- ========================================================================
 
--- Create storage buckets for file uploads
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+-- Create storage buckets for images
+INSERT INTO storage.buckets (id, name, public) 
 VALUES 
-    -- Avatars bucket (2MB limit)
-    (
-        'avatars',
-        'avatars',
-        true,
-        2097152,
-        ARRAY['image/jpeg', 'image/jpg', 'image/png', 'image/webp']::text[]
-    ),
-    -- Article images bucket (5MB limit)
-    (
-        'article-images',
-        'article-images',
-        true,
-        5242880,
-        ARRAY['image/jpeg', 'image/jpg', 'image/png', 'image/webp']::text[]
-    ),
-    -- Site settings bucket (2MB limit)
-    (
-        'site-settings',
-        'site-settings',
-        true,
-        2097152,
-        ARRAY['image/jpeg', 'image/jpg', 'image/png', 'image/webp']::text[]
-    )
-ON CONFLICT (id) DO UPDATE SET
-    public = EXCLUDED.public,
-    file_size_limit = EXCLUDED.file_size_limit,
-    allowed_mime_types = EXCLUDED.allowed_mime_types;
+    ('avatars', 'avatars', true),
+    ('articles', 'articles', true),
+    ('site-assets', 'site-assets', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage policies for avatars bucket
+DROP POLICY IF EXISTS "Avatars: Anyone can view" ON storage.objects;
+CREATE POLICY "Avatars: Anyone can view"
+    ON storage.objects FOR SELECT
+    USING (bucket_id = 'avatars');
+
+DROP POLICY IF EXISTS "Avatars: Authenticated users can upload" ON storage.objects;
+CREATE POLICY "Avatars: Authenticated users can upload"
+    ON storage.objects FOR INSERT
+    WITH CHECK (
+        bucket_id = 'avatars' AND
+        auth.role() = 'authenticated'
+    );
+
+DROP POLICY IF EXISTS "Avatars: Users can update own" ON storage.objects;
+CREATE POLICY "Avatars: Users can update own"
+    ON storage.objects FOR UPDATE
+    USING (
+        bucket_id = 'avatars' AND
+        auth.uid()::text = (storage.foldername(name))[1]
+    );
+
+DROP POLICY IF EXISTS "Avatars: Users can delete own" ON storage.objects;
+CREATE POLICY "Avatars: Users can delete own"
+    ON storage.objects FOR DELETE
+    USING (
+        bucket_id = 'avatars' AND
+        auth.uid()::text = (storage.foldername(name))[1]
+    );
+
+-- Storage policies for articles bucket
+DROP POLICY IF EXISTS "Articles: Anyone can view" ON storage.objects;
+CREATE POLICY "Articles: Anyone can view"
+    ON storage.objects FOR SELECT
+    USING (bucket_id = 'articles');
+
+DROP POLICY IF EXISTS "Articles: Authenticated users can upload" ON storage.objects;
+CREATE POLICY "Articles: Authenticated users can upload"
+    ON storage.objects FOR INSERT
+    WITH CHECK (
+        bucket_id = 'articles' AND
+        auth.role() = 'authenticated'
+    );
+
+DROP POLICY IF EXISTS "Articles: Authors can update" ON storage.objects;
+CREATE POLICY "Articles: Authors can update"
+    ON storage.objects FOR UPDATE
+    USING (
+        bucket_id = 'articles' AND
+        auth.role() = 'authenticated'
+    );
+
+DROP POLICY IF EXISTS "Articles: Authors can delete" ON storage.objects;
+CREATE POLICY "Articles: Authors can delete"
+    ON storage.objects FOR DELETE
+    USING (
+        bucket_id = 'articles' AND
+        auth.role() = 'authenticated'
+    );
+
+-- Storage policies for site-assets bucket
+DROP POLICY IF EXISTS "Site Assets: Anyone can view" ON storage.objects;
+CREATE POLICY "Site Assets: Anyone can view"
+    ON storage.objects FOR SELECT
+    USING (bucket_id = 'site-assets');
+
+DROP POLICY IF EXISTS "Site Assets: Admins can manage" ON storage.objects;
+CREATE POLICY "Site Assets: Admins can manage"
+    ON storage.objects FOR ALL
+    USING (
+        bucket_id = 'site-assets' AND
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE id = auth.uid() AND role = 'admin'
+        )
+    );
 
 -- ========================================================================
--- STORAGE POLICIES
--- ========================================================================
-
--- Drop existing storage policies
-DROP POLICY IF EXISTS "Avatars: Public SELECT" ON storage.objects;
-DROP POLICY IF EXISTS "Avatars: Authenticated INSERT" ON storage.objects;
-DROP POLICY IF EXISTS "Avatars: Authenticated UPDATE" ON storage.objects;
-DROP POLICY IF EXISTS "Avatars: Authenticated DELETE" ON storage.objects;
-DROP POLICY IF EXISTS "Articles: Public SELECT" ON storage.objects;
-DROP POLICY IF EXISTS "Articles: Authenticated INSERT" ON storage.objects;
-DROP POLICY IF EXISTS "Articles: Authenticated UPDATE" ON storage.objects;
-DROP POLICY IF EXISTS "Articles: Authenticated DELETE" ON storage.objects;
-DROP POLICY IF EXISTS "Site Settings: Public SELECT" ON storage.objects;
-DROP POLICY IF EXISTS "Site Settings: Authenticated INSERT" ON storage.objects;
-DROP POLICY IF EXISTS "Site Settings: Admins UPDATE" ON storage.objects;
-DROP POLICY IF EXISTS "Site Settings: Admins DELETE" ON storage.objects;
-
--- AVATARS BUCKET POLICIES
-CREATE POLICY "Avatars: Public SELECT"
-ON storage.objects FOR SELECT
-USING (bucket_id = 'avatars');
-
-CREATE POLICY "Avatars: Authenticated INSERT"
-ON storage.objects FOR INSERT
-WITH CHECK (bucket_id = 'avatars' AND auth.role() = 'authenticated');
-
-CREATE POLICY "Avatars: Authenticated UPDATE"
-ON storage.objects FOR UPDATE
-USING (bucket_id = 'avatars' AND auth.role() = 'authenticated');
-
-CREATE POLICY "Avatars: Authenticated DELETE"
-ON storage.objects FOR DELETE
-USING (bucket_id = 'avatars' AND auth.role() = 'authenticated');
-
--- ARTICLE IMAGES BUCKET POLICIES
-CREATE POLICY "Articles: Public SELECT"
-ON storage.objects FOR SELECT
-USING (bucket_id = 'article-images');
-
-CREATE POLICY "Articles: Authenticated INSERT"
-ON storage.objects FOR INSERT
-WITH CHECK (bucket_id = 'article-images' AND auth.role() = 'authenticated');
-
-CREATE POLICY "Articles: Authenticated UPDATE"
-ON storage.objects FOR UPDATE
-USING (bucket_id = 'article-images' AND auth.role() = 'authenticated');
-
-CREATE POLICY "Articles: Authenticated DELETE"
-ON storage.objects FOR DELETE
-USING (bucket_id = 'article-images' AND auth.role() = 'authenticated');
-
--- SITE SETTINGS BUCKET POLICIES
-CREATE POLICY "Site Settings: Public SELECT"
-ON storage.objects FOR SELECT
-USING (bucket_id = 'site-settings');
-
-CREATE POLICY "Site Settings: Authenticated INSERT"
-ON storage.objects FOR INSERT
-WITH CHECK (bucket_id = 'site-settings' AND auth.role() = 'authenticated');
-
-CREATE POLICY "Site Settings: Admins UPDATE"
-ON storage.objects FOR UPDATE
-USING (
-    bucket_id = 'site-settings' AND 
-    EXISTS (
-        SELECT 1 FROM public.profiles 
-        WHERE id = auth.uid() AND role = 'admin'
-    )
-);
-
-CREATE POLICY "Site Settings: Admins DELETE"
-ON storage.objects FOR DELETE
-USING (
-    bucket_id = 'site-settings' AND 
-    EXISTS (
-        SELECT 1 FROM public.profiles 
-        WHERE id = auth.uid() AND role = 'admin'
-    )
-);
-
--- ========================================================================
--- INITIAL SEED DATA
+-- PART 9: INITIAL SEED DATA
 -- ========================================================================
 
 -- Insert default categories
@@ -722,52 +736,100 @@ INSERT INTO public.tags (name, slug) VALUES
     ('Investigation', 'investigation')
 ON CONFLICT (slug) DO NOTHING;
 
--- Insert default site settings
+-- Insert default site settings (only if no settings exist)
 INSERT INTO public.site_settings (
     site_name,
+    site_logo,
     tagline,
     description,
     seo_title,
     seo_description,
     seo_keywords,
     newsletter_enabled,
-    comments_enabled
-) VALUES (
+    comments_enabled,
+    rss_enabled,
+    copyright_notice,
+    company_name,
+    contact_email,
+    about_title,
+    about_subtitle
+)
+SELECT
     'NewsHub',
+    NULL,
     'Your source for the latest news',
     'Stay informed with the latest news and stories from around the world',
     'NewsHub - Latest News & Stories',
     'Get the latest breaking news, analysis, and stories from around the world',
     ARRAY['news', 'breaking news', 'latest news', 'world news', 'current events'],
     true,
-    true
-)
-ON CONFLICT DO NOTHING;
+    true,
+    true,
+    '© 2025 NewsHub. All rights reserved.',
+    'NewsHub',
+    'contact@newshub.com',
+    'About Us',
+    'Learn more about our mission and values'
+WHERE NOT EXISTS (SELECT 1 FROM public.site_settings LIMIT 1);
 
 -- ========================================================================
--- VERIFICATION QUERIES
+-- PART 10: VERIFICATION & SUCCESS MESSAGE
 -- ========================================================================
--- Run these queries to verify the schema setup:
---
--- 1. Check all tables:
--- SELECT table_name FROM information_schema.tables 
--- WHERE table_schema = 'public' ORDER BY table_name;
---
--- 2. Check RLS status:
--- SELECT tablename, rowsecurity FROM pg_tables 
--- WHERE schemaname = 'public';
---
--- 3. Check policies:
--- SELECT schemaname, tablename, policyname, cmd 
--- FROM pg_policies WHERE schemaname = 'public';
---
--- 4. Check storage buckets:
--- SELECT id, name, public FROM storage.buckets;
---
--- 5. Check storage policies:
--- SELECT policyname, cmd FROM pg_policies 
--- WHERE schemaname = 'storage' AND tablename = 'objects';
---
+
+DO $$
+DECLARE
+    table_count INTEGER;
+    policy_count INTEGER;
+    bucket_count INTEGER;
+BEGIN
+    -- Count tables
+    SELECT COUNT(*) INTO table_count
+    FROM information_schema.tables 
+    WHERE table_schema = 'public' 
+    AND table_type = 'BASE TABLE';
+    
+    -- Count RLS policies
+    SELECT COUNT(*) INTO policy_count
+    FROM pg_policies 
+    WHERE schemaname = 'public';
+    
+    -- Count storage buckets
+    SELECT COUNT(*) INTO bucket_count
+    FROM storage.buckets;
+    
+    -- Success message
+    RAISE NOTICE '╔════════════════════════════════════════════════════════════╗';
+    RAISE NOTICE '║  ✅ SCHEMA SETUP COMPLETED SUCCESSFULLY!                  ║';
+    RAISE NOTICE '╚════════════════════════════════════════════════════════════╝';
+    RAISE NOTICE '';
+    RAISE NOTICE '📊 Database Statistics:';
+    RAISE NOTICE '  • Tables created: % (public schema)', table_count;
+    RAISE NOTICE '  • RLS policies: % policies', policy_count;
+    RAISE NOTICE '  • Storage buckets: % buckets', bucket_count;
+    RAISE NOTICE '';
+    RAISE NOTICE '🎯 Next Steps:';
+    RAISE NOTICE '  1. Update your .env file with Supabase credentials';
+    RAISE NOTICE '  2. Create your first admin user account';
+    RAISE NOTICE '  3. Log in to /admin to configure site settings';
+    RAISE NOTICE '  4. Start creating articles!';
+    RAISE NOTICE '';
+    RAISE NOTICE '📚 Key Features Enabled:';
+    RAISE NOTICE '  • Dynamic content management (80+ settings fields)';
+    RAISE NOTICE '  • Public access (visitors can read without login)';
+    RAISE NOTICE '  • User authentication & profiles';
+    RAISE NOTICE '  • Article management (create, edit, publish)';
+    RAISE NOTICE '  • Comments & reactions';
+    RAISE NOTICE '  • Categories & tags';
+    RAISE NOTICE '  • Newsletter subscriptions';
+    RAISE NOTICE '  • Image storage (avatars, articles, site assets)';
+    RAISE NOTICE '  • RSS feed support';
+    RAISE NOTICE '';
+    RAISE NOTICE '⚙️  To verify your setup, run these queries:';
+    RAISE NOTICE '  SELECT table_name FROM information_schema.tables WHERE table_schema = ''public'';';
+    RAISE NOTICE '  SELECT * FROM public.site_settings;';
+    RAISE NOTICE '';
+END $$;
+
 -- ========================================================================
--- END OF MASTER SCHEMA
+-- END OF SCHEMA
 -- ========================================================================

@@ -1178,7 +1178,7 @@ const AdminSettings = () => {
                     <input
                       type="checkbox"
                       checked={settings.rss_enabled}
-                      onChange={(e) => setSettings({ ...settings, rss_enabled: e.target.checked })}
+                      onChange={(e) => setSettings({ ...settings, rss_enabled: e.target.value })}
                       className="sr-only peer"
                     />
                     <div className="w-14 h-7 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
