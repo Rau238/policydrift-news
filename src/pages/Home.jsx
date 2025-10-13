@@ -132,11 +132,18 @@ const Home = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'TODAY';
+    if (diffDays === 1) return 'YESTERDAY';
+    if (diffDays <= 7) return `${diffDays} DAYS AGO`;
+    
     return date.toLocaleDateString('en-US', {
-      year: 'numeric',
       month: 'short',
       day: 'numeric',
-    });
+    }).toUpperCase();
   };
 
   const calculateReadTime = (content) => {
@@ -377,96 +384,71 @@ const Home = () => {
                   </p>
                 </div>
               ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredArticles.map((article) => (
-                    <Link
-                      key={article.id}
-                      to={`/article/${article.slug}`}
-                      className="group bg-white dark:bg-slate-800 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-2"
-                    >
-                      {/* Article Image */}
-                      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredArticles.map((article, index) => {
+                    const gradients = [
+                      'from-blue-900/95 via-blue-800/60',
+                      'from-purple-900/95 via-purple-800/60',
+                      'from-rose-900/95 via-rose-800/60',
+                      'from-emerald-900/95 via-emerald-800/60',
+                      'from-orange-900/95 via-orange-800/60',
+                      'from-cyan-900/95 via-cyan-800/60',
+                      'from-indigo-900/95 via-indigo-800/60',
+                      'from-pink-900/95 via-pink-800/60',
+                      'from-teal-900/95 via-teal-800/60',
+                    ];
+                    const gradient = gradients[index % gradients.length];
+                    
+                    return (
+                      <Link
+                        key={article.id}
+                        to={`/article/${article.slug}`}
+                        className="group relative overflow-hidden rounded-lg aspect-[4/3]"
+                      >
                         {article.featured_image ? (
                           <img
                             src={article.featured_image}
                             alt={article.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-white text-5xl">
-                            📰
-                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900" />
                         )}
-                        {article.categories && (
-                          <div className="absolute top-3 left-3">
-                            <Badge
-                              variant="primary"
-                              size="sm"
-                              className="backdrop-blur-md shadow-lg"
-                              style={{ backgroundColor: article.categories.color }}
-                            >
-                              {article.categories.icon} {article.categories.name}
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Article Content */}
-                      <div className="p-5 space-y-3">
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-                          {article.title}
-                        </h3>
-
-                        {article.excerpt && (
-                          <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
-                            {article.excerpt}
-                          </p>
-                        )}
-
-                        {/* Article Meta */}
-                        <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700">
-                          <div className="flex items-center gap-2">
-                            {article.profiles?.avatar_url ? (
-                              <img
-                                src={article.profiles.avatar_url}
-                                alt={article.profiles.username}
-                                className="w-8 h-8 rounded-full border-2 border-slate-200 dark:border-slate-700"
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold">
-                                {article.profiles?.username?.[0]?.toUpperCase() || 'A'}
+                        
+                        <div className={`absolute inset-0 bg-gradient-to-t ${gradient} to-transparent group-hover:opacity-90 transition-opacity`} />
+                        
+                        <div className="absolute inset-0 p-4 flex flex-col justify-between z-10">
+                          <div className="flex items-start justify-between">
+                            {article.categories && (
+                              <div className="px-2 py-1 bg-white/20 backdrop-blur-md rounded text-white text-xs font-bold uppercase tracking-wide border border-white/30">
+                                {article.categories.name}
                               </div>
                             )}
-                            <div className="text-xs">
-                              <p className="font-medium text-slate-900 dark:text-white">
-                                {article.profiles?.full_name || article.profiles?.username || 'Anonymous'}
-                              </p>
-                              <p className="text-slate-500 dark:text-slate-400">
-                                {formatDate(article.created_at)}
-                              </p>
+                            <div className="text-white/90 text-xs font-semibold uppercase tracking-wide">
+                              {formatDate(article.created_at)}
                             </div>
                           </div>
-                          
-                          <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 text-xs">
-                            <div className="flex items-center gap-1" title="Views">
-                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                              </svg>
-                              <span>{article.views_count || 0}</span>
+
+                          <div className="space-y-2">
+                            <div className="text-white/80 text-xs font-semibold uppercase tracking-wide">
+                              {article.views_count || 0} VIEWS
                             </div>
-                            <div className="flex items-center gap-1" title="Read time">
-                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              <span>{calculateReadTime(article.content)}m</span>
-                            </div>
+                            <h3 className="text-white font-bold text-lg leading-tight line-clamp-3 group-hover:text-orange-300 transition-colors">
+                              {article.title}
+                            </h3>
+                            {article.excerpt && (
+                              <p className="text-white/80 text-sm line-clamp-2">
+                                {article.excerpt}
+                              </p>
+                            )}
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+
+                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-white/30 rounded-lg transition-colors pointer-events-none" />
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
 
