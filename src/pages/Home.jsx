@@ -5,6 +5,7 @@ import Loading from '../components/ui/Loading';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import Sidebar from '../components/layout/Sidebar';
 import Badge from '../components/ui/Badge';
+import AdSense from '../components/AdSense';
 import { useSEO } from '../hooks/useSEO';
 
 const Home = () => {

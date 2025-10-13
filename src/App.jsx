@@ -5,6 +5,7 @@ import { SiteSettingsProvider } from './contexts/SiteSettingsContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import AdminRoute from './components/AdminRoute';
+import AdBlockerDetector from './components/AdBlockerDetector';
 
 // Client Pages
 import Home from './pages/Home';
@@ -40,6 +41,7 @@ function App() {
       <AuthProvider>
         <SiteSettingsProvider>
           <Router>
+          <AdBlockerDetector />
           <Routes>
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
