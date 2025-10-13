@@ -22,23 +22,23 @@ This guide provides step-by-step instructions for setting up Google Tag Manager 
 3. You'll get a GTM Container ID (format: **GTM-XXXXXXX**)
 
 ### Step 3: Install GTM Code
-The GTM code has been added to `index.html`. Replace `GTM-XXXXXXX` with your actual Container ID:
+The GTM code has been added to `index.html` with your Container ID: **GTM-PL5K2HKZ**
 
-**In the `<head>` section** (already added):
+**In the `<head>` section** (✅ Already installed):
 ```html
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+})(window,document,'script','dataLayer','GTM-PL5K2HKZ');</script>
 <!-- End Google Tag Manager -->
 ```
 
-**In the `<body>` section** (already added):
+**In the `<body>` section** (✅ Already installed):
 ```html
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PL5K2HKZ"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 ```
@@ -350,11 +350,11 @@ Ensure your Privacy Policy discloses:
 
 ## Quick Reference
 
-### Your IDs (Replace These)
-- **GTM Container ID**: GTM-XXXXXXX
-- **GA4 Measurement ID**: G-XXXXXXXXXX
-- **AdSense Publisher ID**: ca-pub-1508845535613236
-- **Website URL**: https://www.policydrift.live
+### Your IDs
+- **GTM Container ID**: GTM-PL5K2HKZ ✅ (Installed)
+- **GA4 Measurement ID**: G-XXXXXXXXXX (Get this from GA4)
+- **AdSense Publisher ID**: ca-pub-1508845535613236 ✅
+- **Website URL**: https://www.policydrift.live ✅
 
 ### Important URLs
 - **GTM Dashboard**: https://tagmanager.google.com/

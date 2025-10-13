@@ -1,8 +1,4 @@
-# https://www.r# Sitemap
-Sitemap: https://www.policydrift.live/sitemap.xml
-Sitemap: https://www.policydrift.live/rss
-
-# Crawl-delay for specific botstxt.org/robotstxt.html
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
 Disallow: /admin
@@ -18,8 +14,8 @@ User-agent: Mediapartners-Google
 Allow: /
 
 # Sitemaps
-Sitemap: https://news-website-c3pqgkjjm-raunak-raj-chaudharys-projects.vercel.app/sitemap.xml
-Sitemap: https://news-website-c3pqgkjjm-raunak-raj-chaudharys-projects.vercel.app/rss
+Sitemap: https://www.policydrift.live/sitemap.xml
+Sitemap: https://www.policydrift.live/rss
 
 # Crawl-delay for specific bots
 User-agent: Baiduspider
