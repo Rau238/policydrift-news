@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
  * @returns {Promise<string>} XML sitemap content
  */
 export async function generateSitemap() {
-  const baseUrl = 'https://news-website-c3pqgkjjm-raunak-raj-chaudharys-projects.vercel.app';
+  const baseUrl = 'https://www.policydrift.live';
   const currentDate = new Date().toISOString().split('T')[0];
 
   // Static pages

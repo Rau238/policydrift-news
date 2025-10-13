@@ -1,4 +1,8 @@
-# https://www.robotstxt.org/robotstxt.html
+# https://www.r# Sitemap
+Sitemap: https://www.policydrift.live/sitemap.xml
+Sitemap: https://www.policydrift.live/rss
+
+# Crawl-delay for specific botstxt.org/robotstxt.html
 User-agent: *
 Allow: /
 Disallow: /admin
