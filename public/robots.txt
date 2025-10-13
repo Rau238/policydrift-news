@@ -1,0 +1,25 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /login
+Disallow: /signup
+Disallow: /profile
+Disallow: /api/
+Disallow: /*.json$
+
+# Google AdSense
+User-agent: Mediapartners-Google
+Allow: /
+
+# Sitemaps
+Sitemap: https://news-website-c3pqgkjjm-raunak-raj-chaudharys-projects.vercel.app/sitemap.xml
+Sitemap: https://news-website-c3pqgkjjm-raunak-raj-chaudharys-projects.vercel.app/rss
+
+# Crawl-delay for specific bots
+User-agent: Baiduspider
+Crawl-delay: 1
+
+User-agent: Yandex
+Crawl-delay: 1

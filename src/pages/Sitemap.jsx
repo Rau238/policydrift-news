@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useSEO } from '../hooks/useSEO';
+import { generateSitemap, downloadSitemap } from '../lib/sitemap';
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import Loading from '../components/ui/Loading';
 
 const Sitemap = () => {
   const [categories, setCategories] = useState([]);
   const [recentArticles, setRecentArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
 
   useSEO({
     title: 'Sitemap - Policy Drift News',
@@ -45,6 +48,17 @@ const Sitemap = () => {
     }
   };
 
+  const handleDownloadSitemap = async () => {
+    setGenerating(true);
+    try {
+      await downloadSitemap();
+    } catch (error) {
+      console.error('Error generating sitemap:', error);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   if (loading) {
     return <Loading fullScreen text="Loading sitemap..." />;
   }
@@ -57,9 +71,17 @@ const Sitemap = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Sitemap</h1>
-            <p className="text-lg text-white/90">
+            <p className="text-lg text-white/90 mb-6">
               Navigate through all pages and content on our website
             </p>
+            <button
+              onClick={handleDownloadSitemap}
+              disabled={generating}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ArrowDownTrayIcon className="w-5 h-5" />
+              {generating ? 'Generating...' : 'Download XML Sitemap'}
+            </button>
           </div>
         </div>
       </section>

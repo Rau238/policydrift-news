@@ -233,8 +233,44 @@ const ArticleDetail = () => {
 
   const isAuthor = user && article.author_id === user.id;
 
+  // Generate structured data for article
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": article.title,
+    "description": article.excerpt || article.content?.substring(0, 160),
+    "image": article.featured_image,
+    "datePublished": article.created_at,
+    "dateModified": article.updated_at || article.created_at,
+    "author": {
+      "@type": "Person",
+      "name": article.profiles?.full_name || article.profiles?.username || "Unknown Author",
+      "url": `${window.location.origin}/author/${article.profiles?.username}`
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "PolicyDrift News",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${window.location.origin}/logo.png`
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": window.location.href
+    },
+    "articleSection": article.categories?.name,
+    "keywords": article.tags?.join(', '),
+    "wordCount": article.content?.split(/\s+/).length || 0
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+      {/* Structured Data for SEO */}
+      <script 
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       {/* Hero Section with Featured Image */}
       {article.featured_image && (
         <div className="relative h-[60vh] overflow-hidden">

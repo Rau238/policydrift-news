@@ -57,8 +57,16 @@ function App() {
             {/* Client Routes with Header/Footer */}
             <Route path="*" element={
               <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900">
+                {/* Skip to main content link for accessibility */}
+                <a 
+                  href="#main-content" 
+                  className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  aria-label="Skip to main content"
+                >
+                  Skip to main content
+                </a>
                 <Header />
-                <main className="flex-1 py-8">
+                <main id="main-content" className="flex-1 py-8" role="main" aria-label="Main content">
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/article/:slug" element={<ArticleDetail />} />
