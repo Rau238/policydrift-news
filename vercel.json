@@ -1,8 +1,14 @@
 {
-  "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" },
-    { "source": "/rss.xml", "destination": "/api/rss.xml" },
-    { "source": "/robots.txt", "destination": "/api/robots.txt" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "routes": [
+    { "src": "/sitemap\\.xml", "dest": "/api/sitemap.xml.js" },
+    { "src": "/rss\\.xml", "dest": "/api/rss.xml.js" },
+    { "src": "/robots\\.txt", "dest": "/api/robots.txt.js" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
