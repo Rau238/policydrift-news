@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run generate:static",
+    "build": "npm run generate:static && vite build && npm run copy:static",
     "generate:static": "node generate-sitemap.js && node generate-rss.js",
+    "copy:static": "cp public/sitemap.xml dist/ && cp public/rss.xml dist/ && cp public/robots.txt dist/",
     "generate:sitemap": "node generate-sitemap.js",
     "generate:rss": "node generate-rss.js",
     "lint": "eslint .",
