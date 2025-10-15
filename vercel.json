@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "routes": [
     { "src": "/sitemap\\.xml", "dest": "/api/sitemap.xml.js" },
     { "src": "/rss\\.xml", "dest": "/api/rss.xml.js" },
