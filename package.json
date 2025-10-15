@@ -5,15 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run generate:static && vite build",
+    "build": "npm run generate:static && vite build && npm run copy:seo",
     "generate:static": "node generate-sitemap.js && node generate-rss.js",
     "generate:sitemap": "node generate-sitemap.js",
     "generate:rss": "node generate-rss.js",
+    "copy:seo": "node copy-seo-files.js",
+    "start": "node server.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.74.0",
+    "compression": "^1.7.4",
+    "express": "^4.21.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.3",
