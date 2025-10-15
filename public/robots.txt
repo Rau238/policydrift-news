@@ -15,7 +15,7 @@ Allow: /
 
 # Sitemaps
 Sitemap: https://www.policydrift.live/sitemap.xml
-Sitemap: https://www.policydrift.live/rss
+Sitemap: https://www.policydrift.live/rss.xml
 
 # Crawl-delay for specific bots
 User-agent: Baiduspider

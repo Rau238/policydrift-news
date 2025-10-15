@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run generate:sitemap",
+    "build": "vite build && npm run generate:static",
+    "generate:static": "node generate-sitemap.js && node generate-rss.js",
     "generate:sitemap": "node generate-sitemap.js",
+    "generate:rss": "node generate-rss.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
