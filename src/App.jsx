@@ -48,7 +48,7 @@ function App() {
           <Router>
           <AdBlockerDetector />
           <Routes>
-            {/* SEO Routes - Must be BEFORE admin and client routes */}
+            {/* SEO Routes - Specific paths MUST be before catch-all */}
             <Route path="/sitemap.xml" element={<SitemapXMLRoute />} />
             <Route path="/rss.xml" element={<RSSXMLRoute />} />
             <Route path="/robots.txt" element={<RobotsTxtRoute />} />
@@ -64,8 +64,8 @@ function App() {
               <Route path="settings" element={<AdminSettings />} />
             </Route>
 
-            {/* Client Routes with Header/Footer */}
-            <Route path="*" element={
+            {/* Client Routes with Header/Footer - Last because of wildcard */}
+            <Route path="/" element={
               <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900">
                 {/* Skip to main content link for accessibility */}
                 <a 
@@ -78,24 +78,25 @@ function App() {
                 <Header />
                 <main id="main-content" className="flex-1 py-8" role="main" aria-label="Main content">
                   <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/article/:slug" element={<ArticleDetail />} />
-                    <Route path="/article/:slug/edit" element={<CreateArticle />} />
-                    <Route path="/create-article" element={<CreateArticle />} />
-                    <Route path="/bookmarks" element={<Bookmarks />} />
-                    <Route path="/login" element={<Auth />} />
-                    <Route path="/signup" element={<Auth />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/profile" element={<Profile />} />
+                    <Route index element={<Home />} />
+                    <Route path="article/:slug" element={<ArticleDetail />} />
+                    <Route path="article/:slug/edit" element={<CreateArticle />} />
+                    <Route path="create-article" element={<CreateArticle />} />
+                    <Route path="bookmarks" element={<Bookmarks />} />
+                    <Route path="login" element={<Auth />} />
+                    <Route path="signup" element={<Auth />} />
+                    <Route path="forgot-password" element={<ForgotPassword />} />
+                    <Route path="profile" element={<Profile />} />
                     
                     {/* Info & Legal Pages */}
-                    <Route path="/about" element={<AboutUs />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="/terms-of-service" element={<TermsOfService />} />
-                    <Route path="/sitemap" element={<Sitemap />} />
-                    <Route path="/rss" element={<RSSFeed />} />
-                    <Route path="/accessibility" element={<Accessibility />} />
+                    <Route path="about" element={<AboutUs />} />
+                    <Route path="contact" element={<Contact />} />
+                    <Route path="privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="terms-of-service" element={<TermsOfService />} />
+                    <Route path="sitemap" element={<Sitemap />} />
+                    <Route path="rss" element={<RSSFeed />} />
+                    <Route path="accessibility" element={<Accessibility />} />
+                    <Route path="*" element={<div className="container mx-auto px-4 py-16 text-center"><h1 className="text-2xl font-bold mb-4">404 - Page Not Found</h1><p>The page could not be found</p></div>} />
                   </Routes>
                 </main>
                 <Footer />
