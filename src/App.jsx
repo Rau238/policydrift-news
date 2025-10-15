@@ -25,6 +25,11 @@ import Sitemap from './pages/Sitemap';
 import RSSFeed from './pages/RSSFeed';
 import Accessibility from './pages/Accessibility';
 
+// SEO Routes (serve XML/TXT content)
+import SitemapXMLRoute from './pages/SitemapXMLRoute';
+import RSSXMLRoute from './pages/RSSXMLRoute';
+import RobotsTxtRoute from './pages/RobotsTxtRoute';
+
 // Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -43,6 +48,11 @@ function App() {
           <Router>
           <AdBlockerDetector />
           <Routes>
+            {/* SEO Routes - Must be BEFORE admin and client routes */}
+            <Route path="/sitemap.xml" element={<SitemapXMLRoute />} />
+            <Route path="/rss.xml" element={<RSSXMLRoute />} />
+            <Route path="/robots.txt" element={<RobotsTxtRoute />} />
+            
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
               <Route index element={<AdminDashboard />} />
