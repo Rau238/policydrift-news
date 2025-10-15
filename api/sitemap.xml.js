@@ -1,15 +1,57 @@
-import fs from 'fs';
-import path from 'path';
-
 export default function handler(req, res) {
-  const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.policydrift.live/</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.policydrift.live/about</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.policydrift.live/contact</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.policydrift.live/privacy-policy</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.policydrift.live/terms-of-service</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.policydrift.live/accessibility</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.policydrift.live/sitemap</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.policydrift.live/rss</loc>
+    <lastmod>2025-01-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>`;
   
-  try {
-    const sitemap = fs.readFileSync(sitemapPath, 'utf8');
-    res.setHeader('Content-Type', 'application/xml');
-    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
-    res.status(200).send(sitemap);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to load sitemap' });
-  }
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+  res.status(200).send(sitemap);
 }
