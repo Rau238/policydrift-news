@@ -1,5 +1,8 @@
-module.exports = (req, res) => {
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+import { useEffect } from 'react';
+
+const SitemapXML = () => {
+  useEffect(() => {
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.policydrift.live/</loc>
@@ -50,8 +53,30 @@ module.exports = (req, res) => {
     <priority>0.7</priority>
   </url>
 </urlset>`;
-  
-  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
-  res.status(200).send(sitemap);
+    
+    // Create a blob and download it
+    const blob = new Blob([sitemap], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'sitemap.xml';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    // Redirect to home after a moment
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 500);
+  }, []);
+
+  return (
+    <div className="container mx-auto px-4 py-16 text-center">
+      <h1 className="text-2xl font-bold mb-4">Generating Sitemap...</h1>
+      <p>Your sitemap.xml file will download shortly.</p>
+    </div>
+  );
 };
+
+export default SitemapXML;

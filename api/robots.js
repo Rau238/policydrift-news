@@ -1,4 +1,4 @@
-export default function handler(req, res) {
+module.exports = (req, res) => {
   const robots = `# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
@@ -29,4 +29,4 @@ Crawl-delay: 1
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
   res.status(200).send(robots);
-}
+};

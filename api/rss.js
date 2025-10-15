@@ -1,4 +1,4 @@
-export default function handler(req, res) {
+module.exports = (req, res) => {
   const currentDate = new Date().toUTCString();
   
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
@@ -28,4 +28,4 @@ export default function handler(req, res) {
   res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
   res.status(200).send(rss);
-}
+};
