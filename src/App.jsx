@@ -56,7 +56,7 @@ function App() {
             </Route>
 
             {/* Client Routes with Header/Footer - Last because of wildcard */}
-            <Route path="/" element={
+            <Route path="*" element={
               <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900">
                 {/* Skip to main content link for accessibility */}
                 <a 
