@@ -39,6 +39,9 @@ const Home = () => {
       setLoading(true);
       setError(null);
 
+      // Add a minimum loading time to ensure skeleton is visible
+      const minLoadTime = new Promise(resolve => setTimeout(resolve, 800));
+
       // Fetch breaking news (latest 5 published articles from last 24 hours)
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
@@ -117,6 +120,9 @@ const Home = () => {
 
       if (fetchError) throw fetchError;
       
+      // Wait for minimum load time
+      await minLoadTime;
+
       // Check if there are more articles
       setHasMore(data?.length === ARTICLES_PER_PAGE);
       

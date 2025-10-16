@@ -34,6 +34,9 @@ const CategoryArticles = () => {
       setLoading(true);
       setError(null);
 
+      // Add a minimum loading time to ensure skeleton is visible
+      const minLoadTime = new Promise(resolve => setTimeout(resolve, 600));
+
       // Fetch category
       const { data: categoryData, error: categoryError } = await supabase
         .from('categories')
@@ -64,6 +67,9 @@ const CategoryArticles = () => {
         .order('created_at', { ascending: false });
 
       if (articlesError) throw articlesError;
+
+      // Wait for minimum load time
+      await minLoadTime;
 
       setArticles(articlesData || []);
     } catch (err) {

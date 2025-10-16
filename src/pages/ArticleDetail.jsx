@@ -71,6 +71,9 @@ const ArticleDetail = () => {
 
       console.log('Fetching article with slug:', slug);
 
+      // Add a minimum loading time to ensure skeleton is visible
+      const minLoadTime = new Promise(resolve => setTimeout(resolve, 500));
+
       const { data, error: fetchError } = await supabase
         .from('articles')
         .select(`
@@ -82,17 +85,22 @@ const ArticleDetail = () => {
         .eq('status', 'published')
         .maybeSingle();
 
+      // Wait for minimum load time
+      await minLoadTime;
+
       if (fetchError) {
         console.error('Fetch error:', fetchError);
         throw fetchError;
       }
 
       if (!data) {
+        console.log('No article found with slug:', slug);
         setError('Article not found');
         setLoading(false);
         return;
       }
 
+      console.log('Article loaded:', data.title);
       setArticle(data);
 
       // Increment view count
