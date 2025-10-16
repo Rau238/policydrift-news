@@ -51,16 +51,23 @@ const ArticleDetail = () => {
   }, []);
 
   useEffect(() => {
-    fetchArticle();
-    if (user) {
+    if (slug) {
+      fetchArticle();
+    }
+  }, [slug]);
+
+  useEffect(() => {
+    if (user && article) {
       checkUserInteractions();
     }
-  }, [slug, user]);
+  }, [user, article]);
 
   const fetchArticle = async () => {
     try {
       setLoading(true);
       setError(null);
+
+      console.log('Fetching article with slug:', slug);
 
       const { data, error: fetchError } = await supabase
         .from('articles')
@@ -70,9 +77,20 @@ const ArticleDetail = () => {
           categories:category_id (name, slug)
         `)
         .eq('slug', slug)
-        .single();
+        .eq('status', 'published')
+        .maybeSingle();
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        console.error('Fetch error:', fetchError);
+        throw fetchError;
+      }
+
+      if (!data) {
+        setError('Article not found');
+        setLoading(false);
+        return;
+      }
+
       setArticle(data);
 
       // Increment view count
@@ -111,7 +129,7 @@ const ArticleDetail = () => {
       setRelatedArticles(relatedData || []);
     } catch (err) {
       console.error('Error fetching article:', err);
-      setError(err.message);
+      setError(err.message || 'Failed to load article');
     } finally {
       setLoading(false);
     }

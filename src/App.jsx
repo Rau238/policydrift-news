@@ -15,6 +15,8 @@ import Bookmarks from './pages/Bookmarks';
 import Auth from './pages/auth/Auth';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Profile from './pages/auth/Profile';
+import CategoryArticles from './pages/CategoryArticles';
+import TagArticles from './pages/TagArticles';
 
 // Info & Legal Pages
 import AboutUs from './pages/AboutUs';
@@ -71,6 +73,8 @@ function App() {
                     <Route path="article/:slug/edit" element={<CreateArticle />} />
                     <Route path="create-article" element={<CreateArticle />} />
                     <Route path="bookmarks" element={<Bookmarks />} />
+                    <Route path="category/:slug" element={<CategoryArticles />} />
+                    <Route path="tag/:slug" element={<TagArticles />} />
                     <Route path="login" element={<Auth />} />
                     <Route path="signup" element={<Auth />} />
                     <Route path="forgot-password" element={<ForgotPassword />} />
