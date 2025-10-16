@@ -5,12 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run generate:static && vite build && npm run copy:seo",
-    "generate:static": "node generate-sitemap.js && node generate-rss.js",
-    "generate:sitemap": "node generate-sitemap.js",
-    "generate:rss": "node generate-rss.js",
-    "copy:seo": "node copy-seo-files.js",
-    "start": "node server.js",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

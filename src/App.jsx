@@ -21,14 +21,7 @@ import AboutUs from './pages/AboutUs';
 import Contact from './pages/Contact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
-import Sitemap from './pages/Sitemap';
-import RSSFeed from './pages/RSSFeed';
 import Accessibility from './pages/Accessibility';
-
-// SEO Routes (serve XML/TXT content)
-import SitemapXMLRoute from './pages/SitemapXMLRoute';
-import RSSXMLRoute from './pages/RSSXMLRoute';
-import RobotsTxtRoute from './pages/RobotsTxtRoute';
 
 // Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
@@ -48,11 +41,6 @@ function App() {
           <Router>
           <AdBlockerDetector />
           <Routes>
-            {/* SEO Routes - Specific paths MUST be before catch-all */}
-            <Route path="/sitemap.xml" element={<SitemapXMLRoute />} />
-            <Route path="/rss.xml" element={<RSSXMLRoute />} />
-            <Route path="/robots.txt" element={<RobotsTxtRoute />} />
-            
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
               <Route index element={<AdminDashboard />} />
@@ -93,8 +81,6 @@ function App() {
                     <Route path="contact" element={<Contact />} />
                     <Route path="privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="terms-of-service" element={<TermsOfService />} />
-                    <Route path="sitemap" element={<Sitemap />} />
-                    <Route path="rss" element={<RSSFeed />} />
                     <Route path="accessibility" element={<Accessibility />} />
                     <Route path="*" element={<div className="container mx-auto px-4 py-16 text-center"><h1 className="text-2xl font-bold mb-4">404 - Page Not Found</h1><p>The page could not be found</p></div>} />
                   </Routes>
