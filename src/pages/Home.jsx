@@ -7,11 +7,15 @@ import Sidebar from '../components/layout/Sidebar';
 import Badge from '../components/ui/Badge';
 import AdSense from '../components/AdSense';
 import { useSEO } from '../hooks/useSEO';
+import { ArticleCardSkeleton, CategorySectionSkeleton } from '../components/ui/Skeleton';
+import { getArticleCategory, formatArticleDate, calculateReadTime } from '../lib/utils';
 
 const Home = () => {
   const [articles, setArticles] = useState([]);
   const [featuredArticles, setFeaturedArticles] = useState([]);
   const [breakingNews, setBreakingNews] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [categoryArticles, setCategoryArticles] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,6 +67,38 @@ const Home = () => {
         .limit(3);
 
       setFeaturedArticles(featuredData || []);
+
+      // Fetch all active categories
+      const { data: categoriesData } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name', { ascending: true })
+        .limit(6); // Show top 6 categories
+
+      setCategories(categoriesData || []);
+
+      // Fetch articles for each category
+      if (categoriesData && categoriesData.length > 0) {
+        const categoryArticlesMap = {};
+        
+        for (const category of categoriesData) {
+          const { data: catArticles } = await supabase
+            .from('articles')
+            .select(`
+              *,
+              profiles:author_id (username, avatar_url, full_name),
+              categories:category_id (name, slug, color, icon)
+            `)
+            .eq('status', 'published')
+            .eq('category_id', category.id)
+            .order('created_at', { ascending: false })
+            .limit(4); // Show 4 articles per category
+          
+          categoryArticlesMap[category.id] = catArticles || [];
+        }
+        
+        setCategoryArticles(categoryArticlesMap);
+      }
 
       // Fetch regular articles with pagination
       const { data, error: fetchError } = await supabase
@@ -155,7 +191,23 @@ const Home = () => {
   };
 
   if (loading) {
-    return <Loading fullScreen text="Loading articles..." />;
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+              <CategorySectionSkeleton />
+              <CategorySectionSkeleton />
+            </div>
+            <div className="space-y-6">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                <ArticleCardSkeleton />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -286,7 +338,7 @@ const Home = () => {
                               className="mb-3"
                               style={{ backgroundColor: article.categories.color }}
                             >
-                              {article.categories.icon} {article.categories.name}
+                              {article.categories.icon} {getArticleCategory(article)}
                             </Badge>
                           )}
                           <h3 className="text-3xl md:text-4xl font-bold mb-3 group-hover:text-blue-300 transition-colors">
@@ -344,7 +396,7 @@ const Home = () => {
                               className="mb-2"
                               style={{ backgroundColor: article.categories.color }}
                             >
-                              {article.categories.icon} {article.categories.name}
+                              {article.categories.icon} {getArticleCategory(article)}
                             </Badge>
                           )}
                           <h3 className="text-xl font-bold mb-2 group-hover:text-blue-300 transition-colors line-clamp-2">
@@ -362,6 +414,98 @@ const Home = () => {
                 </div>
               </section>
             )}
+
+            {/* Category Sections - Multiple Categories */}
+            {categories.length > 0 && categories.map((category) => {
+              const catArticles = categoryArticles[category.id] || [];
+              
+              if (catArticles.length === 0) return null;
+              
+              return (
+                <section key={category.id} className="mb-12">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-3xl font-black text-slate-900 dark:text-white">
+                        {category.icon && <span className="mr-2">{category.icon}</span>}
+                        {category.name}
+                      </h2>
+                      {category.color && (
+                        <div 
+                          className="w-2 h-2 rounded-full" 
+                          style={{ backgroundColor: category.color }}
+                        />
+                      )}
+                    </div>
+                    <Link
+                      to={`/category/${category.slug}`}
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold text-sm flex items-center gap-1 group"
+                    >
+                      View All
+                      <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {catArticles.map((article) => (
+                      <Link
+                        key={article.id}
+                        to={`/article/${article.slug}`}
+                        className="group bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                      >
+                        {article.featured_image ? (
+                          <div className="relative h-48 overflow-hidden">
+                            <img
+                              src={article.featured_image}
+                              alt={article.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                          </div>
+                        ) : (
+                          <div 
+                            className="h-48 bg-gradient-to-br"
+                            style={{ 
+                              backgroundImage: `linear-gradient(to bottom right, ${category.color || '#3B82F6'}, ${category.color ? category.color + '80' : '#1E40AF'})` 
+                            }}
+                          />
+                        )}
+                        
+                        <div className="p-4">
+                          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {article.title}
+                          </h3>
+                          
+                          {article.excerpt && (
+                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
+                              {article.excerpt}
+                            </p>
+                          )}
+                          
+                          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <div className="flex items-center gap-2">
+                              {article.profiles?.avatar_url ? (
+                                <img
+                                  src={article.profiles.avatar_url}
+                                  alt={article.profiles.username}
+                                  className="w-6 h-6 rounded-full"
+                                />
+                              ) : (
+                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600" />
+                              )}
+                              <span className="font-medium">{article.profiles?.username || 'Anonymous'}</span>
+                            </div>
+                            <span>{formatArticleDate(article.created_at)}</span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
 
             {/* Latest Articles Grid - Enhanced Cards */}
             <section className="space-y-6">
@@ -423,7 +567,7 @@ const Home = () => {
                           <div className="flex items-start justify-between">
                             {article.categories && (
                               <div className="px-2 py-1 bg-white/20 backdrop-blur-md rounded text-white text-xs font-bold uppercase tracking-wide border border-white/30">
-                                {article.categories.name}
+                                {getArticleCategory(article)}
                               </div>
                             )}
                             <div className="text-white/90 text-xs font-semibold uppercase tracking-wide">

@@ -1,10 +1,17 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useSiteSettings } from '../contexts/SiteSettingsContext';
 
 const Newsletter = () => {
+  const { settings } = useSiteSettings();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+
+  // Don't render if newsletter is disabled in admin settings
+  if (settings?.newsletter_enabled === false) {
+    return null;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

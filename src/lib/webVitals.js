@@ -2,9 +2,10 @@
  * Core Web Vitals Optimization Utilities
  * Implements performance monitoring and optimization for Google's Core Web Vitals
  * - Largest Contentful Paint (LCP): < 2.5s
- * - First Input Delay (FID): < 100ms
- * - Cumulative Layout Shift (CLS): < 0.1
  * - Interaction to Next Paint (INP): < 200ms
+ * - Cumulative Layout Shift (CLS): < 0.1
+ * - First Contentful Paint (FCP): < 1.8s
+ * - Time to First Byte (TTFB): < 800ms
  */
 
 /**
@@ -12,13 +13,14 @@
  */
 export function reportWebVitals(onPerfEntry) {
   if (onPerfEntry && onPerfEntry instanceof Function) {
-    import('web-vitals').then(({ onCLS, onFID, onFCP, onLCP, onTTFB, onINP }) => {
+    import('web-vitals').then(({ onCLS, onFCP, onLCP, onTTFB, onINP }) => {
       onCLS(onPerfEntry);
-      onFID(onPerfEntry);
       onFCP(onPerfEntry);
       onLCP(onPerfEntry);
       onTTFB(onPerfEntry);
       onINP(onPerfEntry);
+    }).catch(err => {
+      console.warn('Web Vitals not available:', err);
     });
   }
 }

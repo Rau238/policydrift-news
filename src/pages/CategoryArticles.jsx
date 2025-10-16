@@ -6,6 +6,8 @@ import Loading from '../components/ui/Loading';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
+import { ArticleCardSkeleton } from '../components/ui/Skeleton';
+import { getArticleCategory } from '../lib/utils';
 
 const CategoryArticles = () => {
   const { slug } = useParams();
@@ -82,7 +84,18 @@ const CategoryArticles = () => {
   };
 
   if (loading) {
-    return <Loading fullScreen text="Loading category..." />;
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
+        <div className="h-64 bg-gradient-to-br from-blue-600 to-purple-700 mb-8" />
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <ArticleCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error || !category) {
@@ -163,7 +176,7 @@ const CategoryArticles = () => {
                       {article.categories && (
                         <div className="absolute top-4 left-4">
                           <Badge variant="primary" className="shadow-lg">
-                            {article.categories.name}
+                            {getArticleCategory(article)}
                           </Badge>
                         </div>
                       )}

@@ -11,6 +11,8 @@ import CommentSection from '../components/CommentSection';
 import SocialShare from '../components/SocialShare';
 import { useSEO } from '../hooks/useSEO';
 import AdSense from '../components/AdSense';
+import { ArticleDetailSkeleton } from '../components/ui/Skeleton';
+import { getArticleCategory } from '../lib/utils';
 
 const ArticleDetail = () => {
   const { slug } = useParams();
@@ -246,7 +248,7 @@ const ArticleDetail = () => {
   };
 
   if (loading) {
-    return <Loading fullScreen text="Loading article..." />;
+    return <ArticleDetailSkeleton />;
   }
 
   if (error || !article) {
@@ -327,7 +329,7 @@ const ArticleDetail = () => {
                   {article.categories && (
                     <div className="inline-flex">
                       <span className="px-5 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold rounded-full shadow-lg shadow-blue-500/50">
-                        {article.categories.name}
+                        {getArticleCategory(article)}
                       </span>
                     </div>
                   )}
@@ -366,7 +368,7 @@ const ArticleDetail = () => {
                   <header className="p-8 md:p-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-900">
                     {article.categories && (
                       <span className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold rounded-full mb-6">
-                        {article.categories.name}
+                        {getArticleCategory(article)}
                       </span>
                     )}
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-tight">

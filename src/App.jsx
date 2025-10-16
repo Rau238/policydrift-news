@@ -17,6 +17,7 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import Profile from './pages/auth/Profile';
 import CategoryArticles from './pages/CategoryArticles';
 import TagArticles from './pages/TagArticles';
+import NotFound from './pages/NotFound';
 
 // Info & Legal Pages
 import AboutUs from './pages/AboutUs';
@@ -86,7 +87,7 @@ function App() {
                     <Route path="privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="terms-of-service" element={<TermsOfService />} />
                     <Route path="accessibility" element={<Accessibility />} />
-                    <Route path="*" element={<div className="container mx-auto px-4 py-16 text-center"><h1 className="text-2xl font-bold mb-4">404 - Page Not Found</h1><p>The page could not be found</p></div>} />
+                    <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>
                 <Footer />
