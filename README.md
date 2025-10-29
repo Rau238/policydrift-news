@@ -1,300 +1,598 @@
-# 🗞️ Modern News Website# News Website - Full Stack Application
+# 📰 PolicyDrift News - Full Stack News Platform# 🗞️ Modern News Website# News Website - Full Stack Application
 
 
 
-A professional, full-stack news website built with React (Vite) frontend and Node.js/Express/MongoDB backend.A professional, modern news website built with React (Vite) frontend and Node.js/Express/MongoDB backend. Features include article management, user authentication, comments, bookmarks, newsletter subscriptions, and a complete admin dashboard.
+A professional, modern news website built as a monorepo with React (Vite) frontend and Node.js/Express/MongoDB backend. Features include article management, user authentication, comments, bookmarks, newsletter subscriptions, and a complete admin dashboard.
 
 
 
-## ✨ Features## 🚀 Features
+## 🏗️ Monorepo StructureA professional, full-stack news website built with React (Vite) frontend and Node.js/Express/MongoDB backend.A professional, modern news website built with React (Vite) frontend and Node.js/Express/MongoDB backend. Features include article management, user authentication, comments, bookmarks, newsletter subscriptions, and a complete admin dashboard.
 
 
 
-### Public Features### Frontend
+```
 
-- 📰 Article browsing with categories and tags- ✅ Modern React 19 with Vite
+policydrift-news/
 
-- 🔍 Advanced search and filtering- ✅ Responsive design with Tailwind CSS
+├── apps/## ✨ Features## 🚀 Features
 
-- 💬 Comments system with likes- ✅ SEO optimized
+│   ├── frontend/          # React + Vite application
 
-- 🔖 Bookmark favorite articles- ✅ Dark/Light theme support
+│   │   ├── src/
 
-- 📧 Newsletter subscription- ✅ Image optimization
+│   │   ├── public/
 
-- 🌓 Dark/Light theme- ✅ Code splitting & lazy loading
+│   │   ├── package.json### Public Features### Frontend
 
-- 📱 Fully responsive design- ✅ PWA ready
+│   │   └── vite.config.js
 
-- ⚡ Fast loading with Vite
+│   └── backend/           # Node.js + Express API- 📰 Article browsing with categories and tags- ✅ Modern React 19 with Vite
 
-### Backend
+│       ├── src/
 
-### Admin Features- ✅ RESTful API with Express.js
+│       ├── package.json- 🔍 Advanced search and filtering- ✅ Responsive design with Tailwind CSS
 
-- ✍️ Create and manage articles with rich text editor- ✅ MongoDB with Mongoose ODM
+│       └── .env.example
 
-- 🖼️ Image upload with Cloudinary integration- ✅ JWT authentication with refresh tokens
+├── package.json           # Root workspace configuration- 💬 Comments system with likes- ✅ SEO optimized
 
-- 📁 Category and tag management- ✅ Role-based access control (User/Admin)
+└── README.md
 
-- 👥 User management and roles- ✅ Cloudinary image upload
+```- 🔖 Bookmark favorite articles- ✅ Dark/Light theme support
 
-- 📊 Dashboard with statistics- ✅ Email notifications
 
-- ⚙️ Site settings configuration- ✅ Input validation
 
-- 🎨 Customizable branding- ✅ Rate limiting
+## ✨ Features- 📧 Newsletter subscription- ✅ Image optimization
 
-- ✅ Security with Helmet & CORS
 
-## 🚀 Quick Start (Single Command!)
 
-### Core Features
+### Frontend (React + Vite)- 🌓 Dark/Light theme- ✅ Code splitting & lazy loading
+
+- ✅ Modern React 19 with Vite
+
+- ✅ Responsive design with Tailwind CSS- 📱 Fully responsive design- ✅ PWA ready
+
+- ✅ SEO optimized with React Helmet
+
+- ✅ Dark/Light theme support- ⚡ Fast loading with Vite
+
+- ✅ Image optimization & lazy loading
+
+- ✅ Code splitting for optimal performance### Backend
+
+- ✅ PWA ready
+
+- ✅ Article browsing with categories and tags### Admin Features- ✅ RESTful API with Express.js
+
+- ✅ Advanced search and filtering
+
+- ✅ Comments system with likes- ✍️ Create and manage articles with rich text editor- ✅ MongoDB with Mongoose ODM
+
+- ✅ Bookmark favorite articles
+
+- ✅ Newsletter subscription- 🖼️ Image upload with Cloudinary integration- ✅ JWT authentication with refresh tokens
+
+- ✅ Social sharing
+
+- ✅ AdSense integration ready- 📁 Category and tag management- ✅ Role-based access control (User/Admin)
+
+
+
+### Backend (Node.js + Express)- 👥 User management and roles- ✅ Cloudinary image upload
+
+- ✅ RESTful API with Express.js
+
+- ✅ MongoDB with Mongoose ODM- 📊 Dashboard with statistics- ✅ Email notifications
+
+- ✅ JWT authentication with refresh tokens
+
+- ✅ Role-based access control (User/Admin)- ⚙️ Site settings configuration- ✅ Input validation
+
+- ✅ Cloudinary image upload
+
+- ✅ Email notifications (Gmail)- 🎨 Customizable branding- ✅ Rate limiting
+
+- ✅ Input validation with express-validator
+
+- ✅ Rate limiting & security (Helmet, CORS)- ✅ Security with Helmet & CORS
+
+- ✅ Rich text editor support
+
+- ✅ Comment moderation## 🚀 Quick Start (Single Command!)
+
+- ✅ Bookmark management
+
+- ✅ Newsletter subscriptions### Core Features
+
+- ✅ Site settings management
 
 ### Option 1: MongoDB Atlas (Cloud - Recommended, No Installation)- 📰 Article management (CRUD)
 
+## 🚀 Quick Start
+
 - 👤 User authentication & profiles
 
-**Step 1: Setup MongoDB Atlas (5 minutes, one-time)**- 💬 Comments & replies
+### Prerequisites
 
-1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register)- 🔖 Bookmarks
+- Node.js >= 18.0.0**Step 1: Setup MongoDB Atlas (5 minutes, one-time)**- 💬 Comments & replies
+
+- npm >= 9.0.0
+
+- MongoDB Atlas account (free tier available)1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register)- 🔖 Bookmarks
+
+- Cloudinary account (optional, for image uploads)
 
 2. Create FREE account- 📧 Newsletter subscriptions
 
+### Installation
+
 3. Create a FREE cluster (M0 Sandbox)- 🏷️ Categories & tags
 
-4. Create database user:- 🔍 Search functionality
+1. **Clone the repository**
 
-   - Username: `newsadmin`- 📊 Admin dashboard
+```bash4. Create database user:- 🔍 Search functionality
+
+git clone https://github.com/Rau238/policydrift-news.git
+
+cd policydrift-news   - Username: `newsadmin`- 📊 Admin dashboard
+
+```
 
    - Password: `YourSecurePassword123`- 🎨 Site settings management
 
-5. Network Access: Add IP `0.0.0.0/0` (allow from anywhere)
+2. **Install all dependencies**
 
-6. Get connection string from "Connect" button## 📋 Prerequisites
+```bash5. Network Access: Add IP `0.0.0.0/0` (allow from anywhere)
 
-7. Update `backend/.env`:
+npm install
 
-   ```bash- **Node.js** >= 18.0.0
+```6. Get connection string from "Connect" button## 📋 Prerequisites
 
-   MONGODB_URI=mongodb+srv://newsadmin:YourSecurePassword123@cluster0.xxxxx.mongodb.net/news_website?retryWrites=true&w=majority- **MongoDB** >= 5.0 (Local or Atlas)
 
-   ```- **npm** >= 9.0.0
+
+This will install dependencies for both frontend and backend using npm workspaces.7. Update `backend/.env`:
+
+
+
+3. **Configure Backend Environment**   ```bash- **Node.js** >= 18.0.0
+
+```bash
+
+cd apps/backend   MONGODB_URI=mongodb+srv://newsadmin:YourSecurePassword123@cluster0.xxxxx.mongodb.net/news_website?retryWrites=true&w=majority- **MongoDB** >= 5.0 (Local or Atlas)
+
+cp .env.example .env
+
+# Edit .env with your credentials   ```- **npm** >= 9.0.0
+
+```
 
 - **Cloudinary Account** (for image uploads)
 
-**Step 2: Run the project**- **Gmail Account** (for email notifications)
+Required environment variables:
+
+- `MONGODB_URI` - MongoDB Atlas connection string**Step 2: Run the project**- **Gmail Account** (for email notifications)
+
+- `JWT_SECRET` - Secret for JWT tokens
+
+- `JWT_REFRESH_SECRET` - Secret for refresh tokens```bash
+
+- `CLOUDINARY_*` - Cloudinary credentials (optional)
+
+- `EMAIL_*` - Gmail credentials for notifications (optional)cd /Users/raunak/projects## 🛠️ Installation & Setup
+
+
+
+4. **Configure Frontend Environment**npm run dev
 
 ```bash
 
-cd /Users/raunak/projects## 🛠️ Installation & Setup
+cd apps/frontend```### 1. Clone the Repository
 
-npm run dev
+cp .env.example .env.local
 
-```### 1. Clone the Repository
+# Edit .env.local if needed
 
-
+```
 
 That's it! 🎉```bash
 
-git clone <repository-url>
+5. **Run the application**
 
-### Option 2: Local MongoDBcd policydrift-news
+```bashgit clone <repository-url>
+
+# From root directory
+
+npm run dev### Option 2: Local MongoDBcd policydrift-news
 
 ```
+
+```
+
+This starts both backend (port 5000) and frontend (port 5173) with a single command!
 
 If you prefer local MongoDB:
 
+### Individual Commands
+
 ```bash### 2. Backend Setup
-
-# Install MongoDB
-
-brew tap mongodb/brew```bash
-
-brew install mongodb-community@7.0cd backend
-
-brew services start mongodb-community@7.0
-
-# Install dependencies
-
-# Run projectnpm install
-
-cd /Users/raunak/projects
-
-npm run dev# Create .env file
-
-```cp .env.example .env
-
-```
-
-## 📦 What `npm run dev` Does
-
-**Configure Backend `.env`:**
-
-The single command starts:
-
-- ✅ Backend API server on `http://localhost:5000````env
-
-- ✅ Frontend dev server on `http://localhost:5173`# Server
-
-- ✅ Auto-restart on file changes (both servers)PORT=5000
-
-NODE_ENV=development
-
-**Open browser:** http://localhost:5173
-
-# Database (Choose one)
-
-## 🛠️ Technology Stack# Local MongoDB:
-
-MONGODB_URI=mongodb://localhost:27017/news_website
-
-### Frontend
-
-- **React 19** - UI library# MongoDB Atlas:
-
-- **Vite 7** - Build tool and dev server# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/news_website
-
-- **Tailwind CSS** - Styling
-
-- **React Router** - Navigation# JWT Secrets (Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
-
-- **Axios** - HTTP clientJWT_SECRET=your_generated_secret_here
-
-- **Lucide Icons** - Icon libraryJWT_REFRESH_SECRET=your_generated_refresh_secret_here
-
-JWT_EXPIRE=7d
-
-### BackendJWT_REFRESH_EXPIRE=30d
-
-- **Node.js** - Runtime
-
-- **Express** - Web framework# Cloudinary (Get from: https://cloudinary.com/console)
-
-- **MongoDB** - DatabaseCLOUDINARY_CLOUD_NAME=your_cloud_name
-
-- **Mongoose** - ODMCLOUDINARY_API_KEY=your_api_key
-
-- **JWT** - AuthenticationCLOUDINARY_API_SECRET=your_api_secret
-
-- **Cloudinary** - Image hosting
-
-- **Nodemailer** - Email service# Email (Gmail App Password: https://myaccount.google.com/apppasswords)
-
-EMAIL_HOST=smtp.gmail.com
-
-## 📁 Project StructureEMAIL_PORT=587
-
-EMAIL_SECURE=false
-
-```EMAIL_USER=your_email@gmail.com
-
-/Users/raunak/projects/EMAIL_PASSWORD=your_app_password
-
-├── backend/                    # Node.js/Express APIEMAIL_FROM=noreply@newswebsite.com
-
-│   ├── src/EMAIL_FROM_NAME=News Website
-
-│   │   ├── controllers/       # Route handlers
-
-│   │   ├── models/            # MongoDB schemas# Frontend URL
-
-│   │   ├── routes/            # API endpointsFRONTEND_URL=http://localhost:5173
-
-│   │   ├── middleware/        # Auth, validation, errors```
-
-│   │   └── config/            # Database, Cloudinary
-
-│   ├── .env                   # Environment variables**Start Backend:**
-
-│   └── package.json
-
-│```bash
-
-├── news-website/              # React/Vite Frontendnpm run dev
-
-│   ├── src/```
-
-│   │   ├── components/       # Reusable components
-
-│   │   ├── pages/            # Page componentsBackend will run on `http://localhost:5000`
-
-│   │   ├── contexts/         # React contexts
-
-│   │   ├── lib/              # API client, utils### 3. Frontend Setup
-
-│   │   └── App.jsx
-
-│   ├── .env.local            # Frontend config```bash
-
-│   └── package.jsoncd ../news-website
-
-│
-
-├── package.json              # Root package for running both# Install dependencies
-
-└── README.md                 # This filenpm install
-
-```
-
-# Create .env.local file
-
-## 🔧 Environment Variables```
-
-
-
-### Backend (.env)**Configure Frontend `.env.local`:**
 
 ```bash
 
-# Server```env
+# Run only backend# Install MongoDB
 
-PORT=5000VITE_API_URL=http://localhost:5000/api
+npm run dev:backend
 
-NODE_ENV=developmentVITE_APP_NAME=News Website
+brew tap mongodb/brew```bash
 
-VITE_APP_URL=http://localhost:5173
+# Run only frontend
 
-# Database - Choose one:```
-
-# Option 1: MongoDB Atlas (Cloud)
-
-MONGODB_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/news_website**Start Frontend:**
+npm run dev:frontendbrew install mongodb-community@7.0cd backend
 
 
 
-# Option 2: Local MongoDB```bash
+# Build frontend for productionbrew services start mongodb-community@7.0
 
-# MONGODB_URI=mongodb://localhost:27017/news_websitenpm run dev
+npm run build:frontend
+
+# Install dependencies
+
+# Clean all node_modules
+
+npm run clean# Run projectnpm install
 
 ```
 
-# JWT Authentication
+cd /Users/raunak/projects
 
-JWT_SECRET=your_super_secret_jwt_key_change_this_in_productionFrontend will run on `http://localhost:5173`
+## 📦 Workspace Management
 
-JWT_EXPIRE=7d
+npm run dev# Create .env file
 
-JWT_REFRESH_SECRET=your_refresh_token_secret_change_this## 🎯 Usage
+This project uses npm workspaces for monorepo management:
 
-JWT_REFRESH_EXPIRE=30d
+```cp .env.example .env
+
+```bash
+
+# Install dependencies in all workspaces```
+
+npm install
+
+## 📦 What `npm run dev` Does
+
+# Add a dependency to frontend
+
+npm install <package> --workspace=apps/frontend**Configure Backend `.env`:**
+
+
+
+# Add a dependency to backendThe single command starts:
+
+npm install <package> --workspace=apps/backend
+
+- ✅ Backend API server on `http://localhost:5000````env
+
+# Run scripts in all workspaces
+
+npm run lint --workspaces- ✅ Frontend dev server on `http://localhost:5173`# Server
+
+npm run test --workspaces
+
+```- ✅ Auto-restart on file changes (both servers)PORT=5000
+
+
+
+## 🗄️ MongoDB Atlas SetupNODE_ENV=development
+
+
+
+1. **Sign up for MongoDB Atlas****Open browser:** http://localhost:5173
+
+   - Visit: https://www.mongodb.com/cloud/atlas/register
+
+   - Create a free M0 cluster (512MB storage)# Database (Choose one)
+
+
+
+2. **Get your connection string**## 🛠️ Technology Stack# Local MongoDB:
+
+   - Click "Connect" on your cluster
+
+   - Choose "Connect your application"MONGODB_URI=mongodb://localhost:27017/news_website
+
+   - Copy the connection string
+
+   - Replace `<password>` with your database user password### Frontend
+
+
+
+3. **Update apps/backend/.env**- **React 19** - UI library# MongoDB Atlas:
+
+```env
+
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/news-website?retryWrites=true&w=majority- **Vite 7** - Build tool and dev server# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/news_website
+
+```
+
+- **Tailwind CSS** - Styling
+
+## 🖼️ Cloudinary Setup (Optional)
+
+- **React Router** - Navigation# JWT Secrets (Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+
+1. Sign up at https://cloudinary.com
+
+2. Get your credentials from the dashboard- **Axios** - HTTP clientJWT_SECRET=your_generated_secret_here
+
+3. Add to `apps/backend/.env`:
+
+```env- **Lucide Icons** - Icon libraryJWT_REFRESH_SECRET=your_generated_refresh_secret_here
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+
+CLOUDINARY_API_KEY=your_api_keyJWT_EXPIRE=7d
+
+CLOUDINARY_API_SECRET=your_api_secret
+
+```### BackendJWT_REFRESH_EXPIRE=30d
+
+
+
+## 📧 Email Setup (Optional)- **Node.js** - Runtime
+
+
+
+For newsletter and notification emails:- **Express** - Web framework# Cloudinary (Get from: https://cloudinary.com/console)
+
+
+
+1. Enable 2-factor authentication on your Gmail account- **MongoDB** - DatabaseCLOUDINARY_CLOUD_NAME=your_cloud_name
+
+2. Create an App Password: https://myaccount.google.com/apppasswords
+
+3. Add to `apps/backend/.env`:- **Mongoose** - ODMCLOUDINARY_API_KEY=your_api_key
+
+```env
+
+EMAIL_HOST=smtp.gmail.com- **JWT** - AuthenticationCLOUDINARY_API_SECRET=your_api_secret
+
+EMAIL_PORT=587
+
+EMAIL_USER=your-email@gmail.com- **Cloudinary** - Image hosting
+
+EMAIL_PASSWORD=your-app-password
+
+EMAIL_FROM=your-email@gmail.com- **Nodemailer** - Email service# Email (Gmail App Password: https://myaccount.google.com/apppasswords)
+
+```
+
+EMAIL_HOST=smtp.gmail.com
+
+## 🔐 Admin Account Setup
+
+## 📁 Project StructureEMAIL_PORT=587
+
+After starting the backend, create an admin account:
+
+EMAIL_SECURE=false
+
+```bash
+
+POST http://localhost:5000/api/auth/register```EMAIL_USER=your_email@gmail.com
+
+Content-Type: application/json
+
+/Users/raunak/projects/EMAIL_PASSWORD=your_app_password
+
+{
+
+  "name": "Admin User",├── backend/                    # Node.js/Express APIEMAIL_FROM=noreply@newswebsite.com
+
+  "email": "admin@example.com",
+
+  "password": "SecurePassword123!",│   ├── src/EMAIL_FROM_NAME=News Website
+
+  "role": "admin"
+
+}│   │   ├── controllers/       # Route handlers
+
+```
+
+│   │   ├── models/            # MongoDB schemas# Frontend URL
+
+## 🌐 API Endpoints
+
+│   │   ├── routes/            # API endpointsFRONTEND_URL=http://localhost:5173
+
+### Authentication
+
+- `POST /api/auth/register` - Register new user│   │   ├── middleware/        # Auth, validation, errors```
+
+- `POST /api/auth/login` - Login user
+
+- `POST /api/auth/refresh` - Refresh access token│   │   └── config/            # Database, Cloudinary
+
+- `POST /api/auth/logout` - Logout user
+
+│   ├── .env                   # Environment variables**Start Backend:**
+
+### Articles
+
+- `GET /api/articles` - Get all articles (with pagination)│   └── package.json
+
+- `GET /api/articles/:id` - Get single article
+
+- `POST /api/articles` - Create article (admin only)│```bash
+
+- `PUT /api/articles/:id` - Update article (admin only)
+
+- `DELETE /api/articles/:id` - Delete article (admin only)├── news-website/              # React/Vite Frontendnpm run dev
+
+
+
+### Categories & Tags│   ├── src/```
+
+- `GET /api/categories` - Get all categories
+
+- `POST /api/categories` - Create category (admin only)│   │   ├── components/       # Reusable components
+
+- `GET /api/tags` - Get all tags
+
+- `POST /api/tags` - Create tag (admin only)│   │   ├── pages/            # Page componentsBackend will run on `http://localhost:5000`
+
+
+
+### Comments│   │   ├── contexts/         # React contexts
+
+- `GET /api/comments/article/:articleId` - Get article comments
+
+- `POST /api/comments` - Create comment (auth required)│   │   ├── lib/              # API client, utils### 3. Frontend Setup
+
+- `DELETE /api/comments/:id` - Delete comment (owner/admin)
+
+│   │   └── App.jsx
+
+### Bookmarks
+
+- `GET /api/bookmarks` - Get user bookmarks (auth required)│   ├── .env.local            # Frontend config```bash
+
+- `POST /api/bookmarks` - Add bookmark (auth required)
+
+- `DELETE /api/bookmarks/:id` - Remove bookmark (auth required)│   └── package.jsoncd ../news-website
+
+
+
+### Newsletter│
+
+- `POST /api/newsletter/subscribe` - Subscribe to newsletter
+
+- `POST /api/newsletter/unsubscribe` - Unsubscribe from newsletter├── package.json              # Root package for running both# Install dependencies
+
+
+
+## 🚀 Deployment└── README.md                 # This filenpm install
+
+
+
+### Frontend (Vercel)```
+
+```bash
+
+cd apps/frontend# Create .env.local file
+
+npm run build
+
+# Deploy dist/ folder to Vercel## 🔧 Environment Variables```
+
+```
+
+
+
+Environment variables for Vercel:
+
+- `VITE_API_URL` - Your backend API URL### Backend (.env)**Configure Frontend `.env.local`:**
+
+
+
+### Backend (Render/Railway)```bash
+
+```bash
+
+cd apps/backend# Server```env
+
+# Deploy to Render or Railway
+
+```PORT=5000VITE_API_URL=http://localhost:5000/api
+
+
+
+Environment variables:NODE_ENV=developmentVITE_APP_NAME=News Website
+
+- All variables from `.env.example`
+
+- `NODE_ENV=production`VITE_APP_URL=http://localhost:5173
+
+- `FRONTEND_URL` - Your frontend URL
+
+# Database - Choose one:```
+
+## 🛠️ Tech Stack
+
+# Option 1: MongoDB Atlas (Cloud)
+
+### Frontend
+
+- **Framework**: React 19MONGODB_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/news_website**Start Frontend:**
+
+- **Build Tool**: Vite
+
+- **Styling**: Tailwind CSS
+
+- **Routing**: React Router v6
+
+- **State Management**: Context API# Option 2: Local MongoDB```bash
+
+- **HTTP Client**: Axios
+
+- **SEO**: React Helmet Async# MONGODB_URI=mongodb://localhost:27017/news_websitenpm run dev
+
+- **Icons**: Lucide React
+
+- **Date**: date-fns```
+
+
+
+### Backend# JWT Authentication
+
+- **Runtime**: Node.js
+
+- **Framework**: Express.jsJWT_SECRET=your_super_secret_jwt_key_change_this_in_productionFrontend will run on `http://localhost:5173`
+
+- **Database**: MongoDB with Mongoose
+
+- **Authentication**: JWT (jsonwebtoken)JWT_EXPIRE=7d
+
+- **Validation**: express-validator
+
+- **Image Upload**: CloudinaryJWT_REFRESH_SECRET=your_refresh_token_secret_change_this## 🎯 Usage
+
+- **Email**: Nodemailer
+
+- **Security**: Helmet, CORS, express-rate-limitJWT_REFRESH_EXPIRE=30d
+
+- **File Upload**: Multer
 
 ### Creating Admin User
 
+## 📝 License
+
 # Cloudinary (Image Uploads) - Already configured for testing
+
+ISC
 
 CLOUDINARY_CLOUD_NAME=dhh2jqj1n1. Register a regular user through the website
 
+## 🤝 Contributing
+
 CLOUDINARY_API_KEY=2474989814583462. Connect to MongoDB and update the user's role:
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 CLOUDINARY_API_SECRET=xiMPe_-YJEsd_ScZxhpOqi286hU
 
+## 📧 Support
+
 **MongoDB Shell:**
+
+For support, email your-email@example.com or open an issue on GitHub.
 
 # Email (Optional - for newsletters, welcome emails)```javascript
 
+---
+
 EMAIL_HOST=smtp.gmail.comdb.users.updateOne(
+
+**Built with ❤️ using modern web technologies**
 
 EMAIL_PORT=587  { email: "admin@example.com" },
 

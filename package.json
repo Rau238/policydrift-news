@@ -1,37 +1,39 @@
 {
-  "name": "news-website",
+  "name": "policydrift-news",
+  "version": "1.0.0",
+  "description": "A professional, modern news website built with React (Vite) frontend and Node.js/Express/MongoDB backend. Features include article management, user authentication, comments, bookmarks, newsletter subscriptions, and a complete admin dashboard.",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "build": "npm run build --workspace=apps/frontend",
+    "build:backend": "npm run build --workspace=apps/backend",
+    "build:frontend": "npm run build --workspace=apps/frontend",
+    "install:all": "npm install",
+    "clean": "rm -rf node_modules apps/*/node_modules",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces"
   },
-  "dependencies": {
-    "axios": "^1.13.0",
-    "compression": "^1.7.4",
-    "express": "^4.21.2",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.3",
-    "web-vitals": "^5.1.0"
-  },
+  "keywords": [
+    "news",
+    "react",
+    "vite",
+    "nodejs",
+    "express",
+    "mongodb",
+    "monorepo"
+  ],
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
-    "@eslint/js": "^9.36.0",
-    "@headlessui/react": "^2.2.9",
-    "@heroicons/react": "^2.2.0",
-    "@types/react": "^19.1.16",
-    "@types/react-dom": "^19.1.9",
-    "@vitejs/plugin-react": "^5.0.4",
-    "autoprefixer": "^10.4.17",
-    "eslint": "^9.36.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.22",
-    "globals": "^16.4.0",
-    "postcss": "^8.4.35",
-    "tailwindcss": "^3.4.1",
-    "vite": "^7.1.7"
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }
