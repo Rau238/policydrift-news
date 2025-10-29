@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { tagsAPI } from '../lib/api';
 
 const PopularTags = ({ limit = 12 }) => {
   const [tags, setTags] = useState([]);
@@ -14,15 +14,8 @@ const PopularTags = ({ limit = 12 }) => {
     try {
       setLoading(true);
       
-      // Fetch all tags
-      const { data, error } = await supabase
-        .from('tags')
-        .select('*')
-        .order('name', { ascending: true })
-        .limit(limit);
-
-      if (error) throw error;
-      setTags(data || []);
+      const response = await tagsAPI.getPopular(limit);
+      setTags(response.data || []);
     } catch (error) {
       console.error('Error fetching tags:', error);
     } finally {

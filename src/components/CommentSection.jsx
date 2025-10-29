@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { commentsAPI } from '../lib/api';
 import Button from './ui/Button';
 
 const CommentSection = ({ articleId }) => {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,56 +17,12 @@ const CommentSection = ({ articleId }) => {
 
   useEffect(() => {
     fetchComments();
-
-    // Subscribe to real-time updates
-    const subscription = supabase
-      .channel(`comments:${articleId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'comments',
-          filter: `article_id=eq.${articleId}`,
-        },
-        (payload) => {
-          if (payload.eventType === 'INSERT') {
-            fetchComments();
-          } else if (payload.eventType === 'UPDATE') {
-            setComments((prev) =>
-              prev.map((comment) =>
-                comment.id === payload.new.id
-                  ? { ...comment, ...payload.new }
-                  : comment
-              )
-            );
-          } else if (payload.eventType === 'DELETE') {
-            setComments((prev) =>
-              prev.filter((comment) => comment.id !== payload.old.id)
-            );
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, [articleId]);
 
   const fetchComments = async () => {
     try {
-      const { data, error } = await supabase
-        .from('comments')
-        .select(`
-          *,
-          profiles:user_id (username, avatar_url)
-        `)
-        .eq('article_id', articleId)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-      setComments(data || []);
+      const response = await commentsAPI.getByArticle(articleId);
+      setComments(response.data || []);
     } catch (err) {
       console.error('Error fetching comments:', err);
     } finally {
@@ -87,22 +43,18 @@ const CommentSection = ({ articleId }) => {
     setSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from('comments')
-        .insert({
-          article_id: articleId,
-          user_id: user.id,
-          content: newComment.trim(),
-          parent_id: replyTo?.id || null,
-        });
-
-      if (error) throw error;
+      await commentsAPI.create({
+        article: articleId,
+        content: newComment.trim(),
+        parent_comment: replyTo?.id || null,
+      });
 
       setNewComment('');
       setReplyTo(null);
+      await fetchComments(); // Refresh comments
     } catch (err) {
       console.error('Error posting comment:', err);
-      alert('Failed to post comment');
+      alert(err.message || 'Failed to post comment');
     } finally {
       setSubmitting(false);
     }
@@ -112,18 +64,13 @@ const CommentSection = ({ articleId }) => {
     if (!editContent.trim()) return;
 
     try {
-      const { error } = await supabase
-        .from('comments')
-        .update({ content: editContent.trim() })
-        .eq('id', commentId);
-
-      if (error) throw error;
-
+      await commentsAPI.update(commentId, { content: editContent.trim() });
       setEditingComment(null);
       setEditContent('');
+      await fetchComments(); // Refresh comments
     } catch (err) {
       console.error('Error updating comment:', err);
-      alert('Failed to update comment');
+      alert(err.message || 'Failed to update comment');
     }
   };
 
@@ -133,21 +80,31 @@ const CommentSection = ({ articleId }) => {
     }
 
     try {
-      const { error } = await supabase
-        .from('comments')
-        .delete()
-        .eq('id', commentId);
-
-      if (error) throw error;
+      await commentsAPI.delete(commentId);
+      await fetchComments(); // Refresh comments
     } catch (err) {
       console.error('Error deleting comment:', err);
-      alert('Failed to delete comment');
+      alert(err.message || 'Failed to delete comment');
+    }
+  };
+
+  const handleToggleLike = async (commentId) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      await commentsAPI.toggleLike(commentId);
+      await fetchComments(); // Refresh comments
+    } catch (err) {
+      console.error('Error toggling like:', err);
     }
   };
 
   const startReply = (comment) => {
     setReplyTo(comment);
-    setNewComment(`@${comment.profiles.username} `);
+    setNewComment(`@${comment.user?.username || 'User'} `);
   };
 
   const startEdit = (comment) => {
@@ -183,42 +140,28 @@ const CommentSection = ({ articleId }) => {
   };
 
   const organizeComments = () => {
-    const commentMap = {};
-    const rootComments = [];
-
-    comments.forEach((comment) => {
-      commentMap[comment.id] = { ...comment, replies: [] };
-    });
-
-    comments.forEach((comment) => {
-      if (comment.parent_id) {
-        if (commentMap[comment.parent_id]) {
-          commentMap[comment.parent_id].replies.push(commentMap[comment.id]);
-        }
-      } else {
-        rootComments.push(commentMap[comment.id]);
-      }
-    });
-
-    return rootComments;
+    // Comments from backend already have replies populated
+    // Just filter for root-level comments
+    return comments.filter(comment => !comment.parent_comment);
   };
 
   const CommentItem = ({ comment, isReply = false }) => {
-    const isAuthor = user && comment.user_id === user.id;
-    const isEditing = editingComment === comment.id;
+    const isAuthor = user && comment.user?._id === user._id;
+    const isEditing = editingComment === comment._id;
+    const isLiked = comment.likes?.includes(user?._id);
 
     return (
       <div className={`flex gap-3 ${isReply ? 'ml-10 mt-3' : 'mt-4'}`}>
         <div className="flex-shrink-0">
-          {comment.profiles?.avatar_url ? (
+          {comment.user?.avatar_url ? (
             <img 
-              src={comment.profiles.avatar_url} 
-              alt={comment.profiles.username}
+              src={comment.user.avatar_url} 
+              alt={comment.user.username}
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold">
-              {comment.profiles?.username?.charAt(0).toUpperCase() || 'U'}
+              {comment.user?.username?.charAt(0).toUpperCase() || 'U'}
             </div>
           )}
         </div>
@@ -226,11 +169,16 @@ const CommentSection = ({ articleId }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="font-medium text-sm text-slate-900 dark:text-white">
-              {comment.profiles?.username || 'Anonymous'}
+              {comment.user?.username || 'Anonymous'}
             </span>
             <span className="text-xs text-slate-500 dark:text-slate-400">
               {formatDate(comment.created_at)}
             </span>
+            {comment.isEdited && (
+              <span className="text-xs text-slate-400 dark:text-slate-500 italic">
+                (edited)
+              </span>
+            )}
           </div>
 
           {isEditing ? (
@@ -243,7 +191,7 @@ const CommentSection = ({ articleId }) => {
               />
               <div className="flex gap-2">
                 <button
-                  onClick={() => handleEditComment(comment.id)}
+                  onClick={() => handleEditComment(comment._id)}
                   className="px-3 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
                 >
                   Save
@@ -264,6 +212,21 @@ const CommentSection = ({ articleId }) => {
               <div className="flex items-center gap-3">
                 {user && (
                   <button
+                    onClick={() => handleToggleLike(comment._id)}
+                    className={`flex items-center gap-1 text-xs font-medium transition-colors ${
+                      isLiked 
+                        ? 'text-red-600 dark:text-red-400' 
+                        : 'text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400'
+                    }`}
+                  >
+                    <svg className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    {comment.likes?.length || 0}
+                  </button>
+                )}
+                {user && (
+                  <button
                     onClick={() => startReply(comment)}
                     className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                   >
@@ -279,7 +242,7 @@ const CommentSection = ({ articleId }) => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDeleteComment(comment.id)}
+                      onClick={() => handleDeleteComment(comment._id)}
                       className="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
                     >
                       Delete
@@ -293,16 +256,14 @@ const CommentSection = ({ articleId }) => {
           {comment.replies && comment.replies.length > 0 && (
             <div className="mt-2">
               {comment.replies.map((reply) => (
-                <CommentItem key={reply.id} comment={reply} isReply />
+                <CommentItem key={reply._id} comment={reply} isReply />
               ))}
             </div>
           )}
         </div>
       </div>
     );
-  };
-
-  const organizedComments = organizeComments();
+  };  const organizedComments = organizeComments();
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
@@ -318,7 +279,7 @@ const CommentSection = ({ articleId }) => {
         {replyTo && (
           <div className="mb-3 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center justify-between">
             <span className="text-sm text-blue-700 dark:text-blue-400">
-              Replying to <strong>@{replyTo.profiles.username}</strong>
+              Replying to <strong>@{replyTo.user?.username || 'User'}</strong>
             </span>
             <button
               type="button"
@@ -333,15 +294,15 @@ const CommentSection = ({ articleId }) => {
         )}
         
         <div className="flex gap-3 mb-3">
-          {user && profile?.avatar_url ? (
+          {user && user.avatar_url ? (
             <img
-              src={profile.avatar_url}
-              alt={profile.username}
+              src={user.avatar_url}
+              alt={user.username}
               className="w-9 h-9 rounded-full object-cover flex-shrink-0"
             />
           ) : user ? (
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
-              {profile?.username?.charAt(0).toUpperCase() || 'U'}
+              {user.username?.charAt(0).toUpperCase() || 'U'}
             </div>
           ) : (
             <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 flex-shrink-0">
@@ -421,7 +382,7 @@ const CommentSection = ({ articleId }) => {
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {organizedComments.map((comment) => (
-              <CommentItem key={comment.id} comment={comment} />
+              <CommentItem key={comment._id} comment={comment} />
             ))}
           </div>
         )}

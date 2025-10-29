@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { categoriesAPI } from '../../lib/api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -14,7 +14,6 @@ const AdminCategories = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    slug: '',
     description: '',
     color: '#3B82F6',
     icon: ''
@@ -29,13 +28,8 @@ const AdminCategories = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      setCategories(data || []);
+      const response = await categoriesAPI.getAll();
+      setCategories(response.data || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -46,21 +40,12 @@ const AdminCategories = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Auto-generate slug from name
-    if (name === 'name' && !editingCategory) {
-      const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      setFormData(prev => ({ ...prev, slug }));
-    }
-    
     setFormErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const validateForm = () => {
     const errors = {};
     if (!formData.name.trim()) errors.name = 'Name is required';
-    if (!formData.slug.trim()) errors.slug = 'Slug is required';
-    if (!/^[a-z0-9-]+$/.test(formData.slug)) errors.slug = 'Slug can only contain lowercase letters, numbers, and hyphens';
     return errors;
   };
 
@@ -77,31 +62,20 @@ const AdminCategories = () => {
     try {
       if (editingCategory) {
         // Update existing category
-        const { error } = await supabase
-          .from('categories')
-          .update({
-            name: formData.name,
-            slug: formData.slug,
-            description: formData.description,
-            color: formData.color,
-            icon: formData.icon
-          })
-          .eq('id', editingCategory.id);
-
-        if (error) throw error;
+        await categoriesAPI.update(editingCategory._id, {
+          name: formData.name,
+          description: formData.description,
+          color: formData.color,
+          icon: formData.icon
+        });
       } else {
         // Create new category
-        const { error } = await supabase
-          .from('categories')
-          .insert([{
-            name: formData.name,
-            slug: formData.slug,
-            description: formData.description,
-            color: formData.color,
-            icon: formData.icon
-          }]);
-
-        if (error) throw error;
+        await categoriesAPI.create({
+          name: formData.name,
+          description: formData.description,
+          color: formData.color,
+          icon: formData.icon
+        });
       }
 
       await fetchCategories();
@@ -117,7 +91,6 @@ const AdminCategories = () => {
     setEditingCategory(category);
     setFormData({
       name: category.name,
-      slug: category.slug,
       description: category.description || '',
       color: category.color || '#3B82F6',
       icon: category.icon || ''
@@ -131,12 +104,7 @@ const AdminCategories = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('categories')
-        .delete()
-        .eq('id', category.id);
-
-      if (error) throw error;
+      await categoriesAPI.delete(category._id);
       await fetchCategories();
     } catch (err) {
       alert('Error deleting category: ' + err.message);
@@ -204,7 +172,7 @@ const AdminCategories = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories.map((category) => (
-            <Card key={category.id} className="p-6 hover:shadow-xl transition-shadow">
+            <Card key={category._id} className="p-6 hover:shadow-xl transition-shadow">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   {category.icon && (

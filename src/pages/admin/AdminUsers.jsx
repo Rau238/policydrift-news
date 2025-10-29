@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { usersAPI } from '../../lib/api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Loading from '../../components/ui/Loading';
@@ -14,13 +14,8 @@ const AdminUsers = () => {
 
   const loadUsers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setUsers(data || []);
+      const response = await usersAPI.getAll({ sort: '-created_at' });
+      setUsers(response.data || []);
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
@@ -31,12 +26,7 @@ const AdminUsers = () => {
   const toggleRole = async (userId, currentRole) => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', userId);
-
-      if (error) throw error;
+      await usersAPI.updateRole(userId, newRole);
       loadUsers();
     } catch (error) {
       console.error('Error updating role:', error);
@@ -57,7 +47,7 @@ const AdminUsers = () => {
       {/* Mobile Card View */}
       <div className="lg:hidden space-y-4">
         {users.map((user) => (
-          <Card key={user.id} className="p-4">
+          <Card key={user._id} className="p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
@@ -99,7 +89,7 @@ const AdminUsers = () => {
               <Button
                 size="sm"
                 variant={user.role === 'admin' ? 'outline' : 'primary'}
-                onClick={() => toggleRole(user.id, user.role)}
+                onClick={() => toggleRole(user._id, user.role)}
                 className="flex-shrink-0 text-xs px-3 py-1.5"
               >
                 {user.role === 'admin' ? '⬇️' : '⬆️'}
@@ -125,7 +115,7 @@ const AdminUsers = () => {
             </thead>
             <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
               {users.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                <tr key={user._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       {user.avatar_url ? (
@@ -161,7 +151,7 @@ const AdminUsers = () => {
                     <Button
                       size="sm"
                       variant={user.role === 'admin' ? 'outline' : 'primary'}
-                      onClick={() => toggleRole(user.id, user.role)}
+                      onClick={() => toggleRole(user._id, user.role)}
                     >
                       {user.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
                     </Button>

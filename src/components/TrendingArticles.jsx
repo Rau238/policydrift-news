@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { articlesAPI } from '../lib/api';
 import { formatArticleDate } from '../lib/utils';
 
 const TrendingArticles = ({ limit = 5 }) => {
@@ -15,29 +15,8 @@ const TrendingArticles = ({ limit = 5 }) => {
     try {
       setLoading(true);
       
-      // Fetch articles ordered by views_count (most viewed first)
-      // In the last 7 days
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      
-      const { data, error } = await supabase
-        .from('articles')
-        .select(`
-          id,
-          title,
-          slug,
-          created_at,
-          views_count,
-          featured_image,
-          categories:category_id (name, slug, color, icon)
-        `)
-        .eq('status', 'published')
-        .gte('created_at', sevenDaysAgo.toISOString())
-        .order('views_count', { ascending: false })
-        .limit(limit);
-
-      if (error) throw error;
-      setTrending(data || []);
+      const response = await articlesAPI.getTrending(limit);
+      setTrending(response.data || []);
     } catch (error) {
       console.error('Error fetching trending articles:', error);
     } finally {
@@ -106,13 +85,13 @@ const TrendingArticles = ({ limit = 5 }) => {
                 {article.title}
               </h4>
               <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                {article.categories && (
+                {article.category && (
                   <>
                     <span 
                       className="px-2 py-0.5 rounded-full text-white font-medium"
-                      style={{ backgroundColor: article.categories.color || '#3B82F6' }}
+                      style={{ backgroundColor: article.category.color || '#3B82F6' }}
                     >
-                      {article.categories.name}
+                      {article.category.name}
                     </span>
                     <span>•</span>
                   </>
@@ -122,7 +101,7 @@ const TrendingArticles = ({ limit = 5 }) => {
                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                     <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
                   </svg>
-                  {article.views_count || 0}
+                  {article.views || 0}
                 </span>
               </div>
             </div>

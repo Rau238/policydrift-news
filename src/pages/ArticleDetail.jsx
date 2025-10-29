@@ -1,30 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { articlesAPI, bookmarksAPI } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import Loading from '../components/ui/Loading';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import Button from '../components/ui/Button';
-import Badge from '../components/ui/Badge';
 import CommentSection from '../components/CommentSection';
 import SocialShare from '../components/SocialShare';
 import { useSEO } from '../hooks/useSEO';
 import AdSense from '../components/AdSense';
 import { ArticleDetailSkeleton } from '../components/ui/Skeleton';
-import { getArticleCategory } from '../lib/utils';
 
 const ArticleDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { settings } = useSiteSettings();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [likesCount, setLikesCount] = useState(0);
   const [relatedArticles, setRelatedArticles] = useState([]);
   const [readingProgress, setReadingProgress] = useState(0);
 
@@ -60,7 +56,7 @@ const ArticleDetail = () => {
 
   useEffect(() => {
     if (user && article) {
-      checkUserInteractions();
+      checkBookmarkStatus();
     }
   }, [user, article]);
 
@@ -74,69 +70,35 @@ const ArticleDetail = () => {
       // Add a minimum loading time to ensure skeleton is visible
       const minLoadTime = new Promise(resolve => setTimeout(resolve, 500));
 
-      const { data, error: fetchError } = await supabase
-        .from('articles')
-        .select(`
-          *,
-          profiles:author_id (username, avatar_url, full_name),
-          categories:category_id (name, slug)
-        `)
-        .eq('slug', slug)
-        .eq('status', 'published')
-        .maybeSingle();
+      const response = await articlesAPI.getBySlug(slug);
 
       // Wait for minimum load time
       await minLoadTime;
 
-      if (fetchError) {
-        console.error('Fetch error:', fetchError);
-        throw fetchError;
-      }
-
-      if (!data) {
+      if (!response.data) {
         console.log('No article found with slug:', slug);
         setError('Article not found');
         setLoading(false);
         return;
       }
 
-      console.log('Article loaded:', data.title);
-      setArticle(data);
+      console.log('Article loaded:', response.data.title);
+      setArticle(response.data);
 
       // Increment view count
-      await supabase
-        .from('articles')
-        .update({ views_count: (data.views_count || 0) + 1 })
-        .eq('id', data.id);
-
-      // Get likes count
-      const { count } = await supabase
-        .from('likes')
-        .select('*', { count: 'exact', head: true })
-        .eq('article_id', data.id);
-      
-      setLikesCount(count || 0);
+      try {
+        await articlesAPI.incrementViews(response.data._id);
+      } catch (err) {
+        console.error('Failed to increment views:', err);
+      }
 
       // Fetch related articles
-      const { data: relatedData } = await supabase
-        .from('articles')
-        .select(`
-          id,
-          title,
-          slug,
-          excerpt,
-          featured_image,
-          created_at,
-          views_count,
-          categories:category_id (name, slug)
-        `)
-        .eq('status', 'published')
-        .eq('category_id', data.category_id)
-        .neq('id', data.id)
-        .order('created_at', { ascending: false })
-        .limit(4);
-
-      setRelatedArticles(relatedData || []);
+      try {
+        const relatedResponse = await articlesAPI.getRelated(response.data._id);
+        setRelatedArticles(relatedResponse.data || []);
+      } catch (err) {
+        console.error('Failed to fetch related articles:', err);
+      }
     } catch (err) {
       console.error('Error fetching article:', err);
       setError(err.message || 'Failed to load article');
@@ -145,58 +107,18 @@ const ArticleDetail = () => {
     }
   };
 
-  const checkUserInteractions = async () => {
-    if (!article) return;
+  const checkBookmarkStatus = async () => {
+    if (!article || !user) return;
 
     try {
-      const { data: likeData } = await supabase
-        .from('likes')
-        .select('id')
-        .eq('article_id', article.id)
-        .eq('user_id', user.id)
-        .single();
-      
-      setIsLiked(!!likeData);
-
-      const { data: bookmarkData } = await supabase
-        .from('bookmarks')
-        .select('id')
-        .eq('article_id', article.id)
-        .eq('user_id', user.id)
-        .single();
-      
-      setIsBookmarked(!!bookmarkData);
+      const response = await bookmarksAPI.getAll();
+      const bookmarks = response.data || [];
+      const isArticleBookmarked = bookmarks.some(
+        bookmark => bookmark.article?._id === article._id
+      );
+      setIsBookmarked(isArticleBookmarked);
     } catch (err) {
-      // Expected when no interaction exists
-    }
-  };
-
-  const handleLike = async () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
-    try {
-      if (isLiked) {
-        await supabase
-          .from('likes')
-          .delete()
-          .eq('article_id', article.id)
-          .eq('user_id', user.id);
-        
-        setIsLiked(false);
-        setLikesCount(prev => prev - 1);
-      } else {
-        await supabase
-          .from('likes')
-          .insert({ article_id: article.id, user_id: user.id });
-        
-        setIsLiked(true);
-        setLikesCount(prev => prev + 1);
-      }
-    } catch (err) {
-      console.error('Error toggling like:', err);
+      console.error('Error checking bookmark status:', err);
     }
   };
 
@@ -207,21 +129,8 @@ const ArticleDetail = () => {
     }
 
     try {
-      if (isBookmarked) {
-        await supabase
-          .from('bookmarks')
-          .delete()
-          .eq('article_id', article.id)
-          .eq('user_id', user.id);
-        
-        setIsBookmarked(false);
-      } else {
-        await supabase
-          .from('bookmarks')
-          .insert({ article_id: article.id, user_id: user.id });
-        
-        setIsBookmarked(true);
-      }
+      await bookmarksAPI.toggle(article._id);
+      setIsBookmarked(!isBookmarked);
     } catch (err) {
       console.error('Error toggling bookmark:', err);
     }
@@ -233,12 +142,7 @@ const ArticleDetail = () => {
     }
 
     try {
-      const { error: deleteError } = await supabase
-        .from('articles')
-        .delete()
-        .eq('id', article.id);
-
-      if (deleteError) throw deleteError;
+      await articlesAPI.delete(article._id);
       navigate('/');
     } catch (err) {
       console.error('Error deleting article:', err);
@@ -269,7 +173,7 @@ const ArticleDetail = () => {
     );
   }
 
-  const isAuthor = user && article.author_id === user.id;
+  const isAuthor = user && article.author?._id === user.id;
 
   // Generate structured data
   const structuredData = {
@@ -282,11 +186,11 @@ const ArticleDetail = () => {
     "dateModified": article.updated_at || article.created_at,
     "author": {
       "@type": "Person",
-      "name": article.profiles?.full_name || article.profiles?.username || "Unknown Author"
+      "name": article.author?.full_name || article.author?.username || "Unknown Author"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "PolicyDrift News",
+      "name": settings?.site_name || "PolicyDrift News",
       "logo": {
         "@type": "ImageObject",
         "url": `${window.location.origin}/logo.png`
@@ -296,8 +200,8 @@ const ArticleDetail = () => {
       "@type": "WebPage",
       "@id": window.location.href
     },
-    "articleSection": article.categories?.name,
-    "keywords": article.tags?.join(', ')
+    "articleSection": article.category?.name,
+    "keywords": article.tags?.map(t => t.name).join(', ')
   };
 
   return (
@@ -334,10 +238,13 @@ const ArticleDetail = () => {
             <div className="relative h-full flex items-end">
               <div className="container mx-auto px-4 max-w-6xl pb-12 md:pb-16">
                 <div className="max-w-4xl space-y-6">
-                  {article.categories && (
+                  {article.category && (
                     <div className="inline-flex">
-                      <span className="px-5 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold rounded-full shadow-lg shadow-blue-500/50">
-                        {getArticleCategory(article)}
+                      <span 
+                        className="px-5 py-2 text-white text-sm font-semibold rounded-full shadow-lg"
+                        style={{ backgroundColor: article.category.color || '#3B82F6' }}
+                      >
+                        {article.category.icon} {article.category.name}
                       </span>
                     </div>
                   )}
@@ -374,9 +281,12 @@ const ArticleDetail = () => {
                 {/* Article Header (if no featured image) */}
                 {!article.featured_image && (
                   <header className="p-8 md:p-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-900">
-                    {article.categories && (
-                      <span className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold rounded-full mb-6">
-                        {getArticleCategory(article)}
+                    {article.category && (
+                      <span 
+                        className="inline-block px-4 py-2 text-white text-sm font-semibold rounded-full mb-6"
+                        style={{ backgroundColor: article.category.color || '#3B82F6' }}
+                      >
+                        {article.category.icon} {article.category.name}
                       </span>
                     )}
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
@@ -395,15 +305,15 @@ const ArticleDetail = () => {
                   <div className="flex flex-wrap items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                       <div className="relative">
-                        {article.profiles?.avatar_url ? (
+                        {article.author?.avatar_url ? (
                           <img
-                            src={article.profiles.avatar_url}
-                            alt={article.profiles.username}
+                            src={article.author.avatar_url}
+                            alt={article.author.username}
                             className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover border-4 border-white dark:border-slate-700 shadow-xl ring-2 ring-blue-500/20"
                           />
                         ) : (
                           <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl font-bold shadow-xl ring-2 ring-blue-500/20">
-                            {article.profiles?.username?.[0]?.toUpperCase() || 'A'}
+                            {article.author?.username?.[0]?.toUpperCase() || 'A'}
                           </div>
                         )}
                         <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-3 border-white dark:border-slate-800 rounded-full"></div>
@@ -411,7 +321,7 @@ const ArticleDetail = () => {
                       
                       <div>
                         <div className="text-lg md:text-xl font-bold text-slate-900 dark:text-white mb-1">
-                          {article.profiles?.full_name || article.profiles?.username || 'Anonymous'}
+                          {article.author?.full_name || article.author?.username || 'Anonymous'}
                         </div>
                         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
                           <span className="flex items-center gap-1.5">
@@ -433,27 +343,13 @@ const ArticleDetail = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
-                            {article.views_count || 0}
+                            {article.views || 0}
                           </span>
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <button
-                        onClick={handleLike}
-                        className={`group flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 ${
-                          isLiked 
-                            ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/50' 
-                            : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 border-2 border-slate-200 dark:border-slate-600'
-                        }`}
-                      >
-                        <svg className={`w-6 h-6 transition-transform group-hover:scale-110 ${isLiked ? 'fill-current' : ''}`} fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                        <span className="font-bold">{likesCount}</span>
-                      </button>
-
                       <button
                         onClick={handleBookmark}
                         className={`group flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 ${
@@ -465,6 +361,7 @@ const ArticleDetail = () => {
                         <svg className={`w-6 h-6 transition-transform group-hover:scale-110 ${isBookmarked ? 'fill-current' : ''}`} fill={isBookmarked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                         </svg>
+                        <span>{isBookmarked ? 'Saved' : 'Save'}</span>
                       </button>
                     </div>
                   </div>
@@ -521,13 +418,14 @@ const ArticleDetail = () => {
                   {/* Tags */}
                   {article.tags && article.tags.length > 0 && (
                     <div className="flex flex-wrap gap-3 mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
-                      {article.tags.map((tag, index) => (
-                        <span 
-                          key={index} 
+                      {article.tags.map((tag) => (
+                        <Link
+                          key={tag._id}
+                          to={`/tag/${tag.slug}`}
                           className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-semibold hover:from-blue-100 hover:to-purple-100 dark:hover:from-blue-900/50 dark:hover:to-purple-900/50 transition-all cursor-pointer border border-blue-200 dark:border-blue-800"
                         >
-                          #{tag}
-                        </span>
+                          #{tag.name}
+                        </Link>
                       ))}
                     </div>
                   )}
@@ -539,7 +437,7 @@ const ArticleDetail = () => {
                     <div className="flex flex-wrap gap-3">
                       <Button
                         variant="primary"
-                        onClick={() => navigate(`/article/${article.slug}/edit`)}
+                        onClick={() => navigate(`/create-article?edit=${article._id}`)}
                         className="flex-1 sm:flex-none"
                       >
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -562,9 +460,9 @@ const ArticleDetail = () => {
                 )}
 
                 {/* Comments */}
-                {settings?.enable_comments && (
+                {settings?.features?.comments && (
                   <div className="border-t border-slate-200 dark:border-slate-700">
-                    <CommentSection articleId={article.id} />
+                    <CommentSection articleId={article._id} />
                   </div>
                 )}
               </div>
@@ -573,9 +471,11 @@ const ArticleDetail = () => {
             {/* Sidebar */}
             <aside className="lg:col-span-4 lg:sticky lg:top-24 lg:self-start space-y-8">
               {/* AdSense */}
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
-                <AdSense slot="auto" format="rectangle" />
-              </div>
+              {settings?.features?.ads && (
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
+                  <AdSense slot="auto" format="rectangle" />
+                </div>
+              )}
 
               {/* Related Articles */}
               {relatedArticles.length > 0 && (
@@ -590,7 +490,7 @@ const ArticleDetail = () => {
                   <div className="space-y-4">
                     {relatedArticles.slice(0, 3).map((relatedArticle) => (
                       <Link
-                        key={relatedArticle.id}
+                        key={relatedArticle._id}
                         to={`/article/${relatedArticle.slug}`}
                         className="group block"
                       >
@@ -616,7 +516,7 @@ const ArticleDetail = () => {
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
-                                {relatedArticle.views_count || 0}
+                                {relatedArticle.views || 0}
                               </span>
                             </div>
                           </div>
@@ -625,12 +525,12 @@ const ArticleDetail = () => {
                     ))}
                   </div>
 
-                  {relatedArticles.length > 3 && (
+                  {relatedArticles.length > 3 && article.category && (
                     <Link
-                      to={`/category/${article.categories?.slug}`}
+                      to={`/category/${article.category.slug}`}
                       className="mt-6 block text-center px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-600 dark:text-blue-400 font-semibold rounded-xl hover:from-blue-100 hover:to-purple-100 dark:hover:from-blue-900/50 dark:hover:to-purple-900/50 transition-all"
                     >
-                      View All in {article.categories?.name}
+                      View All in {article.category.name}
                     </Link>
                   )}
                 </div>

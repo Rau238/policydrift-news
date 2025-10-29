@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { siteSettingsAPI } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -110,16 +110,11 @@ const AdminSettings = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('*')
-        .limit(1)
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
+      const response = await siteSettingsAPI.get();
+      const data = response.data;
 
       if (data) {
-        setSettingsId(data.id);
+        setSettingsId(data._id);
         setSettings({
           site_name: data.site_name || '',
           site_logo: data.site_logo || '',
@@ -218,21 +213,15 @@ const AdminSettings = () => {
       setUploadingImage({ ...uploadingImage, [field]: true });
       setMessage({ type: '', text: '' });
 
-      const fileExt = croppedFile.name.split('.').pop();
-      const fileName = `${field}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      // Upload image using FormData
+      const formData = new FormData();
+      formData.append('image', croppedFile);
+      formData.append('field', field);
 
-      const { error: uploadError } = await supabase.storage
-        .from('site-settings')
-        .upload(filePath, croppedFile, { upsert: true });
+      const response = await siteSettingsAPI.uploadImage(formData);
+      const imageUrl = response.data.url;
 
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('site-settings')
-        .getPublicUrl(filePath);
-
-      setSettings({ ...settings, [field]: publicUrl });
+      setSettings({ ...settings, [field]: imageUrl });
       setMessage({ type: 'success', text: 'Image uploaded successfully!' });
       setCropperState({ show: false, file: null, field: null });
     } catch (err) {
@@ -258,23 +247,7 @@ const AdminSettings = () => {
         updated_at: new Date().toISOString(),
       };
 
-      if (settingsId) {
-        const { error } = await supabase
-          .from('site_settings')
-          .update(settingsData)
-          .eq('id', settingsId);
-
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase
-          .from('site_settings')
-          .insert([settingsData])
-          .select()
-          .single();
-
-        if (error) throw error;
-        setSettingsId(data.id);
-      }
+      await siteSettingsAPI.update(settingsData);
 
       setMessage({ type: 'success', text: 'Settings saved successfully! Reloading page...' });
       

@@ -1,18 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
+import { categoriesAPI } from '../../lib/api';
 import Loading from '../ui/Loading';
 import TrendingArticles from '../TrendingArticles';
 import PopularTags from '../PopularTags';
 import Newsletter from '../Newsletter';
 
 const Sidebar = () => {
-  const [trending, setTrending] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState('');
-  const [subscribing, setSubscribing] = useState(false);
-  const [subscribeMessage, setSubscribeMessage] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -20,54 +16,12 @@ const Sidebar = () => {
 
   const fetchData = async () => {
     try {
-      const [articlesRes, categoriesRes] = await Promise.all([
-        supabase
-          .from('articles')
-          .select('id, title, slug, views_count, created_at')
-          .eq('status', 'published')
-          .order('views_count', { ascending: false })
-          .limit(5),
-        supabase
-          .from('categories')
-          .select('id, name, slug, icon, color')
-          .order('name', { ascending: true })
-          .limit(8)
-      ]);
-
-      if (articlesRes.data) setTrending(articlesRes.data);
-      if (categoriesRes.data) setCategories(categoriesRes.data);
+      const response = await categoriesAPI.getAll({ limit: 8 });
+      setCategories(response.data || []);
     } catch (error) {
       console.error('Error fetching sidebar data:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSubscribe = async (e) => {
-    e.preventDefault();
-    setSubscribing(true);
-    setSubscribeMessage('');
-
-    try {
-      const { error } = await supabase
-        .from('newsletters')
-        .insert([{ email, subscribed_at: new Date().toISOString() }]);
-
-      if (error) {
-        if (error.code === '23505') {
-          setSubscribeMessage('Already subscribed!');
-        } else {
-          throw error;
-        }
-      } else {
-        setSubscribeMessage('✅ Subscribed successfully!');
-        setEmail('');
-      }
-    } catch (error) {
-      console.error('Error subscribing:', error);
-      setSubscribeMessage('❌ Failed to subscribe');
-    } finally {
-      setSubscribing(false);
     }
   };
 
@@ -97,7 +51,7 @@ const Sidebar = () => {
             {categories.length > 0 ? (
               categories.map((category) => (
                 <Link
-                  key={category.id}
+                  key={category._id}
                   to={`/category/${category.slug}`}
                   className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-primary-100 dark:hover:bg-primary-900 text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 rounded-full text-sm font-medium transition-colors"
                 >

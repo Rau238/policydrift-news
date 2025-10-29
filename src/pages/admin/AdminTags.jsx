@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { tagsAPI } from '../../lib/api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -24,13 +24,8 @@ const AdminTags = () => {
   const fetchTags = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('tags')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      setTags(data || []);
+      const response = await tagsAPI.getAll();
+      setTags(response.data || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -71,18 +66,15 @@ const AdminTags = () => {
     setSaving(true);
     try {
       if (editingTag) {
-        const { error } = await supabase
-          .from('tags')
-          .update({ name: formData.name, slug: formData.slug })
-          .eq('id', editingTag.id);
-
-        if (error) throw error;
+        await tagsAPI.update(editingTag._id, { 
+          name: formData.name, 
+          slug: formData.slug 
+        });
       } else {
-        const { error } = await supabase
-          .from('tags')
-          .insert([{ name: formData.name, slug: formData.slug }]);
-
-        if (error) throw error;
+        await tagsAPI.create({ 
+          name: formData.name, 
+          slug: formData.slug 
+        });
       }
 
       await fetchTags();
@@ -100,18 +92,11 @@ const AdminTags = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (tag) => {
-    if (!window.confirm(`Are you sure you want to delete "${tag.name}"?`)) {
-      return;
-    }
+    const handleDelete = async (tag) => {
+    if (!window.confirm(`Are you sure you want to delete "${tag.name}"?`)) return;
 
     try {
-      const { error } = await supabase
-        .from('tags')
-        .delete()
-        .eq('id', tag.id);
-
-      if (error) throw error;
+      await tagsAPI.delete(tag._id);
       await fetchTags();
     } catch (err) {
       alert('Error deleting tag: ' + err.message);
@@ -203,7 +188,7 @@ const AdminTags = () => {
           {/* Mobile Card View */}
           <div className="lg:hidden space-y-3">
             {filteredTags.map((tag) => (
-              <Card key={tag.id} className="p-4">
+              <Card key={tag._id} className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <span className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium mb-2">
@@ -259,7 +244,7 @@ const AdminTags = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                   {filteredTags.map((tag) => (
-                    <tr key={tag.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr key={tag._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium">
                           #{tag.name}

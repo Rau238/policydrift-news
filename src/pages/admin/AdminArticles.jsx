@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
+import { articlesAPI, categoriesAPI } from '../../lib/api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
@@ -24,13 +24,8 @@ const AdminArticles = () => {
 
   const loadCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('id, name')
-        .order('name');
-
-      if (error) throw error;
-      setCategories(data || []);
+      const response = await categoriesAPI.getAll();
+      setCategories(response.data || []);
     } catch (err) {
       console.error('Error loading categories:', err);
     }
@@ -39,17 +34,10 @@ const AdminArticles = () => {
   const loadArticles = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('articles')
-        .select(`
-          *,
-          profiles:author_id (username, full_name),
-          categories:category_id (name, color)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setArticles(data || []);
+      const response = await articlesAPI.getAll({
+        sort: '-created_at'
+      });
+      setArticles(response.data || []);
     } catch (err) {
       console.error('Error loading articles:', err);
       setError(err.message);
@@ -64,12 +52,7 @@ const AdminArticles = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('articles')
-        .delete()
-        .eq('id', article.id);
-
-      if (error) throw error;
+      await articlesAPI.delete(article._id);
       await loadArticles();
     } catch (err) {
       alert('Error deleting article: ' + err.message);
@@ -78,12 +61,7 @@ const AdminArticles = () => {
 
   const handleStatusChange = async (articleId, newStatus) => {
     try {
-      const { error } = await supabase
-        .from('articles')
-        .update({ status: newStatus })
-        .eq('id', articleId);
-
-      if (error) throw error;
+      await articlesAPI.update(articleId, { status: newStatus });
       await loadArticles();
     } catch (err) {
       alert('Error updating status: ' + err.message);
@@ -94,7 +72,7 @@ const AdminArticles = () => {
     const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || article.status === statusFilter;
-    const matchesCategory = categoryFilter === 'all' || article.category_id === categoryFilter;
+    const matchesCategory = categoryFilter === 'all' || article.category?._id === categoryFilter;
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
@@ -229,7 +207,7 @@ const AdminArticles = () => {
         >
           <option value="all">All Categories</option>
           {categories.map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
+            <option key={cat._id} value={cat._id}>{cat.name}</option>
           ))}
         </select>
       </div>
@@ -259,7 +237,7 @@ const AdminArticles = () => {
           {/* Mobile Card View */}
           <div className="lg:hidden space-y-4">
             {filteredArticles.map((article) => (
-              <Card key={article.id} className="p-4">
+              <Card key={article._id} className="p-4">
                 <div className="space-y-3">
                   {/* Article Title and Image */}
                   <div className="flex gap-3">
@@ -286,13 +264,13 @@ const AdminArticles = () => {
                   {/* Meta Information */}
                   <div className="flex flex-wrap items-center gap-2 text-sm">
                     <span className="text-slate-600 dark:text-slate-400">
-                      By {article.profiles?.full_name || article.profiles?.username || 'Unknown'}
+                      By {article.author?.full_name || article.author?.username || 'Unknown'}
                     </span>
-                    {article.categories && (
+                    {article.category && (
                       <>
                         <span className="text-slate-400">•</span>
                         <Badge variant="primary" className="text-xs">
-                          {article.categories.name}
+                          {article.category.name}
                         </Badge>
                       </>
                     )}
@@ -310,7 +288,7 @@ const AdminArticles = () => {
                   <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
                     <select
                       value={article.status}
-                      onChange={(e) => handleStatusChange(article.id, e.target.value)}
+                      onChange={(e) => handleStatusChange(article._id, e.target.value)}
                       className={`px-2 py-1 rounded-lg text-xs font-medium border-0 flex-1 max-w-[120px] ${
                         article.status === 'published' 
                           ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
@@ -393,7 +371,7 @@ const AdminArticles = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                   {filteredArticles.map((article) => (
-                    <tr key={article.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr key={article._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {article.featured_image && (
@@ -417,12 +395,12 @@ const AdminArticles = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
-                        {article.profiles?.full_name || article.profiles?.username || 'Unknown'}
+                        {article.author?.full_name || article.author?.username || 'Unknown'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {article.categories ? (
+                        {article.category ? (
                           <Badge variant="primary">
-                            {article.categories.name}
+                            {article.category.name}
                           </Badge>
                         ) : (
                           <span className="text-sm text-slate-400">-</span>
@@ -431,7 +409,7 @@ const AdminArticles = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <select
                           value={article.status}
-                          onChange={(e) => handleStatusChange(article.id, e.target.value)}
+                          onChange={(e) => handleStatusChange(article._id, e.target.value)}
                           className={`px-2 py-1 rounded text-xs font-medium border-0 ${
                             article.status === 'published' 
                               ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 

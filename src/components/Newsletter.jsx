@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { newsletterAPI } from '../lib/api';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
 
 const Newsletter = () => {
@@ -9,7 +9,7 @@ const Newsletter = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   // Don't render if newsletter is disabled in admin settings
-  if (settings?.newsletter_enabled === false) {
+  if (settings?.features?.newsletter === false) {
     return null;
   }
 
@@ -25,25 +25,15 @@ const Newsletter = () => {
       setLoading(true);
       setMessage({ type: '', text: '' });
 
-      // Create a newsletter_subscribers table in Supabase
-      const { error } = await supabase
-        .from('newsletter_subscribers')
-        .insert([{ email, subscribed_at: new Date().toISOString() }]);
-
-      if (error) {
-        // Check if email already exists
-        if (error.code === '23505') {
-          setMessage({ type: 'info', text: 'You are already subscribed!' });
-        } else {
-          throw error;
-        }
-      } else {
-        setMessage({ type: 'success', text: 'Successfully subscribed to newsletter!' });
-        setEmail('');
-      }
+      const response = await newsletterAPI.subscribe(email);
+      setMessage({ type: 'success', text: response.message || 'Successfully subscribed to newsletter!' });
+      setEmail('');
     } catch (err) {
       console.error('Newsletter subscription error:', err);
-      setMessage({ type: 'error', text: 'Failed to subscribe. Please try again.' });
+      setMessage({ 
+        type: 'error', 
+        text: err.message || 'Failed to subscribe. Please try again.' 
+      });
     } finally {
       setLoading(false);
       // Clear message after 5 seconds

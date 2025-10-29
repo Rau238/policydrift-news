@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { articlesAPI, categoriesAPI, tagsAPI } from '../lib/api';
 import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
 import Card from '../components/ui/Card';
 import Loading from '../components/ui/Loading';
-import Badge from '../components/ui/Badge';
 
 const CreateArticle = () => {
-  const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const fileInputRef = useRef(null);
@@ -20,23 +19,24 @@ const CreateArticle = () => {
   const [showNewCategoryModal, setShowNewCategoryModal] = useState(false);
   const [showNewTagModal, setShowNewTagModal] = useState(false);
   const [newCategory, setNewCategory] = useState({ name: '', description: '', color: '#3B82F6', icon: '' });
-  const [newTag, setNewTag] = useState('');
+  const [newTag, setNewTag] = useState({ name: '', description: '', color: '' });
   
   const [formData, setFormData] = useState({
     title: '',
     excerpt: '',
     content: '',
-    categoryId: '',
+    category: '',
     status: 'draft',
-    isFeatured: false,
+    is_featured: false,
   });
   
   const [featuredImage, setFeaturedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
+  const [existingImageUrl, setExistingImageUrl] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-  const isEditMode = !!slug;
+  const isEditMode = !!editId;
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -50,17 +50,12 @@ const CreateArticle = () => {
     if (isEditMode) {
       fetchArticle();
     }
-  }, [isEditMode, slug]);
+  }, [isEditMode, editId]);
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      setCategories(data || []);
+      const response = await categoriesAPI.getAll();
+      setCategories(response.data || []);
     } catch (err) {
       console.error('Error fetching categories:', err);
     }
@@ -68,13 +63,8 @@ const CreateArticle = () => {
 
   const fetchTags = async () => {
     try {
-      const { data, error } = await supabase
-        .from('tags')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      setAvailableTags(data || []);
+      const response = await tagsAPI.getAll();
+      setAvailableTags(response.data || []);
     } catch (err) {
       console.error('Error fetching tags:', err);
     }
@@ -83,21 +73,10 @@ const CreateArticle = () => {
   const fetchArticle = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('articles')
-        .select(`
-          *,
-          article_tags (
-            tag_id,
-            tags (id, name)
-          )
-        `)
-        .eq('slug', slug)
-        .single();
+      const response = await articlesAPI.getById(editId);
+      const data = response.data;
 
-      if (error) throw error;
-
-      if (data.author_id !== user.id) {
+      if (data.author._id !== user.id) {
         navigate('/');
         return;
       }
@@ -106,12 +85,13 @@ const CreateArticle = () => {
         title: data.title,
         excerpt: data.excerpt || '',
         content: data.content,
-        categoryId: data.category_id || '',
+        category: data.category._id || '',
         status: data.status || 'draft',
-        isFeatured: data.is_featured || false,
+        is_featured: data.is_featured || false,
       });
       
-      setSelectedTags(data.article_tags?.map(at => at.tags.id) || []);
+      setSelectedTags(data.tags?.map(tag => tag._id) || []);
+      setExistingImageUrl(data.featured_image || '');
       setImagePreview(data.featured_image || '');
     } catch (err) {
       console.error('Error fetching article:', err);
@@ -155,30 +135,19 @@ const CreateArticle = () => {
   const handleCreateCategory = async (e) => {
     e.preventDefault();
     try {
-      const slug = newCategory.name
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-');
+      const response = await categoriesAPI.create({
+        name: newCategory.name,
+        description: newCategory.description,
+        color: newCategory.color,
+        icon: newCategory.icon,
+      });
 
-      const { data, error } = await supabase
-        .from('categories')
-        .insert({
-          name: newCategory.name,
-          slug,
-          description: newCategory.description,
-          color: newCategory.color,
-          icon: newCategory.icon,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setCategories(prev => [...prev, data]);
-      setFormData(prev => ({ ...prev, categoryId: data.id }));
+      setCategories(prev => [...prev, response.data]);
+      setFormData(prev => ({ ...prev, category: response.data._id }));
       setShowNewCategoryModal(false);
       setNewCategory({ name: '', description: '', color: '#3B82F6', icon: '' });
       setMessage({ type: 'success', text: 'Category created successfully!' });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (err) {
       alert('Error creating category: ' + err.message);
     }
@@ -186,42 +155,24 @@ const CreateArticle = () => {
 
   const handleCreateTag = async (e) => {
     e.preventDefault();
-    if (!newTag.trim()) return;
+    if (!newTag.name.trim()) return;
 
     try {
-      const slug = newTag
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-');
+      const response = await tagsAPI.create({
+        name: newTag.name.trim(),
+        description: newTag.description,
+        color: newTag.color,
+      });
 
-      const { data, error } = await supabase
-        .from('tags')
-        .insert({
-          name: newTag.trim(),
-          slug,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setAvailableTags(prev => [...prev, data]);
-      setSelectedTags(prev => [...prev, data.id]);
+      setAvailableTags(prev => [...prev, response.data]);
+      setSelectedTags(prev => [...prev, response.data._id]);
       setShowNewTagModal(false);
-      setNewTag('');
+      setNewTag({ name: '', description: '', color: '' });
       setMessage({ type: 'success', text: 'Tag created successfully!' });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (err) {
       alert('Error creating tag: ' + err.message);
     }
-  };
-
-  const generateSlug = (title) => {
-    return title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
   };
 
   const validate = () => {
@@ -243,8 +194,8 @@ const CreateArticle = () => {
       newErrors.image = 'Featured image is required';
     }
 
-    if (!formData.categoryId) {
-      newErrors.categoryId = 'Please select a category';
+    if (!formData.category) {
+      newErrors.category = 'Please select a category';
     }
 
     return newErrors;
@@ -263,93 +214,26 @@ const CreateArticle = () => {
     setLoading(true);
 
     try {
-      let imageUrl = imagePreview;
-
-      // Upload image if new image is selected
+      // Create FormData for file upload
+      const submitData = new FormData();
+      submitData.append('title', formData.title.trim());
+      submitData.append('content', formData.content.trim());
+      if (formData.excerpt) submitData.append('excerpt', formData.excerpt.trim());
+      submitData.append('category', formData.category);
+      submitData.append('tags', JSON.stringify(selectedTags));
+      submitData.append('status', formData.status);
+      submitData.append('is_featured', formData.is_featured);
+      
+      // Only append image if a new one was selected
       if (featuredImage) {
-        const fileExt = featuredImage.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('article-images')
-          .upload(fileName, featuredImage, {
-            contentType: featuredImage.type
-          });
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('article-images')
-          .getPublicUrl(fileName);
-
-        imageUrl = publicUrl;
+        submitData.append('image', featuredImage);
       }
 
-      const articleSlug = generateSlug(formData.title);
-      const articleData = {
-        title: formData.title.trim(),
-        slug: articleSlug,
-        excerpt: formData.excerpt.trim() || null,
-        content: formData.content.trim(),
-        featured_image: imageUrl,
-        category_id: formData.categoryId,
-        status: formData.status,
-        is_featured: formData.isFeatured,
-        author_id: user.id,
-      };
-
-      if (formData.status === 'published') {
-        articleData.published_at = new Date().toISOString();
-      }
-
-      let articleId;
-
+      let response;
       if (isEditMode) {
-        // Update existing article
-        const { error } = await supabase
-          .from('articles')
-          .update(articleData)
-          .eq('slug', slug);
-
-        if (error) throw error;
-
-        // Get article ID for tags
-        const { data: article } = await supabase
-          .from('articles')
-          .select('id')
-          .eq('slug', articleSlug)
-          .single();
-        
-        articleId = article.id;
+        response = await articlesAPI.update(editId, submitData);
       } else {
-        // Create new article
-        const { data, error } = await supabase
-          .from('articles')
-          .insert(articleData)
-          .select()
-          .single();
-
-        if (error) throw error;
-        articleId = data.id;
-      }
-
-      // Update article tags
-      // First delete existing tags
-      await supabase
-        .from('article_tags')
-        .delete()
-        .eq('article_id', articleId);
-
-      // Then insert new tags
-      if (selectedTags.length > 0) {
-        const tagInserts = selectedTags.map(tagId => ({
-          article_id: articleId,
-          tag_id: tagId
-        }));
-
-        await supabase
-          .from('article_tags')
-          .insert(tagInserts);
+        response = await articlesAPI.create(submitData);
       }
 
       setMessage({ 
@@ -357,10 +241,12 @@ const CreateArticle = () => {
         text: isEditMode ? 'Article updated successfully!' : 'Article created successfully!' 
       });
       
-      setTimeout(() => navigate(`/article/${articleSlug}`), 1500);
+      setTimeout(() => {
+        navigate(`/article/${response.data.slug}`);
+      }, 1500);
     } catch (err) {
       console.error('Error saving article:', err);
-      setMessage({ type: 'error', text: err.message });
+      setMessage({ type: 'error', text: err.message || 'Failed to save article' });
     } finally {
       setLoading(false);
     }
@@ -385,7 +271,7 @@ const CreateArticle = () => {
             Back
           </button>
           
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-4">
             <div>
               <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
                 {isEditMode ? '✏️ Edit Article' : '✨ Create New Article'}
@@ -454,12 +340,7 @@ const CreateArticle = () => {
                   className="w-full px-4 py-3 text-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
                 {errors.title && (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    {errors.title}
-                  </p>
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">{errors.title}</p>
                 )}
               </div>
 
@@ -476,9 +357,6 @@ const CreateArticle = () => {
                   rows="3"
                   className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                 />
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  A short description that will appear in article previews
-                </p>
               </div>
 
               {/* Content */}
@@ -490,429 +368,274 @@ const CreateArticle = () => {
                   name="content"
                   value={formData.content}
                   onChange={handleChange}
-                  placeholder="Write your article content here... (Minimum 100 characters)"
+                  placeholder="Write your article content here..."
                   rows="20"
                   className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none font-mono text-sm"
                 />
-                <div className="mt-2 flex items-center justify-between">
-                  {errors.content ? (
-                    <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                      {errors.content}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {formData.content.length} characters
-                    </p>
-                  )}
-                </div>
+                {errors.content && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">{errors.content}</p>
+                )}
+                <p className="mt-2 text-xs text-slate-500">{formData.content.length} characters</p>
               </div>
             </div>
           </Card>
 
-          {/* Featured Image Card */}
+          {/* Featured Image */}
           <Card className="p-6 md:p-8">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">
               Featured Image <span className="text-red-500">*</span>
             </h2>
 
-            <div className="space-y-4">
-              {imagePreview && (
-                <div className="relative group">
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    className="w-full h-64 object-cover rounded-xl"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setImagePreview('');
-                      setFeaturedImage(null);
-                      if (fileInputRef.current) fileInputRef.current.value = '';
-                    }}
-                    className="absolute top-3 right-3 p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-
-              <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  id="image-upload"
-                />
-                <label htmlFor="image-upload" className="cursor-pointer">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                      <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        Click to upload or drag and drop
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        PNG, JPG, GIF up to 5MB
-                      </p>
-                    </div>
-                  </div>
-                </label>
+            {imagePreview && (
+              <div className="relative group mb-4">
+                <img src={imagePreview} alt="Preview" className="w-full h-64 object-cover rounded-xl"/>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImagePreview('');
+                    setFeaturedImage(null);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                  }}
+                  className="absolute top-3 right-3 p-2 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  Remove
+                </button>
               </div>
+            )}
 
-              {errors.image && (
-                <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  {errors.image}
-                </p>
-              )}
-            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl"
+            />
+            {errors.image && (
+              <p className="mt-2 text-sm text-red-600">{errors.image}</p>
+            )}
           </Card>
 
-          {/* Category & Tags Card */}
+          {/* Category & Tags */}
           <Card className="p-6 md:p-8">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-              </svg>
-              Category & Tags
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">
+              Classification
             </h2>
 
             <div className="space-y-6">
               {/* Category */}
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Category <span className="text-red-500">*</span>
-                  </label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Category <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    className="flex-1 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl"
+                  >
+                    <option value="">Select a category</option>
+                    {categories.map(cat => (
+                      <option key={cat._id} value={cat._id}>{cat.icon} {cat.name}</option>
+                    ))}
+                  </select>
                   <button
                     type="button"
                     onClick={() => setShowNewCategoryModal(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    New Category
+                    New
                   </button>
                 </div>
-                <select
-                  name="categoryId"
-                  value={formData.categoryId}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                >
-                  <option value="">Select a category</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.icon} {category.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.categoryId && (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    {errors.categoryId}
-                  </p>
+                {errors.category && (
+                  <p className="mt-2 text-sm text-red-600">{errors.category}</p>
                 )}
               </div>
 
               {/* Tags */}
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Tags (Optional)
-                  </label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Tags
+                </label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {availableTags.map(tag => (
+                    <button
+                      key={tag._id}
+                      type="button"
+                      onClick={() => toggleTag(tag._id)}
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        selectedTags.includes(tag._id)
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      {tag.name}
+                    </button>
+                  ))}
                   <button
                     type="button"
                     onClick={() => setShowNewTagModal(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                    className="px-3 py-1 rounded-full text-sm bg-green-600 text-white"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    New Tag
+                    + New Tag
                   </button>
                 </div>
-
-                {availableTags.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {availableTags.map((tag) => (
-                      <button
-                        key={tag.id}
-                        type="button"
-                        onClick={() => toggleTag(tag.id)}
-                        className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                          selectedTags.includes(tag.id)
-                            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/50 scale-105'
-                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md'
-                        }`}
-                      >
-                        {tag.name}
-                        {selectedTags.includes(tag.id) && (
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-slate-500 dark:text-slate-400 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                    No tags available. Create your first tag!
-                  </p>
-                )}
               </div>
             </div>
           </Card>
 
-          {/* Settings Card */}
+          {/* Publishing Options */}
           <Card className="p-6 md:p-8">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              Publication Settings
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">
+              Publishing Options
             </h2>
 
             <div className="space-y-4">
-              {/* Status */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Status
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {['draft', 'published', 'archived'].map((status) => (
-                    <button
-                      key={status}
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, status }))}
-                      className={`px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                        formData.status === status
-                          ? status === 'published' 
-                            ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg shadow-green-500/50 scale-105'
-                            : status === 'draft'
-                            ? 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white shadow-lg shadow-yellow-500/50 scale-105'
-                            : 'bg-gradient-to-r from-slate-600 to-slate-700 text-white shadow-lg shadow-slate-500/50 scale-105'
-                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:shadow-md'
-                      }`}
-                    >
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </button>
-                  ))}
-                </div>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl"
+                >
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                  <option value="archived">Archived</option>
+                </select>
               </div>
 
-              {/* Featured Article */}
-              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                <div>
-                  <p className="font-medium text-slate-900 dark:text-white">Featured Article</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    Display this article prominently on the homepage
-                  </p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="isFeatured"
-                    checked={formData.isFeatured}
-                    onChange={handleChange}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="is_featured"
+                  checked={formData.is_featured}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-blue-600 rounded"
+                />
+                <label className="ml-2 text-sm text-slate-700 dark:text-slate-300">
+                  Mark as featured article
                 </label>
               </div>
             </div>
           </Card>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          {/* Submit Buttons */}
+          <div className="flex gap-4">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl shadow-lg shadow-blue-500/50 hover:shadow-xl hover:shadow-blue-500/60 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg"
+              className="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  {isEditMode ? 'Updating...' : 'Creating...'}
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  {isEditMode ? 'Update Article' : 'Create Article'}
-                </>
-              )}
+              {loading ? 'Saving...' : (isEditMode ? 'Update Article' : 'Create Article')}
             </button>
             <button
               type="button"
               onClick={() => navigate(-1)}
-              disabled={loading}
-              className="sm:w-auto px-6 py-3.5 text-base font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600"
             >
               Cancel
             </button>
           </div>
         </form>
-      </div>
 
-      {/* New Category Modal */}
-      {showNewCategoryModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <Card className="w-full max-w-md p-6 animate-slideUp">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Create New Category</h3>
-              <button
-                type="button"
-                onClick={() => setShowNewCategoryModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all duration-200"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateCategory} className="space-y-4">
-              <Input
-                label="Category Name"
-                value={newCategory.name}
-                onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="e.g., Technology"
-                required
-                fullWidth
-              />
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Description
-                </label>
-                <textarea
+        {/* Category Modal */}
+        {showNewCategoryModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 max-w-md w-full">
+              <h3 className="text-xl font-bold mb-4">Create New Category</h3>
+              <form onSubmit={handleCreateCategory} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Category name"
+                  value={newCategory.name}
+                  onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+                  className="w-full px-4 py-2 border rounded-lg"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Description"
                   value={newCategory.description}
-                  onChange={(e) => setNewCategory(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Category description..."
-                  rows="3"
-                  className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
+                  className="w-full px-4 py-2 border rounded-lg"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Color
-                  </label>
-                  <input
-                    type="color"
-                    value={newCategory.color}
-                    onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
-                    className="w-full h-10 rounded-lg cursor-pointer"
-                  />
-                </div>
-
-                <Input
-                  label="Icon (Emoji)"
+                <input
+                  type="text"
+                  placeholder="Icon (emoji)"
                   value={newCategory.icon}
-                  onChange={(e) => setNewCategory(prev => ({ ...prev, icon: e.target.value }))}
-                  placeholder="📱"
-                  fullWidth
+                  onChange={(e) => setNewCategory({...newCategory, icon: e.target.value})}
+                  className="w-full px-4 py-2 border rounded-lg"
                 />
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <button 
-                  type="submit" 
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg shadow-lg shadow-blue-500/50 hover:shadow-xl transition-all duration-200"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Create Category
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowNewCategoryModal(false)}
-                  className="sm:w-auto px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 rounded-lg hover:shadow-md transition-all duration-200"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </Card>
-        </div>
-      )}
-
-      {/* New Tag Modal */}
-      {showNewTagModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <Card className="w-full max-w-md p-6 animate-slideUp">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Create New Tag</h3>
-              <button
-                type="button"
-                onClick={() => setShowNewTagModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all duration-200"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+                <input
+                  type="color"
+                  value={newCategory.color}
+                  onChange={(e) => setNewCategory({...newCategory, color: e.target.value})}
+                  className="w-full h-10 rounded-lg"
+                />
+                <div className="flex gap-2">
+                  <button type="submit" className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg">
+                    Create
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewCategoryModal(false)}
+                    className="px-4 py-2 bg-slate-200 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
+          </div>
+        )}
 
-            <form onSubmit={handleCreateTag} className="space-y-4">
-              <Input
-                label="Tag Name"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                placeholder="e.g., JavaScript"
-                required
-                fullWidth
-              />
-
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <button 
-                  type="submit" 
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg shadow-lg shadow-blue-500/50 hover:shadow-xl transition-all duration-200"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Create Tag
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowNewTagModal(false)}
-                  className="sm:w-auto px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 rounded-lg hover:shadow-md transition-all duration-200"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </Card>
-        </div>
-      )}
+        {/* Tag Modal */}
+        {showNewTagModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 max-w-md w-full">
+              <h3 className="text-xl font-bold mb-4">Create New Tag</h3>
+              <form onSubmit={handleCreateTag} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Tag name"
+                  value={newTag.name}
+                  onChange={(e) => setNewTag({...newTag, name: e.target.value})}
+                  className="w-full px-4 py-2 border rounded-lg"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Description (optional)"
+                  value={newTag.description}
+                  onChange={(e) => setNewTag({...newTag, description: e.target.value})}
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+                <input
+                  type="color"
+                  value={newTag.color}
+                  onChange={(e) => setNewTag({...newTag, color: e.target.value})}
+                  className="w-full h-10 rounded-lg"
+                />
+                <div className="flex gap-2">
+                  <button type="submit" className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg">
+                    Create
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewTagModal(false)}
+                    className="px-4 py-2 bg-slate-200 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

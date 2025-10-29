@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
+import { articlesAPI, usersAPI, commentsAPI } from '../../lib/api';
 import Card from '../../components/ui/Card';
 import Loading from '../../components/ui/Loading';
 
@@ -16,30 +16,20 @@ const AdminDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
-      const [articlesCount, usersCount, commentsCount, articlesData, usersData] = await Promise.all([
-        supabase.from('articles').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('comments').select('*', { count: 'exact', head: true }),
-        supabase
-          .from('articles')
-          .select('id, title, slug, status, created_at, author:profiles(username)')
-          .order('created_at', { ascending: false })
-          .limit(5),
-        supabase
-          .from('profiles')
-          .select('id, username, email, role, created_at')
-          .order('created_at', { ascending: false })
-          .limit(5),
+      const [articlesRes, usersRes, commentsRes] = await Promise.all([
+        articlesAPI.getAll({ limit: 5, sort: '-created_at' }),
+        usersAPI.getAll({ limit: 5, sort: '-created_at' }),
+        commentsAPI.getAll({ limit: 1 }), // Just for count
       ]);
 
       setStats({
-        totalArticles: articlesCount.count || 0,
-        totalUsers: usersCount.count || 0,
-        totalComments: commentsCount.count || 0,
+        totalArticles: articlesRes.pagination?.total || 0,
+        totalUsers: usersRes.pagination?.total || 0,
+        totalComments: commentsRes.pagination?.total || 0,
       });
 
-      setRecentArticles(articlesData.data || []);
-      setRecentUsers(usersData.data || []);
+      setRecentArticles(articlesRes.data || []);
+      setRecentUsers(usersRes.data || []);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
@@ -129,7 +119,7 @@ const AdminDashboard = () => {
             <div className="space-y-3">
               {recentArticles.map((article) => (
                 <div 
-                  key={article.id} 
+                  key={article._id} 
                   className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg"
                 >
                   <div className="flex-1 min-w-0">
@@ -173,7 +163,7 @@ const AdminDashboard = () => {
             <div className="space-y-3">
               {recentUsers.map((user) => (
                 <div 
-                  key={user.id} 
+                  key={user._id} 
                   className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg"
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { articlesAPI, categoriesAPI } from '../lib/api';
 import Loading from '../components/ui/Loading';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import Sidebar from '../components/layout/Sidebar';
@@ -42,91 +42,46 @@ const Home = () => {
       // Add a minimum loading time to ensure skeleton is visible
       const minLoadTime = new Promise(resolve => setTimeout(resolve, 800));
 
-      // Fetch breaking news (latest 5 published articles from last 24 hours)
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      
-      const { data: breakingData } = await supabase
-        .from('articles')
-        .select('id, title, slug, created_at')
-        .eq('status', 'published')
-        .gte('created_at', yesterday.toISOString())
-        .order('created_at', { ascending: false })
-        .limit(5);
-      
-      setBreakingNews(breakingData || []);
+      // Fetch breaking news - get trending articles
+      const breakingResponse = await articlesAPI.getTrending(5);
+      setBreakingNews(breakingResponse.data || []);
 
-      // Fetch featured articles (top 3)
-      const { data: featuredData } = await supabase
-        .from('articles')
-        .select(`
-          *,
-          profiles:author_id (username, avatar_url, full_name),
-          categories:category_id (name, slug, color, icon)
-        `)
-        .eq('status', 'published')
-        .eq('is_featured', true)
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      setFeaturedArticles(featuredData || []);
+      // Fetch featured articles
+      const featuredResponse = await articlesAPI.getFeatured(3);
+      setFeaturedArticles(featuredResponse.data || []);
 
       // Fetch all active categories
-      const { data: categoriesData } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name', { ascending: true })
-        .limit(6); // Show top 6 categories
-
-      setCategories(categoriesData || []);
+      const categoriesResponse = await categoriesAPI.getAll({limit: 6});
+      const categoriesData = categoriesResponse.data || [];
+      setCategories(categoriesData);
 
       // Fetch articles for each category
-      if (categoriesData && categoriesData.length > 0) {
+      if (categoriesData.length > 0) {
         const categoryArticlesMap = {};
         
         for (const category of categoriesData) {
-          const { data: catArticles } = await supabase
-            .from('articles')
-            .select(`
-              *,
-              profiles:author_id (username, avatar_url, full_name),
-              categories:category_id (name, slug, color, icon)
-            `)
-            .eq('status', 'published')
-            .eq('category_id', category.id)
-            .order('created_at', { ascending: false })
-            .limit(4); // Show 4 articles per category
-          
-          categoryArticlesMap[category.id] = catArticles || [];
+          const catArticlesResponse = await articlesAPI.getAll({ 
+            category: category._id,
+            limit: 4 
+          });
+          categoryArticlesMap[category._id] = catArticlesResponse.data || [];
         }
         
         setCategoryArticles(categoryArticlesMap);
       }
 
       // Fetch regular articles with pagination
-      const { data, error: fetchError } = await supabase
-        .from('articles')
-        .select(`
-          *,
-          profiles:author_id (username, avatar_url, full_name),
-          categories:category_id (name, slug, color, icon),
-          article_tags (
-            tags (id, name, slug)
-          )
-        `)
-        .eq('status', 'published')
-        .order('created_at', { ascending: false })
-        .range((page - 1) * ARTICLES_PER_PAGE, page * ARTICLES_PER_PAGE - 1);
-
-      if (fetchError) throw fetchError;
+      const articlesResponse = await articlesAPI.getAll({
+        page: 1,
+        limit: ARTICLES_PER_PAGE
+      });
       
       // Wait for minimum load time
       await minLoadTime;
 
-      // Check if there are more articles
-      setHasMore(data?.length === ARTICLES_PER_PAGE);
-      
-      setArticles(prev => page === 1 ? (data || []) : [...prev, ...(data || [])]);
+      const articlesData = articlesResponse.data || [];
+      setHasMore(articlesData.length === ARTICLES_PER_PAGE);
+      setArticles(articlesData);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError(err.message);
@@ -143,24 +98,14 @@ const Home = () => {
       const nextPage = page + 1;
       setPage(nextPage);
 
-      const { data } = await supabase
-        .from('articles')
-        .select(`
-          *,
-          profiles:author_id (username, avatar_url, full_name),
-          categories:category_id (name, slug, color, icon),
-          article_tags (
-            tags (id, name, slug)
-          )
-        `)
-        .eq('status', 'published')
-        .order('created_at', { ascending: false })
-        .range((nextPage - 1) * ARTICLES_PER_PAGE, nextPage * ARTICLES_PER_PAGE - 1);
+      const response = await articlesAPI.getAll({
+        page: nextPage,
+        limit: ARTICLES_PER_PAGE
+      });
 
-      // Check if there are more articles
-      setHasMore(data?.length === ARTICLES_PER_PAGE);
-
-      setArticles(prev => [...prev, ...(data || [])]);
+      const data = response.data || [];
+      setHasMore(data.length === ARTICLES_PER_PAGE);
+      setArticles(prev => [...prev, ...data]);
     } catch (err) {
       console.error('Error loading more articles:', err);
     } finally {
@@ -181,19 +126,12 @@ const Home = () => {
     
     if (diffDays === 0) return 'TODAY';
     if (diffDays === 1) return 'YESTERDAY';
-    if (diffDays <= 7) return `${diffDays} DAYS AGO`;
+    if (diffDays <= 7) return \`\${diffDays} DAYS AGO\`;
     
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
     }).toUpperCase();
-  };
-
-  const calculateReadTime = (content) => {
-    const wordsPerMinute = 200;
-    const words = content?.split(/\s+/).length || 0;
-    const minutes = Math.ceil(words / wordsPerMinute);
-    return minutes || 1;
   };
 
   if (loading) {
@@ -237,8 +175,8 @@ const Home = () => {
                 <div className="animate-marquee whitespace-nowrap flex gap-8">
                   {breakingNews.map((news, index) => (
                     <Link
-                      key={`${news.id}-${index}`}
-                      to={`/article/${news.slug}`}
+                      key={\`\${news._id}-\${index}\`}
+                      to={\`/article/\${news.slug}\`}
                       className="inline-flex items-center gap-2 hover:underline text-sm font-medium"
                     >
                       <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
@@ -248,8 +186,8 @@ const Home = () => {
                   {/* Duplicate for seamless loop */}
                   {breakingNews.map((news, index) => (
                     <Link
-                      key={`${news.id}-dup-${index}`}
-                      to={`/article/${news.slug}`}
+                      key={\`\${news._id}-dup-\${index}\`}
+                      to={\`/article/\${news.slug}\`}
                       className="inline-flex items-center gap-2 hover:underline text-sm font-medium"
                     >
                       <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
@@ -322,8 +260,8 @@ const Home = () => {
                 <div className="grid md:grid-cols-2 gap-6">
                   {featuredArticles.slice(0, 1).map((article) => (
                     <Link
-                      key={article.id}
-                      to={`/article/${article.slug}`}
+                      key={article._id}
+                      to={\`/article/\${article.slug}\`}
                       className="md:col-span-2 group relative overflow-hidden rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1"
                     >
                       <div className="relative h-96">
@@ -338,13 +276,13 @@ const Home = () => {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                         <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-                          {article.categories && (
+                          {article.category && (
                             <Badge 
                               variant="primary" 
                               className="mb-3"
-                              style={{ backgroundColor: article.categories.color }}
+                              style={{ backgroundColor: article.category.color }}
                             >
-                              {article.categories.icon} {getArticleCategory(article)}
+                              {article.category.icon} {article.category.name}
                             </Badge>
                           )}
                           <h3 className="text-3xl md:text-4xl font-bold mb-3 group-hover:text-blue-300 transition-colors">
@@ -355,23 +293,23 @@ const Home = () => {
                           )}
                           <div className="flex items-center gap-4 text-sm text-white/80">
                             <div className="flex items-center gap-2">
-                              {article.profiles?.avatar_url ? (
+                              {article.author?.avatar_url ? (
                                 <img
-                                  src={article.profiles.avatar_url}
-                                  alt={article.profiles.username}
+                                  src={article.author.avatar_url}
+                                  alt={article.author.username}
                                   className="w-8 h-8 rounded-full border-2 border-white/50"
                                 />
                               ) : (
                                 <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                  {article.profiles?.username?.[0]?.toUpperCase()}
+                                  {article.author?.username?.[0]?.toUpperCase()}
                                 </div>
                               )}
-                              <span>{article.profiles?.full_name || article.profiles?.username}</span>
+                              <span>{article.author?.full_name || article.author?.username}</span>
                             </div>
                             <span>•</span>
                             <span>{formatDate(article.created_at)}</span>
                             <span>•</span>
-                            <span>{calculateReadTime(article.content)} min read</span>
+                            <span>{article.reading_time || calculateReadTime(article.content)} min read</span>
                           </div>
                         </div>
                       </div>
@@ -379,8 +317,8 @@ const Home = () => {
                   ))}
                   {featuredArticles.slice(1, 3).map((article) => (
                     <Link
-                      key={article.id}
-                      to={`/article/${article.slug}`}
+                      key={article._id}
+                      to={\`/article/\${article.slug}\`}
                       className="group relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
                     >
                       <div className="relative h-64">
@@ -395,21 +333,21 @@ const Home = () => {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                          {article.categories && (
+                          {article.category && (
                             <Badge 
                               variant="primary" 
                               size="sm" 
                               className="mb-2"
-                              style={{ backgroundColor: article.categories.color }}
+                              style={{ backgroundColor: article.category.color }}
                             >
-                              {article.categories.icon} {getArticleCategory(article)}
+                              {article.category.icon} {article.category.name}
                             </Badge>
                           )}
                           <h3 className="text-xl font-bold mb-2 group-hover:text-blue-300 transition-colors line-clamp-2">
                             {article.title}
                           </h3>
                           <div className="flex items-center gap-3 text-xs text-white/80">
-                            <span>{article.profiles?.username}</span>
+                            <span>{article.author?.username}</span>
                             <span>•</span>
                             <span>{formatDate(article.created_at)}</span>
                           </div>
@@ -423,12 +361,12 @@ const Home = () => {
 
             {/* Category Sections - Multiple Categories */}
             {categories.length > 0 && categories.map((category) => {
-              const catArticles = categoryArticles[category.id] || [];
+              const catArticles = categoryArticles[category._id] || [];
               
               if (catArticles.length === 0) return null;
               
               return (
-                <section key={category.id} className="mb-12">
+                <section key={category._id} className="mb-12">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                       <h2 className="text-3xl font-black text-slate-900 dark:text-white">
@@ -443,7 +381,7 @@ const Home = () => {
                       )}
                     </div>
                     <Link
-                      to={`/category/${category.slug}`}
+                      to={\`/category/\${category.slug}\`}
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold text-sm flex items-center gap-1 group"
                     >
                       View All
@@ -456,8 +394,8 @@ const Home = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {catArticles.map((article) => (
                       <Link
-                        key={article.id}
-                        to={`/article/${article.slug}`}
+                        key={article._id}
+                        to={\`/article/\${article.slug}\`}
                         className="group bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
                       >
                         {article.featured_image ? (
@@ -474,7 +412,7 @@ const Home = () => {
                           <div 
                             className="h-48 bg-gradient-to-br"
                             style={{ 
-                              backgroundImage: `linear-gradient(to bottom right, ${category.color || '#3B82F6'}, ${category.color ? category.color + '80' : '#1E40AF'})` 
+                              backgroundImage: \`linear-gradient(to bottom right, \${category.color || '#3B82F6'}, \${category.color ? category.color + '80' : '#1E40AF'})\`
                             }}
                           />
                         )}
@@ -492,16 +430,16 @@ const Home = () => {
                           
                           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                             <div className="flex items-center gap-2">
-                              {article.profiles?.avatar_url ? (
+                              {article.author?.avatar_url ? (
                                 <img
-                                  src={article.profiles.avatar_url}
-                                  alt={article.profiles.username}
+                                  src={article.author.avatar_url}
+                                  alt={article.author.username}
                                   className="w-6 h-6 rounded-full"
                                 />
                               ) : (
                                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600" />
                               )}
-                              <span className="font-medium">{article.profiles?.username || 'Anonymous'}</span>
+                              <span className="font-medium">{article.author?.username || 'Anonymous'}</span>
                             </div>
                             <span>{formatArticleDate(article.created_at)}</span>
                           </div>
@@ -552,8 +490,8 @@ const Home = () => {
                     
                     return (
                       <Link
-                        key={article.id}
-                        to={`/article/${article.slug}`}
+                        key={article._id}
+                        to={\`/article/\${article.slug}\`}
                         className="group relative overflow-hidden rounded-lg aspect-[4/3]"
                       >
                         {article.featured_image ? (
@@ -567,13 +505,13 @@ const Home = () => {
                           <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900" />
                         )}
                         
-                        <div className={`absolute inset-0 bg-gradient-to-t ${gradient} to-transparent group-hover:opacity-90 transition-opacity`} />
+                        <div className={\`absolute inset-0 bg-gradient-to-t \${gradient} to-transparent group-hover:opacity-90 transition-opacity\`} />
                         
                         <div className="absolute inset-0 p-4 flex flex-col justify-between z-10">
                           <div className="flex items-start justify-between">
-                            {article.categories && (
+                            {article.category && (
                               <div className="px-2 py-1 bg-white/20 backdrop-blur-md rounded text-white text-xs font-bold uppercase tracking-wide border border-white/30">
-                                {getArticleCategory(article)}
+                                {article.category.name}
                               </div>
                             )}
                             <div className="text-white/90 text-xs font-semibold uppercase tracking-wide">
@@ -583,7 +521,7 @@ const Home = () => {
 
                           <div className="space-y-2">
                             <div className="text-white/80 text-xs font-semibold uppercase tracking-wide">
-                              {article.views_count || 0} VIEWS
+                              {article.views || 0} VIEWS
                             </div>
                             <h3 className="text-white font-bold text-lg leading-tight line-clamp-3 group-hover:text-orange-300 transition-colors">
                               {article.title}
