@@ -1,0 +1,19 @@
+{
+  "name": "projects",
+  "version": "1.0.0",
+  "description": "A professional, modern news website built with React (Vite) frontend and Node.js/Express/MongoDB backend. Features include article management, user authentication, comments, bookmarks, newsletter subscriptions, and a complete admin dashboard.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd news-website && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../news-website && npm install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
