@@ -15,6 +15,9 @@
     "dev:web": "dotenv -e .env -- node scripts/web-dev.mjs",
     "build": "dotenv -e .env -- npm run build -w policydrift-frontend",
     "start:api": "npm run start -w policydrift-backend",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:stop": "pm2 stop policydrift",
+    "pm2:restart": "pm2 restart policydrift",
     "start:web": "dotenv -e .env -- node scripts/web-start.mjs"
   },
   "devDependencies": {

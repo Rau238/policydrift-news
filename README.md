@@ -125,6 +125,7 @@ After that, the **cron** job (every **30 minutes**) will ingest new items automa
 ## Production notes
 
 - Run `npm run build` (builds the frontend workspace) and `npm run start:web` / `npm run start:api` with production `NODE_ENV` and real `NEXT_PUBLIC_SITE_URL`.
+- **Vercel (or any hosted frontend) cannot use `http://127.0.0.1:4000` as the API** — expose the API publicly and set `NEXT_PUBLIC_API_URL` on Vercel, plus `CORS_ORIGIN` on the API. See **[docs/VERCEL_PRODUCTION_API.md](./docs/VERCEL_PRODUCTION_API.md)**.
 - Point `CORS_ORIGIN` at your deployed frontend URL(s).
 - Keep `OPENAI_API_KEY` server-side only (never `NEXT_PUBLIC_*`).
 
