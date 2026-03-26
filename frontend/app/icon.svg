@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="PolicyDrift">
+  <defs>
+    <linearGradient id="pd-favicon" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5eead4" />
+      <stop offset="0.45" stop-color="#14b8a6" />
+      <stop offset="1" stop-color="#0f766e" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#pd-favicon)" />
+  <g fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" opacity="0.98">
+    <circle cx="16" cy="22" r="1.75" fill="#ffffff" stroke="none" />
+    <path d="M13 18a3 3 0 0 1 6 0" />
+    <path d="M10 14a6 6 0 0 1 12 0" />
+    <path d="M7 10a9 9 0 0 1 18 0" />
+  </g>
+</svg>

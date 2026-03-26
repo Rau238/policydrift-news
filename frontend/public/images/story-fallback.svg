@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="t d">
+  <title id="t">PolicyDrift story image</title>
+  <desc id="d">Default cover when no feed image is available</desc>
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f766e"/>
+      <stop offset="55%" style="stop-color:#115e59"/>
+      <stop offset="100%" style="stop-color:#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <text x="600" y="300" text-anchor="middle" fill="#5eead4" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="700">PolicyDrift</text>
+  <text x="600" y="368" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="26" font-weight="500">News desk coverage</text>
+</svg>

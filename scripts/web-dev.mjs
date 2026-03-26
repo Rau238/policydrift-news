@@ -1,0 +1,22 @@
+/**
+ * Runs Next on WEB_PORT from .env (dotenv-cli loads .env before this runs).
+ * Avoids Next binding to PORT meant for the API.
+ */
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { spawn } from 'child_process';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const port = process.env.WEB_PORT || '3000';
+
+const child = spawn('npm', ['run', 'dev', '-w', 'policydrift-frontend', '--', '-p', port], {
+  cwd: root,
+  stdio: 'inherit',
+  shell: true,
+  env: { ...process.env },
+});
+
+child.on('exit', (code, signal) => {
+  if (signal) process.kill(process.pid, signal);
+  process.exit(code ?? 0);
+});

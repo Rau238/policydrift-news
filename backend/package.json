@@ -1,0 +1,23 @@
+{
+  "name": "policydrift-backend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "check": "node scripts/check-setup.mjs",
+    "ingest": "node scripts/ingest-once.mjs"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.11.3",
+    "node-cron": "^3.0.3",
+    "rss-parser": "^3.13.0",
+    "slugify": "^1.6.6"
+  }
+}

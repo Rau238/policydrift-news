@@ -1,0 +1,27 @@
+import type { MetadataRoute } from 'next';
+import { getSitemapRows } from '@/lib/api';
+import { absoluteUrl } from '@/lib/site';
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: absoluteUrl('/'), lastModified: new Date(), changeFrequency: 'hourly', priority: 1 },
+    { url: absoluteUrl('/blog'), lastModified: new Date(), changeFrequency: 'hourly', priority: 0.9 },
+    { url: absoluteUrl('/privacy'), lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: absoluteUrl('/terms'), lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: absoluteUrl('/cookies'), lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: absoluteUrl('/editorial'), lastModified: new Date(), changeFrequency: 'yearly', priority: 0.35 },
+  ];
+
+  try {
+    const rows = await getSitemapRows();
+    const posts: MetadataRoute.Sitemap = rows.map((r) => ({
+      url: absoluteUrl(`/blog/${r.slug}`),
+      lastModified: r.lastmod ? new Date(r.lastmod) : new Date(),
+      changeFrequency: 'daily',
+      priority: 0.7,
+    }));
+    return [...staticRoutes, ...posts];
+  } catch {
+    return staticRoutes;
+  }
+}

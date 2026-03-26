@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #0f172a;
+  --background: #fafaf9;
+  --pd-teal: #0d9488;
+  --pd-teal-dark: #0f766e;
+  --pd-hero-mid: #0f172a;
+  --pd-hero-deep: #0a1628;
+  --pd-hero-accent: #115e59;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+/**
+ * Horizontal story strips: avoid double scrollbars. Framer Motion translateY on cards
+ * can expand overflow on the block axis unless Y overflow is clipped.
+ */
+.pd-scroll-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  padding-bottom: 0.5rem;
+  margin-inline: -1rem;
+  padding-inline: 1rem;
+  scroll-padding-inline: 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 640px) {
+  .pd-scroll-strip {
+    margin-inline: 0;
+    padding-inline: 0;
+    scroll-padding-inline: 0;
+  }
+}
+
+.pd-scroll-strip::-webkit-scrollbar {
+  height: 6px;
+}
+
+.pd-scroll-strip::-webkit-scrollbar-track {
+  margin-inline: 0.25rem;
+  border-radius: 9999px;
+  background: rgb(241 245 249);
+}
+
+.pd-scroll-strip::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgb(148 163 184 / 0.85);
+}
+
+.pd-scroll-strip::-webkit-scrollbar-thumb:hover {
+  background: rgb(100 116 139 / 0.9);
+}
+
+@supports (scrollbar-width: thin) {
+  .pd-scroll-strip {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184) rgb(241 245 249);
+  }
+}
+
+.pd-legal-prose h2 {
+  @apply mt-10 text-xl font-semibold tracking-tight text-ink;
+}
+
+.pd-legal-prose h3 {
+  @apply mt-8 text-lg font-semibold text-ink;
+}
+
+.pd-legal-prose p {
+  @apply mt-4 text-base leading-relaxed text-slate-700;
+}
+
+.pd-legal-prose ul {
+  @apply mt-4 list-disc space-y-2 pl-6 text-slate-700;
+}
+
+.pd-legal-prose li {
+  @apply leading-relaxed;
+}
+
+.pd-legal-prose a {
+  @apply font-medium text-accent underline-offset-4 hover:underline;
+}
+
+.pd-legal-prose strong {
+  @apply font-semibold text-ink;
+}
+
+@keyframes pd-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pd-loader-spin {
+  animation: pd-loader-spin 0.88s linear infinite;
+}
+
+@layer utilities {
+  .animate-shimmer {
+    position: relative;
+  }
+  .animate-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 0.5),
+      transparent
+    );
+    animation: pd-shimmer 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes pd-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.prose-policy h2 {
+  @apply mt-10 text-2xl font-semibold tracking-tight text-ink;
+}
+
+.prose-policy h3 {
+  @apply mt-8 text-xl font-semibold text-ink;
+}
+
+.prose-policy p {
+  @apply mt-4 text-lg leading-relaxed text-slate-700;
+}
+
+.prose-policy ul {
+  @apply mt-4 list-disc pl-6 text-slate-700;
+}
+
+.prose-policy li {
+  @apply mt-2 text-lg leading-relaxed;
+}
+
+.prose-policy a {
+  @apply text-accent underline-offset-4 hover:underline;
+}
+
+.prose-policy img {
+  @apply my-8 w-full rounded-lg border border-slate-200;
+}
+
+/* Article detail — comfortable reading measure */
+.article-prose {
+  max-width: 42rem;
+}
+
+.article-prose.prose-policy h2:first-of-type {
+  @apply mt-8 sm:mt-9;
+}
