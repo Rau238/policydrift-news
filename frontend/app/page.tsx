@@ -133,7 +133,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      
+  
 
       <div className="relative border-t border-surface-subtle bg-gradient-to-b from-surface via-paper to-surface">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-accent-soft/25 to-transparent"
