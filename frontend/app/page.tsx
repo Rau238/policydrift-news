@@ -43,7 +43,6 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-paper">
-      {/* Hero — compact (~half viewport on large screens) */}
       <section className="relative overflow-hidden border-b border-teal-950/40 text-white">
         <div className="absolute inset-0 bg-gradient-to-br from-brand-night via-brand-deep to-[#134e4a]" aria-hidden />
         <div
