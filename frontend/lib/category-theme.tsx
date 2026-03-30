@@ -128,6 +128,23 @@ export function categoryNavPillClass(name: string): string {
   return categoryTheme(name).navPill;
 }
 
+/** High-contrast rows for the mobile drawer (avoids washed-out pills on slate-900). */
+const DRAWER_ACCENT: Record<string, string> = {
+  Breaking: 'border-l-rose-400',
+  'World News': 'border-l-sky-400',
+  India: 'border-l-amber-400',
+  Business: 'border-l-violet-400',
+  Politics: 'border-l-indigo-400',
+  'Stocks & Markets': 'border-l-emerald-400',
+  Crypto: 'border-l-orange-400',
+  General: 'border-l-slate-400',
+};
+
+export function categoryDrawerRowClass(name: string): string {
+  const accent = DRAWER_ACCENT[name] ?? DRAWER_ACCENT.General;
+  return `border-l-4 ${accent} bg-slate-800 text-white ring-1 ring-white/15 hover:bg-slate-700`;
+}
+
 export function categoryCardRingClass(name: string): string {
   return categoryTheme(name).cardRing;
 }

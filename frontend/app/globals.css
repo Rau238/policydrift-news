@@ -17,6 +17,19 @@ body {
   background: var(--background);
 }
 
+/** Hide scrollbar but keep overflow-x scroll (category rail on mobile). */
+@layer utilities {
+  .pd-scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .pd-scrollbar-none::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
 /**
  * Horizontal story strips: avoid double scrollbars. Framer Motion translateY on cards
  * can expand overflow on the block axis unless Y overflow is clipped.

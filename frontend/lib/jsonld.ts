@@ -12,7 +12,7 @@ const websiteId = () => `${absoluteUrl('/')}#website`;
 
 export function siteGraphJsonLd() {
   const base = absoluteUrl('/');
-  const logo = absoluteUrl('/favicon.ico');
+  const logo = absoluteUrl('/icon.svg');
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -72,7 +72,7 @@ export function newsArticleJsonLd(params: {
         publisher: {
           '@type': 'Organization',
           name: siteName,
-          logo: { '@type': 'ImageObject', url: absoluteUrl('/favicon.ico') },
+          logo: { '@type': 'ImageObject', url: absoluteUrl('/icon.svg') },
         },
         mainEntityOfPage: { '@type': 'WebPage', '@id': url },
         image: imageUrls,

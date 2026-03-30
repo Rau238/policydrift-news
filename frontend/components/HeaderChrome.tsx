@@ -7,9 +7,9 @@ import { LayoutGrid, Menu, Radio, X } from 'lucide-react';
 import { siteName } from '@/lib/site';
 import {
   CATEGORY_ORDER,
+  categoryDrawerRowClass,
   categoryHref,
   categoryLabel,
-  categoryNavPillClass,
   CategoryGlyph,
 } from '@/lib/category-theme';
 import { CategoryNav } from '@/components/CategoryNav';
@@ -56,12 +56,16 @@ export function HeaderChrome() {
 
           <button
             type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-white ring-1 ring-white/15 transition hover:bg-white/10 md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-white ring-1 ring-white/25 transition hover:bg-white/15 md:hidden"
             aria-expanded={open}
             aria-label={open ? 'Close menu' : 'Open menu'}
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open ? (
+              <X className="h-6 w-6 text-white" strokeWidth={2.5} aria-hidden />
+            ) : (
+              <Menu className="h-6 w-6 text-white" strokeWidth={2.5} aria-hidden />
+            )}
           </button>
         </motion.div>
 
@@ -115,17 +119,19 @@ export function HeaderChrome() {
                   All stories
                 </Link>
               </nav>
-              <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">Desks</p>
-              <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 pb-6">
+              <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-teal-300/90">
+                Desks
+              </p>
+              <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-3 pb-6 pd-scrollbar-none">
                 {CATEGORY_ORDER.filter((c) => c !== 'General').map((key) => (
                   <Link
                     key={key}
                     href={categoryHref(key)}
-                    className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium ring-1 transition ${categoryNavPillClass(key)}`}
+                    className={`flex items-center gap-3 rounded-r-xl py-2.5 pl-3 pr-3 text-sm font-semibold transition ${categoryDrawerRowClass(key)}`}
                     onClick={() => setOpen(false)}
                   >
-                    <CategoryGlyph name={key} className="h-4 w-4" />
-                    {categoryLabel(key)}
+                    <CategoryGlyph name={key} className="h-4 w-4 shrink-0 text-white" />
+                    <span className="text-white">{categoryLabel(key)}</span>
                   </Link>
                 ))}
               </div>

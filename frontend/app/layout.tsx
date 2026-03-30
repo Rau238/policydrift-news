@@ -5,7 +5,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteJsonLd } from '@/components/SiteJsonLd';
 import { storyFallbackImageUrl } from '@/lib/story-image';
-import { absoluteUrl, siteDescription, siteName } from '@/lib/site';
+import { absoluteUrl, publicSiteOrigin, siteDescription, siteName } from '@/lib/site';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -22,7 +22,7 @@ const lora = Lora({
 const defaultOgImage = storyFallbackImageUrl();
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(publicSiteOrigin()),
   title: {
     default: `${siteName} — Policy & news, clearly told`,
     template: `%s | ${siteName}`,
