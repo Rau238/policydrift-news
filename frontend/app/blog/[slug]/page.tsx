@@ -115,6 +115,7 @@ export default async function BlogPostPage({ params }: Props) {
               </Link>
             </nav>
 
+
             <header className="relative mt-6">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-600">
                 <span
