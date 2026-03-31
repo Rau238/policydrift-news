@@ -5,6 +5,7 @@
  */
 export const RSS_FEEDS_BY_CATEGORY = {
   Breaking: [
+    'https://rss.app/feeds/IP9dCohMdLnKfImo.xml', // rss.app — #breaking (X/Twitter search; social items)
     'https://feeds.reuters.com/reuters/topNews',
     'https://feeds.apnews.com/rss/apf-topnews',
     'https://feeds.bbci.co.uk/news/rss.xml',
@@ -42,6 +43,7 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://www.moneycontrol.com/rss/latestnews.xml',
   ],
   Politics: [
+    'https://rss.app/feeds/t8jX8LiuofpKkKzV.xml', // rss.app — Trump topic (multi-outlet articles + media)
     'https://feeds.reuters.com/reuters/politicsNews',
     'https://rss.cnn.com/rss/cnn_allpolitics.rss',
     'https://www.thehindu.com/news/national/rssfeed/',
