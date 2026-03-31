@@ -26,6 +26,8 @@ export const env = {
   MYSQL_PASSWORD: process.env.MYSQL_PASSWORD || '',
   MYSQL_DATABASE: required('MYSQL_DATABASE', 'policydrift'),
   MYSQL_POOL_LIMIT: parseInt(process.env.MYSQL_POOL_LIMIT || '10', 10),
+  /** Log information_schema size for this DB on every API start. Set MYSQL_LOG_STORAGE_ON_START=false to disable. */
+  MYSQL_LOG_STORAGE_ON_START: process.env.MYSQL_LOG_STORAGE_ON_START !== 'false',
   RSS_FEED_URLS: (process.env.RSS_FEED_URLS || '')
     .split(',')
     .map((s) => s.trim())

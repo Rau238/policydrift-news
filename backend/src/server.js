@@ -3,12 +3,14 @@ import app from './app.js';
 import { env } from './config/env.js';
 import { getFeedEntries } from './config/rss-feeds.js';
 import { pingDb } from './db/pool.js';
+import { logMysqlStorageOnStartup } from './db/storage-stats.js';
 import { ingestFromRss } from './services/ingestion.service.js';
 
 async function start() {
   try {
     await pingDb();
     console.log('MySQL pool connected');
+    await logMysqlStorageOnStartup();
   } catch (e) {
     console.error('MySQL connection failed:', e.message);
     process.exit(1);

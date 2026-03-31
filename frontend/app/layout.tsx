@@ -21,6 +21,10 @@ const lora = Lora({
 
 const defaultOgImage = storyFallbackImageUrl();
 
+/** Google AdSense publisher ID — override with NEXT_PUBLIC_ADSENSE_CLIENT in .env if needed. */
+const adsenseClient =
+  process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || 'ca-pub-1508845535613236';
+
 export const metadata: Metadata = {
   metadataBase: new URL(publicSiteOrigin()),
   title: {
@@ -75,12 +79,20 @@ export const metadata: Metadata = {
       'max-video-preview': -1,
     },
   },
+  other: {
+    'google-adsense-account': adsenseClient,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${lora.variable}`}>
       <body className="flex min-h-screen flex-col bg-paper font-sans antialiased text-ink">
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}`}
+          crossOrigin="anonymous"
+        />
         <SiteJsonLd />
         <SiteHeader />
         <main className="min-w-0 flex-1">{children}</main>
