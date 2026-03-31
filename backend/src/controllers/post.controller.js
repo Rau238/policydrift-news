@@ -47,6 +47,7 @@ export async function getTrending(req, res, next) {
     const limit = Math.min(20, Math.max(1, parseInt(req.query.limit || '6', 10)));
     const days = Math.min(30, Math.max(1, parseInt(req.query.days || '7', 10)));
     const posts = await postModel.listTrending({ limit, days });
+    res.set('Cache-Control', 'private, no-store, max-age=0');
     res.json(posts.map((p) => withStoryImageFallback(p)));
   } catch (e) {
     next(e);

@@ -54,7 +54,15 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
 }
 
 export async function getTrending(limit = 6): Promise<PostListItem[]> {
-  return safeFetchJson(`/api/posts/trending?limit=${limit}`, []);
+  try {
+    const res = await fetch(`${getBaseUrl()}/api/posts/trending?limit=${limit}`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) return [];
+    return res.json() as Promise<PostListItem[]>;
+  } catch {
+    return [];
+  }
 }
 
 export async function getCategories(): Promise<CategoryRow[]> {
