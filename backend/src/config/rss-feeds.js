@@ -39,7 +39,7 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://feeds.reuters.com/reuters/businessNews',
     'https://feeds.bbci.co.uk/news/business/rss.xml',
     'https://www.cnbc.com/id/100003114/device/rss/rss.html',
-    'https://feeds.marketwatch.com/marketwatch/topstories/',
+    'https://feeds.content.dowjones.io/public/rss/mw_topstories',
     'https://www.moneycontrol.com/rss/latestnews.xml',
   ],
   Politics: [
@@ -49,7 +49,11 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://www.thehindu.com/news/national/rssfeed/',
   ],
   'Stocks & Markets': [
+    'https://www.investing.com/rss/news_25.rss',
+    'https://www.investing.com/rss/stock.rss',
+    'https://feeds.content.dowjones.io/public/rss/mw_realtimeheadlines',
     'https://www.cnbc.com/id/10000664/device/rss/rss.html',
+    'https://www.moneycontrol.com/rss/business.xml',
     'https://www.thehindubusinessline.com/markets/stock-markets/rssfeed/',
   ],
   Crypto: [

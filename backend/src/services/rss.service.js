@@ -5,8 +5,10 @@ import { toCleanString } from '../utils/string.js';
 const parser = new Parser({
   timeout: 35000,
   headers: {
+    /* Some publishers (e.g. Moneycontrol) return 403 to generic “bot” UAs; keep a normal browser string. */
     'User-Agent':
-      'Mozilla/5.0 (compatible; PolicyDriftBot/1.0; +https://policydrift.local) AppleWebKit/537.36 (KHTML, like Gecko)',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 PolicyDrift/1.0',
+    Accept: 'application/rss+xml, application/xml, text/xml;q=0.9,*/*;q=0.8',
   },
   customFields: {
     item: [

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Lora } from 'next/font/google';
+import { Inter, JetBrains_Mono, Lora, Outfit } from 'next/font/google';
 import './globals.css';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
@@ -19,11 +19,27 @@ const lora = Lora({
   display: 'swap',
 });
 
+const outfitMarkets = Outfit({
+  subsets: ['latin'],
+  variable: '--font-markets',
+  display: 'swap',
+});
+
+const jetbrainsMarketsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-markets-mono',
+  display: 'swap',
+});
+
 const defaultOgImage = storyFallbackImageUrl();
 
 /** Google AdSense publisher ID — override with NEXT_PUBLIC_ADSENSE_CLIENT in .env if needed. */
 const adsenseClient =
   process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || 'ca-pub-1508845535613236';
+
+/** AdSense often returns 403 on localhost / unreviewed origins; load the script only in production. */
+const loadAdsenseScript =
+  process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_ADSENSE_DISABLED !== 'true';
 
 export const metadata: Metadata = {
   metadataBase: new URL(publicSiteOrigin()),
@@ -79,20 +95,25 @@ export const metadata: Metadata = {
       'max-video-preview': -1,
     },
   },
-  other: {
-    'google-adsense-account': adsenseClient,
-  },
+  ...(loadAdsenseScript
+    ? { other: { 'google-adsense-account': adsenseClient } }
+    : {}),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${lora.variable}`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${lora.variable} ${outfitMarkets.variable} ${jetbrainsMarketsMono.variable}`}
+    >
       <body className="flex min-h-screen flex-col bg-paper font-sans antialiased text-ink">
-        <script
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}`}
-          crossOrigin="anonymous"
-        />
+        {loadAdsenseScript ? (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
         <SiteJsonLd />
         <SiteHeader />
         <main className="min-w-0 flex-1">{children}</main>

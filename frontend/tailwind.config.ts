@@ -11,6 +11,8 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
         display: ['var(--font-news)', 'Georgia', 'serif'],
+        markets: ['var(--font-markets)', 'var(--font-geist-sans)', 'system-ui', 'sans-serif'],
+        'markets-mono': ['var(--font-markets-mono)', 'ui-monospace', 'monospace'],
       },
       colors: {
         ink: { DEFAULT: '#0f172a', muted: '#475569', soft: '#64748b' },

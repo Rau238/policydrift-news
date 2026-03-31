@@ -1,7 +1,7 @@
 import type { CategoryRow, PostDetail, PostListItem } from './types';
 
 function getBaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
+  const url = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000').trim();
   return url.replace(/\/$/, '');
 }
 

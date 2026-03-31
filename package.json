@@ -18,7 +18,8 @@
     "pm2:start": "pm2 start ecosystem.config.cjs",
     "pm2:stop": "pm2 stop policydrift",
     "pm2:restart": "pm2 restart policydrift",
-    "start:web": "dotenv -e .env -- node scripts/web-start.mjs"
+    "start:web": "dotenv -e .env -- node scripts/web-start.mjs",
+    "frontend:dev": "npm run dev -w policydrift-frontend"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

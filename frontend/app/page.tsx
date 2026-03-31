@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { PostCard } from '@/components/PostCard';
 import { BreakingGrid } from '@/components/BreakingGrid';
 import { TrendingAside } from '@/components/TrendingAside';
+import { LiveMarketsAside } from '@/components/LiveMarketsAside';
 import { getPosts, getTrending } from '@/lib/api';
 import { resolvePostImageUrl, storyFallbackImageUrl } from '@/lib/story-image';
 import { absoluteUrl, siteDescription, siteName } from '@/lib/site';
@@ -140,7 +141,7 @@ export default async function HomePage() {
           aria-hidden
         />
         <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:py-20">
-          <div className="grid gap-14 lg:grid-cols-[1fr_min(360px,100%)] lg:items-start lg:gap-12 xl:gap-16">
+          <div className="grid gap-14 lg:grid-cols-[1fr_min(380px,100%)] lg:items-start lg:gap-12 xl:gap-16">
             <div className="min-w-0 space-y-20">
               {breaking.posts.length > 0 ? (
                 <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-surface-card">
@@ -236,7 +237,10 @@ export default async function HomePage() {
               </section>
             </div>
 
-            <TrendingAside posts={trending} />
+            <div className="flex min-w-0 flex-col gap-8 lg:sticky lg:top-24">
+              <LiveMarketsAside />
+              <TrendingAside posts={trending} />
+            </div>
           </div>
         </div>
       </div>

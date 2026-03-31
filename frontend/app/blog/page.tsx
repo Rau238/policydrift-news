@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { LayoutGrid } from 'lucide-react';
 import { PostCard } from '@/components/PostCard';
+import { LiveMarketsAside } from '@/components/LiveMarketsAside';
 import { TrendingAside } from '@/components/TrendingAside';
 import { getCategories, getPosts, getTrending } from '@/lib/api';
 import { categoryLabel, CategoryGlyph } from '@/lib/categories';
@@ -61,7 +62,7 @@ export default async function BlogListingPage({ searchParams }: Props) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
-        <div className="grid gap-12 lg:grid-cols-[1fr_340px] lg:items-start">
+        <div className="grid gap-12 lg:grid-cols-[1fr_min(380px,100%)] lg:items-start lg:gap-10">
           <div>
             <h1 className="font-display text-3xl font-bold text-ink sm:text-5xl">Newsroom</h1>
             <p className="mt-3 max-w-2xl text-slate-600">
@@ -111,7 +112,10 @@ export default async function BlogListingPage({ searchParams }: Props) {
               </nav>
             ) : null}
           </div>
-          <TrendingAside posts={trending} />
+          <div className="flex min-w-0 flex-col gap-8 lg:sticky lg:top-24">
+            <LiveMarketsAside />
+            <TrendingAside posts={trending} />
+          </div>
         </div>
       </div>
     </div>
