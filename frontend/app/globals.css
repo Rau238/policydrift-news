@@ -173,11 +173,112 @@ body {
   @apply my-8 w-full rounded-lg border border-slate-200;
 }
 
-/* Article detail — comfortable reading measure */
+/* Article detail — reading measure */
 .article-prose {
   max-width: 42rem;
 }
 
 .article-prose.prose-policy h2:first-of-type {
   @apply mt-8 sm:mt-9;
+}
+
+/* News article detail: tighter, minimal body (used with .prose-policy on /news/[slug]) */
+.article-detail-prose.prose-policy h2 {
+  @apply mt-7 text-xl font-semibold tracking-tight text-ink;
+}
+
+.article-detail-prose.prose-policy h3 {
+  @apply mt-5 text-lg font-semibold text-ink;
+}
+
+.article-detail-prose.prose-policy p {
+  @apply mt-3 text-[0.9375rem] leading-relaxed text-slate-700;
+}
+
+.article-detail-prose.prose-policy ul {
+  @apply mt-3 list-disc pl-5 text-[0.9375rem] text-slate-700;
+}
+
+.article-detail-prose.prose-policy li {
+  @apply mt-1.5 leading-relaxed;
+}
+
+.article-detail-prose.prose-policy ol {
+  @apply mt-3 list-decimal pl-5 text-[0.9375rem] text-slate-700;
+}
+
+.article-detail-prose.prose-policy dl {
+  @apply mt-3 text-[0.9375rem] text-slate-700;
+}
+
+.article-detail-prose.prose-policy dt {
+  @apply mt-2 font-semibold text-ink first:mt-0;
+}
+
+.article-detail-prose.prose-policy dd {
+  @apply mt-1 pl-0;
+}
+
+.article-detail-prose.prose-policy h4 {
+  @apply mt-5 text-base font-semibold text-ink;
+}
+
+.article-detail-prose.prose-policy h5,
+.article-detail-prose.prose-policy h6 {
+  @apply mt-4 text-sm font-semibold text-ink;
+}
+
+.article-detail-prose.prose-policy a {
+  @apply text-accent underline-offset-[3px] hover:underline;
+}
+
+.article-detail-prose.prose-policy img {
+  @apply my-5 w-full rounded-md border border-slate-200/90;
+}
+
+.article-detail-prose.prose-policy blockquote {
+  @apply my-5 border-l-2 border-slate-300 pl-4 text-[0.9375rem] italic text-slate-600;
+}
+
+.article-detail-prose.prose-policy table {
+  @apply my-5 w-full border-collapse text-left text-[0.9375rem] text-slate-700;
+}
+
+.article-detail-prose.prose-policy th,
+.article-detail-prose.prose-policy td {
+  @apply border border-slate-200 px-3 py-2 align-top;
+}
+
+.article-detail-prose.prose-policy th {
+  @apply bg-slate-50 font-semibold text-slate-800;
+}
+
+.article-detail-prose.prose-policy hr {
+  @apply my-8 border-slate-200;
+}
+
+.article-detail-prose.prose-policy pre {
+  @apply my-5 overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-[0.8125rem] leading-relaxed text-slate-800;
+}
+
+.article-detail-prose.prose-policy :not(pre) > code {
+  @apply rounded bg-slate-100 px-1 py-px text-[0.85em] text-slate-800;
+}
+
+.article-detail-prose.prose-policy pre code {
+  @apply rounded-none bg-transparent p-0 text-[0.8125rem];
+}
+
+.article-prose.article-detail-prose {
+  max-width: 36rem;
+  text-align: left;
+}
+
+.article-detail-prose.prose-policy h2,
+.article-detail-prose.prose-policy h3 {
+  text-align: left;
+}
+
+.article-detail-prose.prose-policy h2:first-of-type {
+  @apply mt-5;
 }

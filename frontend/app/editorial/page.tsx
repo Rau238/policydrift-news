@@ -22,10 +22,11 @@ export default function EditorialPage() {
         wire or publisher content.
       </p>
 
-      <h2>Summaries and formatting</h2>
+      <h2>Feed text and formatting</h2>
       <p>
-        Headlines and body text may be shortened or lightly edited for clarity and SEO. Automated or human review
-        should avoid introducing factual claims that are not supported by the source.
+        Article bodies are the HTML or text provided in each RSS item (deduplicated when feeds repeat the same story
+        in multiple fields). We sanitize markup for safe display. Headlines and lead blurbs may be trimmed for listings;
+        we do not rewrite full articles into a separate editorial template.
       </p>
 
       <h2>Corrections</h2>

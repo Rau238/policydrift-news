@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { TrendingUp } from 'lucide-react';
 import type { PostListItem } from '@/lib/types';
-import { formatDate } from '@/lib/format';
+import { formatPublishedAt } from '@/lib/format';
 import { categoryLabel, CategoryGlyph } from '@/lib/category-theme';
 
 export function TrendingAside({ posts }: { posts: PostListItem[] }) {
@@ -46,7 +46,7 @@ export function TrendingAside({ posts }: { posts: PostListItem[] }) {
                   {p.title}
                 </Link>
                 <p className="mt-1 text-[11px] text-ink-soft">
-                  {formatDate(p.published_at)} · {p.view_count.toLocaleString()} views
+                  {formatPublishedAt(p.published_at)} · {p.view_count.toLocaleString()} views
                 </p>
               </div>
             </div>

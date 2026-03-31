@@ -1,5 +1,6 @@
 import * as postModel from '../models/post.model.js';
 import { ingestFromRss } from '../services/ingestion.service.js';
+import { serializePostDates } from '../utils/date.js';
 import { withStoryImageFallback } from '../utils/story-image.js';
 
 export async function listPosts(req, res, next) {
@@ -10,7 +11,7 @@ export async function listPosts(req, res, next) {
     const data = await postModel.listPosts({ category, page, limit });
     res.json({
       ...data,
-      posts: data.posts.map((p) => withStoryImageFallback(p)),
+      posts: data.posts.map((p) => serializePostDates(withStoryImageFallback(p))),
     });
   } catch (e) {
     next(e);
@@ -27,7 +28,7 @@ export async function getPostBySlug(req, res, next) {
     }
     await postModel.incrementViews(post.id);
     post.view_count = (post.view_count || 0) + 1;
-    res.json(withStoryImageFallback(post));
+    res.json(serializePostDates(withStoryImageFallback(post)));
   } catch (e) {
     next(e);
   }
@@ -48,7 +49,7 @@ export async function getTrending(req, res, next) {
     const days = Math.min(30, Math.max(1, parseInt(req.query.days || '7', 10)));
     const posts = await postModel.listTrending({ limit, days });
     res.set('Cache-Control', 'private, no-store, max-age=0');
-    res.json(posts.map((p) => withStoryImageFallback(p)));
+    res.json(posts.map((p) => serializePostDates(withStoryImageFallback(p))));
   } catch (e) {
     next(e);
   }

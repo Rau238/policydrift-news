@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { ArrowRight, LayoutGrid, Newspaper, Zap } from 'lucide-react';
 import { categoryChipClass, categoryHref, categoryLabel, CategoryGlyph } from '@/lib/categories';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
-import { formatDate } from '@/lib/format';
+import { formatPublishedAt } from '@/lib/format';
 
 /** Full Tailwind classes — picked at random on each request (see `dynamic`). */
 const HERO_BACKDROP_GRADIENTS = [
@@ -118,8 +118,8 @@ export default async function HomePage() {
                         {lead.excerpt}
                       </p>
                     ) : null}
-                    <p className="mt-auto pt-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                      {formatDate(lead.published_at)}
+                    <p className="mt-auto pt-3 text-[10px] font-semibold tabular-nums tracking-wide text-slate-500">
+                      {formatPublishedAt(lead.published_at)}
                     </p>
                   </div>
                 </Link>

@@ -17,8 +17,9 @@ export default function TermsPage() {
 
       <h2>What PolicyDrift provides</h2>
       <p>
-        We present news-style content aggregated from public RSS feeds and similar sources, sometimes summarized or
-        reformatted for readability. We aim for accuracy but do not guarantee completeness or timeliness.
+        We present news-style content aggregated from public RSS feeds and similar sources. Article text is shown as
+        provided by those feeds (with safe HTML sanitization). We aim for accuracy but do not guarantee completeness or
+        timeliness.
       </p>
 
       <h2>Not professional advice</h2>

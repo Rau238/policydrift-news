@@ -135,35 +135,28 @@ export function NewsCategoryHubSkeleton() {
   );
 }
 
-/** Matches `/news/[slug]` when `slug` is an article. */
+/** Matches `/news/[slug]` article layout (minimal detail page). */
 export function NewsArticleSkeleton() {
   return (
-    <div className="min-h-[70vh] bg-gradient-to-b from-slate-100/80 via-white to-slate-50/90 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-      <div className="mx-auto max-w-4xl">
-        <Skeleton className="mb-8 h-4 w-36 rounded-md" />
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-          <div className="relative border-b border-slate-100 bg-gradient-to-br from-slate-50/90 via-white to-teal-50/20 px-6 py-8 sm:px-10 sm:py-10">
-            <div className="pointer-events-none absolute -right-16 top-0 h-40 w-40 rounded-full bg-teal-400/10 blur-3xl" aria-hidden />
-            <div className="relative flex flex-wrap items-center gap-2">
-              <Skeleton className="h-7 w-28 rounded-full" />
-              <span className="hidden h-4 w-px bg-slate-200 sm:block" aria-hidden />
-              <Skeleton className="h-4 w-32" />
-            </div>
-            <Skeleton className="relative mt-6 h-9 w-full max-w-3xl sm:h-11" />
-            <Skeleton className="relative mt-4 h-5 w-full max-w-2xl" />
-            <Skeleton className="relative mt-2 h-5 w-full max-w-xl" />
-          </div>
-          <div className="px-6 pb-2 pt-8 sm:px-10 sm:pt-10">
-            <Skeleton className="aspect-[16/9] w-full rounded-2xl sm:aspect-[2/1]" />
-          </div>
-          <div className="space-y-3 px-6 py-8 sm:px-10 sm:py-10">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <Skeleton key={i} className={`h-4 w-full ${i % 4 === 3 ? 'max-w-[88%]' : ''}`} />
-            ))}
-          </div>
-          <div className="border-t border-slate-100 bg-slate-50/80 px-6 py-8 sm:px-10">
-            <Skeleton className="mx-auto h-24 w-full max-w-2xl rounded-2xl" />
-          </div>
+    <div className="min-h-[65vh] bg-paper px-4 py-5 sm:px-6 sm:py-7">
+      <div className="mx-auto max-w-2xl">
+        <Skeleton className="mb-5 h-3.5 w-16 rounded" />
+        <div className="border-b border-slate-200/90 pb-5">
+          <Skeleton className="h-2.5 w-48" />
+          <Skeleton className="mt-3 h-3 w-64 max-w-full" />
+          <Skeleton className="mt-4 h-8 w-full max-w-xl" />
+          <Skeleton className="mt-3 h-3.5 w-full max-w-lg" />
+        </div>
+        <Skeleton className="mt-5 aspect-[16/10] w-full rounded-xl" />
+        <div className="mt-7 space-y-2.5">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className={`h-3.5 w-full ${i % 5 === 4 ? 'max-w-[90%]' : ''}`} />
+          ))}
+        </div>
+        <div className="mt-10 border-t border-slate-200 pt-6">
+          <Skeleton className="h-3 w-full max-w-sm" />
+          <Skeleton className="mt-4 h-10 w-full max-w-xs rounded-lg" />
+          <Skeleton className="mt-6 h-3.5 w-24" />
         </div>
       </div>
     </div>

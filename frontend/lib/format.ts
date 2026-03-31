@@ -10,6 +10,20 @@ export function formatDate(iso: string): string {
   });
 }
 
+/** Published time for news: date plus hour and minute (RSS / DB store full DATETIME). */
+export function formatPublishedAt(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleString(DATE_LOCALE, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
 export function formatRelativeTime(iso: string): string {
   const t = new Date(iso).getTime();
   if (Number.isNaN(t)) return '';

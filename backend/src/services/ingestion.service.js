@@ -1,8 +1,7 @@
 import slugify from 'slugify';
 import { sha256Hex } from '../utils/hash.js';
-import { toCleanString } from '../utils/string.js';
+import { excerptFromFeedContent, feedBodyToArticleHtml, toCleanString } from '../utils/string.js';
 import * as postModel from '../models/post.model.js';
-import { rewriteForSEO } from './rewrite.service.js';
 import { fetchAllFeedEntries } from './rss.service.js';
 import { env } from '../config/env.js';
 import { resolveStoryImageUrl } from '../utils/story-image.js';
@@ -61,24 +60,26 @@ export async function ingestFromRss() {
         continue;
       }
 
-      const { bodyHtml, excerpt } = await rewriteForSEO({
-        title,
-        contentSnippet: item.content,
-        link,
-      });
+      const body = feedBodyToArticleHtml(item.content);
+      const excerpt = excerptFromFeedContent(body, title);
 
       const slug = await allocateSlug(title);
+
+      const publishedAt =
+        item.pubDate instanceof Date && !Number.isNaN(item.pubDate.getTime())
+          ? item.pubDate
+          : new Date();
 
       await postModel.createPost({
         slug,
         title,
-        excerpt: toCleanString(excerpt),
-        body: toCleanString(bodyHtml),
+        excerpt,
+        body,
         original_url: link,
         url_hash: urlHash,
         image_url: resolveStoryImageUrl(item.image ? toCleanString(item.image) : null),
         category: toCleanString(item.category || 'General').slice(0, 128) || 'General',
-        published_at: item.pubDate,
+        published_at: publishedAt,
         source_feed: item.feedUrl ? toCleanString(item.feedUrl) : null,
       });
       created += 1;

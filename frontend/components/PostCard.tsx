@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import type { PostListItem } from '@/lib/types';
-import { formatDate } from '@/lib/format';
+import { formatPublishedAt } from '@/lib/format';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import {
   categoryCardRingClass,
@@ -83,9 +83,10 @@ export function PostCard({ post, priority, compact, gridCell, index = 0 }: Props
           ) : null}
           <time
             dateTime={post.published_at}
+            title={post.published_at}
             className={`mt-auto pt-2 font-semibold tabular-nums text-slate-400 ${compact ? 'text-[11px]' : 'text-xs'}`}
           >
-            {formatDate(post.published_at)}
+            {formatPublishedAt(post.published_at)}
           </time>
         </div>
       </Link>

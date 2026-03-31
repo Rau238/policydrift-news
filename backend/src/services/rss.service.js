@@ -326,6 +326,56 @@ function pickCategory(item) {
   return 'General';
 }
 
+/** Strip tags/entities for comparing RSS fields (dedupe description vs full content). */
+function plainForDedup(htmlOrText) {
+  return toCleanString(htmlOrText)
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&(?:#\d+|#x[\da-fA-F]+|\w+);/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * Feeds often send the same story in description + content:encoded (or content + summary).
+ * Joining all fields doubles the text in the stored article body.
+ * Prefer one substantial block; drop shorter parts that are already inside a longer one.
+ */
+function pickDistinctFeedBody(rawParts) {
+  const blocks = rawParts.map((p) => toCleanString(String(p))).filter((p) => p.length > 0);
+  if (blocks.length <= 1) return blocks[0] || '';
+
+  const scored = blocks.map((html) => ({
+    html,
+    len: plainForDedup(html).length,
+    plain: plainForDedup(html),
+  }));
+  scored.sort((a, b) => b.len - a.len);
+  const longest = scored[0];
+
+  if (longest.len >= 260) {
+    return longest.html;
+  }
+
+  const kept = [];
+  for (const cur of scored) {
+    if (cur.len < 12) continue;
+    let redundant = false;
+    for (const other of scored) {
+      if (other === cur || other.len <= cur.len) continue;
+      const probe = cur.plain.slice(0, Math.min(160, cur.plain.length));
+      if (probe.length >= 40 && other.plain.includes(probe)) {
+        redundant = true;
+        break;
+      }
+    }
+    if (!redundant) kept.push(cur.html);
+  }
+
+  if (!kept.length) return longest.html;
+  return [...new Set(kept)].join('\n\n');
+}
+
 /**
  * @param {string} feedUrl
  * @param {string | null} feedCategory — from rss-feeds.js; overrides RSS item categories
@@ -350,7 +400,9 @@ export async function fetchFeedItems(feedUrl, feedCategory = null) {
         i['content:encodedSnippet'],
         i.contentSnippet,
       ].filter(Boolean);
-      const content = toCleanString(rawParts.join('\n') || i.content || i.summary || i.description || '');
+      const content = toCleanString(
+        pickDistinctFeedBody(rawParts) || i.content || i.summary || i.description || '',
+      );
       const image = pickImageFromStructuredAndHtml(i, rawParts.map(String), link);
       return {
         title,
