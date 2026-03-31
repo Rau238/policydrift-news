@@ -30,10 +30,10 @@ export function PostCard({ post, priority, compact, gridCell, index = 0 }: Props
   const motionInitial = compact ? { opacity: 0 } : { opacity: 0, y: 16 };
   const motionAnimate = compact ? { opacity: 1 } : { opacity: 1, y: 0 };
 
-  const bodyClass = compact ? 'gap-2 p-4 sm:p-4' : 'gap-2.5 p-4 sm:p-5';
+  const bodyClass = compact ? 'gap-2 p-4 sm:p-4' : 'gap-2.5 p-3.5 sm:p-5';
   const titleClass = compact
     ? 'font-display text-[0.9375rem] font-bold leading-snug tracking-tight text-ink line-clamp-3 sm:text-base'
-    : 'font-display text-lg font-bold leading-snug tracking-tight text-ink line-clamp-3 sm:text-[1.125rem] sm:leading-snug';
+    : 'font-display text-lg font-bold leading-snug tracking-tight text-ink line-clamp-3 max-lg:text-base sm:text-[1.125rem] sm:leading-snug';
 
   return (
     <motion.article
@@ -49,7 +49,7 @@ export function PostCard({ post, priority, compact, gridCell, index = 0 }: Props
     >
       <Link
         href={href}
-        className={`group flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm ring-1 ring-slate-900/[0.04] transition duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${compact ? '' : 'hover:ring-accent/12'} ${ring}`}
+        className={`group flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-sm ring-1 ring-slate-900/[0.04] transition duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 max-lg:rounded-xl sm:rounded-2xl ${compact ? '' : 'hover:ring-accent/12'} ${ring}`}
       >
         <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-slate-200/80">
           <RemoteStoryImage

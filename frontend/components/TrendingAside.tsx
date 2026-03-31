@@ -7,27 +7,31 @@ import { categoryLabel, CategoryGlyph } from '@/lib/category-theme';
 export function TrendingAside({ posts }: { posts: PostListItem[] }) {
   if (!posts.length) return null;
   return (
-    <aside className="relative overflow-hidden rounded-3xl border border-slate-200 bg-surface-card">
+    <aside className="relative overflow-hidden rounded-2xl border border-slate-200 bg-surface-card max-lg:rounded-2xl max-lg:shadow-sm lg:rounded-3xl">
       <div
         className="pointer-events-none absolute left-0 top-0 h-full "
         aria-hidden
       />
-      <div className="relative border-b border-slate-200/90   px-6 py-5 pl-7 sm:px-7 sm:pl-8">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200/90 bg-white">
-            <TrendingUp className="h-5 w-5 text-accent-dark" strokeWidth={2.5} aria-hidden />
+      <div className="relative border-b border-slate-200/90 px-4 py-4 pl-5 max-lg:px-4 max-lg:py-3.5 max-lg:pl-5 sm:px-7 sm:py-5 sm:pl-8">
+        <div className="flex items-center gap-2.5 max-lg:gap-2.5 sm:gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200/90 bg-white max-lg:h-10 max-lg:w-10 sm:h-11 sm:w-11">
+            <TrendingUp className="h-[1.15rem] w-[1.15rem] text-accent-dark max-lg:h-[1.15rem] max-lg:w-[1.15rem] sm:h-5 sm:w-5" strokeWidth={2.5} aria-hidden />
           </span>
           <div className="min-w-0">
-            <h2 className="font-display text-xl font-bold tracking-tight text-ink">Trending now</h2>
-            <p className="text-xs font-medium text-ink-soft">Most read in the last 7 days</p>
+            <h2 className="font-display text-lg font-bold tracking-tight text-ink sm:text-xl">
+              Trending now
+            </h2>
+            <p className="text-[11px] font-medium text-ink-soft sm:text-xs">
+              Most read in the last 7 days
+            </p>
           </div>
         </div>
       </div>
-      <ol className="relative divide-y divide-slate-200/80 px-3 py-1 sm:px-4">
+      <ol className="relative divide-y divide-slate-200/80 px-2 py-0.5 max-lg:px-2 sm:px-4 sm:py-1">
         {posts.map((p, i) => (
           <li key={p.id}>
-            <div className="flex gap-3 rounded-xl py-3.5 pl-1 pr-1 transition hover:bg-surface/80 sm:pl-2 sm:pr-2">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent/20 bg-accent-soft text-sm font-black text-accent-dark">
+            <div className="flex gap-2.5 rounded-lg py-3 pl-0.5 pr-0.5 transition hover:bg-surface/80 max-lg:gap-2.5 max-lg:py-2.5 sm:gap-3 sm:rounded-xl sm:py-3.5 sm:pl-2 sm:pr-2">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-accent/20 bg-accent-soft text-xs font-black text-accent-dark max-lg:h-8 max-lg:w-8 max-lg:text-xs sm:h-9 sm:w-9 sm:text-sm">
                 {i + 1}
               </span>
               <div className="min-w-0 flex-1">

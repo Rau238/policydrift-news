@@ -27,7 +27,7 @@ const chip = {
 export function CategoryNav() {
   return (
     <motion.nav
-      className="-mx-1 flex items-start gap-1.5 overflow-x-auto overflow-y-hidden px-1 pb-1 pt-0.5 pd-scrollbar-none sm:mx-0 sm:flex-wrap sm:items-center sm:justify-end sm:overflow-visible sm:pb-0"
+      className=" flex items-start gap-2 overflow-x-auto overflow-y-hidden px-3 pb-1 pt-0.5 pd-scrollbar-none sm:mx-0 sm:flex-wrap sm:items-center sm:justify-end sm:overflow-visible sm:pb-0"
       aria-label="News desks"
       variants={list}
       initial="hidden"

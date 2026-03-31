@@ -60,17 +60,19 @@ const SECTION_FULL: Record<SectionKey, string> = {
   crypto: 'Cryptocurrencies',
 };
 
-/** Left edge on table rows. */
+/** Left edge on table rows (desktop); top accent on mobile card grid. */
 const ROW_STRIPE: Record<SectionKey, string> = {
-  us: 'border-l-[3px] border-l-blue-500',
-  india: 'border-l-[3px] border-l-amber-500',
-  china: 'border-l-[3px] border-l-red-600',
-  united_kingdom: 'border-l-[3px] border-l-indigo-500',
-  japan: 'border-l-[3px] border-l-rose-500',
-  germany: 'border-l-[3px] border-l-slate-600',
-  commodities: 'border-l-[3px] border-l-yellow-600',
-  fx: 'border-l-[3px] border-l-teal-500',
-  crypto: 'border-l-[3px] border-l-violet-500',
+  us: 'border-l-[3px] border-l-blue-500 max-lg:border-l-0 max-lg:border-t-[3px] max-lg:border-t-blue-500',
+  india: 'border-l-[3px] border-l-amber-500 max-lg:border-l-0 max-lg:border-t-[3px] max-lg:border-t-amber-500',
+  china: 'border-l-[3px] border-l-red-600 max-lg:border-l-0 max-lg:border-t-[3px] max-lg:border-t-red-600',
+  united_kingdom:
+    'border-l-[3px] border-l-indigo-500 max-lg:border-l-0 max-lg:border-t-[3px] max-lg:border-t-indigo-500',
+  japan: 'border-l-[3px] border-l-rose-500 max-lg:border-l-0 max-lg:border-t-[3px] max-lg:border-t-rose-500',
+  germany: 'border-l-[3px] border-l-slate-600 max-lg:border-l-0 max-lg:border-t-[3px] max-lg:border-t-slate-600',
+  commodities:
+    'border-l-[3px] border-l-yellow-600 max-lg:border-l-0 max-lg:border-t-[3px] max-lg:border-t-yellow-600',
+  fx: 'border-l-[3px] border-l-teal-500 max-lg:border-l-0 max-lg:border-t-[3px] max-lg:border-t-teal-500',
+  crypto: 'border-l-[3px] border-l-violet-500 max-lg:border-l-0 max-lg:border-t-[3px] max-lg:border-t-violet-500',
 };
 
 /** Top accent on detail popover — matches row stripe. */
@@ -648,6 +650,43 @@ function MarketDetailPopover({
   );
 }
 
+function computeTipState(
+  row: HTMLElement,
+  q: MarketQuoteRow,
+  section: SectionKey,
+  narrow: boolean,
+): TipState {
+  const rect = row.getBoundingClientRect();
+  const gap = 10;
+  const popW = Math.min(288, typeof window !== 'undefined' ? window.innerWidth - 24 : 288);
+  const popH = 320;
+
+  let left: number;
+  let top: number;
+
+  if (narrow) {
+    left = rect.left + rect.width / 2 - popW / 2;
+    if (typeof window !== 'undefined') {
+      left = Math.max(12, Math.min(left, window.innerWidth - popW - 12));
+    }
+    top = rect.bottom + gap;
+    if (typeof window !== 'undefined' && top + popH > window.innerHeight - 12) {
+      top = Math.max(12, rect.top - popH - gap);
+    }
+  } else {
+    left = rect.right + gap;
+    if (typeof window !== 'undefined' && left + popW > window.innerWidth - 12) {
+      left = Math.max(12, rect.left - popW - gap);
+    }
+    top = rect.top;
+    if (typeof window !== 'undefined' && top + popH > window.innerHeight - 12) {
+      top = Math.max(12, window.innerHeight - popH - 12);
+    }
+  }
+
+  return { q, section, left, top };
+}
+
 export function LiveMarketsAside() {
   const [quotes, setQuotes] = useState<MarketQuoteRow[]>([]);
   const [fetchedAt, setFetchedAt] = useState<string | null>(null);
@@ -655,7 +694,16 @@ export function LiveMarketsAside() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tip, setTip] = useState<TipState | null>(null);
+  const [narrowLayout, setNarrowLayout] = useState(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    const sync = () => setNarrowLayout(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   const clearHideTimer = useCallback(() => {
     if (hideTimer.current) {
@@ -672,22 +720,23 @@ export function LiveMarketsAside() {
   const showTip = useCallback(
     (e: React.MouseEvent<HTMLElement>, q: MarketQuoteRow, section: SectionKey) => {
       clearHideTimer();
-      const row = e.currentTarget;
-      const rect = row.getBoundingClientRect();
-      const gap = 10;
-      const popW = Math.min(288, typeof window !== 'undefined' ? window.innerWidth - 24 : 288);
-      let left = rect.right + gap;
-      if (typeof window !== 'undefined' && left + popW > window.innerWidth - 12) {
-        left = Math.max(12, rect.left - popW - gap);
-      }
-      let top = rect.top;
-      const popH = 320;
-      if (typeof window !== 'undefined' && top + popH > window.innerHeight - 12) {
-        top = Math.max(12, window.innerHeight - popH - 12);
-      }
-      setTip({ q, section, left, top });
+      setTip(computeTipState(e.currentTarget, q, section, narrowLayout));
     },
-    [clearHideTimer],
+    [clearHideTimer, narrowLayout],
+  );
+
+  const toggleTip = useCallback(
+    (e: React.MouseEvent<HTMLElement>, q: MarketQuoteRow, section: SectionKey) => {
+      if (!narrowLayout) return;
+      e.preventDefault();
+      clearHideTimer();
+      const row = e.currentTarget;
+      setTip((prev) => {
+        if (prev?.q.id === q.id) return null;
+        return computeTipState(row, q, section, true);
+      });
+    },
+    [clearHideTimer, narrowLayout],
   );
 
   useEffect(() => () => clearHideTimer(), [clearHideTimer]);
@@ -765,8 +814,8 @@ export function LiveMarketsAside() {
   );
 
   return (
-    <aside className="min-w-0 overflow-visible rounded-xl border border-slate-200 bg-white font-markets shadow-sm antialiased">
-      <div className="relative flex items-center justify-between gap-3 border-b border-slate-200/80 bg-slate-900 px-3 py-3 text-white">
+    <aside className="min-w-0 overflow-visible rounded-xl border border-slate-200 bg-white font-markets shadow-sm antialiased max-lg:rounded-2xl max-lg:border-slate-200/90 max-lg:shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] max-lg:ring-1 max-lg:ring-teal-900/[0.06]">
+      <div className="relative flex items-center justify-between gap-3 border-b border-slate-200/80 bg-slate-900 px-3 py-3 text-white max-lg:px-3.5 max-lg:py-2.5">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -812,7 +861,9 @@ export function LiveMarketsAside() {
       </div>
 
       {error ? (
-        <p className="border-b border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-950">{error}</p>
+        <p className="border-b border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-950 max-lg:px-3.5 max-lg:py-2">
+          {error}
+        </p>
       ) : null}
 
       <div className="space-y-0">
@@ -842,9 +893,12 @@ export function LiveMarketsAside() {
         ) : null}
 
         {quotes.length > 0 ? (
-          <div className="border-b border-slate-100 px-3 py-3">
-            <p className="mb-2 text-xs font-semibold text-slate-500">Top 6</p>
-            <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
+          <div className="border-b border-slate-100 px-3 py-3 max-lg:border-teal-900/5 max-lg:bg-gradient-to-b max-lg:from-slate-50/80 max-lg:to-transparent max-lg:px-2.5 max-lg:py-2.5">
+            <p className="mb-2 text-xs font-semibold text-slate-500 max-lg:mb-2 max-lg:text-[11px] max-lg:uppercase max-lg:tracking-wider">
+              <span className="max-lg:hidden">Top 6</span>
+              <span className="hidden max-lg:inline">Top movers</span>
+            </p>
+            <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white max-lg:grid max-lg:grid-cols-2 max-lg:gap-2 max-lg:divide-y-0 max-lg:border-0 max-lg:bg-transparent max-lg:p-0">
               {TOP_SIX_IDS.map((id) => {
                 const q = quoteById.get(id);
                 const headline = TOP_SIX_LABELS[id];
@@ -852,7 +906,7 @@ export function LiveMarketsAside() {
                   return (
                     <li
                       key={id}
-                      className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm text-slate-400"
+                      className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm text-slate-400 max-lg:rounded-xl max-lg:border max-lg:border-slate-200/90 max-lg:bg-white max-lg:px-2.5 max-lg:py-2 max-lg:shadow-sm"
                     >
                       <span className="flex min-w-0 items-center gap-1.5 font-medium text-slate-500">
                         <span className="truncate">{headline}</span>
@@ -867,7 +921,7 @@ export function LiveMarketsAside() {
                   return (
                     <li
                       key={id}
-                      className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm"
+                      className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm max-lg:rounded-xl max-lg:border max-lg:border-slate-200/90 max-lg:bg-white max-lg:px-2.5 max-lg:py-2 max-lg:shadow-sm"
                     >
                       <span className="flex min-w-0 items-center gap-1.5 font-medium text-slate-800">
                         <span className="truncate">{headline}</span>
@@ -881,15 +935,16 @@ export function LiveMarketsAside() {
                   <li
                     key={id}
                     role="presentation"
-                    className={`flex cursor-default items-center justify-between gap-2 px-3 py-2.5 transition-colors hover:bg-slate-50 ${ROW_STRIPE[section]}`}
-                    onMouseEnter={(e) => showTip(e, q, section)}
-                    onMouseLeave={scheduleHide}
+                    className={`flex cursor-default items-center justify-between gap-2 px-3 py-2.5 transition-colors hover:bg-slate-50 max-lg:min-h-[4.25rem] max-lg:cursor-pointer max-lg:flex-col max-lg:items-stretch max-lg:justify-between max-lg:gap-2 max-lg:rounded-xl max-lg:border max-lg:border-slate-200/90 max-lg:bg-gradient-to-br max-lg:from-white max-lg:to-slate-50/90 max-lg:px-2.5 max-lg:py-2.5 max-lg:shadow-sm max-lg:active:scale-[0.99] lg:cursor-default ${ROW_STRIPE[section]}`}
+                    onMouseEnter={narrowLayout ? undefined : (e) => showTip(e, q, section)}
+                    onMouseLeave={narrowLayout ? undefined : scheduleHide}
+                    onClick={narrowLayout ? (e) => toggleTip(e, q, section) : undefined}
                   >
-                    <span className="flex min-w-0 shrink items-center gap-1.5 font-medium text-sm leading-snug text-slate-800">
+                    <span className="flex min-w-0 shrink items-center gap-1.5 font-medium text-sm leading-snug text-slate-800 max-lg:w-full max-lg:justify-between max-lg:text-[13px]">
                       <span className="truncate">{headline}</span>
                       <InstrumentRowIdentifier id={id} />
                     </span>
-                    <div className="flex shrink-0 flex-wrap items-center justify-end gap-x-2 gap-y-1">
+                    <div className="flex shrink-0 flex-wrap items-center justify-end gap-x-2 gap-y-1 max-lg:w-full max-lg:justify-between max-lg:gap-1.5">
                       {q.ok ? (
                         <>
                           <span className="text-right font-markets-mono text-sm tabular-nums text-slate-900">
@@ -916,31 +971,36 @@ export function LiveMarketsAside() {
         ) : null}
 
         {flatRowsMain.length > 0 ? (
-          <div className="px-3 pb-3 pt-2">
-            <p className="mb-2 text-xs font-semibold text-slate-500">Others</p>
-            <div className="rounded-lg border border-slate-200 bg-white">
-              
+          <div className="px-3 pb-3 pt-2 max-lg:px-2 max-lg:pb-2 max-lg:pt-1.5">
+            <p className="mb-2 text-xs font-semibold text-slate-500 max-lg:mb-1.5 max-lg:px-0.5 max-lg:text-[11px] max-lg:uppercase max-lg:tracking-wider">
+              <span className="max-lg:hidden">Others</span>
+              <span className="hidden max-lg:inline">More quotes</span>
+            </p>
+            <div className="rounded-lg border border-slate-200 bg-white max-lg:max-h-[min(48vh,20rem)] max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:rounded-xl max-lg:shadow-inner max-lg:[scrollbar-width:thin] max-lg:[&::-webkit-scrollbar]:h-1.5 max-lg:[&::-webkit-scrollbar]:w-1.5 max-lg:[&::-webkit-scrollbar-thumb]:rounded-full max-lg:[&::-webkit-scrollbar-thumb]:bg-slate-300/90">
               {flatRowsMain.map(({ q, section }, index) => (
                 <div
                   key={q.id}
                   role="presentation"
-                  className={`grid grid-cols-[minmax(0,1fr)_minmax(7.25rem,auto)] items-center gap-x-2 border-t border-slate-100 px-2.5 py-2 first:border-t-0  cursor-default ${sentimentRowBg(q.ok, q.change, index)} ${sentimentRowHover()}`}
-                  onMouseEnter={(e) => showTip(e, q, section)}
-                  onMouseLeave={scheduleHide}
+                  className={`grid grid-cols-[minmax(0,1fr)_minmax(7.25rem,auto)] items-center gap-x-2 border-t border-slate-100 px-2.5 py-2 first:border-t-0 cursor-default max-lg:grid-cols-[minmax(0,1fr)_minmax(5.75rem,auto)] max-lg:gap-x-1.5 max-lg:px-2 max-lg:py-1.5 max-lg:first:rounded-t-xl max-lg:last:rounded-b-xl max-lg:cursor-pointer max-lg:active:bg-teal-50/40 lg:cursor-default ${sentimentRowBg(q.ok, q.change, index)} ${sentimentRowHover()}`}
+                  onMouseEnter={narrowLayout ? undefined : (e) => showTip(e, q, section)}
+                  onMouseLeave={narrowLayout ? undefined : scheduleHide}
+                  onClick={narrowLayout ? (e) => toggleTip(e, q, section) : undefined}
                 >
-                  <div className="flex min-w-0 items-start gap-2">
-                    <span className="mt-0.5 shrink-0">
+                  <div className="flex min-w-0 items-start gap-2 max-lg:gap-1.5">
+                    <span className="mt-0.5 shrink-0 max-lg:mt-px">
                       <InstrumentRowIdentifier id={q.id} />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-medium leading-snug text-slate-900">{q.label}</p>
+                      <p className="text-[13px] font-medium leading-snug text-slate-900 max-lg:text-[12px] max-lg:leading-tight">
+                        {q.label}
+                      </p>
                       <CountryFlagsLine q={q} section={section} theme="light" textOnlySubline />
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1 text-right">
+                  <div className="flex flex-col items-end gap-1 text-right max-lg:gap-0.5">
                     {q.ok ? (
                       <>
-                        <p className="font-markets-mono text-[14px] leading-tight tabular-nums text-slate-900">
+                        <p className="font-markets-mono text-[14px] leading-tight tabular-nums text-slate-900 max-lg:text-[12px]">
                           {formatPrice(q)}
                           {q.currency ? (
                             <span className="ml-1 font-markets text-[10px] font-normal text-slate-500">{q.currency}</span>
@@ -962,8 +1022,11 @@ export function LiveMarketsAside() {
           </div>
         ) : null}
 
-        <p className="border-t border-slate-100 bg-slate-50 px-3 py-2.5 text-center text-[10px] text-slate-500">
-          Green / red = day move · Hover row for detail · Delayed data
+        <p className="border-t border-slate-100 bg-slate-50 px-3 py-2.5 text-center text-[10px] leading-relaxed text-slate-500 max-lg:bg-gradient-to-r max-lg:from-slate-50 max-lg:to-teal-50/30 max-lg:px-2.5 max-lg:py-2 max-lg:text-[9px]">
+          <span className="max-lg:hidden">Green / red = day move · Hover row for detail · Delayed data</span>
+          <span className="hidden max-lg:inline">
+            Day move · Tap a row for detail · Delayed quotes
+          </span>
         </p>
       </div>
     </aside>
