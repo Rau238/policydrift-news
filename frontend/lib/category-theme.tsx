@@ -7,6 +7,7 @@ import {
   LineChart,
   MapPin,
   Newspaper,
+  Trophy,
   Zap,
 } from 'lucide-react';
 
@@ -15,6 +16,7 @@ export const CATEGORY_ORDER = [
   'Breaking',
   'World News',
   'India',
+  'Sports',
   'Business',
   'Politics',
   'Stocks & Markets',
@@ -64,6 +66,15 @@ export const CATEGORY_THEME: Record<string, Theme> = {
       'bg-amber-500/15 text-amber-100 ring-amber-400/30 hover:bg-amber-500/25 hover:ring-amber-400/50',
     cardRing: 'hover:ring-amber-400/55',
     placeholder: 'from-amber-200/80 via-amber-50 to-orange-50',
+  },
+  Sports: {
+    label: 'Sports',
+    Icon: Trophy,
+    chip: 'bg-lime-50 text-lime-950 ring-1 ring-lime-200/90',
+    navPill:
+      'bg-lime-500/20 text-lime-100 ring-lime-400/35 hover:bg-lime-500/30 hover:ring-lime-400/55',
+    cardRing: 'hover:ring-lime-400/55',
+    placeholder: 'from-lime-200/80 via-green-50 to-emerald-50',
   },
   Business: {
     label: 'Business',
@@ -133,6 +144,7 @@ const DRAWER_ACCENT: Record<string, string> = {
   Breaking: 'border-l-rose-400',
   'World News': 'border-l-sky-400',
   India: 'border-l-amber-400',
+  Sports: 'border-l-lime-400',
   Business: 'border-l-violet-400',
   Politics: 'border-l-indigo-400',
   'Stocks & Markets': 'border-l-emerald-400',
@@ -153,9 +165,7 @@ export function categoryPlaceholderClass(name: string): string {
   return categoryTheme(name).placeholder;
 }
 
-export function categoryHref(name: string): string {
-  return `/blog?category=${encodeURIComponent(name)}`;
-}
+export { categoryHref } from './category-routes';
 
 export function CategoryGlyph({
   name,

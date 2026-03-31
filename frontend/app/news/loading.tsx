@@ -1,7 +1,7 @@
 import { BrandLoader } from '@/components/ui/BrandLoader';
 import { PostCardSkeleton, Skeleton } from '@/components/ui/Skeleton';
 
-export default function BlogLoading() {
+export default function NewsLoading() {
   return (
     <div className="min-h-[65vh] bg-gradient-to-b from-slate-50 via-white to-slate-100/80">
       <div className="border-b border-slate-200/80 bg-white/90 px-4 py-10 sm:px-6 sm:py-12">

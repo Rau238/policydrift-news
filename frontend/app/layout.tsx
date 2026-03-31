@@ -44,7 +44,7 @@ const loadAdsenseScript =
 export const metadata: Metadata = {
   metadataBase: new URL(publicSiteOrigin()),
   title: {
-    default: `${siteName} — Policy & news, clearly told`,
+    default: `${siteName}: Policy & news, clearly told`,
     template: `%s | ${siteName}`,
   },
   description: siteDescription,

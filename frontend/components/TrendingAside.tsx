@@ -40,7 +40,7 @@ export function TrendingAside({ posts }: { posts: PostListItem[] }) {
                   {categoryLabel(p.category)}
                 </span>
                 <Link
-                  href={`/blog/${p.slug}`}
+                  href={`/news/${p.slug}`}
                   className="mt-1.5 block line-clamp-2 text-sm font-semibold leading-snug text-ink transition hover:text-accent-dark"
                 >
                   {p.title}

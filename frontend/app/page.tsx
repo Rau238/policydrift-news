@@ -25,7 +25,7 @@ const HERO_BACKDROP_GRADIENTS = [
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: { absolute: `${siteName} — World & policy news, clearly told` },
+  title: { absolute: `${siteName}: World & policy news, clearly told` },
   description: siteDescription,
   alternates: { canonical: absoluteUrl('/') },
   openGraph: {
@@ -72,15 +72,15 @@ export default async function HomePage() {
                 <span className="text-teal-200">clearly told.</span>
               </h1>
               <p className="mt-3 font-display text-base italic leading-snug text-teal-100/85 sm:text-[1.0625rem]">
-                One feed. Seven desks. Zero noise.
+                One feed. Eight desks. Zero noise.
               </p>
               <div className="mt-5 flex flex-wrap gap-2 max-lg:mt-5 max-lg:gap-2 sm:mt-6 sm:gap-2.5">
                 <Link
-                  href="/blog"
+                  href="/news"
                   className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-accent px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-light hover:text-brand-night"
                 >
                   <LayoutGrid className="h-4 w-4 shrink-0" strokeWidth={2.25} aria-hidden />
-                  All stories
+                  All news
                   <ArrowRight className="h-4 w-4 shrink-0 opacity-90" strokeWidth={2.25} aria-hidden />
                 </Link>
                 <Link
@@ -95,7 +95,7 @@ export default async function HomePage() {
 
             <div className="min-w-0 lg:col-span-8 xl:col-span-8">
               {lead ? (
-                <Link href={`/blog/${lead.slug}`} className="group grid overflow-hidden rounded-xl border border-white/10 bg-slate-950/90  
+                <Link href={`/news/${lead.slug}`} className="group grid overflow-hidden rounded-xl border border-white/10 bg-slate-950/90  
                 ring-1 ring-white/[0.06] transition hover:border-teal-500/35 hover:ring-teal-500/15 max-lg:rounded-2xl  sm:min-h-[15rem] 
                 sm:grid-cols-[minmax(16rem,44%)_1fr] sm:rounded-2xl lg:min-h-[16rem] lg:grid-cols-[minmax(17.5rem,46%)_1fr]">
                   <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-900 sm:aspect-auto sm:h-full sm:min-h-[15rem] lg:min-h-[16rem]">
@@ -194,11 +194,11 @@ export default async function HomePage() {
                       Latest across desks
                     </h2>
                     <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-ink-soft max-lg:mt-1.5 max-lg:text-[13px] sm:mt-2">
-                      World, India, business, politics, markets and crypto — updated as feeds run.
+                      World, India, sports, business, politics, markets and crypto — updated as feeds run.
                     </p>
                   </div>
                   <Link
-                    href="/blog"
+                    href="/news"
                     className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-accent-dark transition hover:border-accent/50 hover:bg-accent-soft/50 max-lg:w-full max-lg:justify-center sm:w-auto sm:rounded-xl sm:px-5 sm:py-3"
                   >
                     Full archive

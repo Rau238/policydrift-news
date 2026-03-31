@@ -1,6 +1,6 @@
 export const siteName = 'PolicyDrift';
 export const siteDescription =
-  'PolicyDrift is a calm newsroom for law, governance, and world events—plain-language briefs, clear attribution, and steady updates so you can scan what matters.';
+  'PolicyDrift is a calm newsroom for law, governance, and world events: plain-language briefs, clear attribution, and steady updates so you can scan what matters.';
 
 /**
  * Canonical public origin for absolute URLs (OG, JSON-LD, metadata).

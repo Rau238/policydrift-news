@@ -46,11 +46,11 @@ export function HeaderChrome() {
               Home
             </Link>
             <Link
-              href="/blog"
+              href="/news"
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white"
             >
               <LayoutGrid className="h-4 w-4 opacity-80" aria-hidden />
-              All stories
+              All news
             </Link>
           </nav>
 
@@ -112,11 +112,11 @@ export function HeaderChrome() {
                   Home
                 </Link>
                 <Link
-                  href="/blog"
+                  href="/news"
                   className="rounded-xl px-3 py-3 text-sm font-medium text-white hover:bg-white/10"
                   onClick={() => setOpen(false)}
                 >
-                  All stories
+                  All news
                 </Link>
               </nav>
               <p className="px-4 pb-2 text-[10px] font-bold uppercase tracking-widest text-teal-300/90">

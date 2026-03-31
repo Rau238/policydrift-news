@@ -25,7 +25,7 @@ type Props = {
 export function PostCard({ post, priority, compact, gridCell, index = 0 }: Props) {
   const ring = categoryCardRingClass(post.category);
   const imageSrc = resolvePostImageUrl(post.image_url);
-  const href = `/blog/${post.slug}`;
+  const href = `/news/${post.slug}`;
 
   const motionInitial = compact ? { opacity: 0 } : { opacity: 0, y: 16 };
   const motionAnimate = compact ? { opacity: 1 } : { opacity: 1, y: 0 };

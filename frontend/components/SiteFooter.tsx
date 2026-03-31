@@ -70,11 +70,11 @@ export function SiteFooter() {
             <ul className="mt-6 space-y-3 text-[15px]">
               <li>
                 <Link
-                  href="/blog"
+                  href="/news"
                   className="inline-flex items-center gap-2.5 text-slate-400 transition hover:text-teal-200"
                 >
                   <FileText className="h-4 w-4 shrink-0 text-slate-500" aria-hidden />
-                  All stories
+                  All news
                 </Link>
               </li>
               <li>

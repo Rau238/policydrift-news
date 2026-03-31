@@ -1,24 +1,69 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getPostBySlug } from '@/lib/api';
+import { getPostBySlug, getCategories, getPosts, getTrending } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { newsArticleJsonLd } from '@/lib/jsonld';
 import { sanitizeArticleHtml } from '@/lib/sanitize';
 import { resolveOgImageUrl, resolvePostImageUrl } from '@/lib/story-image';
 import { absoluteUrl, siteName } from '@/lib/site';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
-import { categoryChipClass, categoryHref, categoryLabel, CategoryGlyph } from '@/lib/categories';
+import { PostCard } from '@/components/PostCard';
+import { LiveMarketsAside } from '@/components/LiveMarketsAside';
+import { TrendingAside } from '@/components/TrendingAside';
+import {
+  categoryChipClass,
+  categoryHref,
+  categoryLabel,
+  CategoryGlyph,
+  categoryNavPillClass,
+} from '@/lib/categories';
+import { CATEGORY_INTRO, categoryFromSlug } from '@/lib/category-routes';
 import { ArrowLeft, ExternalLink, Eye } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-type Props = { params: { slug: string } };
+type Props = {
+  params: { slug: string };
+  searchParams: { page?: string };
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const category = categoryFromSlug(params.slug);
+  if (category) {
+    const label = categoryLabel(category);
+    const title = `${label} news`;
+    const description =
+      CATEGORY_INTRO[category] ||
+      `Latest ${label} on ${siteName}, with clear headlines and source links.`;
+    const canonical = absoluteUrl(`/news/${params.slug}`);
+    return {
+      title,
+      description,
+      alternates: { canonical },
+      openGraph: {
+        title: `${label} | ${siteName}`,
+        description,
+        url: canonical,
+        type: 'website',
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+          'max-video-preview': -1,
+        },
+      },
+    };
+  }
+
   const post = await getPostBySlug(params.slug);
   if (!post) return { title: 'Not found' };
-  const url = absoluteUrl(`/blog/${post.slug}`);
+  const url = absoluteUrl(`/news/${post.slug}`);
   const desc = post.excerpt?.trim() || post.title;
   const ogImage = resolveOgImageUrl(post.image_url);
   return {
@@ -55,12 +100,100 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function BlogPostPage({ params }: Props) {
+export default async function NewsSlugPage({ params, searchParams }: Props) {
+  const category = categoryFromSlug(params.slug);
+  if (category) {
+    const listPage = Math.max(1, parseInt(searchParams.page || '1', 10) || 1);
+    const [{ posts, total, limit }, categories, trending] = await Promise.all([
+      getPosts({ page: listPage, limit: 12, category }),
+      getCategories(),
+      getTrending(5),
+    ]);
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const label = categoryLabel(category);
+    const intro = CATEGORY_INTRO[category] || `Latest ${label} coverage on ${siteName}.`;
+    const countHere = categories.find((c) => c.category === category)?.count;
+    const slugSegment = params.slug;
+
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <div className="relative overflow-hidden border-b border-slate-800/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-10 text-white sm:px-6 sm:py-12">
+          <div
+            className="pointer-events-none absolute -right-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-teal-500/10 blur-3xl"
+            aria-hidden
+          />
+          <div className="relative mx-auto max-w-7xl md:px-6">
+            <Link
+              href="/news"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-slate-300 transition hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4" strokeWidth={2.25} aria-hidden />
+              All news
+            </Link>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <span
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold ring-1 ${categoryNavPillClass(category)}`}
+              >
+                <CategoryGlyph name={category} className="h-4 w-4" />
+                {label}
+              </span>
+              {countHere != null ? (
+                <span className="text-sm font-medium text-slate-400">{countHere} stories</span>
+              ) : null}
+            </div>
+            <h1 className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">{label}</h1>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">{intro}</p>
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
+          <div className="grid gap-12 lg:grid-cols-[1fr_min(380px,100%)] lg:items-start lg:gap-10">
+            <div>
+              {posts.length === 0 ? (
+                <p className="text-slate-600">No posts in this category yet.</p>
+              ) : (
+                <ul className="grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:gap-8">
+                  {posts.map((p, i) => (
+                    <li key={p.id} className="min-w-0">
+                      <PostCard post={p} gridCell index={i} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {totalPages > 1 ? (
+                <nav className="mt-12 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
+                  {listPage > 1 ? (
+                    <CategoryPageLink slugSegment={slugSegment} page={listPage - 1} label="Previous" />
+                  ) : (
+                    <span className="rounded-lg px-4 py-2 text-sm text-slate-400">Previous</span>
+                  )}
+                  <span className="text-sm text-slate-600">
+                    Page {listPage} of {totalPages}
+                  </span>
+                  {listPage < totalPages ? (
+                    <CategoryPageLink slugSegment={slugSegment} page={listPage + 1} label="Next" />
+                  ) : (
+                    <span className="rounded-lg px-4 py-2 text-sm text-slate-400">Next</span>
+                  )}
+                </nav>
+              ) : null}
+            </div>
+            <div className="flex min-w-0 flex-col gap-8 lg:sticky lg:top-24">
+              <LiveMarketsAside />
+              <TrendingAside posts={trending} />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const post = await getPostBySlug(params.slug);
   if (!post) notFound();
 
   const cleanHtml = sanitizeArticleHtml(post.body);
-  const url = absoluteUrl(`/blog/${post.slug}`);
+  const url = absoluteUrl(`/news/${post.slug}`);
   const heroSrc = resolvePostImageUrl(post.image_url);
   const desc = post.excerpt?.trim() || post.title;
   const jsonLd = newsArticleJsonLd({
@@ -80,7 +213,7 @@ export default async function BlogPostPage({ params }: Props) {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
         <Link
-          href="/blog"
+          href="/news"
           className="group mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-accent"
         >
           <ArrowLeft
@@ -88,7 +221,7 @@ export default async function BlogPostPage({ params }: Props) {
             strokeWidth={2.25}
             aria-hidden
           />
-          All stories
+          All news
         </Link>
 
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
@@ -106,15 +239,14 @@ export default async function BlogPostPage({ params }: Props) {
                 Home
               </Link>
               <span className="mx-2 text-slate-300">/</span>
-              <Link href="/blog" className="transition hover:text-accent">
-                Stories
+              <Link href="/news" className="transition hover:text-accent">
+                News
               </Link>
               <span className="mx-2 text-slate-300">/</span>
               <Link href={categoryHref(post.category)} className="transition hover:text-accent">
                 {categoryLabel(post.category)}
               </Link>
             </nav>
-
 
             <header className="relative mt-6">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-600">
@@ -190,15 +322,35 @@ export default async function BlogPostPage({ params }: Props) {
               </a>
             </div>
             <Link
-              href="/blog"
+              href="/news"
               className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-accent transition hover:text-accent-dark"
             >
               <ArrowLeft className="h-4 w-4" strokeWidth={2.25} aria-hidden />
-              Back to all stories
+              Back to all news
             </Link>
           </footer>
         </div>
       </article>
     </div>
+  );
+}
+
+function CategoryPageLink({
+  slugSegment,
+  page,
+  label,
+}: {
+  slugSegment: string;
+  page: number;
+  label: string;
+}) {
+  const q = page > 1 ? `?page=${page}` : '';
+  return (
+    <Link
+      href={`/news/${slugSegment}${q}`}
+      className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-dark"
+    >
+      {label}
+    </Link>
   );
 }

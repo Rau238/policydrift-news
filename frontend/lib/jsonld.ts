@@ -94,8 +94,8 @@ export function newsArticleJsonLd(params: {
           {
             '@type': 'ListItem',
             position: 2,
-            name: 'Newsroom',
-            item: absoluteUrl('/blog'),
+            name: 'News',
+            item: absoluteUrl('/news'),
           },
           {
             '@type': 'ListItem',

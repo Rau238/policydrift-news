@@ -1,7 +1,7 @@
 import { BrandLoader } from '@/components/ui/BrandLoader';
 import { Skeleton } from '@/components/ui/Skeleton';
 
-export default function BlogPostLoading() {
+export default function NewsArticleLoading() {
   return (
     <article className="min-h-[60vh] bg-gradient-to-b from-white to-slate-50/90 px-4 py-10 sm:px-6 sm:py-16">
       <div className="mx-auto max-w-3xl">

@@ -44,7 +44,7 @@ export function CategoryNav() {
       </motion.span>
       <motion.span variants={chip} className="shrink-0 md:hidden">
         <Link
-          href="/blog"
+          href="/news"
           className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20"
         >
           <LayoutGrid className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />

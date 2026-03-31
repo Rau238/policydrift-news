@@ -1,7 +1,7 @@
 /**
  * RSS sources by site category (stored on each post).
  * Order matters: first URL wins when the same feed appears twice (deduped in getFeedEntries).
- * Priority: Breaking (wires + India Google News) → World → India → Business → Politics → Markets → Crypto.
+ * Priority: Breaking → World → India → Sports (global + US wires + cricket) → Business → Politics → Markets → Crypto.
  */
 export const RSS_FEEDS_BY_CATEGORY = {
   Breaking: [
@@ -34,6 +34,18 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml',
     'https://economictimes.indiatimes.com/rssfeeds/1715249553.cms',
     'https://news.google.com/rss/topics/CAAqJQgKIh9DQkFTRVFvSUwyMHZNRE55YXpBU0JXVnVMVWRDS0FBUAE?hl=en-IN&gl=IN&ceid=IN:en',
+  ],
+  Sports: [
+    'https://feeds.bbci.co.uk/sport/rss.xml', // BBC Sport — all sports
+    'https://www.espn.com/espn/rss/news', // ESPN top headlines
+    'https://sports.yahoo.com/rss/sports', // Yahoo Sports
+    'https://www.cbssports.com/rss/headlines/', // CBS Sports headlines
+    'https://api.foxsports.com/v2/content/optimized-rss?partnerKey=MB0Wehpmuj2lUhuRhQaafhBjAJqaPU244mlTDK1i&size=30', // FOX Sports
+    'https://www.espncricinfo.com/rss/content/story/feeds/0.xml', // cricket — global stories
+    'https://sportstar.thehindu.com/cricket/feeder/default.rss',
+    'https://sports.ndtv.com/rss/cricket',
+    'https://www.crictracker.com/feed/',
+    'https://www.espncricinfo.com/rss/livescores.xml', // cricket scorecards (high churn)
   ],
   Business: [
     'https://feeds.reuters.com/reuters/businessNews',
