@@ -303,7 +303,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
 
         {hasArticleBody ? (
           <div
-            className="article-prose article-detail-prose prose-policy feed-article-body mt-7 w-full overflow-x-auto text-left [overflow-wrap:anywhere] [word-break:break-word]"
+            className="article-prose article-detail-prose prose-policy text-base! feed-article-body mt-7 w-full overflow-x-auto text-left [overflow-wrap:anywhere] [word-break:break-word]"
             dangerouslySetInnerHTML={{ __html: articleHtml }}
             suppressHydrationWarning
           />

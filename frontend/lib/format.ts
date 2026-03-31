@@ -34,3 +34,10 @@ export function formatRelativeTime(iso: string): string {
   if (s < 604800) return `${Math.floor(s / 86400)}d ago`;
   return formatDate(iso);
 }
+
+/** Site header: today's calendar line in the user's local timezone (use from client after mount). */
+export function formatTodayForHeader(d: Date, narrow: boolean): string {
+  return d.toLocaleDateString(DATE_LOCALE, narrow
+    ? { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }
+    : { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+}
