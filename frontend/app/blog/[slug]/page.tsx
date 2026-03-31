@@ -5,7 +5,7 @@ import { getPostBySlug } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { newsArticleJsonLd } from '@/lib/jsonld';
 import { sanitizeArticleHtml } from '@/lib/sanitize';
-import { resolvePostImageUrl } from '@/lib/story-image';
+import { resolveOgImageUrl, resolvePostImageUrl } from '@/lib/story-image';
 import { absoluteUrl, siteName } from '@/lib/site';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import { categoryChipClass, categoryHref, categoryLabel, CategoryGlyph } from '@/lib/categories';
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return { title: 'Not found' };
   const url = absoluteUrl(`/blog/${post.slug}`);
   const desc = post.excerpt?.trim() || post.title;
-  const ogImage = resolvePostImageUrl(post.image_url);
+  const ogImage = resolveOgImageUrl(post.image_url);
   return {
     title: post.title,
     description: desc,
@@ -69,7 +69,7 @@ export default async function BlogPostPage({ params }: Props) {
     description: desc,
     datePublished: post.published_at,
     dateModified: post.updated_at,
-    imageUrls: [heroSrc],
+    imageUrls: [resolveOgImageUrl(post.image_url)],
     section: post.category,
     articleBody: post.excerpt?.trim() || undefined,
   });
