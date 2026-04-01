@@ -10,6 +10,7 @@
   "scripts": {
     "check": "npm run check -w policydrift-backend",
     "ingest": "npm run ingest -w policydrift-backend",
+    "trends": "npm run trends -w policydrift-backend",
     "dev": "concurrently -n api,web -c blue,magenta \"npm run dev -w policydrift-backend\" \"dotenv -e .env -- node scripts/web-dev.mjs\"",
     "dev:api": "npm run dev -w policydrift-backend",
     "dev:web": "dotenv -e .env -- node scripts/web-dev.mjs",

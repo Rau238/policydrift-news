@@ -22,7 +22,7 @@ export function TrendingAside({ posts }: { posts: PostListItem[] }) {
               Trending now
             </h2>
             <p className="text-[11px] font-medium text-ink-soft sm:text-xs">
-              Most read in the last 7 days
+              On-site: most read in the last 7 days (not Google Trends)
             </p>
           </div>
         </div>

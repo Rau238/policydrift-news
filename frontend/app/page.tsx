@@ -7,7 +7,7 @@ import { getPosts, getTrending } from '@/lib/api';
 import { resolvePostImageUrl, storyFallbackImageUrl } from '@/lib/story-image';
 import { absoluteUrl, siteDescription, siteName } from '@/lib/site';
 import Link from 'next/link';
-import { ArrowRight, LayoutGrid, Newspaper, Zap } from 'lucide-react';
+import { ArrowRight, LayoutGrid, Newspaper, TrendingUp, Zap } from 'lucide-react';
 import { categoryChipClass, categoryHref, categoryLabel, CategoryGlyph } from '@/lib/categories';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import { formatPublishedAt } from '@/lib/format';
@@ -90,6 +90,13 @@ export default async function HomePage() {
                   <CategoryGlyph name="India" className="h-4 w-4 shrink-0 text-amber-200" />
                   {categoryLabel('India')}
                 </Link>
+                <Link
+                  href="/trending-india"
+                  className="inline-flex items-center gap-2 rounded-lg border border-amber-400/35 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-50 transition hover:border-amber-300/50 hover:bg-amber-500/25"
+                >
+                  <TrendingUp className="h-4 w-4 shrink-0 text-amber-200" strokeWidth={2.25} aria-hidden />
+                  Trending in India
+                </Link>
               </div>
             </div>
 
@@ -136,8 +143,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-
 
       <div className="relative ">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-accent-soft/25 to-transparent"

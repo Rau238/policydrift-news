@@ -48,6 +48,18 @@ export async function listCategories() {
   return rows;
 }
 
+/** Recent posts for matching Google Trends queries to headlines (syndicated titles). */
+export async function listRecentForTrendMatching({ hours = 72, limit = 200 }) {
+  const [rows] = await pool.query(
+    `SELECT ${listFields} FROM posts
+     WHERE published_at >= DATE_SUB(NOW(), INTERVAL ? HOUR)
+     ORDER BY published_at DESC
+     LIMIT ?`,
+    [hours, limit],
+  );
+  return rows;
+}
+
 export async function listTrending({ limit = 6, days = 7 }) {
   const [rows] = await pool.query(
     `SELECT ${listFields} FROM posts 

@@ -5,6 +5,7 @@ import { getFeedEntries } from './config/rss-feeds.js';
 import { pingDb } from './db/pool.js';
 import { logMysqlStorageOnStartup } from './db/storage-stats.js';
 import { ingestFromRss } from './services/ingestion.service.js';
+import { refreshTrendsCache } from './services/google-trends.service.js';
 
 async function start() {
   try {
@@ -33,6 +34,19 @@ async function start() {
       }
     });
     console.log(`Cron: RSS ingest every ${n} minute(s) (${feedCount} feed(s))`);
+  }
+
+  if (env.CRON_ENABLED && env.TRENDS_ENABLED && env.TRENDS_CRON) {
+    cron.schedule(env.TRENDS_CRON, async () => {
+      console.log('[cron] Google Trends refresh starting…');
+      try {
+        const r = await refreshTrendsCache();
+        console.log('[cron] trends done:', r);
+      } catch (e) {
+        console.error('[cron] trends error:', e);
+      }
+    });
+    console.log(`Cron: Google Trends refresh (${env.TRENDS_CRON}, geo=${env.TRENDS_GEO})`);
   }
 }
 

@@ -55,4 +55,15 @@ export const env = {
   SITE_PUBLIC_URL: (process.env.SITE_PUBLIC_URL || process.env.NEXT_PUBLIC_SITE_URL || '').trim(),
   /** Optional override; if unset and SITE_PUBLIC_URL is set, fallback is SITE_PUBLIC_URL + /images/story-fallback.svg */
   STORY_FALLBACK_IMAGE_URL: (process.env.STORY_FALLBACK_IMAGE_URL || '').trim(),
+  /** Google Trends (unofficial npm client). Opt-in: set TRENDS_ENABLED=true and run sql/table-trends-topics.sql */
+  TRENDS_ENABLED: process.env.TRENDS_ENABLED === 'true',
+  TRENDS_GEO: (process.env.TRENDS_GEO || 'IN').trim().slice(0, 8) || 'IN',
+  TRENDS_REQUEST_DELAY_MS: parseInt(process.env.TRENDS_REQUEST_DELAY_MS || '3500', 10) || 3500,
+  TRENDS_CACHE_MAX_AGE_HOURS: parseInt(process.env.TRENDS_CACHE_MAX_AGE_HOURS || '48', 10) || 48,
+  TRENDS_MATCH_POST_HOURS: parseInt(process.env.TRENDS_MATCH_POST_HOURS || '72', 10) || 72,
+  TRENDS_MATCH_POST_LIMIT: parseInt(process.env.TRENDS_MATCH_POST_LIMIT || '200', 10) || 200,
+  /** Optional: require for POST /api/meta/trends/refresh */
+  TRENDS_REFRESH_SECRET: (process.env.TRENDS_REFRESH_SECRET || '').trim(),
+  /** Cron expression (node-cron) for Trends refresh; default every 10 minutes. Override with TRENDS_CRON if Google rate-limits. */
+  TRENDS_CRON: (process.env.TRENDS_CRON || '*/10 * * * *').trim(),
 };

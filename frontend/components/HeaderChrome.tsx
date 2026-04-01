@@ -12,6 +12,7 @@ import {
   Menu,
   Radio,
   Sparkles,
+  TrendingUp,
   X,
 } from 'lucide-react';
 import { formatTodayForHeader } from '@/lib/format';
@@ -105,6 +106,13 @@ export function HeaderChrome() {
                 <LayoutGrid className="h-4 w-4 opacity-80" aria-hidden />
                 All news
               </Link>
+              <Link
+                href="/trending-india"
+                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-amber-200/95 transition hover:bg-amber-500/15 hover:text-amber-100 lg:px-4"
+              >
+                <TrendingUp className="h-4 w-4 opacity-90" strokeWidth={2.25} aria-hidden />
+                Trending India
+              </Link>
             </nav>
 
             <button
@@ -180,7 +188,7 @@ export function HeaderChrome() {
 
               <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-8 pt-4 pd-scrollbar-none">
                 <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Start here</p>
-                <nav className="grid grid-cols-2 gap-2" aria-label="Primary links">
+                <nav className="grid grid-cols-2 gap-2 sm:grid-cols-3" aria-label="Primary links">
                   <Link
                     href="/"
                     onClick={() => setOpen(false)}
@@ -200,6 +208,16 @@ export function HeaderChrome() {
                       <LayoutGrid className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
                     </span>
                     <span className="font-display text-xs font-bold leading-tight text-white">All news</span>
+                  </Link>
+                  <Link
+                    href="/trending-india"
+                    onClick={() => setOpen(false)}
+                    className="group col-span-2 flex flex-row items-center gap-3 rounded-xl border border-amber-500/25 bg-gradient-to-br from-amber-500/15 to-white/[0.02] p-2.5 transition hover:border-amber-400/45 sm:col-span-1 sm:flex-col sm:items-stretch sm:gap-1.5"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-500/25 text-amber-100 ring-1 ring-amber-400/30 transition group-hover:bg-amber-500/35">
+                      <TrendingUp className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+                    </span>
+                    <span className="font-display text-xs font-bold leading-tight text-amber-50">Trending India</span>
                   </Link>
                 </nav>
 

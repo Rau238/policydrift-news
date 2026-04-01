@@ -1,12 +1,4 @@
--- =============================================================================
--- Create only the `posts` table (no new database).
--- Use this when MYSQL_DATABASE in .env is already set — e.g. policydrift_news.
---
--- MySQL Workbench:
---   1. In the left SCHEMAS list, double-click your database so it becomes **bold** (default schema).
---   2. File → Open SQL Script → pick this file, or paste below into a new query tab.
---   3. Click the lightning bolt (Execute).
--- =============================================================================
+
 
 CREATE TABLE IF NOT EXISTS posts (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
