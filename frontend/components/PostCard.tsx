@@ -8,6 +8,7 @@ import { formatPublishedAt } from '@/lib/format';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import {
   categoryCardRingClass,
+  categoryCardStripeClass,
   categoryChipClass,
   categoryLabel,
   CategoryGlyph,
@@ -59,7 +60,10 @@ export function PostCard({ post, priority, compact, gridCell, index = 0 }: Props
             className="h-full w-full object-cover object-center transition duration-500 ease-out group-hover:scale-[1.03]"
           />
         </div>
-        <div className="h-px w-full shrink-0 bg-gradient-to-r from-accent/55 via-teal-400/35 to-transparent" aria-hidden />
+        <div
+          className={`h-[3px] w-full shrink-0 bg-gradient-to-r ${categoryCardStripeClass(post.category)}`}
+          aria-hidden
+        />
         <div className={`flex min-h-0 flex-1 flex-col ${bodyClass}`}>
           <div className="flex items-start justify-between gap-2">
             <span

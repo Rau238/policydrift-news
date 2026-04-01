@@ -11,16 +11,19 @@ import { absoluteUrl, siteName } from '@/lib/site';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import { PostCard } from '@/components/PostCard';
 import { LiveMarketsAside } from '@/components/LiveMarketsAside';
+import { SidebarPostList } from '@/components/SidebarPostList';
 import { TrendingAside } from '@/components/TrendingAside';
 import {
+  categoryArticleHeroRingClass,
   categoryChipClass,
   categoryHref,
   categoryLabel,
   CategoryGlyph,
   categoryNavPillClass,
+  categoryVerticalBarClass,
 } from '@/lib/categories';
 import { CATEGORY_INTRO, categoryFromSlug } from '@/lib/category-routes';
-import { ArrowLeft, ExternalLink, Eye } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Eye, Zap } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,11 +68,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPostBySlug(params.slug);
   if (!post) return { title: 'Not found' };
   const url = absoluteUrl(`/news/${post.slug}`);
-  const desc = post.excerpt?.trim() || post.title;
+  const desc = clipMetaDescription(post.excerpt?.trim() || post.title);
   const ogImage = resolveOgImageUrl(post.image_url);
+  const desk = categoryLabel(post.category);
   return {
     title: post.title,
     description: desc,
+    keywords: [desk, `${desk} news`, siteName, 'PolicyDrift news'],
     alternates: { canonical: url },
     openGraph: {
       title: post.title,
@@ -193,6 +198,21 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   const post = await getPostBySlug(params.slug);
   if (!post) notFound();
 
+  const [relatedPack, breakingPack, trendingAll] = await Promise.all([
+    getPosts({ page: 1, limit: 14, category: post.category }),
+    post.category !== 'Breaking'
+      ? getPosts({ page: 1, limit: 14, category: 'Breaking' })
+      : Promise.resolve({ posts: [], total: 0, page: 1, limit: 14 }),
+    getTrending(14),
+  ]);
+
+  const relatedPosts = relatedPack.posts.filter((p) => p.id !== post.id).slice(0, 6);
+  const breakingPosts =
+    post.category !== 'Breaking'
+      ? breakingPack.posts.filter((p) => p.id !== post.id).slice(0, 6)
+      : [];
+  const trendingPosts = trendingAll.filter((p) => p.id !== post.id).slice(0, 6);
+
   const rawBody = post.body ?? '';
   const { html: articleHtml, hasContent: hasArticleBody } = prepareArticleBodyForDisplay(
     rawBody,
@@ -200,8 +220,11 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   );
   const url = absoluteUrl(`/news/${post.slug}`);
   const heroSrc = resolvePostImageUrl(post.image_url);
-  const desc = post.excerpt?.trim() || post.title;
-  const articleBodyPlain = stripHtmlToPlain(rawBody);
+  const desc = clipMetaDescription(post.excerpt?.trim() || post.title);
+  /** Full plain text of what readers see — matches page, no 8k cap (JSON-LD). */
+  const articleBodyForSchema = hasArticleBody
+    ? stripHtmlToPlain(articleHtml, Infinity).trim() || undefined
+    : post.excerpt?.trim() || undefined;
   const jsonLd = newsArticleJsonLd({
     url,
     title: post.title,
@@ -210,137 +233,192 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
     dateModified: post.updated_at,
     imageUrls: [resolveOgImageUrl(post.image_url)],
     section: post.category,
-    articleBody: articleBodyPlain || post.excerpt?.trim() || undefined,
+    articleBody: articleBodyForSchema,
   });
   const feedHostname = feedSourceHostname(post.source_feed);
 
   return (
     <div className="min-h-screen bg-paper">
-      <article className="relative mx-auto max-w-2xl px-4 pb-12 pt-5 sm:px-6 sm:pb-14 sm:pt-7">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <div className="mx-auto max-w-7xl px-4 pb-10 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_min(380px,100%)] lg:items-start lg:gap-10">
+          <div className="min-w-0">
+            <article className="relative w-full max-w-2xl">
+              <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-        <Link
-          href="/news"
-          className="group mb-5 inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition hover:text-accent"
-        >
-          <ArrowLeft
-            className="h-3.5 w-3.5 transition group-hover:-translate-x-0.5"
-            strokeWidth={2.25}
-            aria-hidden
-          />
-          News
-        </Link>
+              <Link
+                href="/news"
+                className="group mb-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition hover:text-accent"
+              >
+                <ArrowLeft
+                  className="h-3.5 w-3.5 transition group-hover:-translate-x-0.5"
+                  strokeWidth={2.25}
+                  aria-hidden
+                />
+                News
+              </Link>
 
-        <header className="border-b border-slate-200/90 pb-5">
-          <nav className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400">
-            <Link href="/" className="transition hover:text-accent">
-              Home
-            </Link>
-            <span className="mx-1.5 text-slate-300">/</span>
-            <Link href="/news" className="transition hover:text-accent">
-              News
-            </Link>
-            <span className="mx-1.5 text-slate-300">/</span>
-            <Link href={categoryHref(post.category)} className="transition hover:text-accent">
-              {categoryLabel(post.category)}
-            </Link>
-          </nav>
+              <header className="border-b border-slate-200/90 pb-4">
+                <nav className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400">
+                  <Link href="/" className="transition hover:text-accent">
+                    Home
+                  </Link>
+                  <span className="mx-1.5 text-slate-300">/</span>
+                  <Link href="/news" className="transition hover:text-accent">
+                    News
+                  </Link>
+                  <span className="mx-1.5 text-slate-300">/</span>
+                  <Link href={categoryHref(post.category)} className="transition hover:text-accent">
+                    {categoryLabel(post.category)}
+                  </Link>
+                </nav>
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-slate-500">
-            <span
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold ${categoryChipClass(post.category)}`}
-            >
-              <CategoryGlyph name={post.category} className="h-3 w-3" />
-              {categoryLabel(post.category)}
-            </span>
-            <span className="text-slate-300" aria-hidden>
-              ·
-            </span>
-            <time className="tabular-nums" dateTime={post.published_at} title={post.published_at}>
-              {formatPublishedAt(post.published_at)}
-            </time>
-            <span className="text-slate-300" aria-hidden>
-              ·
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Eye className="h-3 w-3 opacity-70" strokeWidth={2.25} aria-hidden />
-              {post.view_count.toLocaleString()}
-            </span>
-          </div>
+                <Link
+                  href={categoryHref(post.category)}
+                  aria-label={`Browse all ${categoryLabel(post.category)} stories`}
+                  className={`mt-3 inline-flex w-fit max-w-full items-center gap-2 rounded-full px-3.5 py-2 text-sm font-bold shadow-sm ring-1 transition hover:brightness-[0.98] active:scale-[0.99] sm:px-4 sm:text-[0.9375rem] ${categoryChipClass(post.category)}`}
+                >
+                  <CategoryGlyph name={post.category} className="h-4 w-4 shrink-0" />
+                  <span className="min-w-0 text-left">{categoryLabel(post.category)}</span>
+                </Link>
 
-          <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.12em] text-slate-400">
-            Syndicated article
-            {feedHostname ? (
-              <>
-                {' '}
-                <span className="font-normal normal-case tracking-normal text-slate-500">
-                  · via {feedHostname}
-                </span>
-              </>
+                <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-slate-500">
+                  <time className="tabular-nums" dateTime={post.published_at} title={post.published_at}>
+                    {formatPublishedAt(post.published_at)}
+                  </time>
+                  <span className="text-slate-300" aria-hidden>
+                    ·
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Eye className="h-3 w-3 opacity-70" strokeWidth={2.25} aria-hidden />
+                    {post.view_count.toLocaleString()} views
+                  </span>
+                </div>
+
+                <h1 className="mt-3 text-left text-balance font-display text-[1.625rem] font-bold leading-snug tracking-tight text-ink sm:text-[1.875rem] sm:leading-tight">
+                  {decodeHtmlEntities(post.title)}
+                </h1>
+                {post.excerpt ? (
+                  <p className="mt-2.5 text-left text-sm leading-relaxed text-slate-600 sm:text-[0.9375rem]">
+                    {decodeHtmlEntities(post.excerpt)}
+                  </p>
+                ) : null}
+              </header>
+
+              <div
+                className={`mt-4 overflow-hidden rounded-xl border border-slate-200/90 bg-slate-100 shadow-sm ring-2 ring-offset-0 ring-offset-paper ${categoryArticleHeroRingClass(post.category)}`}
+              >
+                <div className="relative aspect-[16/10] w-full">
+                  <RemoteStoryImage
+                    src={heroSrc}
+                    alt={decodeHtmlEntities(post.title)}
+                    priority
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+
+              {hasArticleBody ? (
+                <div
+                  className="article-prose article-detail-prose prose-policy mt-6 w-full overflow-x-auto text-left text-base! feed-article-body [overflow-wrap:anywhere] [word-break:break-word]"
+                  dangerouslySetInnerHTML={{ __html: articleHtml }}
+                  suppressHydrationWarning
+                />
+              ) : (
+                <div className="mt-6 rounded-lg border border-amber-200/90 bg-amber-50/80 px-4 py-3 text-left text-sm leading-relaxed text-amber-950">
+                  <p className="font-medium text-amber-900">No article text in this feed item.</p>
+                  <p className="mt-1 text-[13px] text-amber-900/85">
+                    Open the publisher link below for the full story.
+                  </p>
+                </div>
+              )}
+
+              <footer className="mt-8 border-t border-slate-200 pt-5">
+                <p className="text-[11px] leading-relaxed text-slate-500">
+                  Text above is from the syndicated RSS feed (sanitized for safe display). For the latest version,
+                  updates, and full context, use the publisher link.
+                </p>
+                <a
+                  href={post.original_url}
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-accent-dark sm:w-auto sm:justify-center"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Open original
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-90" strokeWidth={2.25} aria-hidden />
+                </a>
+                <Link
+                  href="/news"
+                  className="mt-5 flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition hover:text-accent"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+                  All news
+                </Link>
+              </footer>
+            </article>
+
+            {relatedPosts.length > 0 ? (
+              <section
+                className={`mt-10 w-full max-w-2xl border-t border-slate-200 border-l-4 pl-4 pt-6 sm:pl-5 ${categoryVerticalBarClass(post.category)}`}
+                aria-labelledby="article-related-heading"
+              >
+                <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+                  <div>
+                    <h2
+                      id="article-related-heading"
+                      className="font-display text-lg font-bold tracking-tight text-ink sm:text-xl"
+                    >
+                      {`More in ${categoryLabel(post.category)}`}
+                    </h2>
+                    <p className="mt-0.5 text-[12px] font-medium text-slate-500 sm:text-[13px]">
+                      Same desk, different stories
+                    </p>
+                  </div>
+                  <Link
+                    href={categoryHref(post.category)}
+                    className="shrink-0 text-sm font-semibold text-accent transition hover:text-accent-dark"
+                  >
+                    {`All ${categoryLabel(post.category)} →`}
+                  </Link>
+                </div>
+                <ul className="mt-4 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2 sm:gap-3">
+                  {relatedPosts.map((p, i) => (
+                    <li key={p.id} className="min-w-0">
+                      <PostCard post={p} compact gridCell index={i} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
             ) : null}
-          </p>
-
-          <h1 className="mt-4 text-left text-balance font-display text-[1.625rem] font-bold leading-snug tracking-tight text-ink sm:text-[1.875rem] sm:leading-tight">
-            {decodeHtmlEntities(post.title)}
-          </h1>
-          {post.excerpt ? (
-            <p className="mt-3 text-left text-sm leading-relaxed text-slate-600 sm:text-[0.9375rem]">
-              {decodeHtmlEntities(post.excerpt)}
-            </p>
-          ) : null}
-        </header>
-
-        <div className="mt-5 overflow-hidden rounded-xl border border-slate-200/90 bg-slate-100 shadow-sm ring-1 ring-slate-900/[0.03]">
-          <div className="relative aspect-[16/10] w-full">
-            <RemoteStoryImage
-              src={heroSrc}
-              alt={decodeHtmlEntities(post.title)}
-              priority
-              className="absolute inset-0 h-full w-full object-cover"
-            />
           </div>
+
+          <aside className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-24">
+            <LiveMarketsAside />
+            {breakingPosts.length > 0 ? (
+              <SidebarPostList
+                title="Breaking elsewhere"
+                subtitle="Latest from the Breaking desk"
+                posts={breakingPosts}
+                icon={Zap}
+                tone="breaking"
+                footerHref={categoryHref('Breaking')}
+                footerLabel="All breaking news →"
+              />
+            ) : null}
+          </aside>
         </div>
-
-        {hasArticleBody ? (
-          <div
-            className="article-prose article-detail-prose prose-policy text-base! feed-article-body mt-7 w-full overflow-x-auto text-left [overflow-wrap:anywhere] [word-break:break-word]"
-            dangerouslySetInnerHTML={{ __html: articleHtml }}
-            suppressHydrationWarning
-          />
-        ) : (
-          <div className="mt-7 rounded-lg border border-amber-200/90 bg-amber-50/80 px-4 py-3 text-left text-sm leading-relaxed text-amber-950">
-            <p className="font-medium text-amber-900">No article text in this feed item.</p>
-            <p className="mt-1 text-[13px] text-amber-900/85">
-              Open the publisher link below for the full story.
-            </p>
-          </div>
-        )}
-
-        <footer className="mt-10 border-t border-slate-200 pt-6">
-          <p className="text-[11px] leading-relaxed text-slate-500">
-            Text above is from the syndicated RSS feed (sanitized for safe display). For the latest version, updates,
-            and full context, use the publisher link.
-          </p>
-          <a
-            href={post.original_url}
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-accent-dark sm:w-auto sm:justify-center"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Open original
-            <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-90" strokeWidth={2.25} aria-hidden />
-          </a>
-          <Link
-            href="/news"
-            className="mt-6 flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition hover:text-accent"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
-            All news
-          </Link>
-        </footer>
-      </article>
+      </div>
     </div>
   );
+}
+
+/** ~155–160 chars for SERP snippets; keeps primary keywords at the start when excerpt is long. */
+function clipMetaDescription(text: string, max = 158): string {
+  const t = text.trim();
+  if (!t) return '';
+  if (t.length <= max) return t;
+  const slice = t.slice(0, max);
+  const i = slice.lastIndexOf(' ');
+  return `${(i > 50 ? slice.slice(0, i) : slice).trimEnd()}…`;
 }
 
 function feedSourceHostname(sourceFeed: string | null): string | null {

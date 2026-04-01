@@ -8,6 +8,7 @@ export const CATEGORY_TO_SLUG: Record<string, string> = {
   India: 'india',
   Sports: 'sports',
   Business: 'business',
+  'Banking & Economics': 'banking-economics',
   Politics: 'politics',
   'Stocks & Markets': 'stocks-markets',
   Crypto: 'crypto',
@@ -25,6 +26,7 @@ export const NAV_CATEGORY_SLUGS = [
   'india',
   'sports',
   'business',
+  'banking-economics',
   'politics',
   'stocks-markets',
   'crypto',
@@ -69,6 +71,8 @@ export const CATEGORY_INTRO: Record<string, string> = {
   Sports:
     'Global and US sports headlines (BBC, ESPN, Yahoo, CBS, FOX), plus cricket: match news, analysis, and live scorecards.',
   Business: 'Companies, finance, trade, and the forces shaping markets and work.',
+  'Banking & Economics':
+    'RBI, banks, NBFCs, credit and rates, plus macro: inflation, growth, and policy from India and global feeds (including Google News).',
   Politics: 'Government, legislation, campaigns, and political developments across regions.',
   'Stocks & Markets':
     'Equities, indices, macro moves, and market structure from our syndicated feeds.',

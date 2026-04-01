@@ -63,14 +63,16 @@ export function sanitizeArticleHtml(html: string): string {
   return sanitizeHtml(decoded, options);
 }
 
-/** Plain text from HTML for schema.org `articleBody` (strip tags, cap length). */
-export function stripHtmlToPlain(html: string, maxChars = 8000): string {
+/**
+ * Plain text from HTML (strip tags). Default cap suits previews; pass `Infinity` for full text (e.g. JSON-LD `articleBody`).
+ */
+export function stripHtmlToPlain(html: string, maxChars: number = 8000): string {
   const decoded = he.decode(html || '');
   const plain = decoded
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
   if (!plain) return '';
-  if (plain.length <= maxChars) return plain;
+  if (!Number.isFinite(maxChars) || plain.length <= maxChars) return plain;
   return `${plain.slice(0, Math.max(0, maxChars - 1))}…`;
 }
