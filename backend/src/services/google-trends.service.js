@@ -25,7 +25,7 @@ function normalizeText(s) {
 /**
  * True if post title is plausibly about this trend query (substring or token overlap).
  */
-export function titleMatchesTrendQuery(title, query) {
+function titleMatchesTrendQuery(title, query) {
   const t = normalizeText(title);
   const q = normalizeText(query);
   if (!t || !q || q.length < 2) return false;
@@ -406,7 +406,6 @@ function mapRowToTopic(t, g, matches) {
     timeframe: t.timeframe,
     exploreUrl: exploreUrl(g, t.query_text),
     matches,
-    whyTrending: t.why_context || null,
     trafficNote: t.traffic_note || null,
   };
 }
@@ -468,7 +467,6 @@ export async function getTrendsWithMatches({
     topics24h,
     topics7d,
     topics30d,
-    /** @deprecated same as topics30d */
     topics: topics30d,
   };
 }

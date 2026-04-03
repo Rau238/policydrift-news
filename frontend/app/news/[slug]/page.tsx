@@ -8,6 +8,9 @@ import { prepareArticleBodyForDisplay } from '@/lib/article-body';
 import { decodeHtmlEntities, stripHtmlToPlain } from '@/lib/sanitize';
 import { resolveOgImageUrl, resolvePostImageUrl } from '@/lib/story-image';
 import { absoluteUrl, siteName } from '@/lib/site';
+import { curatorImageSrc, curatorName, curatorProfileUrl } from '@/lib/site-trust';
+import { ArticleCuratorByline } from '@/components/ArticleCuratorByline';
+import { ArticleKeyTakeaways } from '@/components/ArticleKeyTakeaways';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import { PostCard } from '@/components/PostCard';
 import { LiveMarketsAside } from '@/components/LiveMarketsAside';
@@ -234,8 +237,13 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
     imageUrls: [resolveOgImageUrl(post.image_url)],
     section: post.category,
     articleBody: articleBodyForSchema,
+    curatorPerson: {
+      name: curatorName(),
+      url: curatorProfileUrl(),
+      imageSrc: curatorImageSrc(),
+    },
   });
-  const feedHostname = feedSourceHostname(post.source_feed);
+  const takeaways = post.key_takeaways?.trim() ?? '';
 
   return (
     <div className="min-h-screen bg-paper">
@@ -302,6 +310,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                     {decodeHtmlEntities(post.excerpt)}
                   </p>
                 ) : null}
+                <ArticleCuratorByline />
               </header>
 
               <div
@@ -316,6 +325,8 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                   />
                 </div>
               </div>
+
+              {takeaways ? <ArticleKeyTakeaways raw={takeaways} /> : null}
 
               {hasArticleBody ? (
                 <div
@@ -334,8 +345,9 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
 
               <footer className="mt-8 border-t border-slate-200 pt-5">
                 <p className="text-[11px] leading-relaxed text-slate-500">
-                  Text above is from the syndicated RSS feed (sanitized for safe display). For the latest version,
-                  updates, and full context, use the publisher link.
+                  Main article text is from the syndicated RSS feed (sanitized for safe display). Where a &quot;Key
+                  takeaways&quot; block appears, it is written by our desk as reader context — not a replacement for the
+                  publisher. For the latest version, updates, and full context, use the publisher link.
                 </p>
                 <a
                   href={post.original_url}
@@ -419,15 +431,6 @@ function clipMetaDescription(text: string, max = 158): string {
   const slice = t.slice(0, max);
   const i = slice.lastIndexOf(' ');
   return `${(i > 50 ? slice.slice(0, i) : slice).trimEnd()}…`;
-}
-
-function feedSourceHostname(sourceFeed: string | null): string | null {
-  if (!sourceFeed?.trim()) return null;
-  try {
-    return new URL(sourceFeed).hostname.replace(/^www\./i, '');
-  } catch {
-    return null;
-  }
 }
 
 function CategoryPageLink({

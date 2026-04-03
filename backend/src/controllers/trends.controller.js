@@ -32,7 +32,7 @@ export async function getTrendsBundle(req, res) {
       cacheEmpty,
       hint: cacheEmpty ? EMPTY_HINT : undefined,
       disclaimer:
-        'Search interest from Google Trends (unofficial API). Time windows: ~24h uses Daily + Realtime trends; 7d and 30d use related queries from desk seeds. “Why trending” is from Google headlines/snippets when available, else from the metric label. Verify stories independently.',
+        'Google Trends data via an unofficial API. Windows: ~24h (daily + realtime), 7d and 30d (related queries vs desk seeds). Verify stories independently.',
     });
   } catch (e) {
     console.error('[trends] getTrendsBundle', e);

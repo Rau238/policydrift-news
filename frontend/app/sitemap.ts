@@ -3,6 +3,9 @@ import { getSitemapRows } from '@/lib/api';
 import { allCategorySlugs } from '@/lib/category-routes';
 import { absoluteUrl } from '@/lib/site';
 
+/** Hourly regeneration — aligns crawlers with fresh RSS-ingested URLs (2025–2026 crawl expectations). */
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const categoryRoutes: MetadataRoute.Sitemap = allCategorySlugs().map((slug) => ({
     url: absoluteUrl(`/news/${slug}`),
@@ -19,7 +22,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl('/privacy'), lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
     { url: absoluteUrl('/terms'), lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
     { url: absoluteUrl('/cookies'), lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: absoluteUrl('/about'), lastModified: new Date(), changeFrequency: 'yearly', priority: 0.45 },
+    { url: absoluteUrl('/contact'), lastModified: new Date(), changeFrequency: 'yearly', priority: 0.4 },
     { url: absoluteUrl('/editorial'), lastModified: new Date(), changeFrequency: 'yearly', priority: 0.35 },
+    { url: absoluteUrl('/feed.xml'), lastModified: new Date(), changeFrequency: 'hourly', priority: 0.35 },
   ];
 
   try {

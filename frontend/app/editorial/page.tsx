@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { LegalPageShell, legalMetadata } from '@/components/LegalPageShell';
 
 export const metadata = legalMetadata(
@@ -9,11 +10,17 @@ export default function EditorialPage() {
   return (
     <LegalPageShell
       title="Editorial standards"
-      description="How we choose feeds, attribute sources, and present the newsroom. Last updated March 2026."
+      description="How we choose feeds, attribute sources, and present the newsroom. Last updated April 2026."
     >
       <p>
-        PolicyDrift pulls from configured RSS feeds and similar open syndication. Our goal is a fast, readable
-        overview of major desks — breaking, world, business, and more — with clear links back to publishers.
+        PolicyDrift pulls from configured RSS feeds and similar open syndication. We <strong>curate and summarize</strong>{' '}
+        — we group stories by desk, tighten listings, and add short framing where it helps readers (for example,{' '}
+        <strong>Key takeaways</strong> on Banking & Economics). We are not the publisher of wire or third-party
+        articles; the original URL remains the source of record. See also{' '}
+        <Link href="/about" className="font-semibold text-accent hover:text-accent-dark">
+          About PolicyDrift
+        </Link>
+        .
       </p>
 
       <h2>Sources</h2>

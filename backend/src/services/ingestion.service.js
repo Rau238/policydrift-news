@@ -6,6 +6,8 @@ import { fetchAllFeedEntries } from './rss.service.js';
 import { env } from '../config/env.js';
 import { resolveStoryImageUrl } from '../utils/story-image.js';
 import { getFeedEntries } from '../config/rss-feeds.js';
+import { submitNewUrlsToIndexNow } from './indexnow.service.js';
+import { buildKeyTakeawaysForCategory } from '../utils/key-takeaways.js';
 
 const slugCache = new Set();
 
@@ -48,6 +50,8 @@ export async function ingestFromRss() {
   const errors = [];
   let created = 0;
   let skipped = 0;
+  const indexNowUrls = [];
+  const siteOrigin = env.SITE_PUBLIC_URL?.replace(/\/$/, '');
 
   for (const item of items) {
     const link = toCleanString(item.link);
@@ -62,6 +66,13 @@ export async function ingestFromRss() {
 
       const body = feedBodyToArticleHtml(item.content);
       const excerpt = excerptFromFeedContent(body, title);
+      const category = toCleanString(item.category || 'General').slice(0, 128) || 'General';
+      const keyTakeaways = buildKeyTakeawaysForCategory({
+        category,
+        excerpt,
+        title,
+        bodyHtml: body,
+      });
 
       const slug = await allocateSlug(title);
 
@@ -74,18 +85,26 @@ export async function ingestFromRss() {
         slug,
         title,
         excerpt,
+        key_takeaways: keyTakeaways,
         body,
         original_url: link,
         url_hash: urlHash,
         image_url: resolveStoryImageUrl(item.image ? toCleanString(item.image) : null),
-        category: toCleanString(item.category || 'General').slice(0, 128) || 'General',
+        category,
         published_at: publishedAt,
         source_feed: item.feedUrl ? toCleanString(item.feedUrl) : null,
       });
       created += 1;
+      if (siteOrigin?.startsWith('https://')) {
+        indexNowUrls.push(`${siteOrigin}/news/${encodeURIComponent(slug)}`);
+      }
     } catch (e) {
       errors.push(`${link}: ${e.message}`);
     }
+  }
+
+  if (indexNowUrls.length) {
+    await submitNewUrlsToIndexNow(indexNowUrls);
   }
 
   return { created, skipped, errors };

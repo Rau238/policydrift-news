@@ -109,11 +109,10 @@ function TrendCard({
             </p>
           </div>
           {showScoreBar ? (
-            <div className="min-w-0 pt-4 sm:pt-5">
+            <div className="min-w-0 self-center pt-1 sm:pt-0">
               <div className="h-2 overflow-hidden rounded-full bg-slate-200/90">
                 <div className={`h-full rounded-full bg-gradient-to-r ${accent.bar}`} style={{ width: `${scoreWidthPct}%` }} />
               </div>
-              <p className="mt-1 text-right text-[10px] tabular-nums text-slate-400">{scoreWidthPct}% of peak in list</p>
             </div>
           ) : (
             <p className="self-center text-xs text-slate-500">No score</p>
@@ -126,7 +125,7 @@ function TrendCard({
               <span>Matched on site</span>
               <span className="rounded-md bg-slate-100 px-2 py-0.5 text-sm font-black tabular-nums text-slate-800">{matchN}</span>
             </p>
-            <ul className="grid grid-cols-1 gap-2 sm:grid-cols-1">
+            <ul className="flex flex-col gap-2">
               {matches.slice(0, 3).map((m) => (
                 <li key={m.id}>
                   <Link
@@ -162,14 +161,17 @@ const TABS: { id: TabId; short: string; full: string }[] = [
 ];
 
 export function TrendingIndiaPage({ data }: { data: GoogleTrendsBundle }) {
-  const t24 = data.topics24h ?? [];
-  const t7 = data.topics7d ?? [];
-  const t30 = data.topics30d?.length ? data.topics30d : (data.topics ?? []);
+  const t24 = useMemo(() => data.topics24h ?? [], [data.topics24h]);
+  const t7 = useMemo(() => data.topics7d ?? [], [data.topics7d]);
+  const t30 = useMemo(
+    () => (data.topics30d?.length ? data.topics30d : (data.topics ?? [])),
+    [data.topics30d, data.topics],
+  );
 
   const total = t24.length + t7.length + t30.length;
   const disabledEmpty = !data.enabled && total === 0;
 
-  const [tab, setTab] = useState<TabId>(() => pickInitialTab({ ...data, topics24h: t24, topics7d: t7, topics30d: t30 }));
+  const [tab, setTab] = useState<TabId>(() => pickInitialTab(data));
 
   const topics = useMemo(() => {
     if (tab === '24h') return t24;

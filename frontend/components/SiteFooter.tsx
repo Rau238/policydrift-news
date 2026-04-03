@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FileText, Fingerprint, Map, Rss, Scale, Shield } from 'lucide-react';
+import { Building2, FileText, Fingerprint, Mail, Map, Rss, Scale, Shield } from 'lucide-react';
 import { siteName } from '@/lib/site';
 import { CATEGORY_ORDER, categoryHref, categoryLabel, CategoryGlyph } from '@/lib/category-theme';
 
@@ -68,6 +68,24 @@ export function SiteFooter() {
               Site
             </p>
             <ul className="mt-6 space-y-3 text-[15px]">
+              <li>
+                <Link
+                  href="/about"
+                  className="inline-flex items-center gap-2.5 text-slate-400 transition hover:text-teal-200"
+                >
+                  <Building2 className="h-4 w-4 shrink-0 text-slate-500" aria-hidden />
+                  About us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-2.5 text-slate-400 transition hover:text-teal-200"
+                >
+                  <Mail className="h-4 w-4 shrink-0 text-slate-500" aria-hidden />
+                  Contact
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/news"

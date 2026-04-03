@@ -76,6 +76,7 @@ export async function createPost(row) {
     slug,
     title,
     excerpt,
+    key_takeaways,
     body,
     original_url,
     url_hash,
@@ -85,12 +86,13 @@ export async function createPost(row) {
     source_feed,
   } = row;
   const [result] = await pool.query(
-    `INSERT INTO posts (slug, title, excerpt, body, original_url, url_hash, image_url, category, published_at, source_feed)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO posts (slug, title, excerpt, key_takeaways, body, original_url, url_hash, image_url, category, published_at, source_feed)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       slug,
       title,
       excerpt,
+      key_takeaways ?? null,
       body,
       original_url,
       url_hash,

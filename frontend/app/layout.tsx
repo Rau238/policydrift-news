@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono, Lora, Outfit } from 'next/font/google';
 import './globals.css';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -33,6 +33,15 @@ const jetbrainsMarketsMono = JetBrains_Mono({
 
 const defaultOgImage = storyFallbackImageUrl();
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#fafaf9' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
+};
+
 /** Google AdSense publisher ID — override with NEXT_PUBLIC_ADSENSE_CLIENT in .env if needed. */
 const adsenseClient =
   process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || 'ca-pub-1508845535613236';
@@ -62,6 +71,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: siteName, url: absoluteUrl('/') }],
   creator: siteName,
+  alternates: {
+    types: {
+      'application/rss+xml': absoluteUrl('/feed.xml'),
+    },
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',

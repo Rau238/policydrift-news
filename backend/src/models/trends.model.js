@@ -98,11 +98,6 @@ export async function listTrendsByGeoTimeframe(geo, timeframe, maxAgeHours = 48,
   }
 }
 
-/** @deprecated use listTrendsByGeoTimeframe — returns 30d window only for backward compatibility */
-export async function listTrendsByGeo(geo, maxAgeHours = 48) {
-  return listTrendsByGeoTimeframe(geo, '30d', maxAgeHours, 80);
-}
-
 export async function getLatestTrendsFetchTime(geo) {
   try {
     const [rows] = await pool.query(

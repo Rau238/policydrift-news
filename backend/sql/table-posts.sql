@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS posts (
   slug VARCHAR(320) NOT NULL,
   title VARCHAR(512) NOT NULL,
   excerpt TEXT NULL,
+  key_takeaways TEXT NULL,
   body LONGTEXT NOT NULL,
   original_url VARCHAR(2048) NOT NULL,
   url_hash CHAR(64) NOT NULL,
@@ -25,4 +26,3 @@ CREATE TABLE IF NOT EXISTS posts (
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
-npm run ingest
