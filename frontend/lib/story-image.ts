@@ -1,9 +1,9 @@
 import { absoluteUrl } from '@/lib/site';
 
-/** Same-origin path — works in Client Components without `NEXT_PUBLIC_*` / `VERCEL_URL`. */
+/** Same-origin path - works in Client Components without `NEXT_PUBLIC_*` / `VERCEL_URL`. */
 export const STORY_FALLBACK_PATH = '/images/story-fallback.svg';
 
-/** Default OG/card image when a story has no remote image (server / metadata — absolute URL). */
+/** Default OG/card image when a story has no remote image (server / metadata - absolute URL). */
 export function storyFallbackImageUrl(): string {
   return absoluteUrl(STORY_FALLBACK_PATH);
 }
@@ -31,7 +31,7 @@ export function resolvePostImageUrl(stored: string | null | undefined): string {
 }
 
 /**
- * For Open Graph, Twitter, JSON-LD — must be absolute. Use from Server Components / generateMetadata only.
+ * For Open Graph, Twitter, JSON-LD - must be absolute. Use from Server Components / generateMetadata only.
  */
 export function resolveOgImageUrl(stored: string | null | undefined): string {
   const u = stored?.trim();

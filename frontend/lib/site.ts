@@ -4,7 +4,7 @@ export const siteDescription =
 
 /**
  * Canonical public origin for absolute URLs (OG, JSON-LD, metadata).
- * Prefer NEXT_PUBLIC_SITE_URL; on Vercel builds without it, use VERCEL_URL (HTTPS) — never localhost on prod deploys.
+ * Prefer NEXT_PUBLIC_SITE_URL; on Vercel builds without it, use VERCEL_URL (HTTPS), never localhost on prod deploys.
  */
 export function publicSiteOrigin(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();

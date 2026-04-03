@@ -13,8 +13,8 @@ export default function EditorialPage() {
       description="How we choose feeds, attribute sources, and present the newsroom. Last updated April 2026."
     >
       <p>
-        PolicyDrift pulls from configured RSS feeds and similar open syndication. We <strong>curate and summarize</strong>{' '}
-        — we group stories by desk, tighten listings, and add short framing where it helps readers (for example,{' '}
+        PolicyDrift pulls from configured RSS feeds and similar open syndication. We <strong>curate and summarize</strong>:
+        we group stories by desk, tighten listings, and add short framing where it helps readers (for example,{' '}
         <strong>Key takeaways</strong> on Banking & Economics). We are not the publisher of wire or third-party
         articles; the original URL remains the source of record. See also{' '}
         <Link href="/about" className="font-semibold text-accent hover:text-accent-dark">

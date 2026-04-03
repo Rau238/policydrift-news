@@ -8,25 +8,30 @@ function isLocalFallbackPath(s: string): boolean {
 }
 
 /**
- * Plain <img> for third-party RSS URLs — avoids Next/Image edge cases and sets referrer policy
+ * Plain <img> for third-party RSS URLs; avoids Next/Image edge cases and sets referrer policy
  * so more CDNs (BBC, Guardian, etc.) allow hotlinking. Falls back to the local SVG if the remote URL fails.
  */
 type Props = {
   src: string;
   alt: string;
+  /** Defaults to `alt` (many SEO audits expect a title on images). */
+  title?: string;
   className?: string;
   priority?: boolean;
 };
 
-export function RemoteStoryImage({ src, alt, className, priority }: Props) {
+export function RemoteStoryImage({ src, alt, title, className, priority }: Props) {
   const [swapToFallback, setSwapToFallback] = useState(false);
   const effectiveSrc = swapToFallback || isLocalFallbackPath(src) ? STORY_FALLBACK_PATH : src;
+  const safeAlt = alt.trim() || 'News story image';
+  const safeTitle = (title ?? safeAlt).trim() || safeAlt;
 
   return (
     // eslint-disable-next-line @next/next/no-img-element -- intentional for external news CDNs
     <img
       src={effectiveSrc}
-      alt={alt}
+      alt={safeAlt}
+      title={safeTitle}
       className={className}
       loading={priority ? 'eager' : 'lazy'}
       decoding="async"

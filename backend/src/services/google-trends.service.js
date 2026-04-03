@@ -71,7 +71,7 @@ function firstArticleWhyFromDailyItem(item) {
     const s = a?.snippet || a?.summary;
     const line = [t, s]
       .filter((x) => typeof x === 'string' && x.trim())
-      .join(' — ');
+      .join('. ');
     if (line) return line.slice(0, 4000);
   }
   return null;
@@ -139,7 +139,7 @@ function parseRealTimeTrends(jsonStr) {
       const sn = a?.snippet || a?.summary;
       const line = [t, sn]
         .filter((x) => typeof x === 'string' && x.trim())
-        .join(' — ');
+        .join('. ');
       if (line) {
         why = line.slice(0, 4000);
         break;
@@ -165,7 +165,7 @@ function buildWhyForRelated(trend_label, daysBack) {
     return `Rising: this query gained the most versus the previous span inside the last ${daysBack} days (Google Trends).`;
   }
   if (trend_label === 'Top') {
-    return `Top related query for the desk seed in the last ${daysBack} days — often searched alongside that topic (Google Trends).`;
+    return `Top related query for the desk seed in the last ${daysBack} days, often searched alongside that topic (Google Trends).`;
   }
   return null;
 }
@@ -262,7 +262,7 @@ function buildSeedFallbackRows(timeframe) {
         timeframe,
         why_context:
           timeframe === '24h'
-            ? 'Desk seed — open Explore to see intraday and daily search interest for India.'
+            ? 'Desk seed: open Explore to see intraday and daily search interest for India.'
             : `Desk seed for the last ${timeframe === '7d' ? '7' : '30'} days window; Explore shows related queries and interest over time.`,
         traffic_note: null,
       });

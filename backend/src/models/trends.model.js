@@ -81,7 +81,7 @@ export async function listTrendsByGeoTimeframe(geo, timeframe, maxAgeHours = 48,
   } catch (e) {
     if (e.code === 'ER_BAD_FIELD_ERROR' || e.errno === 1054) {
       console.warn(
-        '[trends] DB missing timeframe/why columns — run backend/sql/migration-trends-timeframe-why.sql; serving 30d list from legacy rows.',
+        '[trends] DB missing timeframe/why columns. Run backend/sql/migration-trends-timeframe-why.sql; serving 30d list from legacy rows.',
       );
       if (timeframe === '30d') {
         try {

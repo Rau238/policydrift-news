@@ -12,7 +12,7 @@ import {
   Zap,
 } from 'lucide-react';
 
-/** DB category keys — keep in sync with `backend/src/config/rss-feeds.js` */
+/** DB category keys - keep in sync with `backend/src/config/rss-feeds.js` */
 export const CATEGORY_ORDER = [
   'Breaking',
   'World News',
@@ -174,7 +174,7 @@ export function categoryNavPillClass(name: string): string {
   return categoryTheme(name).navPill;
 }
 
-/** Left accent bar — drawer rows, article “more in desk” rail, etc. */
+/** Left accent bar - drawer rows, article “more in desk” rail, etc. */
 const CATEGORY_VERTICAL_ACCENT: Record<string, string> = {
   Breaking: 'border-l-rose-400',
   'World News': 'border-l-sky-400',
@@ -202,12 +202,12 @@ export function categoryCardRingClass(name: string): string {
   return categoryTheme(name).cardRing;
 }
 
-/** Gradient bar under card hero image — matches desk colors. */
+/** Gradient bar under card hero image - matches desk colors. */
 export function categoryCardStripeClass(name: string): string {
   return categoryTheme(name).cardStripe;
 }
 
-/** Ring around article detail hero — matches desk colors. */
+/** Ring around article detail hero - matches desk colors. */
 export function categoryArticleHeroRingClass(name: string): string {
   return categoryTheme(name).articleHeroRing;
 }

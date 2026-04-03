@@ -1,6 +1,15 @@
 import { absoluteUrl, publicSiteOrigin, siteDescription, siteName } from '@/lib/site';
 import { contactEmail } from '@/lib/site-trust';
 
+/**
+ * Embed JSON-LD in `<script type="application/ld+json">` without breaking the HTML parser.
+ * Any `<` in strings (e.g. `articleBody` from feeds) must become `\u003c` or a literal `</script>` in text
+ * closes the script tag and drops NewsArticle from the DOM (SEO tools then only see layout schema).
+ */
+export function serializeJsonLd(value: unknown): string {
+  return JSON.stringify(value).replace(/</g, '\\u003c');
+}
+
 /** ISO-8601 for schema.org dates (Google News / Discover friendly). */
 export function toSchemaDate(iso: string): string {
   const d = new Date(iso);

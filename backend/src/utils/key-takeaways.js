@@ -18,7 +18,7 @@ function splitSentences(text) {
 }
 
 /**
- * Short desk framing for Banking & Economics — derived from excerpt/body (not wire copy pasted as-is only).
+ * Short desk framing for Banking & Economics, derived from excerpt/body (not wire copy pasted as-is only).
  * Stored newline-separated; UI renders as bullets.
  */
 export function buildKeyTakeawaysForCategory({ category, excerpt, title, bodyHtml }) {
@@ -44,6 +44,6 @@ export function buildKeyTakeawaysForCategory({ category, excerpt, title, bodyHtm
   if (!bullets.length) return null;
 
   const experienceLine =
-    'Desk angle: we track rates, inflation, and bank balance sheets against this headline — always read the original for filings and quotes.';
+    'Desk angle: we track rates, inflation, and bank balance sheets against this headline. Always read the original for filings and quotes.';
   return [...bullets, experienceLine].join('\n');
 }

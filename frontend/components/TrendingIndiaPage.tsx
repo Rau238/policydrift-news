@@ -6,6 +6,7 @@ import { ExternalLink, MapPin, Sparkles, Terminal, TrendingUp } from 'lucide-rea
 import type { GoogleTrendsBundle, GoogleTrendsTopic } from '@/lib/types';
 import { categoryLabel, CategoryGlyph } from '@/lib/category-theme';
 import { resolvePostImageUrl } from '@/lib/story-image';
+import { decodeHtmlEntities } from '@/lib/sanitize';
 
 type TabId = '24h' | '7d' | '30d';
 
@@ -28,7 +29,7 @@ function scoreAccent(label: string | null) {
 
 /** Indian-style grouping (e.g. 1,61,600). */
 function formatScore(n: number | null): string {
-  if (n == null) return '—';
+  if (n == null) return '--';
   return Number(n).toLocaleString('en-IN');
 }
 
@@ -79,7 +80,7 @@ function TrendCard({
               <span
                 className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${trendTypePillClass(topic.label)}`}
               >
-                {topic.label ?? '—'}
+                {topic.label ?? '--'}
               </span>
               {topic.trafficNote ? (
                 <>
@@ -126,7 +127,9 @@ function TrendCard({
               <span className="rounded-md bg-slate-100 px-2 py-0.5 text-sm font-black tabular-nums text-slate-800">{matchN}</span>
             </p>
             <ul className="flex flex-col gap-2">
-              {matches.slice(0, 3).map((m) => (
+              {matches.slice(0, 3).map((m) => {
+                const matchThumb = decodeHtmlEntities(m.title).trim() || 'Matched story';
+                return (
                 <li key={m.id}>
                   <Link
                     href={`/news/${m.slug}`}
@@ -135,17 +138,18 @@ function TrendCard({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={resolvePostImageUrl(m.image_url)}
-                      alt=""
+                      alt={matchThumb}
+                      title={matchThumb}
                       className="h-10 w-14 shrink-0 rounded-md object-cover"
                       loading="lazy"
                       decoding="async"
                       referrerPolicy="no-referrer"
-                      aria-hidden
                     />
                     <span className="min-w-0 self-center text-xs font-medium leading-snug text-slate-800 line-clamp-2">{m.title}</span>
                   </Link>
                 </li>
-              ))}
+              );
+              })}
             </ul>
           </div>
         ) : null}
@@ -295,7 +299,7 @@ export function TrendingIndiaPage({ data }: { data: GoogleTrendsBundle }) {
             </div>
 
             {topics.length === 0 ? (
-              <p className="mt-6 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">Empty for this window — try another tab.</p>
+              <p className="mt-6 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">Empty for this window. Try another tab.</p>
             ) : (
               <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 xl:gap-5">
                 {topics.map((t, idx) => (

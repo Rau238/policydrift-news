@@ -1,4 +1,4 @@
-/** Fixed locale so server (Node) and browser render the same string — avoids hydration mismatches. */
+/** Fixed locale so server (Node) and browser render the same string; avoids hydration mismatches. */
 const DATE_LOCALE = 'en-US';
 
 export function formatDate(iso: string): string {

@@ -24,7 +24,7 @@ const chip = {
   show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] } },
 };
 
-/** Shared pill base — compact on mobile, comfortable on md+. */
+/** Shared pill base - compact on mobile, comfortable on md+. */
 function deskPillClass(themeClass: string, extra = '') {
   return `inline-flex items-center gap-1 rounded-full font-semibold ring-1 transition active:scale-[0.98] ${themeClass} ${extra}`;
 }
@@ -38,7 +38,7 @@ export function CategoryNav() {
       initial="hidden"
       animate="show"
     >
-      {/* Mobile: icon-only quick links — concise */}
+      {/* Mobile: icon-only quick links - concise */}
       <motion.span variants={chip} className="snap-start shrink-0 md:hidden">
         <Link
           href="/"

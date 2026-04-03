@@ -10,20 +10,20 @@ export default function AboutPage() {
   return (
     <LegalPageShell
       title="About PolicyDrift"
-      description="We are a curated news desk — not a wire service. We summarize and attribute; publishers own the original reporting."
+      description="We are a curated news desk, not a wire service. We summarize and attribute; publishers own the original reporting."
     >
       <p>
         PolicyDrift brings together headlines and articles from trusted RSS and open syndication feeds across breaking
         news, world, India, business, banking, markets, and more. Our role is to help you scan what matters with clear
-        labels, stable URLs, and honest sourcing — not to replace the reporters and editors who produce the underlying
+        labels, stable URLs, and honest sourcing, not to replace the reporters and editors who produce the underlying
         stories.
       </p>
 
       <h2>Original value on a syndicated model</h2>
       <p>
         Pure aggregation without context is a weak experience for readers and a weak signal for search quality. We add
-        value through desk organization, concise summaries where feeds allow, explicit links to originals, and — on our
-        Banking & Economics desk — short &quot;Key takeaways&quot; lines that frame why a headline matters for rates,
+        value through desk organization, concise summaries where feeds allow, explicit links to originals, and on our
+        Banking & Economics desk short &quot;Key takeaways&quot; lines that frame why a headline matters for rates,
         inflation, and financial stability. Those notes are written by our editorial workflow, not copied from wire
         ledes alone.
       </p>

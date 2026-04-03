@@ -21,7 +21,7 @@ export function ArticleKeyTakeaways({ raw }: Props) {
         Key takeaways
       </h2>
       <p className="mt-1 text-[12px] font-medium leading-relaxed text-slate-600">
-        Short desk summary — not a substitute for the publisher&apos;s full reporting below.
+        Short desk summary, not a substitute for the publisher&apos;s full reporting below.
       </p>
       <ul className="mt-3 list-disc space-y-2 pl-5 text-[14px] leading-relaxed text-slate-800">
         {lines.map((line, i) => (

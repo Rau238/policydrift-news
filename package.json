@@ -2,7 +2,7 @@
   "name": "policydrift",
   "private": true,
   "version": "1.0.0",
-  "description": "PolicyDrift — full-stack news platform (Express + MySQL + Next.js 14)",
+  "description": "PolicyDrift: full-stack news platform (Express + MySQL + Next.js 14)",
   "workspaces": [
     "backend",
     "frontend"

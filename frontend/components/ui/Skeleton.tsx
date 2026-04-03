@@ -1,7 +1,8 @@
+/** Static placeholders, no shimmer (avoids route-loading flicker and busy motion). */
 export function Skeleton({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`animate-shimmer relative overflow-hidden rounded-lg bg-slate-200/90 ${className}`}
+      className={`rounded-lg bg-slate-200/80 ${className}`}
       aria-hidden
     />
   );

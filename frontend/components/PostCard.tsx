@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import type { PostListItem } from '@/lib/types';
 import { formatPublishedAt } from '@/lib/format';
@@ -14,6 +13,7 @@ import {
   CategoryGlyph,
 } from '@/lib/category-theme';
 import { resolvePostImageUrl } from '@/lib/story-image';
+import { decodeHtmlEntities } from '@/lib/sanitize';
 
 type Props = {
   post: PostListItem;
@@ -27,9 +27,7 @@ export function PostCard({ post, priority, compact, gridCell, index = 0 }: Props
   const ring = categoryCardRingClass(post.category);
   const imageSrc = resolvePostImageUrl(post.image_url);
   const href = `/news/${post.slug}`;
-
-  const motionInitial = compact ? { opacity: 0 } : { opacity: 0, y: 16 };
-  const motionAnimate = compact ? { opacity: 1 } : { opacity: 1, y: 0 };
+  const thumbLabel = decodeHtmlEntities(post.title).trim() || 'News story';
 
   const bodyClass = compact ? 'gap-2 p-4 sm:p-4' : 'gap-2.5 p-3.5 sm:p-5';
   const titleClass = compact
@@ -37,15 +35,7 @@ export function PostCard({ post, priority, compact, gridCell, index = 0 }: Props
     : 'font-display text-lg font-bold leading-snug tracking-tight text-ink line-clamp-3 max-lg:text-base sm:text-[1.125rem] sm:leading-snug';
 
   return (
-    <motion.article
-      initial={motionInitial}
-      whileInView={motionAnimate}
-      viewport={{ once: true, margin: '-28px' }}
-      transition={{
-        duration: compact ? 0.3 : 0.38,
-        delay: Math.min(index * 0.05, 0.28),
-        ease: [0.22, 1, 0.36, 1],
-      }}
+    <article
       className={`min-h-0 ${compact ? (gridCell ? 'h-full w-full min-w-0' : 'h-full w-[min(300px,calc(100vw-2rem))] shrink-0 snap-start sm:w-[300px]') : gridCell ? 'h-full min-w-0' : ''}`}
     >
       <Link
@@ -55,7 +45,8 @@ export function PostCard({ post, priority, compact, gridCell, index = 0 }: Props
         <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-slate-200/80">
           <RemoteStoryImage
             src={imageSrc}
-            alt=""
+            alt={thumbLabel}
+            title={thumbLabel}
             priority={priority}
             className="h-full w-full object-cover object-center transition duration-500 ease-out group-hover:scale-[1.03]"
           />
@@ -94,6 +85,6 @@ export function PostCard({ post, priority, compact, gridCell, index = 0 }: Props
           </time>
         </div>
       </Link>
-    </motion.article>
+    </article>
   );
 }

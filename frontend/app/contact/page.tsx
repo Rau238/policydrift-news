@@ -36,7 +36,7 @@ export default function ContactPage() {
       ) : (
         <p className="rounded-lg border border-amber-200/90 bg-amber-50/90 px-4 py-3 text-sm text-amber-950">
           Set <code className="rounded bg-amber-100/80 px-1 py-0.5 text-[13px]">NEXT_PUBLIC_CONTACT_EMAIL</code> in your
-          deployment environment so a reachable address appears here — a visible contact is a strong trust signal for
+          deployment environment so a reachable address appears here. A visible contact is a strong trust signal for
           news sites.
         </p>
       )}

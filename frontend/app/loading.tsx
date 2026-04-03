@@ -1,14 +1,15 @@
-import { BrandLoader } from '@/components/ui/BrandLoader';
 import { PostCardSkeleton, Skeleton } from '@/components/ui/Skeleton';
 
 export default function RootLoading() {
   return (
-    <div className="min-h-[75vh] bg-paper">
+    <div className="min-h-[75vh] bg-paper" aria-busy="true" aria-label="Loading home">
       <section className="relative overflow-hidden border-b border-teal-950/40 bg-gradient-to-br from-brand-night via-brand-deep to-[#134e4a] px-4 py-14 sm:px-6 sm:py-20">
         <div className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-accent/15 blur-3xl" aria-hidden />
         <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
           <div className="flex flex-col items-center justify-center gap-6 text-center lg:items-start lg:text-left">
-            <BrandLoader label="Loading latest coverage…" />
+            <p className="text-[13px] font-semibold tracking-wide text-teal-100/90" role="status" aria-live="polite">
+              Loading latest coverage…
+            </p>
             <div className="hidden w-full max-w-md space-y-3 lg:block">
               <Skeleton className="mx-auto h-3 w-28 rounded-full lg:mx-0" />
               <Skeleton className="mx-auto h-10 w-full max-w-lg lg:mx-0" />

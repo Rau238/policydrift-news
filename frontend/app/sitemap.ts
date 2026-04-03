@@ -3,7 +3,7 @@ import { getSitemapRows } from '@/lib/api';
 import { allCategorySlugs } from '@/lib/category-routes';
 import { absoluteUrl } from '@/lib/site';
 
-/** Hourly regeneration — aligns crawlers with fresh RSS-ingested URLs (2025–2026 crawl expectations). */
+/** Hourly regeneration; aligns crawlers with fresh RSS-ingested URLs (2025–2026 crawl expectations). */
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

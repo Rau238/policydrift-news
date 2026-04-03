@@ -7,14 +7,14 @@ import { storyFallbackImageUrl } from '@/lib/story-image';
 export const dynamic = 'force-dynamic';
 
 const description =
-  'See what people in India are searching for on Google, mapped to PolicyDrift desks and matched headlines — updated from our trends cache.';
+  'See what people in India are searching for on Google, mapped to PolicyDrift desks and matched headlines, updated from our trends cache.';
 
 export const metadata: Metadata = {
   title: { absolute: `Trending in India | ${siteName}` },
   description,
   alternates: { canonical: absoluteUrl('/trending-india') },
   openGraph: {
-    title: `Trending in India — ${siteName}`,
+    title: `Trending in India | ${siteName}`,
     description,
     url: absoluteUrl('/trending-india'),
     type: 'website',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `Trending in India — ${siteName}`,
+    title: `Trending in India | ${siteName}`,
     description,
     images: [storyFallbackImageUrl()],
   },

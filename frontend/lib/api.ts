@@ -125,7 +125,7 @@ function trendsQueryString(opts?: GoogleTrendsBundleParams): string {
   return q ? `?${q}` : '';
 }
 
-/** Google Trends bundle — always fresh (no Next fetch cache). */
+/** Google Trends bundle, always fresh (no Next fetch cache). */
 export async function getGoogleTrendsBundle(opts?: GoogleTrendsBundleParams): Promise<GoogleTrendsBundle> {
   try {
     const path = `/api/meta/trends${trendsQueryString(opts)}`;
@@ -136,7 +136,7 @@ export async function getGoogleTrendsBundle(opts?: GoogleTrendsBundleParams): Pr
   } catch (e) {
     if (process.env.NODE_ENV === 'development') {
       console.warn(
-        '[PolicyDrift] getGoogleTrendsBundle failed — check API is running and API_URL / NEXT_PUBLIC_API_URL:',
+        '[PolicyDrift] getGoogleTrendsBundle failed. Check API is running and API_URL / NEXT_PUBLIC_API_URL:',
         getBaseUrl(),
         e,
       );

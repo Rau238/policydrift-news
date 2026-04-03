@@ -75,7 +75,7 @@ const ROW_STRIPE: Record<SectionKey, string> = {
   crypto: 'border-l-[3px] border-l-violet-500 max-lg:border-l-0 max-lg:border-t-[3px] max-lg:border-t-violet-500',
 };
 
-/** Top accent on detail popover — matches row stripe. */
+/** Top accent on detail popover - matches row stripe. */
 const POPOVER_ACCENT: Record<SectionKey, string> = {
   us: 'from-blue-500 to-indigo-400',
   india: 'from-amber-500 to-orange-500',
@@ -231,7 +231,7 @@ function formatCryptoPrice(p: number): string {
 }
 
 function formatPrice(q: MarketQuoteRow): string {
-  if (q.price == null) return '—';
+  if (q.price == null) return '-';
   const p = q.price;
   if (CRYPTO_IDS.has(q.id)) return formatCryptoPrice(p);
   if (q.id === 'usdinr') {
@@ -241,7 +241,7 @@ function formatPrice(q: MarketQuoteRow): string {
 }
 
 function formatPrev(n: number | null, q: MarketQuoteRow): string {
-  if (n == null) return '—';
+  if (n == null) return '-';
   if (CRYPTO_IDS.has(q.id)) return formatCryptoPrice(n);
   if (q.id === 'usdinr') {
     return n.toLocaleString(NUM_LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
@@ -250,7 +250,7 @@ function formatPrev(n: number | null, q: MarketQuoteRow): string {
 }
 
 function formatSignedPercent(value: number | null): string {
-  if (value == null || Number.isNaN(value)) return '—';
+  if (value == null || Number.isNaN(value)) return '-';
   const abs = Math.abs(value);
   const fmt = abs.toLocaleString(NUM_LOCALE, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
   const sign = value > 0 ? '+' : value < 0 ? '−' : '';
@@ -258,7 +258,7 @@ function formatSignedPercent(value: number | null): string {
 }
 
 function formatSignedPoints(value: number | null, q: MarketQuoteRow): string {
-  if (value == null || Number.isNaN(value)) return '—';
+  if (value == null || Number.isNaN(value)) return '-';
   const abs = Math.abs(value);
   let decimals = 2;
   if (q.id === 'usdinr') decimals = 4;
@@ -277,7 +277,7 @@ function popoverPctClass(change: number | null): string {
 
 /**
  * Raster flags via flagcdn.com (ISO 3166-1 alpha-2).
- * Only certain paths exist: e.g. 20x15/24x18/… or w20/w40/… — arbitrary w22 returns 404.
+ * Only certain paths exist: e.g. 20x15/24x18/… or w20/w40/… - arbitrary w22 returns 404.
  */
 function flagCdnPair(displayW: number): { oneX: string; twoX: string; width: number; height: number } {
   if (displayW <= 20) return { oneX: '20x15', twoX: '40x30', width: 20, height: 15 };
@@ -289,13 +289,15 @@ function FlagImg({ iso, className, size = 22 }: { iso: string; className?: strin
   const code = iso.toLowerCase();
   if (!/^[a-z]{2}$/.test(code)) return null;
   const { oneX, twoX, width, height } = flagCdnPair(size);
+  const flagLabel = `${iso.toUpperCase()} flag`;
   return (
     <img
       src={`https://flagcdn.com/${oneX}/${code}.png`}
       srcSet={`https://flagcdn.com/${twoX}/${code}.png 2x`}
       width={width}
       height={height}
-      alt=""
+      alt={flagLabel}
+      title={flagLabel}
       loading="lazy"
       decoding="async"
       className={`shrink-0 rounded-[3px] object-cover shadow-sm ring-1 ring-black/10 ${className ?? ''}`}
@@ -317,7 +319,7 @@ function CountryFlagsLine({
   q,
   section,
   theme,
-  /** No flag/coin icons — country/region text only (pair with {@link InstrumentRowIdentifier}). */
+  /** No flag/coin icons - country/region text only (pair with {@link InstrumentRowIdentifier}). */
   textOnlySubline = false,
 }: {
   q: MarketQuoteRow;
@@ -439,7 +441,7 @@ function MoveReadout({
         <span className={`${tileNeutral} bg-slate-100 text-slate-400`} aria-hidden>
           <Minus className="opacity-70" strokeWidth={2.25} />
         </span>
-        <span className={`${panelNeutral} text-slate-500`}>—</span>
+        <span className={`${panelNeutral} text-slate-500`}>-</span>
       </span>
     );
   }
@@ -501,7 +503,7 @@ function MoveReadoutDark({ change, pct }: { change: number | null; pct: string }
         <span className={`${tile} bg-white/10 text-slate-500`} aria-hidden>
           <Minus strokeWidth={2.5} />
         </span>
-        <span className={`${panel} text-slate-500`}>—</span>
+        <span className={`${panel} text-slate-500`}>-</span>
       </span>
     );
   }
@@ -540,7 +542,7 @@ function MoveReadoutDark({ change, pct }: { change: number | null; pct: string }
   );
 }
 
-/** Light zebra + white base — avoids heavy row tint. */
+/** Light zebra + white base - avoids heavy row tint. */
 function sentimentRowBg(_ok: boolean, _change: number | null, index: number): string {
   return index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
 }
@@ -578,7 +580,7 @@ function MarketDetailPopover({
   const asOfLabel =
     q.ok && q.asOf
       ? `${formatRelativeTime(q.asOf)} · ${formatDate(q.asOf)}`
-      : '—';
+      : '-';
 
   return createPortal(
     <div
@@ -763,7 +765,7 @@ export function LiveMarketsAside() {
       setQuotes(data.quotes || []);
       setFetchedAt(data.fetchedAt || null);
     } catch {
-      setError('API offline — start the backend.');
+      setError('API offline - start the backend.');
       if (!isBackground) setQuotes([]);
     } finally {
       setLoading(false);
@@ -912,7 +914,7 @@ export function LiveMarketsAside() {
                         <span className="truncate">{headline}</span>
                         <InstrumentRowIdentifier id={id} />
                       </span>
-                      <span>—</span>
+                      <span>-</span>
                     </li>
                   );
                 }
@@ -927,7 +929,7 @@ export function LiveMarketsAside() {
                         <span className="truncate">{headline}</span>
                         <InstrumentRowIdentifier id={id} />
                       </span>
-                      <span className="text-slate-400">—</span>
+                      <span className="text-slate-400">-</span>
                     </li>
                   );
                 }
@@ -960,7 +962,7 @@ export function LiveMarketsAside() {
                           />
                         </>
                       ) : (
-                        <span className="text-xs text-slate-400">—</span>
+                        <span className="text-xs text-slate-400">-</span>
                       )}
                     </div>
                   </li>
@@ -1013,7 +1015,7 @@ export function LiveMarketsAside() {
                         />
                       </>
                     ) : (
-                      <span className="text-xs text-slate-400">—</span>
+                      <span className="text-xs text-slate-400">-</span>
                     )}
                   </div>
                 </div>

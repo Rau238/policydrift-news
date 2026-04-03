@@ -3,9 +3,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getCategories, getPosts, getTrending } from '@/lib/api';
 import { formatPublishedAt } from '@/lib/format';
-import { newsArticleJsonLd } from '@/lib/jsonld';
-import { prepareArticleBodyForDisplay } from '@/lib/article-body';
-import { decodeHtmlEntities, stripHtmlToPlain } from '@/lib/sanitize';
+import { newsArticleJsonLd, serializeJsonLd } from '@/lib/jsonld';
+import { buildNewsArticleBodyForSchema, prepareArticleBodyForDisplay } from '@/lib/article-body';
+import { decodeHtmlEntities } from '@/lib/sanitize';
 import { resolveOgImageUrl, resolvePostImageUrl } from '@/lib/story-image';
 import { absoluteUrl, siteName } from '@/lib/site';
 import { curatorImageSrc, curatorName, curatorProfileUrl } from '@/lib/site-trust';
@@ -220,14 +220,20 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   const { html: articleHtml, hasContent: hasArticleBody } = prepareArticleBodyForDisplay(
     rawBody,
     post.original_url ?? '',
+    post.title,
   );
   const url = absoluteUrl(`/news/${post.slug}`);
   const heroSrc = resolvePostImageUrl(post.image_url);
   const desc = clipMetaDescription(post.excerpt?.trim() || post.title);
-  /** Full plain text of what readers see — matches page, no 8k cap (JSON-LD). */
-  const articleBodyForSchema = hasArticleBody
-    ? stripHtmlToPlain(articleHtml, Infinity).trim() || undefined
-    : post.excerpt?.trim() || undefined;
+  const takeaways = post.key_takeaways?.trim() ?? '';
+  /** Matches visible article text: headline, excerpt, curator, takeaways, full syndicated body (uncapped). */
+  const articleBodyForSchema = buildNewsArticleBodyForSchema({
+    title: post.title,
+    excerpt: post.excerpt,
+    articleHtml,
+    hasArticleBody,
+    keyTakeawaysRaw: takeaways,
+  });
   const jsonLd = newsArticleJsonLd({
     url,
     title: post.title,
@@ -236,14 +242,13 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
     dateModified: post.updated_at,
     imageUrls: [resolveOgImageUrl(post.image_url)],
     section: post.category,
-    articleBody: articleBodyForSchema,
+    articleBody: articleBodyForSchema || undefined,
     curatorPerson: {
       name: curatorName(),
       url: curatorProfileUrl(),
       imageSrc: curatorImageSrc(),
     },
   });
-  const takeaways = post.key_takeaways?.trim() ?? '';
 
   return (
     <div className="min-h-screen bg-paper">
@@ -251,7 +256,10 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_min(380px,100%)] lg:items-start lg:gap-10">
           <div className="min-w-0">
             <article className="relative w-full max-w-2xl">
-              <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+              />
 
               <Link
                 href="/news"
@@ -320,6 +328,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                   <RemoteStoryImage
                     src={heroSrc}
                     alt={decodeHtmlEntities(post.title)}
+                    title={decodeHtmlEntities(post.title)}
                     priority
                     className="absolute inset-0 h-full w-full object-cover"
                   />
@@ -346,7 +355,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
               <footer className="mt-8 border-t border-slate-200 pt-5">
                 <p className="text-[11px] leading-relaxed text-slate-500">
                   Main article text is from the syndicated RSS feed (sanitized for safe display). Where a &quot;Key
-                  takeaways&quot; block appears, it is written by our desk as reader context — not a replacement for the
+                  takeaways&quot; block appears, it is written by our desk as reader context, not a replacement for the
                   publisher. For the latest version, updates, and full context, use the publisher link.
                 </p>
                 <a

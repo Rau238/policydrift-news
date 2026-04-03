@@ -11,8 +11,9 @@ import { ArrowRight, LayoutGrid, Newspaper, TrendingUp, Zap } from 'lucide-react
 import { categoryChipClass, categoryHref, categoryLabel, CategoryGlyph } from '@/lib/categories';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import { formatPublishedAt } from '@/lib/format';
+import { decodeHtmlEntities } from '@/lib/sanitize';
 
-/** Full Tailwind classes — picked at random on each request (see `dynamic`). */
+/** Full Tailwind classes, picked at random on each request (see `dynamic`). */
 const HERO_BACKDROP_GRADIENTS = [
   'bg-gradient-to-br from-teal-900 via-teal-700 to-emerald-800',
   'bg-gradient-to-br from-cyan-900 via-teal-700 to-green-800',
@@ -106,8 +107,13 @@ export default async function HomePage() {
                 ring-1 ring-white/[0.06] transition hover:border-teal-500/35 hover:ring-teal-500/15 max-lg:rounded-2xl  sm:min-h-[15rem] 
                 sm:grid-cols-[minmax(16rem,44%)_1fr] sm:rounded-2xl lg:min-h-[16rem] lg:grid-cols-[minmax(17.5rem,46%)_1fr]">
                   <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-900 sm:aspect-auto sm:h-full sm:min-h-[15rem] lg:min-h-[16rem]">
-                    <RemoteStoryImage src={resolvePostImageUrl(lead.image_url)} alt={lead.title} priority className="h-full w-full object-cover object-center 
-                    transition duration-500 ease-out group-hover:scale-[1.02]" />
+                    <RemoteStoryImage
+                      src={resolvePostImageUrl(lead.image_url)}
+                      alt={decodeHtmlEntities(lead.title)}
+                      title={decodeHtmlEntities(lead.title)}
+                      priority
+                      className="h-full w-full object-cover object-center transition duration-500 ease-out group-hover:scale-[1.02]"
+                    />
                   </div>
                   <div className="flex min-h-0 min-w-0 flex-col justify-center border-t border-white/10 px-3.5 py-3.5 max-lg:px-3.5 max-lg:py-3.5 sm:border-l 
                   sm:border-t-0 sm:px-7 sm:py-6">
@@ -199,7 +205,7 @@ export default async function HomePage() {
                       Latest across desks
                     </h2>
                     <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-ink-soft max-lg:mt-1.5 max-lg:text-[13px] sm:mt-2">
-                      World, India, sports, business, politics, markets and crypto — updated as feeds run.
+                      World, India, sports, business, politics, markets and crypto, updated as feeds run.
                     </p>
                   </div>
                   <Link

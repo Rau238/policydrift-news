@@ -1,5 +1,6 @@
 import he from 'he';
-import { sanitizeArticleHtml, stripHtmlToPlain } from '@/lib/sanitize';
+import { curatorBioShort, curatorName, curatorRole } from '@/lib/site-trust';
+import { decodeHtmlEntities, sanitizeArticleHtml, stripHtmlToPlain } from '@/lib/sanitize';
 
 function parseBaseUrl(originalUrl: string): URL | null {
   const u = originalUrl?.trim();
@@ -82,15 +83,18 @@ export type PreparedArticleBody = { html: string; hasContent: boolean };
 export function prepareArticleBodyForDisplay(
   rawBody: string | null | undefined,
   originalUrl: string,
+  /** Used to label inline images that lack alt/title in the feed. */
+  articleTitle?: string | null,
 ): PreparedArticleBody {
   const raw = rawBody == null ? '' : String(rawBody);
   const resolved = resolveFeedResourceUrls(raw, originalUrl);
-  let html = sanitizeArticleHtml(resolved);
+  const titleForImages = decodeHtmlEntities(articleTitle?.trim() || '').trim() || undefined;
+  let html = sanitizeArticleHtml(resolved, { articleTitle: titleForImages });
 
   if (isVisiblyEmptyHtml(html)) {
     const plain = stripHtmlToPlain(raw);
     if (plain.length > 0) {
-      html = sanitizeArticleHtml(plainFallbackToSafeHtml(plain));
+      html = sanitizeArticleHtml(plainFallbackToSafeHtml(plain), { articleTitle: titleForImages });
     }
   }
 
@@ -98,4 +102,50 @@ export function prepareArticleBodyForDisplay(
     html,
     hasContent: !isVisiblyEmptyHtml(html),
   };
+}
+
+/**
+ * Plain text mirroring the article page (title, excerpt, curator, key takeaways, full body as rendered).
+ * Used for JSON-LD `articleBody`, uncapped length so search engines see the same substance as readers.
+ */
+export function buildNewsArticleBodyForSchema(params: {
+  title: string;
+  excerpt: string | null | undefined;
+  articleHtml: string;
+  hasArticleBody: boolean;
+  keyTakeawaysRaw: string | null | undefined;
+}): string {
+  const blocks: string[] = [];
+
+  const head = decodeHtmlEntities(params.title).trim();
+  if (head) blocks.push(head);
+
+  const ex = params.excerpt?.trim();
+  if (ex) blocks.push(decodeHtmlEntities(ex).trim());
+
+  blocks.push(
+    `Curated by ${curatorName()}. ${curatorRole()}. ${curatorBioShort()}`,
+  );
+
+  const kt = params.keyTakeawaysRaw?.trim();
+  if (kt) {
+    const lines = kt
+      .split(/\n+/)
+      .map((l) => decodeHtmlEntities(l.trim()))
+      .filter(Boolean);
+    if (lines.length) {
+      blocks.push(['Key takeaways:', ...lines.map((l) => `• ${l}`)].join('\n'));
+    }
+  }
+
+  if (params.hasArticleBody) {
+    const bodyPlain = stripHtmlToPlain(params.articleHtml, Number.POSITIVE_INFINITY).trim();
+    if (bodyPlain) blocks.push(bodyPlain);
+  } else {
+    blocks.push(
+      'No article text in this feed item. Open the publisher link on this page for the full story from the source.',
+    );
+  }
+
+  return blocks.join('\n\n').trim();
 }

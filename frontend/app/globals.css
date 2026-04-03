@@ -117,31 +117,12 @@ body {
 }
 
 .pd-loader-spin {
-  animation: pd-loader-spin 0.88s linear infinite;
+  animation: pd-loader-spin 1.35s linear infinite;
 }
 
-@layer utilities {
-  .animate-shimmer {
-    position: relative;
-  }
-  .animate-shimmer::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgb(255 255 255 / 0.5),
-      transparent
-    );
-    animation: pd-shimmer 1.6s ease-in-out infinite;
-  }
-}
-
-@keyframes pd-shimmer {
-  100% {
-    transform: translateX(100%);
+@media (prefers-reduced-motion: reduce) {
+  .pd-loader-spin {
+    animation: none;
   }
 }
 
@@ -173,7 +154,7 @@ body {
   @apply my-8 w-full rounded-lg border border-slate-200;
 }
 
-/* Article detail — reading measure */
+/* Article detail reading measure */
 .article-prose {
   max-width: 42rem;
 }

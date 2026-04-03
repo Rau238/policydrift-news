@@ -1,5 +1,5 @@
 /**
- * E-E-A-T / trust signals — override with NEXT_PUBLIC_* env on deploy.
+ * E-E-A-T / trust signals. Override with NEXT_PUBLIC_* env on deploy.
  * Curator appears on article pages; contact on /contact.
  */
 
@@ -14,7 +14,7 @@ export function curatorRole(): string {
 export function curatorBioShort(): string {
   return (
     process.env.NEXT_PUBLIC_CURATOR_BIO?.trim() ||
-    'Stories are curated from top RSS sources; we summarize and attribute — open the publisher link for the full article.'
+    'Stories are curated from top RSS sources; we summarize and attribute. Open the publisher link for the full article.'
   );
 }
 
@@ -23,7 +23,7 @@ export function curatorProfileUrl(): string | undefined {
   return u || undefined;
 }
 
-/** Absolute or site-relative image URL (e.g. https://…/photo.jpg or /team/curator.jpg). */
+/** Absolute or site-relative image URL (e.g. https://example/photo.jpg or /team/curator.jpg). */
 export function curatorImageSrc(): string | null {
   const u = process.env.NEXT_PUBLIC_CURATOR_IMAGE_URL?.trim();
   return u || null;

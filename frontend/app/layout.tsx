@@ -42,7 +42,7 @@ export const viewport: Viewport = {
   ],
 };
 
-/** Google AdSense publisher ID — override with NEXT_PUBLIC_ADSENSE_CLIENT in .env if needed. */
+/** Google AdSense publisher ID; override with NEXT_PUBLIC_ADSENSE_CLIENT in .env if needed. */
 const adsenseClient =
   process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || 'ca-pub-1508845535613236';
 
@@ -109,7 +109,7 @@ export const metadata: Metadata = {
       'max-video-preview': -1,
     },
   },
-  /** Bing Webmaster Tools — explicit meta name="msvalidate.01" */
+  /** Bing Webmaster Tools: explicit meta name="msvalidate.01" */
   other: {
     'msvalidate.01': 'EC6F809ECC7199497C4F3C2803B7C39C',
     ...(loadAdsenseScript ? { 'google-adsense-account': adsenseClient } : {}),

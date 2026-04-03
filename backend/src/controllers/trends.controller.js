@@ -2,7 +2,7 @@ import { env } from '../config/env.js';
 import { getTrendsWithMatches, refreshTrendsCache } from '../services/google-trends.service.js';
 
 const EMPTY_HINT =
-  'Cache is empty. From the repo root run: npm run trends — and ensure MySQL has table trends_topics with timeframe columns (backend/sql/migration-trends-timeframe-why.sql if upgrading). If rows still never appear, Google may be rate-limiting; wait and retry.';
+  'Cache is empty. From the repo root run: npm run trends, and ensure MySQL has table trends_topics with timeframe columns (backend/sql/migration-trends-timeframe-why.sql if upgrading). If rows still never appear, Google may be rate-limiting; wait and retry.';
 
 function clampLimit(v, def, max = 30) {
   const n = parseInt(v, 10);
@@ -40,7 +40,7 @@ export async function getTrendsBundle(req, res) {
   }
 }
 
-/** POST /api/meta/trends/refresh — optional manual refresh (same as cron). */
+/** POST /api/meta/trends/refresh: optional manual refresh (same as cron). */
 export async function postTrendsRefresh(req, res) {
   const secret = req.headers['x-trends-secret'] || req.query.secret;
   if (env.TRENDS_REFRESH_SECRET && secret !== env.TRENDS_REFRESH_SECRET) {
