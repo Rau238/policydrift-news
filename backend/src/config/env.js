@@ -3,8 +3,23 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
-dotenv.config({ path: path.resolve(__dirname, '../../.env'), override: true });
+const rootDir = path.resolve(__dirname, '../../..');
+const backendDir = path.resolve(__dirname, '../..');
+
+/** development | production | test — default development for local `npm run dev` */
+const nodeEnv = process.env.NODE_ENV || 'development';
+
+/**
+ * Load order (later wins for keys present in the file):
+ * 1. root `.env` (optional shared secrets)
+ * 2. root `.env.<NODE_ENV>` (development / production)
+ * 3. `backend/.env` (machine-local overrides)
+ * 4. root `.env.<NODE_ENV>` again so env-file values beat stale shell/PM2 vars
+ */
+dotenv.config({ path: path.join(rootDir, '.env') });
+dotenv.config({ path: path.join(rootDir, `.env.${nodeEnv}`), override: true });
+dotenv.config({ path: path.join(backendDir, '.env'), override: true });
+dotenv.config({ path: path.join(rootDir, `.env.${nodeEnv}`), override: true });
 
 function required(name, fallback = null) {
   const v = process.env[name];
@@ -33,10 +48,13 @@ export const env = {
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
   OPENAI_MODEL: process.env.OPENAI_MODEL || 'gpt-4o-mini',
   CRON_ENABLED: process.env.CRON_ENABLED !== 'false',
-  RSS_CRON_INTERVAL_MINUTES: Math.min(59,Math.max(1, parseInt(process.env.RSS_CRON_INTERVAL_MINUTES || '5', 10) || 5),),
-  CORS_ORIGIN:process.env.CORS_ORIGIN || 'http://localhost:3000,http://127.0.0.1:3000',
+  RSS_CRON_INTERVAL_MINUTES: Math.min(
+    59,
+    Math.max(1, parseInt(process.env.RSS_CRON_INTERVAL_MINUTES || '5', 10) || 5),
+  ),
+  CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000,http://127.0.0.1:3000',
   SITE_PUBLIC_URL: (process.env.SITE_PUBLIC_URL || process.env.NEXT_PUBLIC_SITE_URL || '').trim(),
-   INDEXNOW_KEY: (process.env.INDEXNOW_KEY || '').trim(),
+  INDEXNOW_KEY: (process.env.INDEXNOW_KEY || '').trim(),
   STORY_FALLBACK_IMAGE_URL: (process.env.STORY_FALLBACK_IMAGE_URL || '').trim(),
   TRENDS_ENABLED: process.env.TRENDS_ENABLED === 'true',
   TRENDS_GEO: (process.env.TRENDS_GEO || 'IN').trim().slice(0, 8) || 'IN',

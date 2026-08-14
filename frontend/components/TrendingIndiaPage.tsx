@@ -1,37 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
-import { ExternalLink, MapPin, Sparkles, Terminal, TrendingUp } from 'lucide-react';
+import { useMemo, useState, type ReactNode } from 'react';
+import { ArrowLeft, Clock3, ExternalLink, MapPin, Newspaper } from 'lucide-react';
 import type { GoogleTrendsBundle, GoogleTrendsTopic } from '@/lib/types';
-import { categoryLabel, CategoryGlyph } from '@/lib/category-theme';
-import { resolvePostImageUrl } from '@/lib/story-image';
+import { categoryLabel } from '@/lib/category-theme';
 import { decodeHtmlEntities } from '@/lib/sanitize';
+import { AnimatedTrendingIcon } from '@/components/AnimatedTrendingIcon';
 
 type TabId = '24h' | '7d' | '30d';
-
-function trendTypePillClass(label: string | null) {
-  if (label === 'Breakout') return 'bg-rose-50 text-rose-800 ring-1 ring-rose-200/80';
-  if (label === 'Rising') return 'bg-amber-50 text-amber-900 ring-1 ring-amber-200/80';
-  if (label === 'Daily') return 'bg-sky-50 text-sky-900 ring-1 ring-sky-200/80';
-  if (label === 'Realtime') return 'bg-emerald-50 text-emerald-900 ring-1 ring-emerald-200/80';
-  if (label === 'Top') return 'bg-indigo-50 text-indigo-900 ring-1 ring-indigo-200/80';
-  if (label === 'Seed') return 'bg-violet-50 text-violet-900 ring-1 ring-violet-200/80';
-  return 'bg-slate-50 text-slate-700 ring-1 ring-slate-200/80';
-}
-
-function scoreAccent(label: string | null) {
-  if (label === 'Breakout') return { text: 'text-rose-600', bar: 'from-rose-400 to-rose-500' };
-  if (label === 'Rising') return { text: 'text-amber-600', bar: 'from-amber-400 to-orange-500' };
-  if (label === 'Top') return { text: 'text-indigo-600', bar: 'from-indigo-400 to-violet-500' };
-  return { text: 'text-teal-600', bar: 'from-teal-400 to-cyan-500' };
-}
-
-/** Indian-style grouping (e.g. 1,61,600). */
-function formatScore(n: number | null): string {
-  if (n == null) return '--';
-  return Number(n).toLocaleString('en-IN');
-}
 
 function formatRank(rank: number): string {
   return String(rank).padStart(2, '0');
@@ -43,125 +20,82 @@ function pickInitialTab(d: GoogleTrendsBundle): TabId {
   return '30d';
 }
 
-function TrendCard({
-  topic,
-  rank,
-  scoreWidthPct,
-  showScoreBar,
-}: {
-  topic: GoogleTrendsTopic;
-  rank: number;
-  scoreWidthPct: number;
-  showScoreBar: boolean;
-}) {
-  const matches = topic.matches ?? [];
-  const matchN = matches.length;
-  const accent = scoreAccent(topic.label);
+function rankTone(rank: number) {
+  if (rank === 1) return 'bg-amber-400/20 text-amber-100 ring-amber-400/45';
+  if (rank === 2) return 'bg-white/10 text-slate-100 ring-white/25';
+  if (rank === 3) return 'bg-orange-400/20 text-orange-100 ring-orange-400/40';
+  return 'bg-white/5 text-slate-300 ring-white/12';
+}
+
+function TrendRow({ topic, rank }: { topic: GoogleTrendsTopic; rank: number }) {
+  const matches = (topic.matches ?? []).slice(0, 2);
+  const title = decodeHtmlEntities(topic.query).trim() || 'Topic';
+  const desk = categoryLabel(topic.category);
+  const meta = [desk, topic.label, topic.trafficNote].filter(Boolean);
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-slate-200/90 bg-white pl-3 pr-3.5 pb-3.5 pt-3.5 shadow-sm transition hover:border-teal-200/70 hover:shadow-md sm:pl-3.5 sm:pr-4 sm:pb-4 sm:pt-4">
-      <div className="absolute inset-y-2.5 left-0 w-1 rounded-full bg-gradient-to-b from-teal-400 to-cyan-500 opacity-70 transition group-hover:opacity-100" aria-hidden />
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <div className="flex gap-3">
-          <div
-            className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-teal-50 ring-1 ring-teal-100/90"
-            aria-label={`Rank ${rank}`}
+    <article className="group rounded-xl border border-white/[0.09] bg-white/[0.035] px-3 py-2.5 transition hover:border-amber-400/30 hover:bg-white/[0.06] sm:px-3.5 sm:py-3">
+      <div className="flex gap-2.5 sm:gap-3">
+        <span
+          className={`mt-0.5 flex h-8 w-9 shrink-0 items-center justify-center rounded-md font-display text-[11px] font-black tabular-nums ring-1 sm:h-8 sm:w-10 sm:text-xs ${rankTone(rank)}`}
+          aria-label={`Rank ${rank}`}
+        >
+          #{formatRank(rank)}
+        </span>
+
+        <div className="min-w-0 flex-1">
+          <a
+            href={topic.exploreUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline font-display text-[0.95rem] font-semibold leading-snug text-white transition hover:text-amber-100 sm:text-[1.02rem]"
           >
-            <span className="text-[9px] font-bold uppercase leading-none tracking-wider text-teal-600/90">#</span>
-            <span className="font-display text-lg font-black tabular-nums leading-none text-teal-800">{formatRank(rank)}</span>
-          </div>
-          <div className="min-w-0 flex-1 space-y-2.5">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
-              <span className="inline-flex items-center gap-1 font-medium text-slate-700">
-                <CategoryGlyph name={topic.category} className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                {categoryLabel(topic.category)}
-              </span>
-              <span className="text-slate-300">·</span>
-              <span
-                className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${trendTypePillClass(topic.label)}`}
-              >
-                {topic.label ?? '--'}
-              </span>
-              {topic.trafficNote ? (
-                <>
-                  <span className="text-slate-300">·</span>
-                  <span className="font-semibold tabular-nums tracking-tight text-slate-600">{topic.trafficNote}</span>
-                </>
-              ) : null}
-            </div>
+            {title}
+            <ExternalLink
+              className="ml-1.5 inline h-3 w-3 align-[-1px] text-slate-500 group-hover:text-amber-300"
+              aria-hidden
+            />
+          </a>
 
-            <a
-              href={topic.exploreUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-start gap-1.5 text-[15px] font-bold leading-snug text-slate-900 transition hover:text-teal-700"
-            >
-              <span className="line-clamp-2 min-w-0">{topic.query}</span>
-              <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" strokeWidth={2.25} aria-hidden />
-            </a>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-[auto_1fr] items-center gap-2 rounded-lg bg-slate-50/90 px-3 py-2.5 ring-1 ring-slate-100 sm:gap-3">
-          <div className="min-w-0">
-            <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Interest</p>
-            <p className={`mt-0.5 font-display text-xl font-black tabular-nums tracking-tight sm:text-2xl ${accent.text}`}>
-              {formatScore(topic.valueScore)}
+          {meta.length > 0 ? (
+            <p className="mt-1 text-[11px] leading-none text-slate-400">
+              {meta.map((part, i) => (
+                <span key={`${part}-${i}`}>
+                  {i > 0 ? <span className="mx-1.5 text-slate-600">·</span> : null}
+                  <span className={i === 0 ? 'text-slate-300' : undefined}>{part}</span>
+                </span>
+              ))}
             </p>
-          </div>
-          {showScoreBar ? (
-            <div className="min-w-0 self-center pt-1 sm:pt-0">
-              <div className="h-2 overflow-hidden rounded-full bg-slate-200/90">
-                <div className={`h-full rounded-full bg-gradient-to-r ${accent.bar}`} style={{ width: `${scoreWidthPct}%` }} />
-              </div>
-            </div>
-          ) : (
-            <p className="self-center text-xs text-slate-500">No score</p>
-          )}
-        </div>
+          ) : null}
 
-        {matchN > 0 ? (
-          <div className="mt-auto border-t border-slate-100 pt-3">
-            <p className="mb-2 flex items-baseline justify-between gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              <span>Matched on site</span>
-              <span className="rounded-md bg-slate-100 px-2 py-0.5 text-sm font-black tabular-nums text-slate-800">{matchN}</span>
-            </p>
-            <ul className="flex flex-col gap-2">
-              {matches.slice(0, 3).map((m) => {
-                const matchThumb = decodeHtmlEntities(m.title).trim() || 'Matched story';
+          {matches.length > 0 ? (
+            <ul className="mt-2 space-y-1 border-t border-white/[0.06] pt-2">
+              {matches.map((m) => {
+                const matchTitle = decodeHtmlEntities(m.title).trim() || 'Matched story';
                 return (
-                <li key={m.id}>
-                  <Link
-                    href={`/news/${m.slug}`}
-                    className="flex gap-2 rounded-lg border border-slate-100 bg-slate-50/60 p-2 transition hover:border-teal-200/70 hover:bg-teal-50/50"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={resolvePostImageUrl(m.image_url)}
-                      alt={matchThumb}
-                      title={matchThumb}
-                      className="h-10 w-14 shrink-0 rounded-md object-cover"
-                      loading="lazy"
-                      decoding="async"
-                      referrerPolicy="no-referrer"
-                    />
-                    <span className="min-w-0 self-center text-xs font-medium leading-snug text-slate-800 line-clamp-2">{m.title}</span>
-                  </Link>
-                </li>
-              );
+                  <li key={m.id}>
+                    <Link
+                      href={`/news/${m.slug}`}
+                      className="flex gap-2 rounded-lg px-1 py-1 text-[12px] leading-snug text-slate-300 transition hover:bg-white/[0.04] hover:text-teal-100 sm:text-[13px]"
+                    >
+                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-teal-400/70" aria-hidden />
+                      <span className="min-w-0 flex-1">{matchTitle}</span>
+                    </Link>
+                  </li>
+                );
               })}
             </ul>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </div>
     </article>
   );
 }
 
-const TABS: { id: TabId; short: string; full: string }[] = [
-  { id: '24h', short: '24h', full: 'Last 24 hours' },
-  { id: '7d', short: '7d', full: 'Last 7 days' },
-  { id: '30d', short: '30d', full: 'Last 30 days' },
+const TABS: { id: TabId; label: string; short: string }[] = [
+  { id: '24h', label: 'Last 24 hours', short: '24h' },
+  { id: '7d', label: 'Last 7 days', short: '7d' },
+  { id: '30d', label: 'Last 30 days', short: '30d' },
 ];
 
 export function TrendingIndiaPage({ data }: { data: GoogleTrendsBundle }) {
@@ -173,8 +107,12 @@ export function TrendingIndiaPage({ data }: { data: GoogleTrendsBundle }) {
   );
 
   const total = t24.length + t7.length + t30.length;
-  const disabledEmpty = !data.enabled && total === 0;
+  const matchedStories = useMemo(() => {
+    const all = [...t24, ...t7, ...t30];
+    return all.reduce((n, t) => n + (t.matches?.length ?? 0), 0);
+  }, [t24, t7, t30]);
 
+  const disabledEmpty = !data.enabled && total === 0;
   const [tab, setTab] = useState<TabId>(() => pickInitialTab(data));
 
   const topics = useMemo(() => {
@@ -183,81 +121,96 @@ export function TrendingIndiaPage({ data }: { data: GoogleTrendsBundle }) {
     return t30;
   }, [tab, t24, t7, t30]);
 
-  const maxScore = Math.max(1, ...topics.map((t) => t.valueScore ?? 0));
-  const showScoreBar = topics.some((t) => t.valueScore != null);
-
   const countFor = (id: TabId) => (id === '24h' ? t24.length : id === '7d' ? t7.length : t30.length);
 
   return (
-    <div className="min-h-screen w-full bg-[#f4f6f9] text-slate-900">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(900px_360px_at_50%_-60px,rgba(13,148,136,0.06),transparent)]" aria-hidden />
+    <div className="min-h-screen w-full bg-[var(--pd-hero-deep)] text-slate-100">
+      <div
+        className="pointer-events-none fixed inset-0 bg-gradient-to-br from-amber-950/50 via-transparent to-teal-950/30"
+        aria-hidden
+      />
 
-      <div className="relative mx-auto w-full max-w-7xl px-4 pb-14 pt-5 sm:px-6 sm:pb-16 sm:pt-6 lg:px-8">
-        <nav className="text-[10px] font-medium uppercase tracking-widest text-slate-400">
-          <Link href="/" className="hover:text-teal-700">
+      {/* Hero */}
+      <div className="relative overflow-hidden border-b border-white/10 bg-gradient-to-br from-amber-950/80 via-slate-950 to-orange-950/40">
+        <div className="pointer-events-none absolute -right-8 top-0 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -left-16 bottom-0 h-56 w-56 rounded-full bg-orange-500/15 blur-3xl max-md:opacity-40" aria-hidden />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 flex w-[40%] items-end justify-end opacity-[0.12] sm:inset-y-[-6%] sm:right-[-4%] sm:w-[min(48%,32rem)] sm:items-center sm:opacity-[0.28]"
+          aria-hidden
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/desk/india-outline.svg"
+            alt=""
+            draggable={false}
+            className="h-[65%] w-full object-contain object-right brightness-0 invert sm:h-full"
+          />
+        </div>
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 to-slate-950/50 sm:from-slate-950/70 sm:via-slate-950/40 sm:to-transparent"
+          aria-hidden
+        />
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 sm:pb-12 md:px-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-200 transition hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4" strokeWidth={2.25} aria-hidden />
             Home
           </Link>
-          <span className="mx-1.5">/</span>
-          <span className="text-slate-600">India trends</span>
-        </nav>
 
-        <header className="mt-5 grid gap-4 border-b border-slate-200/90 pb-6 sm:grid-cols-[1fr_auto] sm:items-end sm:gap-8">
-          <div className="min-w-0">
-            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-teal-700">
-              <TrendingUp className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden />
-              Google Trends
-            </p>
-            <h1 className="mt-1.5 font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl sm:leading-tight">
-              What India is searching
-            </h1>
-            <p className="mt-1.5 text-xs text-slate-500 sm:text-sm">Three ranges · Google scores · not sidebar trending.</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-white/80 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm">
-              <MapPin className="h-3.5 w-3.5 text-teal-600" aria-hidden />
-              <span className="tabular-nums">{data.geo}</span>
-            </span>
-            {data.fetchedAt ? (
-              <time
-                className="text-xs tabular-nums text-slate-400"
-                dateTime={data.fetchedAt}
-              >
-                {new Date(data.fetchedAt).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
-              </time>
-            ) : null}
-            <a
-              href={`https://trends.google.com/trends/?geo=${encodeURIComponent(data.geo)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-teal-800 shadow-sm transition hover:bg-teal-50"
-            >
-              Explore
-              <ExternalLink className="h-3 w-3 opacity-60" aria-hidden />
-            </a>
-          </div>
-        </header>
+          <p className="mt-6 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-amber-300/90">
+            <AnimatedTrendingIcon className="h-4 w-4" />
+            Trending India
+          </p>
+          <h1 className="mt-2 max-w-xl font-display text-3xl font-bold tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.55)] sm:text-4xl md:text-5xl">
+            What India is searching
+          </h1>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-200 sm:text-base sm:text-slate-300">
+            Live topics for India, mapped to PolicyDrift desks — with matched stories when we have coverage.
+          </p>
 
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatCard icon={<AnimatedTrendingIcon className="h-4 w-4" />} label="Topics" value={total} />
+            <StatCard icon={<Newspaper className="h-4 w-4" />} label="Matched" value={matchedStories} />
+            <StatCard icon={<MapPin className="h-4 w-4" />} label="Geo" value={data.geo || 'IN'} isText />
+            <StatCard
+              icon={<Clock3 className="h-4 w-4" />}
+              label="Updated"
+              value={
+                data.fetchedAt
+                  ? new Date(data.fetchedAt).toLocaleString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })
+                  : '—'
+              }
+              isText
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-8 sm:px-6 md:px-6">
         {disabledEmpty ? (
-          <div className="mt-8 rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <Sparkles className="mx-auto h-8 w-8 text-slate-300" strokeWidth={1.5} aria-hidden />
-            <p className="mt-3 text-sm font-semibold text-slate-800">Trends off</p>
-            <p className="mt-1 text-xs text-slate-500">Enable TRENDS_ENABLED on the API.</p>
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-10 text-center">
+            <p className="text-sm font-semibold text-white">Trends are off</p>
+            <p className="mt-1 text-xs text-slate-400">Set TRENDS_ENABLED=true on the API and restart.</p>
           </div>
         ) : total === 0 ? (
-          <div className="mt-8 rounded-xl border border-amber-200/80 bg-amber-50/40 p-6 shadow-sm">
-            <p className="font-display text-base font-semibold text-amber-950">Nothing cached yet</p>
-            <p className="mt-2 text-xs text-amber-950/80 sm:text-sm">{data.hint || 'Run npm run trends from the repo root.'}</p>
-            <div className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-mono text-[11px] text-slate-600">
-              <Terminal className="h-3.5 w-3.5" aria-hidden />
-              npm run trends
-            </div>
+          <div className="rounded-2xl border border-amber-400/25 bg-amber-400/5 px-6 py-8">
+            <p className="font-display text-base font-semibold text-amber-100">Nothing cached yet</p>
+            <p className="mt-2 text-sm text-amber-100/70">{data.hint || 'Run npm run trends:prod from the repo root.'}</p>
           </div>
         ) : (
           <>
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {TABS.map(({ id, short, full }) => {
-                const n = countFor(id);
+            <div className="flex w-full flex-wrap gap-2" role="tablist" aria-label="Trend window">
+              {TABS.map(({ id, label, short }) => {
                 const active = tab === id;
+                const n = countFor(id);
                 return (
                   <button
                     key={id}
@@ -265,61 +218,72 @@ export function TrendingIndiaPage({ data }: { data: GoogleTrendsBundle }) {
                     role="tab"
                     aria-selected={active}
                     onClick={() => setTab(id)}
-                    className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left shadow-sm transition sm:flex-col sm:items-stretch sm:px-4 sm:py-3.5 ${
+                    className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${
                       active
-                        ? 'border-teal-300 bg-white text-slate-900 ring-2 ring-teal-200/80'
-                        : 'border-slate-200/90 bg-white/70 text-slate-600 hover:border-slate-300 hover:bg-white'
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-900/30'
+                        : 'bg-white/5 text-slate-300 ring-1 ring-white/10 hover:bg-white/10 hover:text-white'
                     }`}
                   >
-                    <div>
-                      <span className="block text-xs font-bold uppercase tracking-wide text-slate-500">{short}</span>
-                      <span className="mt-0.5 block text-sm font-semibold text-slate-800">{full}</span>
-                    </div>
+                    <span className="hidden sm:inline">{label}</span>
+                    <span className="sm:hidden">{short}</span>
                     <span
-                      className={`flex h-10 min-w-[2.75rem] shrink-0 items-center justify-center rounded-lg text-lg font-black tabular-nums sm:h-11 sm:min-w-0 sm:w-full sm:text-xl ${
-                        active ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-800'
+                      className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${
+                        active ? 'bg-black/20 text-white' : 'bg-black/30 text-slate-400'
                       }`}
-                      aria-label={`${n} topics`}
                     >
-                      {n.toLocaleString('en-IN')}
+                      {n}
                     </span>
                   </button>
                 );
               })}
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
-              <p className="text-sm font-semibold text-slate-800">
-                <span className="tabular-nums text-teal-700">{topics.length.toLocaleString('en-IN')}</span>
-                <span className="text-slate-500"> topics</span>
-              </p>
-              <p className="text-xs tabular-nums text-slate-500">
-                Total cached: <span className="font-semibold text-slate-700">{total.toLocaleString('en-IN')}</span>
-              </p>
+            <div className="mt-4 flex w-full flex-col gap-2">
+              {topics.length === 0 ? (
+                <p className="rounded-2xl border border-white/10 bg-white/5 py-12 text-center text-sm text-slate-400">
+                  No topics in this window. Try another tab.
+                </p>
+              ) : (
+                topics.map((t, idx) => (
+                  <TrendRow key={`${tab}-${t.category}-${idx}-${t.query.slice(0, 28)}`} topic={t} rank={idx + 1} />
+                ))
+              )}
             </div>
-
-            {topics.length === 0 ? (
-              <p className="mt-6 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">Empty for this window. Try another tab.</p>
-            ) : (
-              <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 xl:gap-5">
-                {topics.map((t, idx) => (
-                  <TrendCard
-                    key={`${tab}-${t.category}-${idx}-${t.query.slice(0, 36)}`}
-                    topic={t}
-                    rank={idx + 1}
-                    scoreWidthPct={Math.round(((t.valueScore ?? 0) / maxScore) * 100)}
-                    showScoreBar={showScoreBar}
-                  />
-                ))}
-              </div>
-            )}
           </>
         )}
 
         {data.disclaimer ? (
-          <p className="mx-auto mt-10 max-w-3xl text-center text-[10px] leading-relaxed text-slate-400">{data.disclaimer}</p>
+          <p className="mx-auto mt-10 max-w-2xl text-center text-[10px] leading-relaxed text-slate-600">{data.disclaimer}</p>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+function StatCard({
+  icon,
+  label,
+  value,
+  isText,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string | number;
+  isText?: boolean;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/25 px-3.5 py-3 ring-1 ring-white/5 backdrop-blur-sm">
+      <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-200/80">
+        <span className="opacity-90">{icon}</span>
+        {label}
+      </div>
+      <p
+        className={`mt-1.5 font-display font-bold tracking-tight text-white ${
+          isText ? 'truncate text-sm sm:text-base' : 'text-2xl tabular-nums sm:text-3xl'
+        }`}
+      >
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </p>
     </div>
   );
 }

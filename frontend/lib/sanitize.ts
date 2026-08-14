@@ -63,7 +63,17 @@ function buildArticleSanitizeOptions(articleTitle?: string): sanitizeHtml.IOptio
         const alt = rawAlt || defaultImgAlt;
         const rawTitle = (attribs.title ?? '').trim();
         const title = rawTitle || alt;
-        return { tagName: 'img', attribs: { ...attribs, alt, title } };
+        return {
+          tagName: 'img',
+          attribs: {
+            ...attribs,
+            alt,
+            title,
+            loading: 'lazy',
+            decoding: 'async',
+            fetchpriority: 'low',
+          },
+        };
       },
     },
   };

@@ -7,9 +7,10 @@ import { getPosts, getTrending } from '@/lib/api';
 import { resolvePostImageUrl, storyFallbackImageUrl } from '@/lib/story-image';
 import { absoluteUrl, siteDescription, siteName } from '@/lib/site';
 import Link from 'next/link';
-import { ArrowRight, LayoutGrid, Newspaper, TrendingUp, Zap } from 'lucide-react';
+import { ArrowRight, LayoutGrid, Newspaper, Zap } from 'lucide-react';
 import { categoryChipClass, categoryHref, categoryLabel, CategoryGlyph } from '@/lib/categories';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
+import { AnimatedTrendingIcon } from '@/components/AnimatedTrendingIcon';
 import { formatPublishedAt } from '@/lib/format';
 import { decodeHtmlEntities } from '@/lib/sanitize';
 
@@ -57,18 +58,22 @@ export default async function HomePage() {
     HERO_BACKDROP_GRADIENTS[Math.floor(Math.random() * HERO_BACKDROP_GRADIENTS.length)];
 
   return (
-    <div className="min-h-screen">
-      <section className="relative overflow-hidden ">
-        <div className={`absolute inset-0 ${heroBackdropGradient}`} aria-hidden />
+    <div className="min-h-screen max-w-[100vw] overflow-x-clip bg-paper">
+      <div className="relative overflow-x-clip">
+        {/* One dark wash that fades into paper — longer soft blend */}
         <div
-          className="pointer-events-none absolute -right-32 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-accent/10 blur-3xl"
+          className={`pointer-events-none absolute inset-x-0 top-0 h-[min(46rem,100vw)] sm:h-[min(42rem,78vh)] ${heroBackdropGradient} pd-hero-fade-mask`}
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute right-0 top-24 h-56 w-56 translate-x-1/4 rounded-full bg-accent/10 blur-3xl pd-hero-fade-mask sm:h-64 sm:w-64"
           aria-hidden
         />
 
-        <div className="relative mx-auto flex max-w-7xl min-h-0 flex-col px-4 py-8 max-lg:px-3.5 max-lg:py-7 sm:px-6 sm:py-8 lg:max-h-[min(58vh,34rem)] lg:justify-center lg:px-6 lg:py-8">
+        <div className="relative mx-auto flex max-w-7xl min-h-0 flex-col px-4 pb-14 pt-8 max-lg:px-3.5 max-lg:pb-12 max-lg:pt-7 sm:px-6 sm:pb-16 sm:pt-8 lg:max-h-[min(58vh,34rem)] lg:justify-center lg:px-6 lg:pb-20 lg:pt-8">
           <div className="grid items-center gap-5 max-lg:gap-5 lg:grid-cols-12 lg:gap-10">
             <div className="lg:col-span-4 xl:col-span-4">
-              <h1 className="mt-2 font-display text-[1.875rem] font-bold leading-[1.12] tracking-tight text-white max-lg:text-[1.6875rem] sm:text-4xl lg:text-[2.5rem] lg:leading-[1.08] xl:text-[2.85rem]">
+              <h1 className="font-display text-[1.875rem] font-bold leading-[1.12] tracking-tight text-white max-lg:text-[1.6875rem] sm:text-4xl lg:text-[2.5rem] lg:leading-[1.08] xl:text-[2.85rem]">
                 World and policy news,{' '}
                 <span className="text-teal-200">clearly told.</span>
               </h1>
@@ -95,7 +100,7 @@ export default async function HomePage() {
                   href="/trending-india"
                   className="inline-flex items-center gap-2 rounded-lg border border-amber-400/35 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-50 transition hover:border-amber-300/50 hover:bg-amber-500/25"
                 >
-                  <TrendingUp className="h-4 w-4 shrink-0 text-amber-200" strokeWidth={2.25} aria-hidden />
+                  <AnimatedTrendingIcon className="h-4 w-4 text-amber-200" />
                   Trending in India
                 </Link>
               </div>
@@ -111,6 +116,7 @@ export default async function HomePage() {
                       src={resolvePostImageUrl(lead.image_url)}
                       alt={decodeHtmlEntities(lead.title)}
                       title={decodeHtmlEntities(lead.title)}
+                      category={lead.category}
                       priority
                       className="h-full w-full object-cover object-center transition duration-500 ease-out group-hover:scale-[1.02]"
                     />
@@ -148,14 +154,9 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </section>
 
-      <div className="relative ">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-accent-soft/25 to-transparent"
-          aria-hidden
-        />
-        <div className="relative mx-auto max-w-7xl  py-10 max-lg:px-3.5 max-lg:py-10">
-          <div className="grid gap-8 max-lg:gap-8 lg:grid-cols-[1fr_min(380px,100%)] lg:items-start ">
+        <div className="relative mx-auto max-w-7xl px-4 py-8 max-lg:px-3.5 max-lg:py-8 sm:px-6 sm:py-10">
+          <div className="grid min-w-0 gap-8 max-lg:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,min(380px,100%))] lg:items-start">
             <div className="min-w-0 space-y-12 max-lg:space-y-10 lg:space-y-20">
               {breaking.posts.length > 0 ? (
                 <section className="relative overflow-hidden rounded-2xl max-lg:rounded-2xl max-lg:shadow-sm lg:rounded-3xl">
@@ -235,7 +236,7 @@ export default async function HomePage() {
                   <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 max-lg:gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {latest.posts.map((p, i) => (
                       <li key={p.id} className="min-w-0">
-                        <PostCard post={p} priority={i < 4} gridCell index={i} />
+                        <PostCard post={p} priority={false} gridCell index={i} />
                       </li>
                     ))}
                   </ul>

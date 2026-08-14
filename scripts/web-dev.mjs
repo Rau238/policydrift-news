@@ -1,5 +1,5 @@
 /**
- * Runs Next on WEB_PORT from .env (dotenv-cli loads .env before this runs).
+ * Runs Next on WEB_PORT (dotenv-cli loads .env.development / .env.production first).
  * Avoids Next binding to PORT meant for the API.
  */
 import path from 'path';

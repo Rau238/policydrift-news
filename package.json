@@ -8,22 +8,30 @@
     "frontend"
   ],
   "scripts": {
-    "check": "npm run check -w policydrift-backend",
-    "ingest": "npm run ingest -w policydrift-backend",
-    "trends": "npm run trends -w policydrift-backend",
-    "dev": "concurrently -n api,web -c blue,magenta \"npm run dev -w policydrift-backend\" \"dotenv -e .env -- node scripts/web-dev.mjs\"",
-    "dev:api": "npm run dev -w policydrift-backend",
-    "dev:web": "dotenv -e .env -- node scripts/web-dev.mjs",
-    "build": "dotenv -e .env -- npm run build -w policydrift-frontend",
-    "start:api": "npm run start -w policydrift-backend",
-    "pm2:start": "pm2 start ecosystem.config.cjs",
-    "pm2:stop": "pm2 stop policydrift",
-    "pm2:restart": "pm2 restart policydrift",
-    "start:web": "dotenv -e .env -- node scripts/web-start.mjs",
-    "frontend:dev": "npm run dev -w policydrift-frontend"
+    "check": "dotenv -e .env.development -- npm run check -w policydrift-backend",
+    "feeds:check": "dotenv -e .env.development -- cross-env NODE_ENV=development npm run feeds:check -w policydrift-backend",
+    "ingest": "dotenv -e .env.development -- cross-env NODE_ENV=development npm run ingest -w policydrift-backend",
+    "trends": "dotenv -e .env.development -- cross-env NODE_ENV=development npm run trends -w policydrift-backend",
+    "ingest:prod": "dotenv -e .env.production -- cross-env NODE_ENV=production npm run ingest -w policydrift-backend",
+    "trends:prod": "dotenv -e .env.production -- cross-env NODE_ENV=production npm run trends -w policydrift-backend",
+    "feeds:check:prod": "dotenv -e .env.production -- cross-env NODE_ENV=production npm run feeds:check -w policydrift-backend",
+    "dev": "concurrently -n api,web -c blue,magenta \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "dotenv -e .env.development -- cross-env NODE_ENV=development npm run dev -w policydrift-backend",
+    "dev:web": "dotenv -e .env.development -- cross-env NODE_ENV=development node scripts/web-dev.mjs",
+    "build": "npm run build:prod",
+    "build:dev": "dotenv -e .env.development -- cross-env NODE_ENV=development npm run build -w policydrift-frontend",
+    "build:prod": "dotenv -e .env.production -- cross-env NODE_ENV=production npm run build -w policydrift-frontend",
+    "start:api": "dotenv -e .env.production -- cross-env NODE_ENV=production npm run start -w policydrift-backend",
+    "start:web": "dotenv -e .env.production -- cross-env NODE_ENV=production node scripts/web-start.mjs",
+    "start": "concurrently -n api,web -c blue,magenta \"npm run start:api\" \"npm run start:web\"",
+    "pm2:start": "pm2 start ecosystem.config.cjs --env production",
+    "pm2:stop": "pm2 stop policydrift-api policydrift-web",
+    "pm2:restart": "pm2 restart policydrift-api policydrift-web --update-env",
+    "frontend:dev": "dotenv -e .env.development -- npm run dev -w policydrift-frontend"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
     "dotenv-cli": "^8.0.0"
   }
 }

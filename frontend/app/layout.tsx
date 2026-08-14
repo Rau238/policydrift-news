@@ -4,6 +4,7 @@ import './globals.css';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteJsonLd } from '@/components/SiteJsonLd';
+import { PwaSplash } from '@/components/PwaSplash';
 import { storyFallbackImageUrl } from '@/lib/story-image';
 import { absoluteUrl, publicSiteOrigin, siteDescription, siteName } from '@/lib/site';
 
@@ -37,9 +38,10 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fafaf9' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+    { media: '(prefers-color-scheme: light)', color: '#0f766e' },
+    { media: '(prefers-color-scheme: dark)', color: '#042f2e' },
   ],
+  colorScheme: 'dark light',
 };
 
 /** Google AdSense publisher ID; override with NEXT_PUBLIC_ADSENSE_CLIENT in .env if needed. */
@@ -57,6 +59,11 @@ export const metadata: Metadata = {
     template: `%s | ${siteName}`,
   },
   description: siteDescription,
+  applicationName: siteName,
+  icons: {
+    icon: [{ url: '/images/brand-logo.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/apple-icon', sizes: '180x180', type: 'image/png' }],
+  },
   keywords: [
     'news',
     'breaking news',
@@ -131,8 +138,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         ) : null}
         <SiteJsonLd />
+        <PwaSplash />
         <SiteHeader />
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="min-w-0 max-w-[100vw] flex-1 overflow-x-clip">{children}</main>
         <SiteFooter />
       </body>
     </html>

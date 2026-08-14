@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Building2, FileText, Fingerprint, Mail, Map, Rss, Scale, Shield } from 'lucide-react';
 import { siteName } from '@/lib/site';
 import { CATEGORY_ORDER, categoryHref, categoryLabel, CategoryGlyph } from '@/lib/category-theme';
+import { BrandMark } from '@/components/BrandMark';
 
 const legalLinks = [
   { href: '/terms', label: 'Terms of use', Icon: Scale },
@@ -25,12 +26,12 @@ export function SiteFooter() {
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
         <div className="grid gap-14 sm:grid-cols-2 lg:grid-cols-12 lg:gap-12">
           <div className="sm:col-span-2 lg:col-span-5">
-            <p className="font-display text-[1.65rem] font-bold leading-tight tracking-tight text-white sm:text-3xl">
-              {siteName}
-            </p>
-            <p className="mt-1 font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-teal-400/90">
-              Policy & world briefs
-            </p>
+            <Link href="/" className="inline-flex items-center gap-3">
+              <BrandMark sizeClass="h-11 w-11" />
+              <span className="font-display text-[1.65rem] font-bold tracking-tight text-white sm:text-3xl">
+                {siteName}
+              </span>
+            </Link>
             <p className="mt-5 max-w-md text-sm leading-[1.7] text-slate-400">
               Curated desks, clear headlines, and sources on every story. Built for readers who want context without
               noise.

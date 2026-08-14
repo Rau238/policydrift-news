@@ -163,97 +163,93 @@ function BreakingAsideSkeleton() {
 }
 
 /**
- * Matches `/news/[slug]` article detail: back link, breadcrumbs, chip, meta, title, excerpt, curator card,
- * hero 16/10, key-takeaways band, prose, footer CTA, related grid - plus markets + breaking asides on lg.
+ * Matches `/news/[slug]` article detail: dark top bar, large title, hero, curator,
+ * key-takeaways, prose, CTA footer, related grid — plus markets + breaking asides on lg.
  */
 export function NewsArticleSkeleton() {
   return (
-    <div className="min-h-screen bg-paper" aria-busy="true" aria-label="Loading article">
-      <div className="mx-auto max-w-7xl px-4 pb-10 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
-        <p
-          className="mb-5 text-center text-[13px] font-medium text-slate-500 sm:text-left"
-          role="status"
-          aria-live="polite"
-        >
+    <div
+      className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50"
+      aria-busy="true"
+      aria-label="Loading article"
+    >
+      <div className="border-b border-slate-800/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
+          <Skeleton className="h-4 w-20 rounded bg-white/10" />
+          <Skeleton className="h-3 w-40 rounded bg-white/10" />
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 sm:pb-16 sm:pt-8">
+        <p className="mb-5 text-[13px] font-medium text-slate-500" role="status" aria-live="polite">
           Loading story…
         </p>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_min(380px,100%)] lg:items-start lg:gap-10">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_min(360px,100%)] lg:items-start lg:gap-12">
           <div className="min-w-0">
-            <article className="relative w-full max-w-2xl">
-              <Skeleton className="mb-4 h-4 w-14 rounded" />
+            <article className="relative w-full max-w-3xl">
+              <div className="flex flex-wrap items-center gap-3">
+                <Skeleton className="h-8 w-28 rounded-full" />
+                <Skeleton className="h-3 w-36" />
+              </div>
+              <Skeleton className="mt-4 h-10 w-full max-w-xl sm:h-12" />
+              <Skeleton className="mt-3 h-5 w-full max-w-lg" />
+              <Skeleton className="mt-2 h-5 w-full max-w-md" />
 
-              <header className="border-b border-slate-200/90 pb-4">
-                <div className="flex flex-wrap gap-x-1.5 gap-y-1">
-                  <Skeleton className="h-3 w-8 rounded" />
-                  <Skeleton className="h-3 w-1 rounded-full" />
-                  <Skeleton className="h-3 w-10 rounded" />
-                  <Skeleton className="h-3 w-1 rounded-full" />
-                  <Skeleton className="h-3 w-24 rounded" />
-                </div>
-                <Skeleton className="mt-3 h-9 w-[min(100%,14rem)] rounded-full" />
-                <div className="mt-2.5 flex gap-2">
-                  <Skeleton className="h-3 w-28" />
-                  <Skeleton className="h-3 w-20" />
-                </div>
-                <Skeleton className="mt-3 h-8 w-full max-w-xl sm:h-9" />
-                <Skeleton className="mt-3 h-4 w-full max-w-lg" />
-                <Skeleton className="mt-2 h-4 w-full max-w-md" />
-
-                <div className="mt-4 flex gap-3 rounded-xl border border-slate-200/90 bg-slate-50/90 px-4 py-3.5">
-                  <Skeleton className="h-14 w-14 shrink-0 rounded-full" />
-                  <div className="min-w-0 flex-1 space-y-2 py-0.5">
-                    <Skeleton className="h-2.5 w-20" />
-                    <Skeleton className="h-4 w-44 max-w-full" />
-                    <Skeleton className="h-3 w-32" />
-                    <Skeleton className="h-3 w-full max-w-sm" />
-                  </div>
-                </div>
-              </header>
-
-              <div className="mt-4 overflow-hidden rounded-xl border border-slate-200/90 bg-slate-100 shadow-sm ring-2 ring-slate-200/40 ring-offset-0 ring-offset-paper">
-                <Skeleton className="aspect-[16/10] w-full rounded-none" />
+              <div className="mt-7 overflow-hidden rounded-2xl border border-slate-200/90 bg-slate-100 shadow-lg">
+                <Skeleton className="aspect-[16/9] w-full rounded-none sm:aspect-[2/1]" />
               </div>
 
-              <div className="mt-6 rounded-xl border border-teal-200/80 bg-gradient-to-br from-teal-50/90 to-slate-50/80 px-4 py-4 ring-1 ring-teal-900/5">
+              <div className="mt-5 flex gap-3 rounded-2xl border border-slate-200/90 bg-white px-4 py-3.5 shadow-sm">
+                <Skeleton className="h-11 w-11 shrink-0 rounded-full" />
+                <div className="min-w-0 flex-1 space-y-2 py-0.5">
+                  <Skeleton className="h-2.5 w-20" />
+                  <Skeleton className="h-4 w-44 max-w-full" />
+                  <Skeleton className="h-3 w-full max-w-sm" />
+                </div>
+              </div>
+
+              <div className="mt-8 overflow-hidden rounded-2xl border border-teal-200/70">
+                <div className="border-b border-teal-100 bg-teal-50/80 px-4 py-3">
+                  <Skeleton className="h-5 w-36" />
+                </div>
+                <div className="space-y-3 px-4 py-4">
+                  <Skeleton className="h-4 w-full max-w-lg" />
+                  <Skeleton className="h-4 w-full max-w-md" />
+                  <Skeleton className="h-4 w-full max-w-xl" />
+                </div>
+              </div>
+
+              <div className="mt-9 space-y-4">
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-full max-w-[95%]" />
+                <Skeleton className="h-5 w-full max-w-[88%]" />
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-full max-w-[92%]" />
                 <Skeleton className="h-5 w-40" />
-                <Skeleton className="mt-2 h-3 w-full max-w-sm" />
-                <div className="mt-3 space-y-2 pl-1">
-                  <Skeleton className="h-3 w-full max-w-lg" />
+              </div>
+
+              <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-4">
                   <Skeleton className="h-3 w-full max-w-md" />
-                  <Skeleton className="h-3 w-full max-w-xl" />
                 </div>
-              </div>
-
-              <div className="mt-6 space-y-3">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full max-w-[95%]" />
-                <Skeleton className="h-4 w-full max-w-[88%]" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full max-w-[92%]" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-32" />
-              </div>
-
-              <div className="mt-8 border-t border-slate-200 pt-5">
-                <Skeleton className="h-3 w-full max-w-md" />
-                <Skeleton className="mt-2 h-3 w-full max-w-sm" />
-                <Skeleton className="mt-4 h-10 w-full max-w-[220px] rounded-lg" />
-                <Skeleton className="mt-5 h-3.5 w-20" />
+                <div className="flex flex-wrap gap-3 px-5 py-4">
+                  <Skeleton className="h-11 w-48 rounded-xl" />
+                  <Skeleton className="h-4 w-32 self-center" />
+                </div>
               </div>
             </article>
 
-            <section className="mt-10 w-full max-w-2xl border-l-4 border-slate-200 pl-4 pt-6 sm:pl-5">
+            <section className="mt-12 w-full max-w-3xl rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div className="space-y-2">
-                  <Skeleton className="h-6 w-48" />
+                  <Skeleton className="h-7 w-48" />
                   <Skeleton className="h-3 w-40" />
                 </div>
                 <Skeleton className="h-4 w-28" />
               </div>
-              <ul className="mt-4 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2 sm:gap-3">
+              <ul className="mt-5 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <li key={i} className="min-w-0">
                     <PostCardSkeleton compact />

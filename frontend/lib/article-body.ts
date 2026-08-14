@@ -77,6 +77,37 @@ function plainFallbackToSafeHtml(plain: string): string {
 
 export type PreparedArticleBody = { html: string; hasContent: boolean };
 
+function normalizeComparableText(s: string): string {
+  return decodeHtmlEntities(s)
+    .toLowerCase()
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&(?:#\d+|#x[\da-fA-F]+|\w+);/g, ' ')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * True when the article body is the same (or nearly the same) as the deck/excerpt —
+ * common for thin RSS items. Avoids showing the blurb twice on the article page.
+ */
+export function isBodyRedundantWithExcerpt(
+  articleHtml: string,
+  excerpt: string | null | undefined,
+): boolean {
+  const ex = normalizeComparableText(excerpt || '');
+  if (!ex || ex.length < 24) return false;
+  const body = normalizeComparableText(stripHtmlToPlain(articleHtml, Number.POSITIVE_INFINITY));
+  if (!body) return true;
+  if (body === ex) return true;
+  // Body is only the excerpt wrapped / truncated
+  if (body.startsWith(ex) && body.length <= ex.length + 40) return true;
+  if (ex.startsWith(body) && ex.length <= body.length + 40) return true;
+  // High overlap for short bodies (single-paragraph feeds)
+  if (body.length <= 400 && (body.includes(ex) || ex.includes(body))) return true;
+  return false;
+}
+
 /**
  * Align display with backend `body`: resolve feed-relative URLs, sanitize, then plain fallback if needed.
  */

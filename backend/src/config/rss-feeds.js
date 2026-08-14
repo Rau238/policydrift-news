@@ -1,122 +1,107 @@
-
+/**
+ * Curated RSS feeds — verified Aug 2026.
+ * Dead hosts removed: feeds.reuters.com, feeds.apnews.com, rss.app (402),
+ * CNN rss.cnn.com (TLS/stale), WaPo /homepage (400), CBS /rss/ (HTML),
+ * RBI DNS, News18/BS banking 403 paths, HinduBusinessLine section 404s, etc.
+ * Reuters / AP / CNN covered via Google News search RSS where official feeds died.
+ */
 export const RSS_FEEDS_BY_CATEGORY = {
   Breaking: [
-    'https://rss.app/feeds/IP9dCohMdLnKfImo.xml',
-    'https://feeds.reuters.com/reuters/topNews',
-    'https://feeds.apnews.com/rss/apf-topnews',
     'https://feeds.bbci.co.uk/news/rss.xml',
     'https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en',
-    'https://feeds.bbci.co.uk/news/world/rss.xml',
-    'https://rss.cnn.com/rss/edition.rss',
     'https://www.aljazeera.com/xml/rss/all.xml',
-    'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',     // NYT Top Stories
-    'https://feeds.washingtonpost.com/rss/homepage',                 // Washington Post
-    'https://www.theguardian.com/international/rss',                 // Guardian International
-    'https://feeds.foxnews.com/foxnews/latest',                      // Fox News Latest
-    'https://abcnews.go.com/abcnews/topstories',                     // ABC News Top Stories
-    'https://www.cbsnews.com/rss/',                                  // CBS News
-    'https://www.huffpost.com/section/front-page/feed',
+    'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
+    'https://www.theguardian.com/international/rss',
+    'https://feeds.foxnews.com/foxnews/latest',
+    'https://abcnews.go.com/abcnews/topstories',
+    'https://feeds.npr.org/1001/rss.xml',
+    'https://www.cbsnews.com/latest/rss/main',
+    'https://feeds.skynews.com/feeds/rss/home.xml',
+    'https://time.com/feed/',
+    'https://news.google.com/rss/search?q=Reuters+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=AP+News+OR+Associated+Press+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=CNN+when:1d&hl=en-US&gl=US&ceid=US:en',
   ],
   'World News': [
-    'https://feeds.reuters.com/reuters/worldnews',
+    'https://feeds.bbci.co.uk/news/world/rss.xml',
+    'https://feeds.bbci.co.uk/news/world/asia/rss.xml',
     'https://www.theguardian.com/world/rss',
     'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
     'https://rss.dw.com/xml/rss-en-all',
     'https://www.france24.com/en/rss',
     'https://www3.nhk.or.jp/rss/news/cat0.xml',
     'https://feeds.washingtonpost.com/rss/world',
-    'https://news.sky.com/info/rss',
-    'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlRZU0FtVnVHZ0pWVXlnQVAB?hl=en-IN&gl=IN&ceid=IN:en',
-    'https://rss.cnn.com/rss/cnn_world.rss',                         // CNN World
-    'https://globalvoices.org/feed/',                                // Global Voices
-    'https://www.bbc.com/news/world/rss.xml',                        // BBC World (alternative)
-    'https://feeds.bbci.co.uk/news/world/asia/rss.xml',              // BBC Asia (useful for India)
-    'https://www.economist.com/the-world-in-brief/rss',              // Economist World in Brief
+    'https://www.cbsnews.com/latest/rss/world',
+    'https://feeds.npr.org/1004/rss.xml',
     'https://www.ft.com/rss/world',
+    'https://globalvoices.org/feed/',
+    'https://news.google.com/rss/search?q=world+news+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
   ],
   India: [
     'https://timesofindia.indiatimes.com/rssfeedstopstories.cms',
+    'https://timesofindia.indiatimes.com/rssfeeds/1221656.cms',
     'https://feeds.feedburner.com/ndtvnews-top-stories',
     'https://feeds.feedburner.com/ndtvnews-india-news',
+    'https://feeds.feedburner.com/ndtvnews-latest',
     'https://www.thehindu.com/feeder/default.rss',
     'https://indianexpress.com/feed/',
+    'https://indianexpress.com/section/india/feed/',
     'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml',
-    'https://economictimes.indiatimes.com/rssfeeds/1715249553.cms',
+    'https://economictimes.indiatimes.com/rssfeedstopstories.cms',
+    'https://www.livemint.com/rss/news',
+    'https://www.indiatvnews.com/rssnews/topstory-india.xml',
+    'https://www.indiatoday.in/rss/1206514',
     'https://news.google.com/rss/topics/CAAqJQgKIh9DQkFTRVFvSUwyMHZNRE55YXpBU0JXVnVMVWRDS0FBUAE?hl=en-IN&gl=IN&ceid=IN:en',
-    'https://www.news18.com/commonfeeds/v1/eng/rss/india.xml',       // News18 India
-    'https://www.indiatvnews.com/rssnews/topstory-india.xml',        // India TV India
-    'https://www.thehindu.com/news/national/rssfeed/',               // The Hindu National
-    'https://indianexpress.com/section/india/feed/',                 // Indian Express India section
-    'https://timesofindia.indiatimes.com/rssfeeds/1221656.cms',      // TOI India News
-    'https://feeds.feedburner.com/ndtvnews-latest',                  // NDTV Latest
-    'https://www.livemint.com/rss/india',
   ],
   Sports: [
-    'https://feeds.bbci.co.uk/sport/rss.xml', 
-    'https://www.espn.com/espn/rss/news', 
-    'https://sports.yahoo.com/rss/sports',
-    'https://www.cbssports.com/rss/headlines/', // CBS Sports headlines
-    'https://api.foxsports.com/v2/content/optimized-rss?partnerKey=MB0Wehpmuj2lUhuRhQaafhBjAJqaPU244mlTDK1i&size=30', // FOX Sports
-    'https://www.espncricinfo.com/rss/content/story/feeds/0.xml', // cricket — global stories
+    'https://feeds.bbci.co.uk/sport/rss.xml',
+    'https://feeds.bbci.co.uk/sport/cricket/rss.xml',
+    'https://feeds.bbci.co.uk/sport/football/rss.xml',
+    'https://sports.yahoo.com/rss/',
+    'https://www.espncricinfo.com/rss/content/story/feeds/0.xml',
     'https://sportstar.thehindu.com/cricket/feeder/default.rss',
-    'https://sports.ndtv.com/rss/cricket',
     'https://www.crictracker.com/feed/',
-    'https://www.espncricinfo.com/rss/livescores.xml',
-    'https://rssfeeds.usatoday.com/UsatodaycomSports-TopStories',    // USA Today Sports
-    'https://feeds.foxnews.com/foxnews/sports',                      // Fox Sports
-    'https://www.cbssports.com/rss/headlines/all/',                  // CBS Sports All
-    'https://sports.yahoo.com/rss/nfl',                              // Yahoo NFL (or other leagues)
-    'https://www.espn.com/espn/rss/news?section=nfl', // cricket scorecards (high churn)
+    'https://feeds.foxnews.com/foxnews/sports',
+    'https://www.cbssports.com/rss/headlines/',
+    'https://www.skysports.com/rss/12040',
   ],
   Business: [
-    'https://feeds.reuters.com/reuters/businessNews',
     'https://feeds.bbci.co.uk/news/business/rss.xml',
     'https://www.cnbc.com/id/100003114/device/rss/rss.html',
     'https://feeds.content.dowjones.io/public/rss/mw_topstories',
-    'https://www.moneycontrol.com/rss/latestnews.xml',
-    'https://feeds.bloomberg.com/markets/news.rss',                  // Bloomberg Markets
-    'https://www.ft.com/rss/home',                                   // Financial Times
-    'https://feeds.marketwatch.com/marketwatch/topstories',          // MarketWatch
-    'https://www.forbes.com/innovation/feed2',                       // Forbes Business/Innovation
-    'https://www.wsj.com/rss/rss-business-news.xml',                 // WSJ Business (may have paywall)
-    'https://economictimes.indiatimes.com/rssfeeds/1715249553.cms',  // Economic Times (already have, but good duplicate option)
-    'https://www.thehindubusinessline.com/rssfeeds/',
+    'https://feeds.bloomberg.com/markets/news.rss',
+    'https://www.ft.com/rss/home',
+    'https://feeds.marketwatch.com/marketwatch/topstories',
+    'https://www.forbes.com/innovation/feed/',
+    'https://www.moneycontrol.com/rss/MCtopnews.xml',
+    'https://www.moneycontrol.com/rss/business.xml',
+    'https://www.business-standard.com/rss/latest.rss',
+    'https://www.livemint.com/rss/news',
+    'https://economictimes.indiatimes.com/rssfeedstopstories.cms',
   ],
-  // RBI, Indian banking desks, macro, Google News search. (Reuters/BBC Business stay under Business — same URL deduped.)
   'Banking & Economics': [
-    // Google News — search RSS (hl/gl tune geography)
-    'https://news.google.com/rss/search?q=banking+OR+RBI+OR+NBFC+OR+Indian+banks&hl=en-IN&gl=IN&ceid=IN:en',
-    'https://news.google.com/rss/search?q=economy+OR+inflation+OR+GDP+OR+interest+rates+OR+monetary+policy&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=banking+OR+NBFC+India&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://news.google.com/rss/search?q=RBI+OR+Reserve+Bank+of+India&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://news.google.com/rss/search?q=economy+OR+inflation+OR+GDP+OR+interest+rates&hl=en-IN&gl=IN&ceid=IN:en',
     'https://news.google.com/rss/search?q=IMF+OR+World+Bank+OR+central+bank&hl=en-IN&gl=IN&ceid=IN:en',
-    // RBI
-    'https://www.rbi.org.in/pressreleases_rss.xml',
-    'https://www.rbi.org.in/notifications_rss.xml',
-    'https://www.rbi.org.in/speeches_rss.xml',
-    // India — banking & macro desks
-    'https://www.thehindubusinessline.com/money-and-banking/rssfeed/',
     'https://indianexpress.com/section/business/banking-and-finance/feed/',
-    'https://economictimes.indiatimes.com/industry/banking/rssfeeds/1715249553.cms',
     'https://www.livemint.com/rss/money',
-    'https://www.business-standard.com/rss/banking-215.rss',
-    'https://www.moneycontrol.com/rss/banking-and-finance.xml',
-    'https://www.thehindu.com/business/Economy/rssfeed/',
-    // Global economics
-    'https://feeds.bloomberg.com/economics/news.rss',
     'https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml',
     'https://www.ft.com/rss/economy',
-    'https://feeds.marketwatch.com/marketwatch/economy',
+    'https://feeds.bloomberg.com/economics/news.rss',
     'https://in.investing.com/rss/news_11.rss',
   ],
   Politics: [
-    'https://rss.app/feeds/t8jX8LiuofpKkKzV.xml', 
-    'https://feeds.reuters.com/reuters/politicsNews',
-    'https://rss.cnn.com/rss/cnn_allpolitics.rss',
-    'https://www.thehindu.com/news/national/rssfeed/',
-    'https://rss.politico.com/politics-news.xml',                    // Politico Politics
-    'https://feeds.foxnews.com/foxnews/politics',                    // Fox Politics
-    'https://thehill.com/homenews/feed/',                            // The Hill
-    'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml',     // NYT Politics
+    'https://feeds.bbci.co.uk/news/politics/rss.xml',
     'https://www.theguardian.com/politics/rss',
+    'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml',
+    'https://rss.politico.com/politics-news.xml',
+    'https://feeds.foxnews.com/foxnews/politics',
+    'https://thehill.com/homenews/feed/',
+    'https://www.cbsnews.com/latest/rss/politics',
+    'https://feeds.washingtonpost.com/rss/politics',
+    'https://www.thehindu.com/feeder/default.rss',
+    'https://www.indiatoday.in/rss/1206577',
   ],
   'Stocks & Markets': [
     'https://www.investing.com/rss/news_25.rss',
@@ -124,24 +109,22 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://feeds.content.dowjones.io/public/rss/mw_realtimeheadlines',
     'https://www.cnbc.com/id/10000664/device/rss/rss.html',
     'https://www.moneycontrol.com/rss/business.xml',
-    'https://www.thehindubusinessline.com/markets/stock-markets/rssfeed/',
-    'https://feeds.marketwatch.com/marketwatch/topstories',          // MarketWatch
-    'https://www.benzinga.com/feed',                                 // Benzinga (fast-moving)
-    'https://feeds.bloomberg.com/markets/news.rss',                  // Bloomberg
-    'https://www.ft.com/rss/markets',                                // FT Markets
-    'https://www.nasdaq.com/feed/rssoutbound?category=Stock+Market', // Nasdaq
-    'https://rssfeeds.usatoday.com/UsatodaycomMoney-TopStories',
+    'https://www.livemint.com/rss/markets',
+    'https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms',
+    'https://feeds.marketwatch.com/marketwatch/topstories',
+    'https://feeds.bloomberg.com/markets/news.rss',
+    'https://www.ft.com/rss/markets',
   ],
   Crypto: [
     'https://cointelegraph.com/rss',
     'https://www.coindesk.com/arc/outboundfeeds/rss/',
     'https://news.bitcoin.com/feed/',
     'https://cryptopotato.com/feed/',
-    'https://cryptoslate.com/feed/',                                 // CryptoSlate
-    'https://decrypt.co/feed',                                       // Decrypt
-    'https://thedefiant.io/feed/',                                   // The Defiant
-    'https://cryptonews.com/news/feed/',                             // CryptoNews
-    'https://bitcoinmagazine.com/feed',                              // Bitcoin Magazine
+    'https://cryptoslate.com/feed/',
+    'https://decrypt.co/feed',
+    'https://thedefiant.io/feed/',
+    'https://cryptonews.com/news/feed/',
+    'https://bitcoinmagazine.com/feed',
   ],
 };
 

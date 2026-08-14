@@ -1,0 +1,14 @@
+Desk hero outline assets (stroke-only; downloaded)
+
+Maps
+  world-map.svg — https://github.com/flekschas/simple-world-map (CC BY-SA 3.0)
+  india-outline.svg — Wikimedia File:India_outline.svg (CC BY-SA 3.0)
+
+Category outlines (Tabler Icons outline set — MIT)
+  https://github.com/tabler/tabler-icons
+  business-briefcase.svg, business-domain.svg
+  banking-bank.svg, banking-currency-usd.svg
+  politics-gavel.svg, politics-account-balance.svg
+  markets-chart.svg, markets-trending-up.svg
+  crypto-bitcoin.svg, crypto-currency-btc.svg
+  soccerball.svg (ball-football), cricket-bat.svg (cricket)

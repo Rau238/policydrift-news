@@ -67,17 +67,26 @@ Create the schema (adjust database name if needed):
 mysql -u root -p < backend/sql/schema.sql
 ```
 
-### 2. Environment
+### 2. Environment (development + production)
 
-Copy `.env.example` to **`.env`** at the **repository root** (recommended so both apps can share it):
+Copy the example into both env files at the **repository root**:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.development
+cp .env.example .env.production
 ```
 
-Edit **`.env`**: set `MYSQL_*`, `RSS_FEED_URLS`, **`API_PORT`** / **`WEB_PORT`** (defaults 4000 / 3000), **`NEXT_PUBLIC_API_URL`** / **`NEXT_PUBLIC_SITE_URL`** (must match those ports), and optionally `OPENAI_API_KEY`.
+| File | Used by |
+|------|---------|
+| `.env.development` | `npm run dev`, `npm run build:dev`, local ingest |
+| `.env.production` | `npm run build` / `build:prod`, `npm run start`, PM2 |
 
-Use **`http://127.0.0.1:<API_PORT>`** for `NEXT_PUBLIC_API_URL` on Windows if `localhost` resolves to IPv6 (`::1`).
+Set `MYSQL_*`, ports, and URLs per environment:
+
+- **Development:** API `http://localhost:4001`, web `http://localhost:3001`
+- **Production:** API/web ports `4000` / `3000` (or reverse proxy); `NEXT_PUBLIC_*` = live domain (e.g. `https://www.policydrift.live`)
+
+Optional shared overrides can go in root `.env` (loaded first; env-specific files win).
 
 ### 3. Install dependencies
 
@@ -122,11 +131,18 @@ After that, the **cron** job (every **30 minutes**) will ingest new items automa
 | GET | `/api/meta/slugs` | Slugs + `lastmod` for sitemap |
 | POST | `/api/posts/ingest` | Run RSS ingestion manually |
 
-## Production notes
+## Builds & production
 
-- Run `npm run build` (builds the frontend workspace) and `npm run start:web` / `npm run start:api` with production `NODE_ENV` and real `NEXT_PUBLIC_SITE_URL`.
+```bash
+npm run build:dev    # Next build with .env.development (local URLs)
+npm run build:prod   # Next build with .env.production (live URLs) — same as npm run build
+npm run start        # API + web from .env.production
+npm run pm2:start    # PM2 API + web (production)
+```
+
+`NEXT_PUBLIC_*` values are **baked in at build time** — always run `build:prod` before deploying live.
+
 - **Vercel (or any hosted frontend) cannot use `http://127.0.0.1:4000` as the API** — expose the API publicly and set `NEXT_PUBLIC_API_URL` on Vercel, plus `CORS_ORIGIN` on the API. See **[docs/VERCEL_PRODUCTION_API.md](./docs/VERCEL_PRODUCTION_API.md)**.
-- Point `CORS_ORIGIN` at your deployed frontend URL(s).
 - Keep `OPENAI_API_KEY` server-side only (never `NEXT_PUBLIC_*`).
 
 ## License

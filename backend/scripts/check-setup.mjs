@@ -8,7 +8,11 @@ import { fileURLToPath } from 'url';
 import mysql from 'mysql2/promise';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+const rootDir = path.resolve(__dirname, '../..');
+const nodeEnv = process.env.NODE_ENV || 'development';
+
+dotenv.config({ path: path.join(rootDir, '.env') });
+dotenv.config({ path: path.join(rootDir, `.env.${nodeEnv}`), override: true });
 dotenv.config({ path: path.resolve(__dirname, '../.env'), override: true });
 
 const cfg = {
@@ -20,9 +24,12 @@ const cfg = {
 };
 
 console.log('\nPolicyDrift — setup check\n');
+console.log(`  NODE_ENV: ${nodeEnv}`);
 console.log(`  MySQL target: ${cfg.user}@${cfg.host}:${cfg.port}/${cfg.database}`);
 console.log(`  RSS_FEED_URLS: ${process.env.RSS_FEED_URLS ? 'set' : '(empty — ingest will no-op)'}`);
-console.log(`  NEXT_PUBLIC_API_URL: ${process.env.NEXT_PUBLIC_API_URL || '(not set — use root .env for frontend)'}\n`);
+console.log(
+  `  NEXT_PUBLIC_API_URL: ${process.env.NEXT_PUBLIC_API_URL || '(not set — use .env.development / .env.production)'}\n`,
+);
 
 try {
   const c = await mysql.createConnection(cfg);
@@ -34,13 +41,14 @@ try {
   const apiPort = process.env.API_PORT || process.env.PORT || '4000';
   const webPort = process.env.WEB_PORT || '3000';
   console.log('Next steps:');
-  console.log(`  1. npm run dev     (API :${apiPort} + web :${webPort} — set API_PORT / WEB_PORT in .env)`);
-  console.log(`  2. POST http://127.0.0.1:${apiPort}/api/posts/ingest`);
-  console.log(`  3. Open http://localhost:${webPort}\n`);
+  console.log(`  1. npm run dev          (API :${apiPort} + web :${webPort}, .env.development)`);
+  console.log(`  2. npm run build:prod   (Next production build with .env.production)`);
+  console.log(`  3. POST http://127.0.0.1:${apiPort}/api/posts/ingest`);
+  console.log(`  4. Open http://localhost:${webPort}\n`);
 } catch (e) {
   console.error('  ✗ MySQL:', e.message);
   if (e.code === 'ER_ACCESS_DENIED_ERROR') {
-    console.error('\n  → Wrong MYSQL_USER / MYSQL_PASSWORD in .env\n');
+    console.error('\n  → Wrong MYSQL_USER / MYSQL_PASSWORD in .env.development / .env.production\n');
   } else if (e.code === 'ER_BAD_DB_ERROR' || /Unknown database/i.test(e.message)) {
     console.error(`\n  → Create the database (see SETUP.md) and run: backend/sql/schema.sql\n`);
   } else if (e.code === 'ECONNREFUSED') {

@@ -1,17 +1,24 @@
 import type { CategoryRow, GoogleTrendsBundle, PostDetail, PostListItem } from './types';
 
 /**
- * Base URL for server-side fetches (SSR). Prefer API_URL on the server so Docker / CI can use host.docker.internal, etc.
- * Client components still use NEXT_PUBLIC_API_URL via the same env in the browser bundle.
+ * Base URL for API fetches.
+ * SSR (production): must use API_INTERNAL_URL → local Express (e.g. http://127.0.0.1:4000).
+ * Never call the public https://www… domain from the same server — hairpin/DNS often fails
+ * and safeFetchJson then returns empty news.
+ * Browser: NEXT_PUBLIC_API_URL (public origin or same host with reverse proxy).
  */
 function getBaseUrl(): string {
   const isServer = typeof window === 'undefined';
   const url = (
     isServer
-      ? process.env.API_URL || process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL
+      ? process.env.API_INTERNAL_URL ||
+        process.env.API_URL ||
+        process.env.INTERNAL_API_URL ||
+        process.env.NEXT_PUBLIC_API_URL
       : process.env.NEXT_PUBLIC_API_URL
   )?.trim();
-  return (url || 'http://127.0.0.1:4000').replace(/\/$/, '');
+  const fallbackPort = process.env.API_PORT?.trim() || '4000';
+  return (url || `http://127.0.0.1:${fallbackPort}`).replace(/\/$/, '');
 }
 
 async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
@@ -31,7 +38,8 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
 async function safeFetchJson<T>(path: string, fallback: T, init?: RequestInit): Promise<T> {
   try {
     return await fetchJson<T>(path, init);
-  } catch {
+  } catch (e) {
+    console.error(`[PolicyDrift] API fetch failed (${getBaseUrl()}${path}):`, e instanceof Error ? e.message : e);
     return fallback;
   }
 }
@@ -57,9 +65,13 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
       next: { revalidate: 120 },
     });
     if (res.status === 404) return null;
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(`[PolicyDrift] getPostBySlug ${res.status} via ${getBaseUrl()}`);
+      return null;
+    }
     return res.json() as Promise<PostDetail>;
-  } catch {
+  } catch (e) {
+    console.error(`[PolicyDrift] getPostBySlug failed via ${getBaseUrl()}:`, e instanceof Error ? e.message : e);
     return null;
   }
 }
@@ -69,9 +81,13 @@ export async function getTrending(limit = 6): Promise<PostListItem[]> {
     const res = await fetch(`${getBaseUrl()}/api/posts/trending?limit=${limit}`, {
       cache: 'no-store',
     });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.error(`[PolicyDrift] getTrending ${res.status} via ${getBaseUrl()}`);
+      return [];
+    }
     return res.json() as Promise<PostListItem[]>;
-  } catch {
+  } catch (e) {
+    console.error(`[PolicyDrift] getTrending failed via ${getBaseUrl()}:`, e instanceof Error ? e.message : e);
     return [];
   }
 }

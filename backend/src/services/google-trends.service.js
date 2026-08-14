@@ -178,18 +178,154 @@ function realtimeWhyFallback() {
   return 'Surfaced in Google Realtime trends: stories gaining traction across Search, News, and related surfaces in the last ~24 hours.';
 }
 
+function looksLikeBlockedHtml(raw) {
+  if (raw == null) return true;
+  const s = typeof raw === 'string' ? raw.trim() : String(raw);
+  if (!s) return true;
+  if (s[0] === '{' || s[0] === '[') return false;
+  // Google often returns `<html lang=...` / captcha pages instead of JSON
+  return /^(<!DOCTYPE|<html|l\s+lang=)/i.test(s) || s.includes('<html');
+}
+
+function assertTrendsJson(raw, label) {
+  if (looksLikeBlockedHtml(raw)) {
+    throw new Error(`${label}: Google returned HTML (blocked / rate-limited), not JSON`);
+  }
+  return raw;
+}
+
+/** Strip " - Publisher" suffix common in Google News RSS titles. */
+function cleanNewsHeadline(title) {
+  const t = String(title || '').trim();
+  if (!t) return '';
+  const cut = t.replace(/\s+[-–—]\s+[^-–—]{2,60}$/u, '').trim();
+  return (cut || t).slice(0, 512);
+}
+
+/**
+ * Clean a news headline for display — keep the full title (no “…” cut).
+ */
+function topicPhraseFromHeadline(title) {
+  let t = cleanNewsHeadline(title)
+    .replace(/^["'“”‘’]+|["'“”‘’]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!t) return '';
+
+  // Prefer the clause after a colon when the lead-in is a short quote / attribution
+  if (t.includes(':')) {
+    const idx = t.indexOf(':');
+    const left = t.slice(0, idx).trim();
+    const right = t.slice(idx + 1).trim();
+    if (left.length <= 48 && right.length >= 12) {
+      t = /^['"“]/.test(left) || left.length < 28 ? right : left;
+    } else if (right.length >= 12 && right.length < left.length) {
+      t = right;
+    }
+  }
+
+  return t;
+}
+
+/**
+ * Reliable fallback: India / desk headlines from Google News RSS (same network path as ingest).
+ */
+async function fetchGoogleNewsRssTopics() {
+  const Parser = (await import('rss-parser')).default;
+  const parser = new Parser({
+    timeout: 20000,
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      Accept: 'application/rss+xml, application/xml, text/xml;q=0.9,*/*;q=0.8',
+    },
+  });
+
+  const feeds = [
+    { category: 'India', timeframe: '24h', url: 'https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en' },
+    {
+      category: 'India',
+      timeframe: '24h',
+      url: 'https://news.google.com/rss/search?q=trending+India+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
+    },
+    {
+      category: 'Business',
+      timeframe: '7d',
+      url: 'https://news.google.com/rss/search?q=India+economy+OR+markets+when:7d&hl=en-IN&gl=IN&ceid=IN:en',
+    },
+    {
+      category: 'Politics',
+      timeframe: '7d',
+      url: 'https://news.google.com/rss/search?q=India+politics+OR+election+when:7d&hl=en-IN&gl=IN&ceid=IN:en',
+    },
+    {
+      category: 'Sports',
+      timeframe: '7d',
+      url: 'https://news.google.com/rss/search?q=cricket+OR+IPL+India+when:7d&hl=en-IN&gl=IN&ceid=IN:en',
+    },
+    {
+      category: 'Stocks & Markets',
+      timeframe: '7d',
+      url: 'https://news.google.com/rss/search?q=Sensex+OR+Nifty+OR+share+market+when:7d&hl=en-IN&gl=IN&ceid=IN:en',
+    },
+    {
+      category: 'Crypto',
+      timeframe: '7d',
+      url: 'https://news.google.com/rss/search?q=Bitcoin+OR+crypto+India+when:7d&hl=en-IN&gl=IN&ceid=IN:en',
+    },
+    {
+      category: 'World News',
+      timeframe: '30d',
+      url: 'https://news.google.com/rss/search?q=world+news+when:7d&hl=en-IN&gl=IN&ceid=IN:en',
+    },
+    {
+      category: 'Banking & Economics',
+      timeframe: '30d',
+      url: 'https://news.google.com/rss/search?q=RBI+OR+banking+India+when:7d&hl=en-IN&gl=IN&ceid=IN:en',
+    },
+  ];
+
+  const rows = [];
+  for (const f of feeds) {
+    try {
+      const feed = await parser.parseURL(f.url);
+      for (const item of (feed.items || []).slice(0, 12)) {
+        const q = topicPhraseFromHeadline(item.title);
+        if (!q || q.length < 8) continue;
+        rows.push({
+          category_key: f.category,
+          query_text: q,
+          trend_label: 'News',
+          value_score: null,
+          seed_keyword: null,
+          source: 'google_news',
+          timeframe: f.timeframe,
+          why_context: 'Trending in Google News for this desk / region (live RSS).',
+          traffic_note: null,
+        });
+      }
+    } catch (e) {
+      console.warn(`[trends] Google News RSS failed (${f.category}):`, e.message);
+    }
+  }
+  return rows;
+}
+
 async function fetchRelatedRange(keyword, geo, daysBack) {
   const endTime = new Date();
   const startTime = new Date();
   startTime.setDate(startTime.getDate() - daysBack);
-  const raw = await googleTrends.relatedQueries({
-    keyword,
-    geo,
-    startTime,
-    endTime,
-    hl: 'en-IN',
-    granularTimeResolution: daysBack <= 2,
-  });
+  const raw = assertTrendsJson(
+    await googleTrends.relatedQueries({
+      keyword,
+      geo,
+      startTime,
+      endTime,
+      hl: 'en-IN',
+      granularTimeResolution: daysBack <= 2,
+    }),
+    `relatedQueries "${keyword}"`,
+  );
   const parsed = parseRelatedQueriesRising(raw);
   return parsed.map((r) => ({
     ...r,
@@ -198,20 +334,26 @@ async function fetchRelatedRange(keyword, geo, daysBack) {
 }
 
 async function fetchDailySafe(geo) {
-  const raw = await googleTrends.dailyTrends({
-    geo,
-    trendDate: new Date(),
-    hl: 'en-IN',
-  });
+  const raw = assertTrendsJson(
+    await googleTrends.dailyTrends({
+      geo,
+      trendDate: new Date(),
+      hl: 'en-IN',
+    }),
+    'dailyTrends',
+  );
   return parseDailyTrends(raw);
 }
 
 async function fetchRealTimeSafe(geo) {
-  const raw = await googleTrends.realTimeTrends({
-    geo,
-    category: 'all',
-    hl: 'en-IN',
-  });
+  const raw = assertTrendsJson(
+    await googleTrends.realTimeTrends({
+      geo,
+      category: 'all',
+      hl: 'en-IN',
+    }),
+    'realTimeTrends',
+  );
   return parseRealTimeTrends(raw);
 }
 
@@ -287,6 +429,7 @@ export async function refreshTrendsCache() {
     const geo = env.TRENDS_GEO || 'IN';
     const delayMs = Math.min(8000, Math.max(1500, env.TRENDS_REQUEST_DELAY_MS || 3500));
     const rows = [];
+    let googleApiBlocked = false;
 
     try {
       const daily = await fetchDailySafe(geo);
@@ -304,6 +447,7 @@ export async function refreshTrendsCache() {
         });
       }
     } catch (e) {
+      googleApiBlocked = /HTML|blocked|rate-limited/i.test(e.message) || googleApiBlocked;
       console.warn('[trends] dailyTrends failed:', e.message);
     }
 
@@ -325,58 +469,85 @@ export async function refreshTrendsCache() {
         });
       }
     } catch (e) {
+      googleApiBlocked = /HTML|blocked|rate-limited/i.test(e.message) || googleApiBlocked;
       console.warn('[trends] realTimeTrends failed:', e.message);
     }
 
-    for (const [category, seeds] of Object.entries(TREND_SEEDS_BY_CATEGORY)) {
-      for (const seed of seeds) {
-        try {
-          const related7 = await fetchRelatedRange(seed, geo, 7);
-          for (const r of related7.slice(0, 10)) {
-            rows.push({
-              category_key: category,
-              query_text: r.query,
-              trend_label: r.trend_label,
-              value_score: r.value_score,
-              seed_keyword: seed,
-              source: 'related',
-              timeframe: '7d',
-              why_context: r.why_context,
-              traffic_note: null,
-            });
+    if (!googleApiBlocked) {
+      for (const [category, seeds] of Object.entries(TREND_SEEDS_BY_CATEGORY)) {
+        for (const seed of seeds.slice(0, 3)) {
+          try {
+            const related7 = await fetchRelatedRange(seed, geo, 7);
+            for (const r of related7.slice(0, 10)) {
+              rows.push({
+                category_key: category,
+                query_text: r.query,
+                trend_label: r.trend_label,
+                value_score: r.value_score,
+                seed_keyword: seed,
+                source: 'related',
+                timeframe: '7d',
+                why_context: r.why_context,
+                traffic_note: null,
+              });
+            }
+          } catch (e) {
+            if (/HTML|blocked|rate-limited/i.test(e.message)) {
+              googleApiBlocked = true;
+              console.warn('[trends] Google Trends API blocked — skipping remaining relatedQueries');
+              break;
+            }
+            console.warn(`[trends] relatedQueries 7d "${seed}" (${category}):`, e.message);
           }
-        } catch (e) {
-          console.warn(`[trends] relatedQueries 7d "${seed}" (${category}):`, e.message);
-        }
-        await sleep(delayMs);
+          await sleep(delayMs);
+          if (googleApiBlocked) break;
 
-        try {
-          const related30 = await fetchRelatedRange(seed, geo, 30);
-          for (const r of related30.slice(0, 10)) {
-            rows.push({
-              category_key: category,
-              query_text: r.query,
-              trend_label: r.trend_label,
-              value_score: r.value_score,
-              seed_keyword: seed,
-              source: 'related',
-              timeframe: '30d',
-              why_context: r.why_context,
-              traffic_note: null,
-            });
+          try {
+            const related30 = await fetchRelatedRange(seed, geo, 30);
+            for (const r of related30.slice(0, 10)) {
+              rows.push({
+                category_key: category,
+                query_text: r.query,
+                trend_label: r.trend_label,
+                value_score: r.value_score,
+                seed_keyword: seed,
+                source: 'related',
+                timeframe: '30d',
+                why_context: r.why_context,
+                traffic_note: null,
+              });
+            }
+          } catch (e) {
+            if (/HTML|blocked|rate-limited/i.test(e.message)) {
+              googleApiBlocked = true;
+              console.warn('[trends] Google Trends API blocked — skipping remaining relatedQueries');
+              break;
+            }
+            console.warn(`[trends] relatedQueries 30d "${seed}" (${category}):`, e.message);
           }
-        } catch (e) {
-          console.warn(`[trends] relatedQueries 30d "${seed}" (${category}):`, e.message);
+          await sleep(delayMs);
+          if (googleApiBlocked) break;
         }
-        await sleep(delayMs);
+        if (googleApiBlocked) break;
       }
+    } else {
+      console.warn('[trends] Skipping relatedQueries (API already blocked); using Google News RSS + seeds');
+    }
+
+    // Always enrich with Google News RSS — reliable when Trends API is blocked
+    try {
+      const newsRows = await fetchGoogleNewsRssTopics();
+      rows.push(...newsRows);
+      console.log(`[trends] Google News RSS added ${newsRows.length} topics`);
+    } catch (e) {
+      console.warn('[trends] Google News RSS bundle failed:', e.message);
     }
 
     let merged = ensureTimeframes(rows);
     const fromApi = merged.filter((r) => r.source !== 'seed').length;
     if (fromApi === 0 && merged.length > 0) {
       console.warn(
-        `[trends] Google returned no usable topics; using seed fallback for all windows (${merged.length} rows). Check network / rate limits.`,
+        `[trends] No live topics; using seed fallback for all windows (${merged.length} rows).`,
       );
     }
     await trendsModel.replaceTrendsForGeo(geo, merged);
@@ -385,14 +556,18 @@ export async function refreshTrendsCache() {
       count: merged.length,
       fromApi,
       usedSeedFallback: fromApi === 0 && merged.length > 0,
+      googleApiBlocked,
     };
   } finally {
     trendsRefreshInFlight = false;
   }
 }
 
-function exploreUrl(geo, query) {
+function exploreUrl(geo, query, source) {
   const q = encodeURIComponent(query);
+  if (source === 'google_news') {
+    return `https://news.google.com/search?q=${q}&hl=en-IN&gl=IN&ceid=IN:en`;
+  }
   return `https://trends.google.com/trends/explore?geo=${geo}&q=${q}`;
 }
 
@@ -404,7 +579,7 @@ function mapRowToTopic(t, g, matches) {
     valueScore: t.value_score,
     source: t.source,
     timeframe: t.timeframe,
-    exploreUrl: exploreUrl(g, t.query_text),
+    exploreUrl: exploreUrl(g, t.query_text, t.source),
     matches,
     trafficNote: t.traffic_note || null,
   };
@@ -414,7 +589,8 @@ function attachMatches(topics, posts, matchPerTopic, g) {
   return topics.map((t) => {
     const matches = [];
     const candidates =
-      t.category_key === 'India' && (t.source === 'daily' || t.source === 'realtime')
+      t.category_key === 'India' &&
+      (t.source === 'daily' || t.source === 'realtime' || t.source === 'google_news')
         ? posts
         : posts.filter((p) => p.category === t.category_key);
     for (const p of candidates) {

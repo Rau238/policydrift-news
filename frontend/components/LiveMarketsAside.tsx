@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Activity,
@@ -123,87 +123,6 @@ const TOP_SIX_LABELS: Record<TopSixId, string> = {
 
 const TOP_SIX_SET = new Set<string>(TOP_SIX_IDS);
 
-/** Flag, asset-class, or commodity icon for any quote row (Top 6 + Others). */
-function InstrumentRowIdentifier({ id }: { id: string }) {
-  const wrap = 'inline-flex shrink-0 items-center justify-center';
-  switch (id) {
-    case 'gspc':
-    case 'dji':
-    case 'ixic':
-    case 'vix':
-      return (
-        <span className={wrap} title="United States" aria-hidden>
-          <FlagImg iso="us" size={18} className="align-middle" />
-        </span>
-      );
-    case 'nsei':
-    case 'bsesn':
-      return (
-        <span className={wrap} title="India" aria-hidden>
-          <FlagImg iso="in" size={18} className="align-middle" />
-        </span>
-      );
-    case 'sse':
-      return (
-        <span className={wrap} title="China" aria-hidden>
-          <FlagImg iso="cn" size={18} className="align-middle" />
-        </span>
-      );
-    case 'ftse':
-      return (
-        <span className={wrap} title="United Kingdom" aria-hidden>
-          <FlagImg iso="gb" size={18} className="align-middle" />
-        </span>
-      );
-    case 'n225':
-      return (
-        <span className={wrap} title="Japan" aria-hidden>
-          <FlagImg iso="jp" size={18} className="align-middle" />
-        </span>
-      );
-    case 'gdaxi':
-      return (
-        <span className={wrap} title="Germany" aria-hidden>
-          <FlagImg iso="de" size={18} className="align-middle" />
-        </span>
-      );
-    case 'usdinr':
-      return (
-        <span className={wrap} title="USD / INR" aria-hidden>
-          <ArrowRightLeft className="h-4 w-4 text-teal-600" strokeWidth={2.25} />
-        </span>
-      );
-    case 'btc':
-    case 'eth':
-    case 'sol':
-      return (
-        <span className={wrap} title="Cryptocurrency" aria-hidden>
-          <Coins className="h-4 w-4 text-violet-600" strokeWidth={2.25} />
-        </span>
-      );
-    case 'cl':
-      return (
-        <span className={wrap} title="Crude oil" aria-hidden>
-          <Droplet className="h-4 w-4 text-amber-700" strokeWidth={2.25} />
-        </span>
-      );
-    case 'gc':
-      return (
-        <span className={wrap} title="Gold" aria-hidden>
-          <Gem className="h-4 w-4 text-amber-500" strokeWidth={2.25} />
-        </span>
-      );
-    case 'bz':
-      return (
-        <span className={wrap} title="Brent crude" aria-hidden>
-          <Fuel className="h-4 w-4 text-slate-600" strokeWidth={2.25} />
-        </span>
-      );
-    default:
-      return null;
-  }
-}
-
 function resolveSectionId(q: MarketQuoteRow): SectionKey | null {
   if (q.sectionId && q.sectionId in SECTION_SHORT) {
     return q.sectionId as SectionKey;
@@ -276,33 +195,151 @@ function popoverPctClass(change: number | null): string {
 }
 
 /**
- * Raster flags via flagcdn.com (ISO 3166-1 alpha-2).
- * Only certain paths exist: e.g. 20x15/24x18/… or w20/w40/… - arbitrary w22 returns 404.
+ * SVG flags via flagcdn.com (ISO 3166-1 alpha-2) — crisp at any size.
+ * Use `fill` only inside a fixed circle/box; never stretch with h-full outside one.
  */
-function flagCdnPair(displayW: number): { oneX: string; twoX: string; width: number; height: number } {
-  if (displayW <= 20) return { oneX: '20x15', twoX: '40x30', width: 20, height: 15 };
-  if (displayW <= 26) return { oneX: '24x18', twoX: '48x36', width: 24, height: 18 };
-  return { oneX: '32x24', twoX: '64x48', width: 32, height: 24 };
-}
-
-function FlagImg({ iso, className, size = 22 }: { iso: string; className?: string; size?: number }) {
+function FlagImg({
+  iso,
+  className,
+  size = 22,
+  fill = false,
+}: {
+  iso: string;
+  className?: string;
+  size?: number;
+  /** Stretch to parent (circular row badges only). */
+  fill?: boolean;
+}) {
   const code = iso.toLowerCase();
   if (!/^[a-z]{2}$/.test(code)) return null;
-  const { oneX, twoX, width, height } = flagCdnPair(size);
   const flagLabel = `${iso.toUpperCase()} flag`;
+  const h = Math.round(size * 0.75);
   return (
     <img
-      src={`https://flagcdn.com/${oneX}/${code}.png`}
-      srcSet={`https://flagcdn.com/${twoX}/${code}.png 2x`}
-      width={width}
-      height={height}
+      src={`https://flagcdn.com/${code}.svg`}
+      width={size}
+      height={fill ? size : h}
       alt={flagLabel}
       title={flagLabel}
       loading="lazy"
       decoding="async"
-      className={`shrink-0 rounded-[3px] object-cover shadow-sm ring-1 ring-black/10 ${className ?? ''}`}
+      className={
+        fill
+          ? `h-full w-full shrink-0 object-cover ${className ?? ''}`
+          : `inline-block shrink-0 rounded-[2px] object-cover shadow-sm ring-1 ring-black/15 ${className ?? ''}`
+      }
+      style={fill ? undefined : { width: size, height: h }}
     />
   );
+}
+
+/** Circular badge for flags / asset icons — same size everywhere in Markets. */
+function CircleIcon({
+  title,
+  children,
+  tone = 'slate',
+}: {
+  title: string;
+  children: ReactNode;
+  tone?: 'slate' | 'teal' | 'violet' | 'amber' | 'blue' | 'emerald';
+}) {
+  const tones: Record<string, string> = {
+    slate: 'bg-slate-100 text-slate-700 ring-slate-200/90',
+    teal: 'bg-teal-50 text-teal-700 ring-teal-200/90',
+    violet: 'bg-violet-50 text-violet-700 ring-violet-200/90',
+    amber: 'bg-amber-50 text-amber-800 ring-amber-200/90',
+    blue: 'bg-blue-50 text-blue-700 ring-blue-200/90',
+    emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-200/90',
+  };
+  return (
+    <span
+      className={`inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full ring-1 ${tones[tone]}`}
+      title={title}
+      aria-hidden
+    >
+      {children}
+    </span>
+  );
+}
+
+/** Flag, asset-class, or commodity icon for any quote row (Top 6 + Others). */
+function InstrumentRowIdentifier({ id }: { id: string }) {
+  switch (id) {
+    case 'gspc':
+    case 'dji':
+    case 'ixic':
+    case 'vix':
+      return (
+        <CircleIcon title="United States" tone="blue">
+          <FlagImg iso="us" size={28} fill />
+        </CircleIcon>
+      );
+    case 'nsei':
+    case 'bsesn':
+      return (
+        <CircleIcon title="India" tone="amber">
+          <FlagImg iso="in" size={28} fill />
+        </CircleIcon>
+      );
+    case 'sse':
+      return (
+        <CircleIcon title="China" tone="slate">
+          <FlagImg iso="cn" size={28} fill />
+        </CircleIcon>
+      );
+    case 'ftse':
+      return (
+        <CircleIcon title="United Kingdom" tone="slate">
+          <FlagImg iso="gb" size={28} fill />
+        </CircleIcon>
+      );
+    case 'n225':
+      return (
+        <CircleIcon title="Japan" tone="slate">
+          <FlagImg iso="jp" size={28} fill />
+        </CircleIcon>
+      );
+    case 'gdaxi':
+      return (
+        <CircleIcon title="Germany" tone="slate">
+          <FlagImg iso="de" size={28} fill />
+        </CircleIcon>
+      );
+    case 'usdinr':
+      return (
+        <CircleIcon title="USD / INR" tone="teal">
+          <ArrowRightLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
+        </CircleIcon>
+      );
+    case 'btc':
+    case 'eth':
+    case 'sol':
+      return (
+        <CircleIcon title="Cryptocurrency" tone="violet">
+          <Coins className="h-3.5 w-3.5" strokeWidth={2.25} />
+        </CircleIcon>
+      );
+    case 'cl':
+      return (
+        <CircleIcon title="Crude oil" tone="amber">
+          <Droplet className="h-3.5 w-3.5" strokeWidth={2.25} />
+        </CircleIcon>
+      );
+    case 'gc':
+      return (
+        <CircleIcon title="Gold" tone="amber">
+          <Gem className="h-3.5 w-3.5" strokeWidth={2.25} />
+        </CircleIcon>
+      );
+    case 'bz':
+      return (
+        <CircleIcon title="Brent crude" tone="slate">
+          <Fuel className="h-3.5 w-3.5" strokeWidth={2.25} />
+        </CircleIcon>
+      );
+    default:
+      return null;
+  }
 }
 
 const ISO_FOR_SECTION: Partial<Record<SectionKey, string>> = {
@@ -402,7 +439,7 @@ function CountryFlagsLine({
       title={name}
     >
       {iso ? (
-        <FlagImg iso={iso} size={22} className="self-center" />
+        <FlagImg iso={iso} size={dark ? 18 : 16} className="self-center" />
       ) : (
         <Globe
           className={`h-4 w-4 shrink-0 self-center ${dark ? 'text-slate-500' : 'text-slate-500'}`}
@@ -585,67 +622,67 @@ function MarketDetailPopover({
   return createPortal(
     <div
       role="tooltip"
-      className="pointer-events-auto fixed z-[200] w-[min(calc(100vw-1.5rem),18rem)] overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 font-markets text-slate-100 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.55),0_0_0_1px_rgba(45,212,191,0.12)] backdrop-blur-md"
+      className="pointer-events-auto fixed z-[200] w-[min(calc(100vw-1.5rem),14rem)] overflow-hidden rounded-xl border border-white/10 bg-slate-950/95 font-markets text-slate-100 shadow-[0_16px_36px_-10px_rgba(0,0,0,0.55),0_0_0_1px_rgba(45,212,191,0.12)] backdrop-blur-md"
       style={{ left: tip.left, top: tip.top }}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <div className={`h-1 bg-gradient-to-r ${accent}`} aria-hidden />
-      <div className="border-b border-white/10 bg-gradient-to-br from-white/[0.07] to-transparent px-3.5 py-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-teal-300/90">{SECTION_FULL[section]}</p>
-        <p className="mt-1 font-markets text-base font-bold leading-snug tracking-tight text-white">{q.label}</p>
+      <div className={`h-0.5 bg-gradient-to-r ${accent}`} aria-hidden />
+      <div className="border-b border-white/10 bg-gradient-to-br from-white/[0.07] to-transparent px-2.5 py-2">
+        <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-teal-300/90">{SECTION_FULL[section]}</p>
+        <p className="mt-0.5 font-markets text-sm font-bold leading-snug tracking-tight text-white">{q.label}</p>
         <CountryFlagsLine q={q} section={section} theme="dark" />
       </div>
-      <dl className="space-y-2.5 px-3.5 py-3 text-sm">
-        <div className="flex items-baseline justify-between gap-3 border-b border-white/5 pb-2">
-          <dt className="shrink-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Symbol</dt>
-          <dd className="font-markets-mono text-sm font-semibold text-teal-200">{q.symbol}</dd>
+      <dl className="space-y-1.5 px-2.5 py-2 text-xs">
+        <div className="flex items-baseline justify-between gap-2 border-b border-white/5 pb-1.5">
+          <dt className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Symbol</dt>
+          <dd className="font-markets-mono text-xs font-semibold text-teal-200">{q.symbol}</dd>
         </div>
         {q.ok ? (
           <>
-            <div className="flex items-baseline justify-between gap-3">
-              <dt className="shrink-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Last</dt>
-              <dd className="text-right font-markets-mono text-base font-bold tabular-nums text-white">
+            <div className="flex items-baseline justify-between gap-2">
+              <dt className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Last</dt>
+              <dd className="text-right font-markets-mono text-sm font-bold tabular-nums text-white">
                 {formatPrice(q)}
-                {q.currency ? <span className="ml-1 text-xs font-markets font-medium text-slate-500">{q.currency}</span> : null}
+                {q.currency ? <span className="ml-1 text-[10px] font-markets font-medium text-slate-500">{q.currency}</span> : null}
               </dd>
             </div>
-            <div className="flex items-baseline justify-between gap-3">
-              <dt className="shrink-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Prev. close</dt>
-              <dd className="text-right font-markets-mono text-sm font-semibold tabular-nums text-slate-300">
+            <div className="flex items-baseline justify-between gap-2">
+              <dt className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Prev. close</dt>
+              <dd className="text-right font-markets-mono text-xs font-semibold tabular-nums text-slate-300">
                 {formatPrev(q.previousClose, q)}
               </dd>
             </div>
-            <div className="flex items-baseline justify-between gap-3">
-              <dt className="shrink-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Change</dt>
-              <dd className={`text-right font-markets-mono text-sm font-bold tabular-nums ${popoverPctClass(q.change)}`}>
+            <div className="flex items-baseline justify-between gap-2">
+              <dt className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Change</dt>
+              <dd className={`text-right font-markets-mono text-xs font-bold tabular-nums ${popoverPctClass(q.change)}`}>
                 {formatSignedPoints(q.change, q)}
-                {q.id === 'usdinr' ? <span className="text-xs font-medium text-slate-500"> INR</span> : null}
+                {q.id === 'usdinr' ? <span className="text-[10px] font-medium text-slate-500"> INR</span> : null}
               </dd>
             </div>
-            <div className="flex items-center justify-between gap-3">
-              <dt className="shrink-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Change %</dt>
-              <dd className="text-right">
+            <div className="flex items-center justify-between gap-2">
+              <dt className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Change %</dt>
+              <dd className="text-right scale-90 origin-right">
                 <MoveReadoutDark change={q.change} pct={formatSignedPercent(q.changePercent)} />
               </dd>
             </div>
-            <div className="rounded-lg bg-black/25 px-2.5 py-2 ring-1 ring-white/5">
-              <dt className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Quote time</dt>
-              <dd className="mt-1 text-xs leading-snug text-slate-300">
+            <div className="rounded-md bg-black/25 px-2 py-1.5 ring-1 ring-white/5">
+              <dt className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Quote time</dt>
+              <dd className="mt-0.5 text-[11px] leading-snug text-slate-300">
                 {asOfLabel}
                 {q.timezone ? (
-                  <span className="mt-1 block text-[11px] text-slate-500">{q.timezone.replace(/_/g, ' ')}</span>
+                  <span className="mt-0.5 block text-[10px] text-slate-500">{q.timezone.replace(/_/g, ' ')}</span>
                 ) : null}
               </dd>
             </div>
           </>
         ) : (
-          <p className="text-sm font-medium text-amber-300/90">{q.error || 'Quote unavailable'}</p>
+          <p className="text-xs font-medium text-amber-300/90">{q.error || 'Quote unavailable'}</p>
         )}
       </dl>
-      <div className="flex items-center gap-1 border-t border-white/10 bg-black/20 px-3 py-2 text-[10px] font-medium text-slate-500">
-        <ChevronRight className="h-3 w-3 text-teal-500/80" aria-hidden />
-        Yahoo Finance · delayed per exchange
+      <div className="flex items-center gap-1 border-t border-white/10 bg-black/20 px-2.5 py-1.5 text-[9px] font-medium text-slate-500">
+        <ChevronRight className="h-2.5 w-2.5 text-teal-500/80" aria-hidden />
+        Yahoo Finance · delayed
       </div>
     </div>,
     document.body,
@@ -659,9 +696,9 @@ function computeTipState(
   narrow: boolean,
 ): TipState {
   const rect = row.getBoundingClientRect();
-  const gap = 10;
-  const popW = Math.min(288, typeof window !== 'undefined' ? window.innerWidth - 24 : 288);
-  const popH = 320;
+  const gap = 8;
+  const popW = Math.min(224, typeof window !== 'undefined' ? window.innerWidth - 24 : 224);
+  const popH = 260;
 
   let left: number;
   let top: number;
@@ -816,37 +853,25 @@ export function LiveMarketsAside() {
   );
 
   return (
-    <aside className="min-w-0 overflow-visible rounded-xl border border-slate-200 bg-white font-markets shadow-sm antialiased max-lg:rounded-2xl max-lg:border-slate-200/90 max-lg:shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] max-lg:ring-1 max-lg:ring-teal-900/[0.06]">
-      <div className="relative flex items-center justify-between gap-3 border-b border-slate-200/80 bg-slate-900 px-3 py-3 text-white max-lg:px-3.5 max-lg:py-2.5">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            backgroundImage: `repeating-linear-gradient(
-              -60deg,
-              transparent,
-              transparent 6px,
-              rgba(255,255,255,0.03) 6px,
-              rgba(255,255,255,0.03) 7px
-            )`,
-          }}
-          aria-hidden
-        />
-        <div className="relative flex min-w-0 items-center gap-2.5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
-            <Activity className="h-4 w-4 text-teal-300" strokeWidth={2.25} aria-hidden />
+    <aside className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 font-markets shadow-sm antialiased max-lg:rounded-2xl max-lg:border-slate-200/90 max-lg:shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] max-lg:ring-1 max-lg:ring-teal-900/[0.06]">
+      <div className="relative flex items-center justify-between gap-3 rounded-t-xl border-b border-slate-200/80 bg-gradient-to-r from-slate-950 via-slate-900 to-teal-950 px-3.5 py-3.5 text-white max-lg:rounded-t-2xl">
+        <div className="relative flex min-w-0 items-center gap-3">
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-500/20 ring-1 ring-teal-300/40">
+            <Activity className="h-5 w-5 text-teal-300" strokeWidth={2.25} aria-hidden />
           </span>
           <div className="min-w-0">
-            <h2 className="font-markets text-[0.9375rem] font-bold leading-tight tracking-tight text-white">
+            <h2 className="font-markets text-base font-bold leading-tight tracking-tight text-white">
               Markets
             </h2>
-            <p className="mt-0.5 truncate text-[10px] font-medium text-slate-400">
+            <p className="mt-0.5 truncate text-[11px] font-medium text-slate-400">
               {fetchedAt ? (
                 <>
-                  {formatRelativeTime(fetchedAt)}
-                  {refreshing ? ' · …' : ''} · Yahoo
+                  <span className="text-teal-200/90">{formatRelativeTime(fetchedAt)}</span>
+                  {refreshing ? ' · updating' : ''}
+                  <span className="text-slate-500"> · Yahoo Finance</span>
                 </>
               ) : (
-                'Loading…'
+                'Loading quotes…'
               )}
             </p>
           </div>
@@ -855,7 +880,7 @@ export function LiveMarketsAside() {
           type="button"
           onClick={() => load(true)}
           disabled={loading || refreshing}
-          className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white transition hover:bg-white/15 disabled:opacity-40"
+          className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/15 transition hover:bg-white/15 disabled:opacity-40"
           aria-label="Refresh quotes"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} aria-hidden />
@@ -910,9 +935,9 @@ export function LiveMarketsAside() {
                       key={id}
                       className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm text-slate-400 max-lg:rounded-xl max-lg:border max-lg:border-slate-200/90 max-lg:bg-white max-lg:px-2.5 max-lg:py-2 max-lg:shadow-sm"
                     >
-                      <span className="flex min-w-0 items-center gap-1.5 font-medium text-slate-500">
-                        <span className="truncate">{headline}</span>
+                      <span className="flex min-w-0 items-center gap-2 font-medium text-slate-500">
                         <InstrumentRowIdentifier id={id} />
+                        <span className="truncate">{headline}</span>
                       </span>
                       <span>-</span>
                     </li>
@@ -925,9 +950,9 @@ export function LiveMarketsAside() {
                       key={id}
                       className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm max-lg:rounded-xl max-lg:border max-lg:border-slate-200/90 max-lg:bg-white max-lg:px-2.5 max-lg:py-2 max-lg:shadow-sm"
                     >
-                      <span className="flex min-w-0 items-center gap-1.5 font-medium text-slate-800">
-                        <span className="truncate">{headline}</span>
+                      <span className="flex min-w-0 items-center gap-2 font-medium text-slate-800">
                         <InstrumentRowIdentifier id={id} />
+                        <span className="truncate">{headline}</span>
                       </span>
                       <span className="text-slate-400">-</span>
                     </li>
@@ -942,9 +967,11 @@ export function LiveMarketsAside() {
                     onMouseLeave={narrowLayout ? undefined : scheduleHide}
                     onClick={narrowLayout ? (e) => toggleTip(e, q, section) : undefined}
                   >
-                    <span className="flex min-w-0 shrink items-center gap-1.5 font-medium text-sm leading-snug text-slate-800 max-lg:w-full max-lg:justify-between max-lg:text-[13px]">
-                      <span className="truncate">{headline}</span>
-                      <InstrumentRowIdentifier id={id} />
+                    <span className="flex min-w-0 shrink items-center gap-2 font-medium text-sm leading-snug text-slate-800 max-lg:w-full max-lg:justify-between max-lg:text-[13px]">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <InstrumentRowIdentifier id={id} />
+                        <span className="truncate">{headline}</span>
+                      </span>
                     </span>
                     <div className="flex shrink-0 flex-wrap items-center justify-end gap-x-2 gap-y-1 max-lg:w-full max-lg:justify-between max-lg:gap-1.5">
                       {q.ok ? (

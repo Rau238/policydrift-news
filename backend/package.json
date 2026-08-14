@@ -8,6 +8,7 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "check": "node scripts/check-setup.mjs",
+    "feeds:check": "node scripts/check-feeds.mjs",
     "ingest": "node scripts/ingest-once.mjs",
     "trends": "node scripts/trends-once.mjs"
   },

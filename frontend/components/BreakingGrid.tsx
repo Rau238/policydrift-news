@@ -16,7 +16,7 @@ export function BreakingGrid({ posts }: Props) {
     <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 max-lg:gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {slice.map((p, i) => (
         <li key={p.id} className="min-w-0">
-          <PostCard post={p} priority={i < 3} gridCell index={i} />
+          <PostCard post={p} priority={i === 0} gridCell index={i} />
         </li>
       ))}
     </ul>
