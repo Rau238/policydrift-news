@@ -129,6 +129,167 @@ export const RSS_FEEDS_BY_CATEGORY = {
 };
 
 /**
+ * Generate a friendly human-readable name for any RSS feed based on domain and category.
+ */
+export function generateFeedName(url, category) {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./, '').toLowerCase();
+    const path = u.pathname.toLowerCase();
+
+    // BBC
+    if (host.includes('bbci.co.uk') || host.includes('bbc.co.uk')) {
+      if (path.includes('politics')) return 'BBC News - Politics';
+      if (path.includes('world/asia')) return 'BBC News - Asia';
+      if (path.includes('world')) return 'BBC News - World';
+      if (path.includes('business')) return 'BBC News - Business';
+      if (path.includes('cricket')) return 'BBC Sport - Cricket';
+      if (path.includes('football')) return 'BBC Sport - Football';
+      if (path.includes('sport')) return 'BBC Sport - Headlines';
+      return 'BBC News - Top Stories';
+    }
+    // The Guardian
+    if (host.includes('theguardian.com')) {
+      if (path.includes('politics')) return 'The Guardian - Politics';
+      if (path.includes('world')) return 'The Guardian - World';
+      return 'The Guardian - International';
+    }
+    // New York Times
+    if (host.includes('nytimes.com')) {
+      if (path.includes('politics')) return 'New York Times - Politics';
+      if (path.includes('world')) return 'New York Times - World';
+      if (path.includes('economy')) return 'New York Times - Economy';
+      return 'New York Times - Top Stories';
+    }
+    if (host.includes('politico.com')) return 'Politico - Politics';
+    if (host.includes('thehill.com')) return 'The Hill - Politics';
+    if (host.includes('washingtonpost.com')) {
+      if (path.includes('politics')) return 'Washington Post - Politics';
+      if (path.includes('world')) return 'Washington Post - World';
+      return 'Washington Post';
+    }
+    if (host.includes('foxnews.com')) {
+      if (path.includes('politics')) return 'Fox News - Politics';
+      if (path.includes('sports')) return 'Fox News - Sports';
+      return 'Fox News - Latest';
+    }
+    if (host.includes('cbsnews.com')) {
+      if (path.includes('politics')) return 'CBS News - Politics';
+      if (path.includes('world')) return 'CBS News - World';
+      return 'CBS News - Latest';
+    }
+    if (host.includes('timesofindia')) {
+      if (path.includes('1221656')) return 'Times of India - India News';
+      return 'Times of India - Top Stories';
+    }
+    if (host.includes('thehindu.com')) return 'The Hindu - National';
+    if (host.includes('indianexpress.com')) {
+      if (path.includes('banking-and-finance')) return 'Indian Express - Banking & Finance';
+      if (path.includes('section/india')) return 'Indian Express - India';
+      return 'Indian Express - Top Stories';
+    }
+    if (host.includes('hindustantimes.com')) return 'Hindustan Times - India News';
+    if (host.includes('economictimes')) {
+      if (path.includes('markets')) return 'Economic Times - Markets';
+      return 'Economic Times - Top Stories';
+    }
+    if (host.includes('livemint.com')) {
+      if (path.includes('markets')) return 'Livemint - Markets';
+      if (path.includes('money')) return 'Livemint - Banking & Money';
+      return 'Livemint - Top Stories';
+    }
+    if (host.includes('moneycontrol.com')) {
+      if (path.includes('business')) return 'Moneycontrol - Business';
+      return 'Moneycontrol - Top News';
+    }
+    if (host.includes('business-standard.com')) return 'Business Standard - Latest';
+    if (host.includes('ndtvnews') || host.includes('ndtv.com')) {
+      if (path.includes('india-news')) return 'NDTV - India News';
+      return 'NDTV - Top Stories';
+    }
+    if (host.includes('indiatoday.in')) {
+      if (path.includes('1206577')) return 'India Today - Politics';
+      return 'India Today - Top Stories';
+    }
+    if (host.includes('cnbc.com')) {
+      if (path.includes('10000664')) return 'CNBC - Stocks & Markets';
+      return 'CNBC - Business';
+    }
+    if (host.includes('bloomberg.com')) {
+      if (path.includes('economics')) return 'Bloomberg - Economics';
+      return 'Bloomberg - Markets';
+    }
+    if (host.includes('ft.com')) {
+      if (path.includes('markets')) return 'Financial Times - Markets';
+      if (path.includes('economy')) return 'Financial Times - Economy';
+      if (path.includes('world')) return 'Financial Times - World';
+      return 'Financial Times - Home';
+    }
+    if (host.includes('marketwatch.com') || host.includes('dowjones.io')) {
+      if (path.includes('realtimeheadlines')) return 'MarketWatch - Realtime Headlines';
+      return 'MarketWatch - Top Stories';
+    }
+    if (host.includes('cointelegraph.com')) return 'CoinTelegraph - Crypto';
+    if (host.includes('coindesk.com')) return 'CoinDesk - Web3 & Crypto';
+    if (host.includes('decrypt.co')) return 'Decrypt - Crypto News';
+    if (host.includes('news.bitcoin.com') || host.includes('bitcoinmagazine.com')) return 'Bitcoin.com News';
+    if (host.includes('cryptopotato.com')) return 'CryptoPotato - Market Pulse';
+    if (host.includes('cryptoslate.com')) return 'CryptoSlate - Blockchain';
+    if (host.includes('thedefiant.io')) return 'The Defiant - DeFi & Web3';
+    if (host.includes('espncricinfo.com')) return 'ESPN Cricinfo - Cricket';
+    if (host.includes('crictracker.com')) return 'CricTracker - Cricket';
+    if (host.includes('cbssports.com')) return 'CBS Sports - Headlines';
+    if (host.includes('skysports.com')) return 'Sky Sports - Latest';
+    if (host.includes('aljazeera.com')) return 'Al Jazeera - English';
+    if (host.includes('dw.com')) return 'Deutsche Welle - News';
+    if (host.includes('france24.com')) return 'France 24 - English';
+    if (host.includes('nhk.or.jp')) return 'NHK World Japan';
+    if (host.includes('npr.org')) return 'NPR News';
+    if (host.includes('google.com')) {
+      const q = u.searchParams.get('q') || '';
+      if (q) return `Google News (${q.replace(/\+OR\+/g, '/').replace(/\+/g, ' ')})`;
+      return `Google News (${category})`;
+    }
+
+    return host.replace(/\.[a-z]{2,6}$/, '') + ` (${category})`;
+  } catch {
+    return `Feed (${category})`;
+  }
+}
+
+/**
+ * Return all verified curated feed entries ready for DB sync.
+ */
+export function getCuratedFeedEntries() {
+  const seen = new Set();
+  const out = [];
+  for (const [category, urls] of Object.entries(RSS_FEEDS_BY_CATEGORY)) {
+    for (const raw of urls) {
+      const url = (raw || '').trim();
+      if (!url || seen.has(url)) continue;
+      seen.add(url);
+      const name = generateFeedName(url, category);
+      let trustScore = 75;
+      if (url.includes('bbci.co.uk') || url.includes('nytimes.com') || url.includes('theguardian.com') || url.includes('ft.com') || url.includes('bloomberg.com')) {
+        trustScore = 90;
+      } else if (url.includes('reuters') || url.includes('livemint') || url.includes('economictimes') || url.includes('thehindu')) {
+        trustScore = 85;
+      }
+      out.push({
+        name,
+        rss_url: url,
+        url,
+        category,
+        trust_score: trustScore,
+        country: category === 'India' ? 'IN' : 'GLOBAL',
+        language: 'en',
+      });
+    }
+  }
+  return out;
+}
+
+/**
  * @param {{ RSS_FEED_URLS: string[] }} envSlice
  * @returns {{ url: string, category: string }[]}
  */
@@ -151,3 +312,4 @@ export function getFeedEntries(envSlice) {
   }
   return out;
 }
+

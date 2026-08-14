@@ -37,7 +37,7 @@ export const env = {
   MYSQL_PORT: parseInt(process.env.MYSQL_PORT || '3306', 10),
   MYSQL_USER: required('MYSQL_USER', 'root'),
   MYSQL_PASSWORD: process.env.MYSQL_PASSWORD || '',
-  MYSQL_DATABASE: required('MYSQL_DATABASE', 'policydrift'),
+  MYSQL_DATABASE: required('MYSQL_DATABASE', 'policydrift_news'),
   MYSQL_POOL_LIMIT: parseInt(process.env.MYSQL_POOL_LIMIT || '10', 10),
   MYSQL_LOG_STORAGE_ON_START: process.env.MYSQL_LOG_STORAGE_ON_START !== 'false',
   RSS_FEED_URLS: (process.env.RSS_FEED_URLS || '').split(',').map((s) => s.trim()).filter(Boolean),
@@ -50,7 +50,7 @@ export const env = {
   CRON_ENABLED: process.env.CRON_ENABLED !== 'false',
   RSS_CRON_INTERVAL_MINUTES: Math.min(
     59,
-    Math.max(1, parseInt(process.env.RSS_CRON_INTERVAL_MINUTES || '5', 10) || 5),
+    Math.max(1, parseInt(process.env.RSS_CRON_INTERVAL_MINUTES || '15', 10) || 15),
   ),
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000,http://127.0.0.1:3000',
   SITE_PUBLIC_URL: (process.env.SITE_PUBLIC_URL || process.env.NEXT_PUBLIC_SITE_URL || '').trim(),
@@ -64,4 +64,21 @@ export const env = {
   TRENDS_MATCH_POST_LIMIT: parseInt(process.env.TRENDS_MATCH_POST_LIMIT || '200', 10) || 200,
   TRENDS_REFRESH_SECRET: (process.env.TRENDS_REFRESH_SECRET || '').trim(),
   TRENDS_CRON: (process.env.TRENDS_CRON || '*/10 * * * *').trim(),
+
+  // ── Admin ────────────────────────────────────────────────────────────────
+  /** Shared secret for admin API endpoints (x-admin-secret header). */
+  ADMIN_SECRET: (process.env.ADMIN_SECRET || '').trim(),
+
+  // ── Worker process control ────────────────────────────────────────────
+  /**
+   * Set WORKER_ENABLED=true in .env.production to tell server.js that a
+   * dedicated policydrift-worker PM2 process is running the RSS cron,
+   * preventing double-ingestion when both processes share the same MySQL DB.
+   */
+  WORKER_ENABLED: process.env.WORKER_ENABLED === 'true',
+
+  // ── Ranking / view-dedup overrides ────────────────────────────────────
+  VIEW_DEDUP_WINDOW_MINUTES: parseInt(process.env.VIEW_DEDUP_WINDOW_MINUTES || '30', 10) || 30,
+  RANKING_TRENDING_DAYS: parseInt(process.env.RANKING_TRENDING_DAYS || '2', 10) || 2,
+  RANKING_TOP_DAYS: parseInt(process.env.RANKING_TOP_DAYS || '7', 10) || 7,
 };

@@ -56,10 +56,10 @@ export function PostCard({ post, priority, compact, gridCell }: Props) {
         <div className={`flex min-h-0 flex-1 flex-col ${compact ? 'gap-1.5 p-3' : 'gap-2 p-3.5 sm:p-4'}`}>
           <div className="flex items-center justify-between gap-2">
             <span
-              className={`inline-flex max-w-[calc(100%-1.75rem)] items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${categoryChipClass(post.category)}`}
+              className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${categoryChipClass(post.category)}`}
             >
               <CategoryGlyph name={post.category} className="h-3 w-3 shrink-0" />
-              <span className="truncate">{categoryLabel(post.category)}</span>
+              <span>{categoryLabel(post.category)}</span>
             </span>
             <ArrowUpRight
               className="h-3.5 w-3.5 shrink-0 text-slate-300 transition group-hover:text-accent"
@@ -68,7 +68,7 @@ export function PostCard({ post, priority, compact, gridCell }: Props) {
             />
           </div>
           <h2
-            className={`font-display font-bold tracking-tight text-ink line-clamp-3 ${
+            className={`font-display font-bold tracking-tight text-ink ${
               compact
                 ? 'text-[0.9rem] leading-snug sm:text-[0.95rem]'
                 : 'text-[0.98rem] leading-snug sm:text-[1.05rem] sm:leading-snug'
@@ -79,7 +79,7 @@ export function PostCard({ post, priority, compact, gridCell }: Props) {
           <time
             dateTime={post.published_at}
             title={post.published_at}
-            className="mt-auto pt-1 text-[11px] font-semibold tabular-nums text-slate-400"
+            className="mt-auto pt-2 text-[11px] font-semibold tabular-nums text-slate-400"
           >
             {formatPublishedAt(post.published_at)}
           </time>

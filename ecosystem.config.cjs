@@ -26,6 +26,23 @@ const apiPort = String(fileEnv.API_PORT || process.env.API_PORT || '4000');
 module.exports = {
   apps: [
     {
+      name: 'policydrift-worker',
+      cwd: path.join(root, 'backend'),
+      script: 'src/workers/worker.js',
+      interpreter: 'node',
+      instances: 1,          // MUST be 1 — only one worker runs crons
+      exec_mode: 'fork',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '300M',
+      env_production: {
+        NODE_ENV: 'production',
+        API_PORT: apiPort,
+        WORKER_ENABLED: 'true', // tells policydrift-api to skip its RSS cron
+        ...fileEnv,
+      },
+    },
+    {
       name: 'policydrift-api',
       cwd: path.join(root, 'backend'),
       script: 'src/server.js',
@@ -38,6 +55,7 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         API_PORT: apiPort,
+        WORKER_ENABLED: 'true',
         ...fileEnv,
       },
     },

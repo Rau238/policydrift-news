@@ -3,7 +3,10 @@ import { PostCard } from '@/components/PostCard';
 import { BreakingGrid } from '@/components/BreakingGrid';
 import { TrendingAside } from '@/components/TrendingAside';
 import { LiveMarketsAside } from '@/components/LiveMarketsAside';
-import { getPosts, getTrending } from '@/lib/api';
+import { getPosts, getTrending, getTopNews, getTrendingNews, getPopularNews } from '@/lib/api';
+import { TopStoriesSection } from '@/components/TopStoriesSection';
+import { TrendingSection } from '@/components/TrendingSection';
+import { PopularSection } from '@/components/PopularSection';
 import { resolvePostImageUrl, storyFallbackImageUrl } from '@/lib/story-image';
 import { absoluteUrl, siteDescription, siteName } from '@/lib/site';
 import Link from 'next/link';
@@ -46,10 +49,13 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [breaking, latest, trending] = await Promise.all([
+  const [breaking, latest, trending, topStories, trendingRanked, popular] = await Promise.all([
     getPosts({ page: 1, limit: 10, category: 'Breaking' }),
     getPosts({ page: 1, limit: 12 }),
     getTrending(6),
+    getTopNews({ limit: 6 }),
+    getTrendingNews({ limit: 10 }),
+    getPopularNews({ limit: 6, period: 'day' }),
   ]);
 
   const lead = latest.posts[0];
@@ -129,11 +135,11 @@ export default async function HomePage() {
                       <span className={`inline-flex items-center gap-1 rounded-md text-white px-2 py-0.5 text-[10px] font-bold ${categoryChipClass(lead.category)}`}>
                         <CategoryGlyph name={lead.category} className="h-3 w-3" />{categoryLabel(lead.category)}</span>
                     </div>
-                    <h2 className="mt-2.5 font-display text-base font-bold leading-snug text-white line-clamp-3 max-lg:mt-2 sm:mt-3 sm:text-xl lg:text-[1.375rem]">
+                    <h2 className="mt-2.5 font-display text-base font-bold leading-snug text-white max-lg:mt-2 sm:mt-3 sm:text-xl lg:text-[1.375rem]">
                       {lead.title}
                     </h2>
                     {lead.excerpt ? (
-                      <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-400">
+                      <p className="mt-2 text-sm leading-relaxed text-slate-300">
                         {lead.excerpt}
                       </p>
                     ) : null}
@@ -189,6 +195,27 @@ export default async function HomePage() {
                     <BreakingGrid posts={breaking.posts} />
                   </div>
                 </section>
+              ) : null}
+
+              {topStories.length > 0 ? (
+                <section className="sm:px-6">
+                  <TopStoriesSection posts={topStories} />
+                </section>
+              ) : null}
+
+              {(trendingRanked.length > 0 || popular.length > 0) ? (
+                <div className="grid grid-cols-1 gap-6 sm:px-6 lg:grid-cols-2 lg:gap-8">
+                  {trendingRanked.length > 0 ? (
+                    <div>
+                      <TrendingSection posts={trendingRanked} />
+                    </div>
+                  ) : null}
+                  {popular.length > 0 ? (
+                    <div>
+                      <PopularSection posts={popular} />
+                    </div>
+                  ) : null}
+                </div>
               ) : null}
 
               <section className="sm:px-6">

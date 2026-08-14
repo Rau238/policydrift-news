@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import { env } from './config/env.js';
 import postRoutes from './routes/post.routes.js';
 import metaRoutes from './routes/meta.routes.js';
+import newsRoutes from './routes/news.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 const app = express();
 
@@ -24,6 +26,10 @@ app.get('/health', (_req, res) => {
 
 app.use('/api', postRoutes);
 app.use('/api/meta', metaRoutes);
+// v2 public news endpoints (latest / top / trending / popular / :slug)
+app.use('/api/news', newsRoutes);
+// v2 admin endpoints (protected by requireAdmin middleware)
+app.use('/api/admin', adminRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);

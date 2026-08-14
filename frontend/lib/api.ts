@@ -1,4 +1,4 @@
-import type { CategoryRow, GoogleTrendsBundle, PostDetail, PostListItem } from './types';
+import type { CategoryRow, GoogleTrendsBundle, NewsSource, PostDetail, PostListItem } from './types';
 
 /**
  * Base URL for API fetches.
@@ -94,6 +94,114 @@ export async function getTrending(limit = 6): Promise<PostListItem[]> {
 
 export async function getCategories(): Promise<CategoryRow[]> {
   return safeFetchJson('/api/posts/categories', []);
+}
+
+// ─── v2 public news feeds ─────────────────────────────────────────────────────
+
+export async function getLatestNews(params: {
+  page?: number;
+  limit?: number;
+  category?: string;
+  source?: number;
+}): Promise<{ posts: PostListItem[]; total: number; page: number; limit: number }> {
+  const sp = new URLSearchParams();
+  sp.set('page',  String(params.page  ?? 1));
+  sp.set('limit', String(params.limit ?? 20));
+  if (params.category) sp.set('category', params.category);
+  if (params.source)   sp.set('source',   String(params.source));
+  return safeFetchJson(`/api/news/latest?${sp}`, { posts: [], total: 0, page: 1, limit: 20 });
+}
+
+export async function getTopNews(params: { limit?: number; days?: number } = {}): Promise<PostListItem[]> {
+  const sp = new URLSearchParams();
+  if (params.limit) sp.set('limit', String(params.limit));
+  if (params.days)  sp.set('days',  String(params.days));
+  return safeFetchJson(`/api/news/top?${sp}`, [], { next: { revalidate: 60 } });
+}
+
+export async function getTrendingNews(params: { limit?: number; days?: number } = {}): Promise<PostListItem[]> {
+  const sp = new URLSearchParams();
+  if (params.limit) sp.set('limit', String(params.limit));
+  if (params.days)  sp.set('days',  String(params.days));
+  try {
+    const res = await fetch(`${getBaseUrl()}/api/news/trending?${sp}`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return res.json() as Promise<PostListItem[]>;
+  } catch { return []; }
+}
+
+export async function getPopularNews(params: {
+  limit?: number;
+  period?: 'day' | 'week' | 'month';
+} = {}): Promise<PostListItem[]> {
+  const sp = new URLSearchParams();
+  if (params.limit)  sp.set('limit',  String(params.limit));
+  if (params.period) sp.set('period', params.period);
+  return safeFetchJson(`/api/news/popular?${sp}`, [], { next: { revalidate: 300 } });
+}
+
+// ─── v2 admin API (proxied through Next.js route handler) ─────────────────────
+
+function adminFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  return fetchJson<T>(`/api/admin${path}`, init);
+}
+
+export async function adminGetSources(): Promise<NewsSource[]> {
+  return adminFetch<NewsSource[]>('/sources');
+}
+
+export async function adminCreateSource(data: Partial<NewsSource>): Promise<{ ok: boolean; id: number }> {
+  return adminFetch('/sources', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function adminUpdateSource(id: number, data: Partial<NewsSource>): Promise<{ ok: boolean }> {
+  return adminFetch(`/sources/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function adminDeleteSource(id: number): Promise<{ ok: boolean }> {
+  return adminFetch(`/sources/${id}`, { method: 'DELETE' });
+}
+
+export async function adminTestSource(id: number): Promise<{ ok: boolean; itemCount?: number }> {
+  return adminFetch(`/sources/${id}/test`, { method: 'POST' });
+}
+
+export async function adminGetArticles(params: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  category?: string;
+} = {}): Promise<{ posts: PostListItem[]; total: number; page: number; limit: number }> {
+  const sp = new URLSearchParams();
+  if (params.page)     sp.set('page',     String(params.page));
+  if (params.limit)    sp.set('limit',    String(params.limit ?? 20));
+  if (params.status)   sp.set('status',   params.status);
+  if (params.category) sp.set('category', params.category);
+  return adminFetch(`/articles?${sp}`);
+}
+
+export async function adminArticleAction(
+  id: number,
+  action: 'publish' | 'unpublish' | 'feature' | 'unfeature' | 'breaking' | 'unbreaking',
+  body?: Record<string, unknown>,
+): Promise<{ ok: boolean }> {
+  return adminFetch(`/articles/${id}/${action}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+}
+
+export async function adminTriggerIngest(): Promise<{ created: number; skipped: number; errors: string[] }> {
+  return adminFetch('/ingest', { method: 'POST' });
 }
 
 export async function getSitemapRows(): Promise<{ slug: string; lastmod: string }[]> {

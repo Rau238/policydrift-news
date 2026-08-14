@@ -19,7 +19,7 @@
     "dev:api": "dotenv -e .env.development -- cross-env NODE_ENV=development npm run dev -w policydrift-backend",
     "dev:web": "dotenv -e .env.development -- cross-env NODE_ENV=development node scripts/web-dev.mjs",
     "build": "npm run build:prod",
-    "build:dev": "dotenv -e .env.development -- cross-env NODE_ENV=development npm run build -w policydrift-frontend",
+    "build:dev": "dotenv -e .env.development -- cross-env NODE_ENV=production npm run build -w policydrift-frontend",
     "build:prod": "dotenv -e .env.production -- cross-env NODE_ENV=production npm run build -w policydrift-frontend",
     "start:api": "dotenv -e .env.production -- cross-env NODE_ENV=production npm run start -w policydrift-backend",
     "start:web": "dotenv -e .env.production -- cross-env NODE_ENV=production node scripts/web-start.mjs",

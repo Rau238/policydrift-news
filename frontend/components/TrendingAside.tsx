@@ -41,7 +41,7 @@ export function TrendingAside({ posts }: { posts: PostListItem[] }) {
                 </span>
                 <Link
                   href={`/news/${p.slug}`}
-                  className="mt-1.5 block line-clamp-2 text-sm font-semibold leading-snug text-ink transition hover:text-accent-dark"
+                  className="mt-1.5 block text-sm font-semibold leading-snug text-ink transition hover:text-accent-dark"
                 >
                   {p.title}
                 </Link>
