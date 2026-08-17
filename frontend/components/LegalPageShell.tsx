@@ -3,6 +3,9 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { ChevronLeft } from 'lucide-react';
 
+import { absoluteUrl, siteName } from '@/lib/site';
+import { storyFallbackImageUrl } from '@/lib/story-image';
+
 type Props = {
   title: string;
   description: string;
@@ -10,10 +13,36 @@ type Props = {
 };
 
 export function legalMetadata(title: string, description: string): Metadata {
+  const ogImage = storyFallbackImageUrl({ title: `${title} | ${siteName}`, category: 'EDITORIAL' });
   return {
     title,
     description,
-    robots: { index: true, follow: true },
+    openGraph: {
+      title: `${title} | ${siteName}`,
+      description,
+      siteName,
+      type: 'website',
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title, type: 'image/png' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | ${siteName}`,
+      description,
+      site: '@policydrift',
+      creator: '@policydrift',
+      images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+        'max-video-preview': -1,
+      },
+    },
   };
 }
 

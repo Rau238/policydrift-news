@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, FormEvent, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Radio,
   Loader2,
@@ -209,9 +209,31 @@ export default function AdminSourcesPage() {
     }
   }, [router]);
 
+  const searchParams = useSearchParams();
+
   useEffect(() => {
     fetchSources();
   }, [fetchSources]);
+
+  // Auto-open modal if navigated with ?action=new
+  useEffect(() => {
+    const action = searchParams?.get('action');
+    if (action === 'new') {
+      setEditingSource(null);
+      setUrlTestSuccess(null);
+      setForm({
+        name: '',
+        rss_url: '',
+        category: 'Politics',
+        trust_score: 75,
+        country: 'IN',
+        language: 'en',
+        fetch_interval_minutes: 15,
+        enabled: true,
+      });
+      setShowAddModal(true);
+    }
+  }, [searchParams]);
 
   // ─── Sync All Curated Feeds ─────────────────────────────────────────────────
 
@@ -583,7 +605,7 @@ export default function AdminSourcesPage() {
                   setForm({
                     name: '',
                     rss_url: '',
-                    category: 'Politics',
+                    category: categoryFilter !== 'all' ? categoryFilter : 'Politics',
                     trust_score: 75,
                     country: 'IN',
                     language: 'en',
@@ -592,10 +614,10 @@ export default function AdminSourcesPage() {
                   });
                   setShowAddModal(true);
                 }}
-                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-teal-600 to-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-teal-900/40 transition hover:from-teal-500 hover:to-emerald-500 active:scale-95"
+                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-teal-900/50 ring-1 ring-teal-400/40 transition hover:from-teal-400 hover:to-emerald-400 active:scale-95"
               >
-                <Plus size={14} />
-                Add Source
+                <Plus size={15} className="text-white stroke-[3]" />
+                <span>+ Add RSS Source</span>
               </button>
             </div>
           </div>
@@ -711,7 +733,7 @@ export default function AdminSourcesPage() {
                   )}
                 </div>
 
-                {/* Status Dropdown */}
+                {/* Status Dropdown & Add Button */}
                 <div className="flex flex-wrap items-center gap-2">
                   <select
                     value={statusFilter}
@@ -723,6 +745,28 @@ export default function AdminSourcesPage() {
                     <option value="disabled">Disabled Only</option>
                     <option value="error">With Errors</option>
                   </select>
+
+                  <button
+                    onClick={() => {
+                      setEditingSource(null);
+                      setUrlTestSuccess(null);
+                      setForm({
+                        name: '',
+                        rss_url: '',
+                        category: categoryFilter !== 'all' ? categoryFilter : 'Politics',
+                        trust_score: 75,
+                        country: 'IN',
+                        language: 'en',
+                        fetch_interval_minutes: 15,
+                        enabled: true,
+                      });
+                      setShowAddModal(true);
+                    }}
+                    className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-bold text-white shadow hover:bg-teal-500 transition"
+                  >
+                    <Plus size={13} />
+                    <span>+ Add RSS Source</span>
+                  </button>
                 </div>
               </div>
             </div>

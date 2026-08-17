@@ -39,11 +39,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = categoryFromSlug(params.slug);
   if (category) {
     const label = categoryLabel(category);
-    const title = `${label} news`;
+    const title = `${label} News & Latest Updates`;
     const description =
       CATEGORY_INTRO[category] ||
-      `Latest ${label} on ${siteName}, with clear headlines and source links.`;
+      `Latest ${label} news on ${siteName} with clear headlines, fact-checked summaries, and verified source attribution.`;
     const canonical = absoluteUrl(`/news/${params.slug}`);
+    const ogImage = resolveOgImageUrl(null, { title: `${label} News & Policy Analysis`, category: label });
+
     return {
       title,
       description,
@@ -52,7 +54,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title: `${label} | ${siteName}`,
         description,
         url: canonical,
+        siteName,
         type: 'website',
+        locale: 'en_US',
+        images: [
+          {
+            url: ogImage,
+            width: 1200,
+            height: 630,
+            alt: `${label} news coverage on ${siteName}`,
+            type: 'image/png',
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${label} | ${siteName}`,
+        description,
+        site: '@policydrift',
+        creator: '@policydrift',
+        images: [ogImage],
       },
       robots: {
         index: true,
@@ -72,27 +93,53 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return { title: 'Not found' };
   const url = absoluteUrl(`/news/${post.slug}`);
   const desc = clipMetaDescription(post.excerpt?.trim() || post.title);
-  const ogImage = resolveOgImageUrl(post.image_url);
   const desk = categoryLabel(post.category);
+  const ogImage = resolveOgImageUrl(post.image_url, {
+    title: post.title,
+    category: desk,
+    date: formatPublishedAt(post.published_at),
+  });
+
   return {
     title: post.title,
     description: desc,
-    keywords: [desk, `${desk} news`, siteName, 'PolicyDrift news'],
+    keywords: [
+      desk,
+      `${desk} news`,
+      'policy news',
+      'current affairs',
+      'breaking news',
+      siteName,
+      'PolicyDrift news',
+    ],
     alternates: { canonical: url },
     openGraph: {
       title: post.title,
       description: desc,
       url,
+      siteName,
       type: 'article',
       publishedTime: post.published_at,
       modifiedTime: post.updated_at,
+      section: desk,
+      authors: [siteName],
       locale: 'en_US',
-      images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+          type: ogImage.includes('.png') ? 'image/png' : 'image/jpeg',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
       description: desc,
+      site: '@policydrift',
+      creator: '@policydrift',
       images: [ogImage],
     },
     robots: {
@@ -201,15 +248,23 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
     hasArticleBody: showArticleBody,
     keyTakeawaysRaw: takeaways,
   });
+  const desk = categoryLabel(post.category);
+  const ogImage = resolveOgImageUrl(post.image_url, {
+    title: post.title,
+    category: desk,
+    date: formatPublishedAt(post.published_at),
+  });
   const jsonLd = newsArticleJsonLd({
     url,
     title: post.title,
     description: desc,
     datePublished: post.published_at,
     dateModified: post.updated_at,
-    imageUrls: [resolveOgImageUrl(post.image_url)],
+    imageUrls: [ogImage],
     section: post.category,
     articleBody: articleBodyForSchema || undefined,
+    keyTakeaways: takeaways || undefined,
+    sourceFeed: post.source_feed,
     curatorPerson: {
       name: curatorName(),
       url: curatorProfileUrl(),
@@ -257,7 +312,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
       <div className="mx-auto max-w-7xl px-4 pb-14 pt-6 sm:px-6 sm:pb-16 sm:pt-8">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_min(340px,100%)] lg:items-start lg:gap-10">
           <div className="min-w-0">
-            <article className="relative w-full max-w-3xl">
+            <article className="relative w-full max-w-3xl" itemScope itemType="https://schema.org/NewsArticle">
               <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
@@ -287,11 +342,19 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                   </div>
                 </div>
 
-                <h1 className="mt-3.5 text-balance font-display text-[1.7rem] font-bold leading-[1.18] tracking-tight text-ink sm:text-[2.15rem] sm:leading-[1.12]">
+                <h1
+                  id="article-headline"
+                  itemProp="headline"
+                  className="mt-3.5 text-balance font-display text-[1.7rem] font-bold leading-[1.18] tracking-tight text-ink sm:text-[2.15rem] sm:leading-[1.12]"
+                >
                   {decodeHtmlEntities(post.title)}
                 </h1>
                 {showDeckUnderTitle ? (
-                  <p className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-slate-600 sm:text-[1.0625rem]">
+                  <p
+                    id="article-excerpt"
+                    itemProp="description"
+                    className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-slate-600 sm:text-[1.0625rem]"
+                  >
                     {excerptText}
                   </p>
                 ) : null}

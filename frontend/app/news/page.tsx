@@ -7,6 +7,7 @@ import { PaginationBar } from '@/components/PaginationBar';
 import { getPosts, getTrending } from '@/lib/api';
 import { categoryHref, categoryLabel } from '@/lib/categories';
 import { absoluteUrl, siteName } from '@/lib/site';
+import { resolveOgImageUrl } from '@/lib/story-image';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,29 +16,70 @@ type Props = { searchParams: { category?: string; page?: string } };
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const category = searchParams.category || 'all';
   if (category !== 'all') {
-    const title = `${categoryLabel(category)}: News`;
-    const description = `Latest ${categoryLabel(category)} coverage on ${siteName}, with clear headlines and source links.`;
+    const label = categoryLabel(category);
+    const title = `${label} News & Stories`;
+    const description = `Latest ${label} coverage on ${siteName}, with clear headlines, fact-checked summaries, and source links.`;
     const canonical = absoluteUrl(categoryHref(category));
+    const ogImage = resolveOgImageUrl(null, { title: `${label} News & Analysis`, category: label });
+
     return {
       title,
       description,
       alternates: { canonical },
-      openGraph: { title, description, url: canonical, type: 'website' },
+      openGraph: {
+        title: `${title} | ${siteName}`,
+        description,
+        url: canonical,
+        siteName,
+        type: 'website',
+        images: [{ url: ogImage, width: 1200, height: 630, alt: title, type: 'image/png' }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${title} | ${siteName}`,
+        description,
+        site: '@policydrift',
+        creator: '@policydrift',
+        images: [ogImage],
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+          'max-video-preview': -1,
+        },
+      },
     };
   }
 
-  const title = 'All news';
-  const description = `Combined stream from every ${siteName} desk: breaking, world, India, sports, business, politics, markets, and crypto.`;
+  const title = 'All News — Latest Syndicated Briefs';
+  const description = `Combined real-time news stream from every ${siteName} desk: breaking, world, India, sports, business, politics, markets, and crypto.`;
   const canonical = absoluteUrl('/news');
+  const ogImage = resolveOgImageUrl(null, { title: 'All News — Latest Syndicated Briefs', category: 'NEWS DESK' });
+
   return {
     title,
     description,
     alternates: { canonical },
     openGraph: {
-      title,
+      title: `${title} | ${siteName}`,
       description,
       url: canonical,
+      siteName,
       type: 'website',
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title, type: 'image/png' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | ${siteName}`,
+      description,
+      site: '@policydrift',
+      creator: '@policydrift',
+      images: [ogImage],
     },
     robots: {
       index: true,

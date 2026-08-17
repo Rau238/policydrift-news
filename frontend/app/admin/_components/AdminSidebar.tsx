@@ -17,6 +17,8 @@ import {
   Shield,
   Layers,
   X,
+  Plus,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -26,6 +28,8 @@ interface AdminSidebarProps {
   pendingCount?: number;
   mobileOpen?: boolean;
   onCloseMobile?: () => void;
+  onPublishAllReview?: () => void;
+  isPublishingReview?: boolean;
 }
 
 export function AdminSidebar({
@@ -35,6 +39,8 @@ export function AdminSidebar({
   pendingCount,
   mobileOpen = false,
   onCloseMobile,
+  onPublishAllReview,
+  isPublishingReview,
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -207,6 +213,40 @@ export function AdminSidebar({
             Quick Actions
           </p>
           <div className="space-y-1.5">
+            <Link
+              href="/admin/sources?action=new"
+              onClick={onCloseMobile}
+              className="flex w-full items-center justify-between rounded-lg border border-teal-500/40 bg-gradient-to-r from-teal-950/60 to-emerald-950/60 px-3 py-2 text-xs font-bold text-teal-200 transition hover:border-teal-400 hover:bg-teal-900/60 hover:text-white shadow-sm"
+            >
+              <span className="flex items-center gap-2">
+                <Plus size={14} className="text-teal-400" />
+                <span>+ Add RSS Source</span>
+              </span>
+              <span className="rounded bg-teal-500/20 px-1.5 py-0.2 text-[9px] font-bold text-teal-300">
+                NEW
+              </span>
+            </Link>
+
+            {pendingCount !== undefined && pendingCount > 0 && onPublishAllReview && (
+              <button
+                onClick={onPublishAllReview}
+                disabled={isPublishingReview}
+                className="flex w-full items-center justify-between rounded-lg border border-emerald-500/40 bg-gradient-to-r from-emerald-950/70 to-teal-950/70 px-3 py-2 text-xs font-bold text-emerald-200 transition hover:border-emerald-400 hover:bg-emerald-900/70 hover:text-white shadow-sm disabled:opacity-50"
+              >
+                <span className="flex items-center gap-2">
+                  {isPublishingReview ? (
+                    <Loader2 size={14} className="animate-spin text-emerald-400" />
+                  ) : (
+                    <CheckCircle2 size={14} className="text-emerald-400" />
+                  )}
+                  <span>Publish All Review</span>
+                </span>
+                <span className="rounded bg-emerald-500/20 px-1.5 py-0.2 text-[10px] font-bold text-emerald-300">
+                  {pendingCount}
+                </span>
+              </button>
+            )}
+
             {onIngest && (
               <button
                 onClick={onIngest}

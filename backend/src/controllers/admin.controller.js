@@ -340,6 +340,24 @@ export async function bulkActionArticles(req, res, next) {
   }
 }
 
+/** Publish all pending (review queue) articles in one operation */
+export async function publishAllPendingArticles(req, res, next) {
+  try {
+    const category = req.body?.category || req.query?.category || null;
+    const affected = await postModel.publishAllPendingArticles({ category });
+    res.json({
+      ok: true,
+      message:
+        affected > 0
+          ? `Successfully published all ${affected} review articles live`
+          : 'No pending articles found in the review queue to publish',
+      affected,
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
 // ─── Source CRUD ──────────────────────────────────────────────────────────────
 
 export async function listSources(req, res, next) {

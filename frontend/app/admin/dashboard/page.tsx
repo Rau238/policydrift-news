@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useMemo, Suspense, useRef } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Newspaper,
@@ -36,6 +37,7 @@ import {
   Check,
   ChevronDown,
   Menu,
+  Plus,
 } from 'lucide-react';
 import { AdminSidebar } from '../_components/AdminSidebar';
 import { DashboardCharts } from '../_components/DashboardCharts';
@@ -276,6 +278,9 @@ function DashboardContent() {
 
   // Article Modal Preview
   const [previewArticle, setPreviewArticle] = useState<Article | null>(null);
+
+  // Publish All Pending Review Articles state
+  const [publishingAllPending, setPublishingAllPending] = useState(false);
 
   // Search debounce
   useEffect(() => {
@@ -561,6 +566,46 @@ function DashboardContent() {
     }
   }
 
+  // ─── Publish All Pending Review Articles ────────────────────────────────────
+
+  async function handlePublishAllPending() {
+    if (stats.pending <= 0) {
+      showFeedback('error', 'No pending articles in the review queue to publish');
+      return;
+    }
+
+    if (
+      !confirm(
+        `Are you sure you want to publish all ${stats.pending} review articles to the live site immediately?`
+      )
+    ) {
+      return;
+    }
+
+    setPublishingAllPending(true);
+    try {
+      const res = await fetch('/api/admin/articles/publish-all-pending', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      if (res.ok && data.ok !== false) {
+        showFeedback(
+          'success',
+          data.message || `Published ${data.affected || 0} review articles live`
+        );
+        fetchStats();
+        fetchArticles(true);
+      } else {
+        showFeedback('error', data.error || 'Failed to publish review articles');
+      }
+    } catch {
+      showFeedback('error', 'Network error publishing review articles');
+    } finally {
+      setPublishingAllPending(false);
+    }
+  }
+
   // ─── Worker Pipelines ───────────────────────────────────────────────────────
 
   async function handleTriggerWorker(worker: 'ingest' | 'ranking' | 'metrics' | 'scheduler') {
@@ -588,6 +633,8 @@ function DashboardContent() {
         pendingCount={stats.pending}
         onIngest={() => handleTriggerWorker('ingest')}
         ingestLoading={workerRunning === 'ingest'}
+        onPublishAllReview={handlePublishAllPending}
+        isPublishingReview={publishingAllPending}
         mobileOpen={mobileNavOpen}
         onCloseMobile={() => setMobileNavOpen(false)}
       />
@@ -670,6 +717,22 @@ function DashboardContent() {
 
             {/* Quick Worker Triggers */}
             <div className="flex flex-wrap items-center gap-2">
+              {stats.pending > 0 && (
+                <button
+                  onClick={handlePublishAllPending}
+                  disabled={publishingAllPending}
+                  title={`Publish all ${stats.pending} review articles immediately`}
+                  className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-emerald-950/40 transition hover:from-emerald-500 hover:to-teal-500 active:scale-95 disabled:opacity-50"
+                >
+                  {publishingAllPending ? (
+                    <Loader2 size={13} className="animate-spin text-white" />
+                  ) : (
+                    <CheckCircle2 size={13} className="text-emerald-200" />
+                  )}
+                  <span>Publish All Review ({stats.pending})</span>
+                </button>
+              )}
+
               <button
                 onClick={() => handleTriggerWorker('ingest')}
                 disabled={Boolean(workerRunning)}
@@ -723,6 +786,14 @@ function DashboardContent() {
                 <RefreshCw size={13} className={loading || refreshing ? 'animate-spin text-teal-400' : ''} />
                 Refresh
               </button>
+
+              <Link
+                href="/admin/sources?action=new"
+                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-teal-600 to-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-teal-900/30 transition hover:from-teal-500 hover:to-emerald-500 active:scale-95"
+              >
+                <Plus size={13} />
+                <span>+ Add RSS Source</span>
+              </Link>
             </div>
           </div>
         </header>
@@ -737,6 +808,8 @@ function DashboardContent() {
               onPreviewArticle={(art) => setPreviewArticle(art)}
               onTriggerWorker={handleTriggerWorker}
               workerRunning={workerRunning}
+              onPublishAllReview={handlePublishAllPending}
+              isPublishingReview={publishingAllPending}
             />
           ) : (
             <>
@@ -869,35 +942,89 @@ function DashboardContent() {
               </div>
 
               {/* Status Filter Tabs */}
-              <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                {[
-                  { key: 'all', label: 'All Articles', count: stats.total },
-                  { key: 'published', label: 'Published', count: stats.published },
-                  { key: 'pending', label: 'Review Queue', count: stats.pending },
-                  { key: 'draft', label: 'Drafts', count: stats.draft },
-                  { key: 'archived', label: 'Archived', count: stats.archived },
-                ].map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => handleStatusChange(tab.key)}
-                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                      statusFilter === tab.key
-                        ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40 shadow-sm'
-                        : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 border border-transparent'
-                    }`}
-                  >
-                    <span>{tab.label}</span>
-                    <span
-                      className={`rounded-full px-1.5 py-0.2 text-[10px] tabular-nums ${
-                        statusFilter === tab.key ? 'bg-teal-500/30 text-teal-200' : 'bg-slate-800 text-slate-400'
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[
+                    { key: 'all', label: 'All Articles', count: stats.total },
+                    { key: 'published', label: 'Published', count: stats.published },
+                    { key: 'pending', label: 'Review Queue', count: stats.pending },
+                    { key: 'draft', label: 'Drafts', count: stats.draft },
+                    { key: 'archived', label: 'Archived', count: stats.archived },
+                  ].map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => handleStatusChange(tab.key)}
+                      className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                        statusFilter === tab.key
+                          ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40 shadow-sm'
+                          : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 border border-transparent'
                       }`}
                     >
-                      {fmtNum(tab.count)}
-                    </span>
+                      <span>{tab.label}</span>
+                      <span
+                        className={`rounded-full px-1.5 py-0.2 text-[10px] tabular-nums ${
+                          statusFilter === tab.key ? 'bg-teal-500/30 text-teal-200' : 'bg-slate-800 text-slate-400'
+                        }`}
+                      >
+                        {fmtNum(tab.count)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {stats.pending > 0 && statusFilter !== 'pending' && (
+                  <button
+                    onClick={handlePublishAllPending}
+                    disabled={publishingAllPending}
+                    className="flex items-center gap-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 px-3 py-1.5 text-xs font-bold text-emerald-300 hover:bg-emerald-900/60 hover:text-emerald-200 transition shadow-sm active:scale-95 disabled:opacity-50"
+                    title={`Publish all ${stats.pending} review queue articles`}
+                  >
+                    {publishingAllPending ? (
+                      <Loader2 size={13} className="animate-spin text-emerald-400" />
+                    ) : (
+                      <CheckCircle2 size={13} className="text-emerald-400" />
+                    )}
+                    <span>Publish All Review ({stats.pending})</span>
                   </button>
-                ))}
+                )}
               </div>
             </div>
+
+            {/* Review Queue Banner when filtering by pending */}
+            {statusFilter === 'pending' && stats.pending > 0 && (
+              <div className="m-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-slate-900/90 to-emerald-950/30 p-4 shadow-lg">
+                <div className="flex items-start sm:items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-inner">
+                    <Clock size={20} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-white">Editorial Review Queue</h3>
+                      <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
+                        {stats.pending} Pending Articles
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 mt-0.5">
+                      Articles from RSS feeds awaiting editorial clearance. Click to publish all {stats.pending} articles to the public site in one click.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={handlePublishAllPending}
+                    disabled={publishingAllPending || stats.pending === 0}
+                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-emerald-950/60 transition hover:from-emerald-500 hover:to-teal-500 active:scale-95 disabled:opacity-50"
+                  >
+                    {publishingAllPending ? (
+                      <Loader2 size={15} className="animate-spin text-white" />
+                    ) : (
+                      <CheckCircle2 size={15} className="text-white" />
+                    )}
+                    <span>Publish All {stats.pending} Review Articles</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Stable Table Container */}
             <div className="relative overflow-x-auto">

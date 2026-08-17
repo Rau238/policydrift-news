@@ -30,21 +30,58 @@ const HERO_BACKDROP_GRADIENTS = [
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: { absolute: `${siteName}: World & policy news, clearly told` },
+  title: { absolute: `${siteName} — Real-Time News, Global Policy & Market Briefs` },
   description: siteDescription,
+  keywords: [
+    'news',
+    'breaking news',
+    'policy drift',
+    'world news',
+    'India news',
+    'politics',
+    'business news',
+    'banking & economics',
+    'stocks & markets',
+    'crypto',
+    'live market quotes',
+    siteName,
+  ],
   alternates: { canonical: absoluteUrl('/') },
   openGraph: {
-    title: `${siteName}  World & policy news`,
+    title: `${siteName} — Real-Time News & Global Policy`,
     description: siteDescription,
     url: absoluteUrl('/'),
+    siteName,
     type: 'website',
-    images: [{ url: storyFallbackImageUrl(), width: 1200, height: 630, alt: siteName }],
+    locale: 'en_US',
+    images: [
+      {
+        url: storyFallbackImageUrl({ title: 'PolicyDrift — Real-Time News, Global Policy & Market Briefs', category: 'LIVE DESK' }),
+        width: 1200,
+        height: 630,
+        alt: `${siteName} Cover`,
+        type: 'image/png',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: siteName,
+    title: `${siteName} — Real-Time News & Global Policy`,
     description: siteDescription,
-    images: [storyFallbackImageUrl()],
+    site: '@policydrift',
+    creator: '@policydrift',
+    images: [storyFallbackImageUrl({ title: 'PolicyDrift — Real-Time News, Global Policy & Market Briefs', category: 'LIVE DESK' })],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
   },
 };
 

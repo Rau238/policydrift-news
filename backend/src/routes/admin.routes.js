@@ -14,6 +14,8 @@ router.get('/activity',                    adminController.getActivity);
 // ── Articles ──────────────────────────────────────────────────────────────────
 router.get('/articles',                    adminController.listArticles);
 router.post('/articles/bulk',               adminController.bulkActionArticles);
+router.post('/articles/publish-all-pending', adminController.publishAllPendingArticles);
+router.post('/articles/publish-all-review',  adminController.publishAllPendingArticles);
 router.get('/articles/:id',                adminController.getArticle);
 router.put('/articles/:id',                adminController.updateArticle);
 router.patch('/articles/:id',              adminController.updateArticle);

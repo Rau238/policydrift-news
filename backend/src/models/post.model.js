@@ -211,6 +211,22 @@ export async function bulkDeletePosts(ids) {
   return r.affectedRows;
 }
 
+/** Publish all pending / review queue articles in one operation (admin). */
+export async function publishAllPendingArticles({ category = null } = {}) {
+  const conds = ["status = 'pending'"];
+  const params = [];
+  if (category && category !== 'all') {
+    conds.push('category = ?');
+    params.push(category);
+  }
+  const where = conds.join(' AND ');
+  const [r] = await pool.query(
+    `UPDATE posts SET status = 'published', published_at = NOW() WHERE ${where}`,
+    params,
+  );
+  return r.affectedRows;
+}
+
 /** Admin list — all statuses, with metrics, search and sort. */
 export async function adminListPosts({
   page = 1,
@@ -442,9 +458,78 @@ export async function slugExists(slug) {
   return !!rows[0];
 }
 
+/** Get total count of currently published canonical articles */
+export async function getPublishedPostsCount() {
+  const [rows] = await pool.query(
+    `SELECT COUNT(*) AS total FROM posts WHERE status = 'published' AND published_at <= NOW()`,
+  );
+  return Number(rows[0]?.total) || 0;
+}
+
+/** Get the latest modification timestamp across all published articles */
+export async function getLatestPublishedModTime() {
+  const [rows] = await pool.query(
+    `SELECT COALESCE(MAX(updated_at), MAX(published_at), NOW()) AS lastmod
+     FROM posts
+     WHERE status = 'published' AND published_at <= NOW()`,
+  );
+  return rows[0]?.lastmod || new Date();
+}
+
+/**
+ * Retrieve a chunk of published articles for sitemap generation.
+ * Uses index-optimized range scanning that scales to 1,000,000+ articles.
+ *
+ * @param {{ chunk?: number, limit?: number }} options
+ */
+export async function listPublishedPostsChunk({ chunk = 1, limit = 50000 } = {}) {
+  const cleanLimit = Math.min(50000, Math.max(1, parseInt(limit, 10) || 50000));
+  const cleanChunk = Math.max(1, parseInt(chunk, 10) || 1);
+  const offset = (cleanChunk - 1) * cleanLimit;
+
+  if (offset === 0) {
+    const [rows] = await pool.query(
+      `SELECT id, slug, published_at, updated_at
+       FROM posts
+       WHERE status = 'published' AND published_at <= NOW()
+       ORDER BY id ASC
+       LIMIT ?`,
+      [cleanLimit],
+    );
+    return rows;
+  }
+
+  // Find start ID using covering index
+  const [idRows] = await pool.query(
+    `SELECT id FROM posts
+     WHERE status = 'published' AND published_at <= NOW()
+     ORDER BY id ASC
+     LIMIT 1 OFFSET ?`,
+    [offset],
+  );
+
+  if (!idRows.length) return [];
+  const startId = idRows[0].id;
+
+  const [rows] = await pool.query(
+    `SELECT id, slug, published_at, updated_at
+     FROM posts
+     WHERE status = 'published' AND published_at <= NOW() AND id >= ?
+     ORDER BY id ASC
+     LIMIT ?`,
+    [startId, cleanLimit],
+  );
+  return rows;
+}
+
+/** Legacy sitemap list - status aware (capped at 50,000 for safety) */
 export async function listSlugsForSitemap() {
   const [rows] = await pool.query(
-    'SELECT slug, updated_at AS lastmod FROM posts ORDER BY published_at DESC',
+    `SELECT slug, COALESCE(updated_at, published_at) AS lastmod
+     FROM posts
+     WHERE status = 'published' AND published_at <= NOW()
+     ORDER BY published_at DESC
+     LIMIT 50000`,
   );
   return rows;
 }

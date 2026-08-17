@@ -3,9 +3,23 @@ import { absoluteUrl } from '@/lib/site';
 /** Same-origin path - works in Client Components without `NEXT_PUBLIC_*` / `VERCEL_URL`. */
 export const STORY_FALLBACK_PATH = '/images/story-fallback.svg';
 
+/** Default dynamic OG card image URL (server / metadata - 1200x630 PNG). */
+export function dynamicOgImageUrl(params?: {
+  title?: string;
+  category?: string;
+  date?: string;
+}): string {
+  const sp = new URLSearchParams();
+  if (params?.title) sp.set('title', params.title);
+  if (params?.category) sp.set('category', params.category);
+  if (params?.date) sp.set('date', params.date);
+  const q = sp.toString();
+  return absoluteUrl(`/api/og${q ? `?${q}` : ''}`);
+}
+
 /** Default OG/card image when a story has no remote image (server / metadata - absolute URL). */
-export function storyFallbackImageUrl(): string {
-  return absoluteUrl(STORY_FALLBACK_PATH);
+export function storyFallbackImageUrl(params?: { title?: string; category?: string; date?: string }): string {
+  return dynamicOgImageUrl(params);
 }
 
 function isLoopbackOrInvalidStored(url: string): boolean {
@@ -31,12 +45,20 @@ export function resolvePostImageUrl(stored: string | null | undefined): string {
 }
 
 /**
- * For Open Graph, Twitter, JSON-LD - must be absolute. Use from Server Components / generateMetadata only.
+ * For Open Graph, Twitter, JSON-LD - must be absolute 1200x630 image.
+ * Uses remote image if present; falls back to dynamic 1200x630 brand card.
  */
-export function resolveOgImageUrl(stored: string | null | undefined): string {
+export function resolveOgImageUrl(
+  stored: string | null | undefined,
+  meta?: { title?: string; category?: string; date?: string },
+): string {
   const u = stored?.trim();
   if (!u || u === 'null' || u === 'undefined' || isLoopbackOrInvalidStored(u)) {
-    return storyFallbackImageUrl();
+    return dynamicOgImageUrl(meta);
+  }
+  // If stored is relative path
+  if (!u.startsWith('http://') && !u.startsWith('https://')) {
+    return absoluteUrl(u.startsWith('/') ? u : `/${u}`);
   }
   return u;
 }

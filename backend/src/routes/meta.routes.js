@@ -4,6 +4,8 @@ import * as trendsController from '../controllers/trends.controller.js';
 
 const router = Router();
 router.get('/slugs', postController.getSitemapData);
+router.get('/sitemap/index', postController.getSitemapIndexData);
+router.get('/sitemap/articles', postController.getSitemapChunkData);
 router.get('/trends', trendsController.getTrendsBundle);
 router.post('/trends/refresh', trendsController.postTrendsRefresh);
 

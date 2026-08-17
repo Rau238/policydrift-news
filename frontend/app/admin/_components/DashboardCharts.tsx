@@ -70,6 +70,8 @@ interface DashboardChartsProps {
   onPreviewArticle?: (article: any) => void;
   onTriggerWorker?: (worker: 'ingest' | 'ranking' | 'metrics') => void;
   workerRunning?: string | null;
+  onPublishAllReview?: () => void;
+  isPublishingReview?: boolean;
 }
 
 function fmtNum(n: number | undefined | null) {
@@ -107,6 +109,8 @@ export function DashboardCharts({
   onPreviewArticle,
   onTriggerWorker,
   workerRunning,
+  onPublishAllReview,
+  isPublishingReview,
 }: DashboardChartsProps) {
   const [hoveredTrendIdx, setHoveredTrendIdx] = useState<number | null>(null);
   const [trendMetric, setTrendMetric] = useState<'count' | 'views'>('count');
@@ -185,26 +189,45 @@ export function DashboardCharts({
         </div>
 
         {/* Review Queue */}
-        <div className="relative overflow-hidden rounded-xl border border-amber-500/30 bg-[#0c1220]/90 p-5 shadow-lg backdrop-blur-md transition hover:border-amber-500/60 hover:shadow-amber-950/20">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-wider text-amber-400/90">Review Queue</p>
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse">
-              <Clock size={18} />
-            </span>
+        <div className="relative overflow-hidden rounded-xl border border-amber-500/30 bg-[#0c1220]/90 p-5 shadow-lg backdrop-blur-md transition hover:border-amber-500/60 hover:shadow-amber-950/20 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-wider text-amber-400/90">Review Queue</p>
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse">
+                <Clock size={18} />
+              </span>
+            </div>
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="text-2xl font-black tracking-tight text-amber-300 sm:text-3xl">
+                {fmtNum(stats.pending)}
+              </span>
+              <span className="text-xs font-semibold text-amber-400/80">Pending Action</span>
+            </div>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-black tracking-tight text-amber-300 sm:text-3xl">
-              {fmtNum(stats.pending)}
-            </span>
-            <span className="text-xs font-semibold text-amber-400/80">Pending Action</span>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => onNavigateToArticles('pending')}
+              className="inline-flex items-center gap-1 rounded-md bg-amber-500/20 px-2.5 py-1.5 text-[11px] font-bold text-amber-300 hover:bg-amber-500/30 transition"
+            >
+              <span>Review stories</span>
+              <ArrowRight size={12} />
+            </button>
+            {stats.pending > 0 && onPublishAllReview && (
+              <button
+                onClick={onPublishAllReview}
+                disabled={isPublishingReview}
+                title={`Publish all ${stats.pending} pending review articles now`}
+                className="inline-flex items-center gap-1.5 rounded-md bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1.5 text-[11px] font-bold text-white shadow-sm shadow-emerald-950/50 hover:from-emerald-500 hover:to-teal-500 active:scale-95 transition disabled:opacity-50"
+              >
+                {isPublishingReview ? (
+                  <Loader2 size={12} className="animate-spin" />
+                ) : (
+                  <CheckCircle2 size={12} />
+                )}
+                <span>Publish All ({stats.pending})</span>
+              </button>
+            )}
           </div>
-          <button
-            onClick={() => onNavigateToArticles('pending')}
-            className="mt-3 inline-flex items-center gap-1 rounded-md bg-amber-500/20 px-2.5 py-1 text-[11px] font-bold text-amber-300 hover:bg-amber-500/30 transition"
-          >
-            <span>Review {stats.pending} pending stories</span>
-            <ArrowRight size={12} />
-          </button>
         </div>
 
         {/* 24h Ingested */}

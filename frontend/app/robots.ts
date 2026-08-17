@@ -2,9 +2,34 @@ import type { MetadataRoute } from 'next';
 import { absoluteUrl } from '@/lib/site';
 
 export default function robots(): MetadataRoute.Robots {
-  const base = absoluteUrl('/');
   return {
-    rules: { userAgent: '*', allow: '/' },
-    sitemap: `${base}sitemap.xml`,
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/admin/', '/api/admin/', '/admin/login'],
+      },
+      {
+        userAgent: [
+          'Googlebot',
+          'Googlebot-News',
+          'Google-Extended',
+          'Bingbot',
+          'GPTBot',
+          'ChatGPT-User',
+          'PerplexityBot',
+          'ClaudeBot',
+          'Applebot',
+          'Applebot-Extended',
+          'Twitterbot',
+          'facebookexternalhit',
+          'WhatsApp',
+        ],
+        allow: '/',
+        disallow: ['/admin/', '/api/admin/'],
+      },
+    ],
+    sitemap: absoluteUrl('/sitemap.xml'),
+    host: absoluteUrl('/'),
   };
 }

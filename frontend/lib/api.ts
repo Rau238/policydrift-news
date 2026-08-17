@@ -204,6 +204,39 @@ export async function adminTriggerIngest(): Promise<{ created: number; skipped: 
   return adminFetch('/ingest', { method: 'POST' });
 }
 
+export interface SitemapIndexInfo {
+  totalArticles: number;
+  chunkSize: number;
+  totalChunks: number;
+  latestLastMod: string;
+}
+
+export interface SitemapChunkResult {
+  chunk: number;
+  limit: number;
+  count: number;
+  articles: { id: number; slug: string; lastmod: string }[];
+}
+
+export async function getSitemapIndexInfo(): Promise<SitemapIndexInfo> {
+  const res = await fetch(`${getBaseUrl()}/api/meta/sitemap/index`, {
+    next: { revalidate: 300 }, // 5 min revalidation
+  });
+  if (!res.ok) throw new Error(`${res.status} sitemap index`);
+  return res.json() as Promise<SitemapIndexInfo>;
+}
+
+export async function getSitemapArticleChunk(
+  chunk: number = 1,
+  limit: number = 50000,
+): Promise<SitemapChunkResult> {
+  const res = await fetch(`${getBaseUrl()}/api/meta/sitemap/articles?chunk=${chunk}&limit=${limit}`, {
+    next: { revalidate: 600 }, // 10 min revalidation
+  });
+  if (!res.ok) throw new Error(`${res.status} sitemap chunk ${chunk}`);
+  return res.json() as Promise<SitemapChunkResult>;
+}
+
 export async function getSitemapRows(): Promise<{ slug: string; lastmod: string }[]> {
   const res = await fetch(`${getBaseUrl()}/api/meta/slugs`, { next: { revalidate: 3600 } });
   if (!res.ok) throw new Error(`${res.status} sitemap`);

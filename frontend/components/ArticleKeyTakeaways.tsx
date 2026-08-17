@@ -15,6 +15,8 @@ export function ArticleKeyTakeaways({ raw }: Props) {
 
   return (
     <section
+      id="article-takeaways"
+      data-ai-summary="true"
       className="mt-4 rounded-lg border border-teal-100 bg-teal-50/50 px-3.5 py-3 sm:px-4"
       aria-labelledby="key-takeaways-heading"
     >

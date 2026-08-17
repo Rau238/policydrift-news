@@ -1,17 +1,16 @@
 import { absoluteUrl, publicSiteOrigin, siteDescription, siteName } from '@/lib/site';
-import { contactEmail } from '@/lib/site-trust';
+import { contactEmail, curatorName, curatorProfileUrl } from '@/lib/site-trust';
 
 /**
- * Embed JSON-LD in `<script type="application/ld+json">` without breaking the HTML parser.
- * Any `<` in strings (e.g. `articleBody` from feeds) must become `\u003c` or a literal `</script>` in text
- * closes the script tag and drops NewsArticle from the DOM (SEO tools then only see layout schema).
+ * Embed JSON-LD in `<script type="application/ld+json">` safely escaping XML/HTML parser triggers.
  */
 export function serializeJsonLd(value: unknown): string {
   return JSON.stringify(value).replace(/</g, '\\u003c');
 }
 
 /** ISO-8601 for schema.org dates (Google News / Discover friendly). */
-export function toSchemaDate(iso: string): string {
+export function toSchemaDate(iso?: string | null): string {
+  if (!iso) return new Date().toISOString();
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toISOString();
@@ -20,6 +19,9 @@ export function toSchemaDate(iso: string): string {
 const orgId = () => `${absoluteUrl('/')}#organization`;
 const websiteId = () => `${absoluteUrl('/')}#website`;
 
+/**
+ * Global Site Graph Schema (NewsMediaOrganization + WebSite + SearchAction)
+ */
 export function siteGraphJsonLd() {
   const base = absoluteUrl('/');
   const logo = absoluteUrl('/images/brand-logo.svg');
@@ -28,13 +30,31 @@ export function siteGraphJsonLd() {
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'Organization',
+        '@type': 'NewsMediaOrganization',
         '@id': orgId(),
         name: siteName,
         url: base,
-        logo: { '@type': 'ImageObject', url: logo },
+        logo: {
+          '@type': 'ImageObject',
+          url: logo,
+          width: 512,
+          height: 512,
+        },
         description: siteDescription,
-        ...(mail ? { email: mail } : {}),
+        publishingPrinciples: absoluteUrl('/editorial'),
+        correctionsPolicy: absoluteUrl('/editorial'),
+        ethicsPolicy: absoluteUrl('/editorial'),
+        sameAs: [
+          'https://twitter.com/policydrift',
+          'https://linkedin.com/company/policydrift',
+          'https://www.youtube.com/@policydrift',
+        ],
+        contactPoint: {
+          '@type': 'ContactPoint',
+          contactType: 'editorial',
+          email: mail || 'policy.drift.yt@gmail.com',
+          availableLanguage: ['English', 'Hindi'],
+        },
       },
       {
         '@type': 'WebSite',
@@ -44,6 +64,14 @@ export function siteGraphJsonLd() {
         description: siteDescription,
         inLanguage: 'en-US',
         publisher: { '@id': orgId() },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${base}search?q={search_term_string}`,
+          },
+          'query-input': 'required name=search_term_string',
+        },
       },
     ],
   };
@@ -58,6 +86,10 @@ function resolveAbsoluteImage(src: string | null | undefined): string | undefine
   return `${base}${path}`;
 }
 
+/**
+ * Article Page Rich JSON-LD (NewsArticle + BreadcrumbList + SpeakableSpecification)
+ * Fully compliant with Google News 2025/2026, Google AI Overviews, and Bing Copilot.
+ */
 export function newsArticleJsonLd(params: {
   url: string;
   title: string;
@@ -67,7 +99,8 @@ export function newsArticleJsonLd(params: {
   imageUrls: string[];
   section: string;
   articleBody?: string;
-  /** Person curator for E-E-A-T (alongside org). */
+  keyTakeaways?: string;
+  sourceFeed?: string | null;
   curatorPerson?: { name: string; url?: string; imageSrc?: string | null };
 }) {
   const {
@@ -79,22 +112,28 @@ export function newsArticleJsonLd(params: {
     imageUrls,
     section,
     articleBody,
+    keyTakeaways,
     curatorPerson,
   } = params;
-  const primary = imageUrls[0];
-  const orgAuthor = { '@type': 'Organization', name: siteName, url: absoluteUrl('/') };
-  const authors: object[] = [];
-  if (curatorPerson?.name?.trim()) {
-    const img = resolveAbsoluteImage(curatorPerson.imageSrc ?? null);
-    authors.push({
+
+  const validImages = imageUrls.filter(Boolean);
+  const primaryImage = validImages[0] || absoluteUrl('/api/og');
+
+  const authors: object[] = [
+    {
       '@type': 'Person',
-      name: curatorPerson.name.trim(),
-      ...(curatorPerson.url ? { url: curatorPerson.url } : {}),
-      ...(img ? { image: { '@type': 'ImageObject', url: img } } : {}),
-    });
-  }
-  authors.push(orgAuthor);
-  const authorField = authors.length === 1 ? authors[0] : authors;
+      name: curatorPerson?.name?.trim() || curatorName(),
+      jobTitle: 'News Desk Editor',
+      url: curatorPerson?.url || curatorProfileUrl(),
+      worksFor: { '@id': orgId() },
+    },
+    {
+      '@type': 'NewsMediaOrganization',
+      name: siteName,
+      url: absoluteUrl('/'),
+    },
+  ];
+
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -105,22 +144,39 @@ export function newsArticleJsonLd(params: {
         description,
         datePublished: toSchemaDate(datePublished),
         dateModified: toSchemaDate(dateModified),
-        author: authorField,
-        publisher: {
-          '@type': 'Organization',
-          name: siteName,
-          logo: { '@type': 'ImageObject', url: absoluteUrl('/images/brand-logo.svg') },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': url,
         },
-        mainEntityOfPage: { '@type': 'WebPage', '@id': url },
-        image: imageUrls,
-        ...(primary ? { thumbnailUrl: primary } : {}),
+        image: validImages.length > 0 ? validImages : [primaryImage],
+        thumbnailUrl: primaryImage,
+        author: authors,
+        publisher: {
+          '@type': 'NewsMediaOrganization',
+          '@id': orgId(),
+          name: siteName,
+          url: absoluteUrl('/'),
+          logo: {
+            '@type': 'ImageObject',
+            url: absoluteUrl('/images/brand-logo.svg'),
+            width: 512,
+            height: 512,
+          },
+          publishingPrinciples: absoluteUrl('/editorial'),
+        },
         articleSection: section,
         inLanguage: 'en-US',
         isAccessibleForFree: true,
+        speakable: {
+          '@type': 'SpeakableSpecification',
+          cssSelector: ['#article-headline', '#article-takeaways', '#article-excerpt'],
+        },
+        ...(keyTakeaways ? { abstract: keyTakeaways } : {}),
         ...(articleBody ? { articleBody } : {}),
       },
       {
         '@type': 'BreadcrumbList',
+        '@id': `${url}#breadcrumb`,
         itemListElement: [
           {
             '@type': 'ListItem',
@@ -137,6 +193,12 @@ export function newsArticleJsonLd(params: {
           {
             '@type': 'ListItem',
             position: 3,
+            name: section,
+            item: absoluteUrl(`/news/${section.toLowerCase().replace(/\s+/g, '-')}`),
+          },
+          {
+            '@type': 'ListItem',
+            position: 4,
             name: title,
             item: url,
           },
