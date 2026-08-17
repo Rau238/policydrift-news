@@ -14,7 +14,7 @@ function getBackendBase() {
 }
 
 async function handleAdminProxy(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const secret = process.env.ADMIN_SECRET?.trim() || process.env.INSIGHTS_ADMIN_SECRET?.trim() || 'policydrift_news_admin';
+  const secret = process.env.ADMIN_SECRET?.trim() || process.env.INSIGHTS_ADMIN_SECRET?.trim() || 'Raunak@123';
 
   // Check auth: cookie pd_admin OR x-admin-secret header OR Authorization Bearer
   const cookieStore = cookies();

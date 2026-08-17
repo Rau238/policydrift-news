@@ -1,10 +1,57 @@
 import { Router } from 'express';
 import { requireAdmin } from '../middleware/auth.middleware.js';
 import * as adminController from '../controllers/admin.controller.js';
+import { env } from '../config/env.js';
 
 const router = Router();
 
-// All admin routes require the x-admin-secret header
+function getExpectedAdminSecret() {
+  return (env.ADMIN_SECRET || process.env.INSIGHTS_ADMIN_SECRET || 'Raunak@123').trim();
+}
+
+// ── Authentication Endpoints ──────────────────────────────────────────────────
+router.get('/auth', (req, res) => {
+  const secret = getExpectedAdminSecret();
+  const header = req.headers['x-admin-secret'];
+  const bearer = (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
+  const cookieHeader = req.headers.cookie || '';
+  const cookieMatch = cookieHeader.match(/(?:^|;\s*)pd_admin=([^;]+)/);
+  const cookieVal = cookieMatch ? decodeURIComponent(cookieMatch[1]).trim() : '';
+
+  const token = header || bearer || cookieVal;
+
+  if (token && token === secret) {
+    return res.json({ authenticated: true });
+  }
+  return res.status(401).json({ authenticated: false });
+});
+
+router.post('/auth', (req, res) => {
+  const secret = (req.body?.secret || '').trim();
+  const expected = getExpectedAdminSecret();
+
+  if (!secret || secret !== expected) {
+    return res.status(401).json({ ok: false, error: 'Invalid admin secret key.' });
+  }
+
+  const isProd = env.NODE_ENV === 'production';
+  res.cookie('pd_admin', expected, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+
+  return res.json({ ok: true, message: 'Authentication successful' });
+});
+
+router.delete('/auth', (_req, res) => {
+  res.clearCookie('pd_admin', { path: '/' });
+  return res.json({ ok: true, message: 'Logged out successfully' });
+});
+
+// All protected admin routes require authentication
 router.use(requireAdmin);
 
 // ── Overview & Diagnostics ───────────────────────────────────────────────────

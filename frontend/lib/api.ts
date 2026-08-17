@@ -140,10 +140,11 @@ export async function getPopularNews(params: {
   return safeFetchJson(`/api/news/popular?${sp}`, [], { next: { revalidate: 300 } });
 }
 
-// ─── v2 admin API (proxied through Next.js route handler) ─────────────────────
-
 function adminFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  return fetchJson<T>(`/api/admin${path}`, init);
+  return fetchJson<T>(`/api/admin${path}`, {
+    credentials: 'include',
+    ...init,
+  });
 }
 
 export async function adminGetSources(): Promise<NewsSource[]> {
