@@ -216,6 +216,138 @@ export function categoryPlaceholderClass(name: string): string {
   return categoryTheme(name).placeholder;
 }
 
+/** Curated rich card background colors matching the visual mosaic aesthetic */
+export const CARD_COLOR_PALETTE = [
+  'bg-[#5e8328]', // 1. Olive Meadow Green
+  'bg-[#b06e30]', // 2. Warm Wildfire Caramel
+  'bg-[#9c1c58]', // 3. Raspberry Rose
+  'bg-[#1e40af]', // 4. Royal Cobalt Blue
+  'bg-[#6b21a8]', // 5. Royal Purple / Amethyst
+  'bg-[#2563eb]', // 6. Vibrant Developer Blue
+  'bg-[#18233c]', // 7. SpaceX Night Navy
+  'bg-[#881337]', // 8. Deep Crimson / Wine
+  'bg-[#0f766e]', // 9. Standoff Ocean Teal
+  'bg-[#b45309]', // 10. Warm Amber / Mustard
+  'bg-[#155e75]', // 11. Deep Cyan / Nordic Blue
+  'bg-[#047857]', // 12. Forest Emerald / Green
+  'bg-[#831843]', // 13. Blackberry / Wine Red
+  'bg-[#1e293b]', // 14. Slate Graphite
+  'bg-[#0284c7]', // 15. Sky Cobalt
+  'bg-[#c2410c]', // 16. Sunset Terracotta / Copper
+  'bg-[#991b1b]', // 17. Cardinal Red
+  'bg-[#4c1d95]', // 18. Midnight Violet
+  'bg-[#0369a1]', // 19. Pacific Azure
+  'bg-[#3f6212]', // 20. Deep Alpine Green
+  'bg-[#a16207]', // 21. Ochre Gold
+  'bg-[#065f46]', // 22. Deep Evergreen
+  'bg-[#86198f]', // 23. Magenta Orchid
+  'bg-[#1e3a8a]', // 24. Classic Sapphire
+  'bg-[#9f1239]', // 25. Ruby Rose
+  'bg-[#134e4a]', // 26. Deep Forest Teal
+  'bg-[#701a75]', // 27. Dark Violet Velvet
+  'bg-[#172554]', // 28. Deep Prussian Navy
+  'bg-[#ca8a04]', // 29. Rich Mustard Amber
+  'bg-[#059669]', // 30. Vivid Jade Mint
+  'bg-[#a21caf]', // 31. Electric Fuchsia
+  'bg-[#3730a3]', // 32. Electric Indigo
+  'bg-[#9a3412]', // 33. Burnt Orange Rust
+  'bg-[#0e7490]', // 34. Deep Sea Cyan
+  'bg-[#be185d]', // 35. Cerise Pink
+  'bg-[#334155]', // 36. Titanium Slate
+] as const;
+
+export const CATEGORY_CARD_BG: Record<string, string> = {
+  Breaking: 'bg-[#881337]',
+  'World News': 'bg-[#1e40af]',
+  India: 'bg-[#b06e30]',
+  Sports: 'bg-[#5e8328]',
+  Business: 'bg-[#6b21a8]',
+  'Banking & Economics': 'bg-[#0f766e]',
+  Politics: 'bg-[#18233c]',
+  'Stocks & Markets': 'bg-[#047857]',
+  Crypto: 'bg-[#c2410c]',
+  General: 'bg-[#2563eb]',
+};
+
+export const CARD_HEX_PALETTE = [
+  '#5e8328', // 1. Olive Meadow Green
+  '#b06e30', // 2. Warm Wildfire Caramel
+  '#9c1c58', // 3. Raspberry Rose
+  '#1e40af', // 4. Royal Cobalt Blue
+  '#6b21a8', // 5. Royal Purple / Amethyst
+  '#2563eb', // 6. Vibrant Developer Blue
+  '#18233c', // 7. SpaceX Night Navy
+  '#881337', // 8. Deep Crimson / Wine
+  '#0f766e', // 9. Standoff Ocean Teal
+  '#b45309', // 10. Warm Amber / Mustard
+  '#155e75', // 11. Deep Cyan / Nordic Blue
+  '#047857', // 12. Forest Emerald / Green
+  '#831843', // 13. Blackberry / Wine Red
+  '#1e293b', // 14. Slate Graphite
+  '#0284c7', // 15. Sky Cobalt
+  '#c2410c', // 16. Sunset Terracotta / Copper
+  '#991b1b', // 17. Cardinal Red
+  '#4c1d95', // 18. Midnight Violet
+  '#0369a1', // 19. Pacific Azure
+  '#3f6212', // 20. Deep Alpine Green
+  '#a16207', // 21. Ochre Gold
+  '#065f46', // 22. Deep Evergreen
+  '#86198f', // 23. Magenta Orchid
+  '#1e3a8a', // 24. Classic Sapphire
+  '#9f1239', // 25. Ruby Rose
+  '#134e4a', // 26. Deep Forest Teal
+  '#701a75', // 27. Dark Violet Velvet
+  '#172554', // 28. Deep Prussian Navy
+  '#ca8a04', // 29. Rich Mustard Amber
+  '#059669', // 30. Vivid Jade Mint
+  '#a21caf', // 31. Electric Fuchsia
+  '#3730a3', // 32. Electric Indigo
+  '#9a3412', // 33. Burnt Orange Rust
+  '#0e7490', // 34. Deep Sea Cyan
+  '#be185d', // 35. Cerise Pink
+  '#334155', // 36. Titanium Slate
+] as const;
+
+export const CATEGORY_CARD_HEX: Record<string, string> = {
+  Breaking: '#881337',
+  'World News': '#1e40af',
+  India: '#b06e30',
+  Sports: '#5e8328',
+  Business: '#6b21a8',
+  'Banking & Economics': '#0f766e',
+  Politics: '#18233c',
+  'Stocks & Markets': '#047857',
+  Crypto: '#c2410c',
+  General: '#2563eb',
+};
+
+export function getCardBgHex(category?: string, index?: number, id?: number): string {
+  if (typeof index === 'number') {
+    return CARD_HEX_PALETTE[Math.abs(index) % CARD_HEX_PALETTE.length];
+  }
+  if (typeof id === 'number') {
+    return CARD_HEX_PALETTE[Math.abs(id) % CARD_HEX_PALETTE.length];
+  }
+  if (category && CATEGORY_CARD_HEX[category]) {
+    return CATEGORY_CARD_HEX[category];
+  }
+  return '#1e40af';
+}
+
+export function getCardBgClass(category?: string, index?: number, id?: number): string {
+  if (typeof index === 'number') {
+    return CARD_COLOR_PALETTE[Math.abs(index) % CARD_COLOR_PALETTE.length];
+  }
+  if (typeof id === 'number') {
+    return CARD_COLOR_PALETTE[Math.abs(id) % CARD_COLOR_PALETTE.length];
+  }
+  if (category && CATEGORY_CARD_BG[category]) {
+    return CATEGORY_CARD_BG[category];
+  }
+  return 'bg-[#1e40af]';
+}
+
+
 export { categoryHref } from './category-routes';
 
 export function CategoryGlyph({
@@ -228,3 +360,4 @@ export function CategoryGlyph({
   const { Icon } = categoryTheme(name);
   return <Icon className={className} strokeWidth={2.25} aria-hidden />;
 }
+

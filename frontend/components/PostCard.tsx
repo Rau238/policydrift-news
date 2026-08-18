@@ -1,17 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
 import type { PostListItem } from '@/lib/types';
-import { formatPublishedAt } from '@/lib/format';
+import { formatTimeAgoUpper, formatPublishedAt } from '@/lib/format';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
-import {
-  categoryCardRingClass,
-  categoryCardStripeClass,
-  categoryChipClass,
-  categoryLabel,
-  CategoryGlyph,
-} from '@/lib/category-theme';
+import { getCardBgHex, categoryLabel } from '@/lib/category-theme';
 import { resolvePostImageUrl } from '@/lib/story-image';
 import { decodeHtmlEntities } from '@/lib/sanitize';
 
@@ -23,66 +16,85 @@ type Props = {
   index?: number;
 };
 
-export function PostCard({ post, priority, compact, gridCell }: Props) {
-  const ring = categoryCardRingClass(post.category);
+export function PostCard({ post, priority, compact, gridCell, index }: Props) {
   const imageSrc = resolvePostImageUrl(post.image_url);
   const href = `/news/${post.slug}`;
   const thumbLabel = decodeHtmlEntities(post.title).trim() || 'News story';
   const title = decodeHtmlEntities(post.title);
+  const excerpt = post.excerpt ? decodeHtmlEntities(post.excerpt) : null;
+  const timeAgo = formatTimeAgoUpper(post.published_at);
+  const fullDate = formatPublishedAt(post.published_at);
+  const cardBgHex = getCardBgHex(post.category, index, post.id);
+  const deskLabel = categoryLabel(post.category).toUpperCase();
 
   return (
     <article
-      className={`min-h-0 ${compact ? (gridCell ? 'h-full w-full min-w-0' : 'h-full w-[min(280px,calc(100vw-2rem))] shrink-0 snap-start sm:w-[280px]') : gridCell ? 'h-full min-w-0' : ''}`}
+      className={`min-h-0 ${compact ? (gridCell ? 'h-full w-full min-w-0' : 'h-full w-[min(290px,calc(100vw-2rem))] shrink-0 snap-start sm:w-[290px]') : gridCell ? 'h-full min-w-0' : ''}`}
     >
       <Link
         href={href}
-        className={`group flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-sm ring-1 ring-slate-900/[0.04] transition duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:rounded-2xl ${ring}`}
+        style={{ backgroundColor: cardBgHex }}
+        className="group flex h-full min-h-0 flex-col overflow-hidden rounded-[20px] border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.14)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_32px_rgba(0,0,0,0.28)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 sm:rounded-[22px]"
       >
-        <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-slate-200/80">
+        {/* Card Header Image with Seamless Color Flush */}
+        <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-black/40">
           <RemoteStoryImage
             src={imageSrc}
             alt={thumbLabel}
             title={thumbLabel}
             category={post.category}
             priority={priority}
-            className="h-full w-full object-cover object-center transition duration-500 ease-out group-hover:scale-[1.03]"
+            className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
             hideCaption
           />
+          {/* Smooth gradient flush merging photo directly into background color */}
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-24"
+            style={{
+              background: `linear-gradient(to top, ${cardBgHex} 0%, ${cardBgHex}e6 25%, ${cardBgHex}99 55%, ${cardBgHex}33 80%, transparent 100%)`,
+            }}
+            aria-hidden
+          />
         </div>
+
+        {/* Card Body with Vibrant Solid/Rich Background */}
         <div
-          className={`h-[2px] w-full shrink-0 bg-gradient-to-r ${categoryCardStripeClass(post.category)}`}
-          aria-hidden
-        />
-        <div className={`flex min-h-0 flex-1 flex-col ${compact ? 'gap-1.5 p-3' : 'gap-2 p-3.5 sm:p-4'}`}>
-          <div className="flex items-center justify-between gap-2">
-            <span
-              className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${categoryChipClass(post.category)}`}
+          style={{ backgroundColor: cardBgHex }}
+          className={`flex min-h-0 flex-1 flex-col justify-between text-white ${
+            compact ? 'gap-2 px-3.5 pt-1.5 pb-3.5' : 'gap-2.5 px-4 pt-2 pb-4 sm:px-4.5 sm:pt-2 sm:pb-4.5'
+          }`}
+        >
+          <div className="min-w-0 space-y-1.5">
+            {/* Top Meta: Category / Desk & Relative Time */}
+            <div className="flex items-center justify-between gap-2 text-[10.5px] font-bold uppercase tracking-[0.14em] text-white/80 sm:text-[11px]">
+              <span className="truncate">{deskLabel}</span>
+              <time dateTime={post.published_at} title={fullDate} className="shrink-0 tracking-wider tabular-nums text-white/75">
+                {timeAgo}
+              </time>
+            </div>
+
+            {/* Headline Title */}
+            <h2
+              className={`font-sans font-bold leading-[1.28] tracking-tight text-white ${
+                compact
+                  ? 'text-[0.875rem] line-clamp-2 sm:text-[0.925rem]'
+                  : 'text-[0.95rem] line-clamp-2 sm:text-[1.02rem] sm:line-clamp-3'
+              }`}
             >
-              <CategoryGlyph name={post.category} className="h-3 w-3 shrink-0" />
-              <span>{categoryLabel(post.category)}</span>
-            </span>
-            <ArrowUpRight
-              className="h-3.5 w-3.5 shrink-0 text-slate-300 transition group-hover:text-accent"
-              strokeWidth={2.25}
-              aria-hidden
-            />
+              {title}
+            </h2>
           </div>
-          <h2
-            className={`font-display font-bold tracking-tight text-ink ${
-              compact
-                ? 'text-[0.9rem] leading-snug sm:text-[0.95rem]'
-                : 'text-[0.98rem] leading-snug sm:text-[1.05rem] sm:leading-snug'
-            }`}
-          >
-            {title}
-          </h2>
-          <time
-            dateTime={post.published_at}
-            title={post.published_at}
-            className="mt-auto pt-2 text-[11px] font-semibold tabular-nums text-slate-400"
-          >
-            {formatPublishedAt(post.published_at)}
-          </time>
+
+          {/* Excerpt / Summary */}
+          {excerpt ? (
+            <p
+              className={`font-sans text-white/85 font-normal leading-[1.42] ${
+                compact ? 'text-[11.5px] line-clamp-2' : 'text-[12.5px] line-clamp-2 sm:text-[13px] sm:line-clamp-3'
+              }`}
+            >
+              {excerpt}
+            </p>
+          ) : null}
         </div>
       </Link>
     </article>

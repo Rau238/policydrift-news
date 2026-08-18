@@ -41,3 +41,15 @@ export function formatTodayForHeader(d: Date, narrow: boolean): string {
     ? { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }
     : { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 }
+
+export function formatTimeAgoUpper(iso: string): string {
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return '';
+  const s = Math.max(0, Math.floor((Date.now() - t) / 1000));
+  if (s < 60) return 'JUST NOW';
+  if (s < 3600) return `${Math.floor(s / 60)}M AGO`;
+  if (s < 86400) return `${Math.floor(s / 3600)}H AGO`;
+  if (s < 604800) return `${Math.floor(s / 86400)}D AGO`;
+  return `${Math.floor(s / 604800)}W AGO`;
+}
+
