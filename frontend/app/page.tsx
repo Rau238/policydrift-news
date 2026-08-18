@@ -86,16 +86,43 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [breaking, latest, trending, topStories, trendingRanked, popular] = await Promise.all([
-    getPosts({ page: 1, limit: 10, category: 'Breaking' }),
-    getPosts({ page: 1, limit: 12 }),
-    getTrending(6),
-    getTopNews({ limit: 6 }),
-    getTrendingNews({ limit: 10 }),
-    getPopularNews({ limit: 6, period: 'day' }),
+  const [breakingRaw, latestRaw, trendingRaw, topStoriesRaw, trendingRankedRaw, popularRaw] = await Promise.all([
+    getPosts({ page: 1, limit: 14, category: 'Breaking' }),
+    getPosts({ page: 1, limit: 30 }),
+    getTrending(10),
+    getTopNews({ limit: 10 }),
+    getTrendingNews({ limit: 12 }),
+    getPopularNews({ limit: 10, period: 'day' }),
   ]);
 
-  const lead = latest.posts[0];
+  // Strict cross-section deduplication
+  const seenIds = new Set<number>();
+
+  // 1. Featured Lead Hero Story
+  const lead = latestRaw.posts[0];
+  if (lead) seenIds.add(lead.id);
+
+  // 2. Breaking News Live Desk
+  const breakingPosts = breakingRaw.posts.filter((p) => !seenIds.has(p.id)).slice(0, 6);
+  breakingPosts.forEach((p) => seenIds.add(p.id));
+
+  // 3. Top Stories Section
+  const topStories = (topStoriesRaw || []).filter((p) => !seenIds.has(p.id)).slice(0, 6);
+  topStories.forEach((p) => seenIds.add(p.id));
+
+  // 4. Trending Ranked Section
+  const trendingRanked = (trendingRankedRaw || []).filter((p) => !seenIds.has(p.id)).slice(0, 5);
+  trendingRanked.forEach((p) => seenIds.add(p.id));
+
+  // 5. Popular Section
+  const popular = (popularRaw || []).filter((p) => !seenIds.has(p.id)).slice(0, 5);
+  popular.forEach((p) => seenIds.add(p.id));
+
+  // 6. Latest Across Desks (Guaranteed unique; no duplicates from hero/breaking/top)
+  const latestPosts = latestRaw.posts.filter((p) => !seenIds.has(p.id)).slice(0, 12);
+
+  // 7. Sidebar Trending
+  const trending = (trendingRaw || []).filter((p) => p.id !== lead?.id).slice(0, 6);
 
   const heroBackdropGradient =
     HERO_BACKDROP_GRADIENTS[Math.floor(Math.random() * HERO_BACKDROP_GRADIENTS.length)];
@@ -201,7 +228,7 @@ export default async function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 py-8 max-lg:px-3.5 max-lg:py-8 sm:px-6 sm:py-10">
           <div className="grid min-w-0 gap-8 max-lg:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,min(380px,100%))] lg:items-start">
             <div className="min-w-0 space-y-12 max-lg:space-y-10 lg:space-y-20">
-              {breaking.posts.length > 0 ? (
+              {breakingPosts.length > 0 ? (
                 <section className="relative overflow-hidden rounded-2xl max-lg:rounded-2xl max-lg:shadow-sm lg:rounded-3xl">
                   <div className="relative md:px-6">
                     <div className="mb-5 flex flex-col gap-4 max-lg:mb-5 max-lg:gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:gap-5">
@@ -229,7 +256,7 @@ export default async function HomePage() {
                         <ArrowRight className="h-4 w-4" strokeWidth={2.25} aria-hidden />
                       </Link>
                     </div>
-                    <BreakingGrid posts={breaking.posts} />
+                    <BreakingGrid posts={breakingPosts} />
                   </div>
                 </section>
               ) : null}
@@ -281,7 +308,7 @@ export default async function HomePage() {
                     <ArrowRight className="h-4 w-4" strokeWidth={2.25} aria-hidden />
                   </Link>
                 </div>
-                {latest.posts.length === 0 ? (
+                {latestPosts.length === 0 ? (
                   <div className="rounded-3xl border border-dashed border-slate-300 bg-surface p-14 text-center">
                     <p className="text-lg font-semibold text-ink">No articles yet</p>
                     <p className="mx-auto mt-3 max-w-md text-sm text-ink-soft">
@@ -298,7 +325,7 @@ export default async function HomePage() {
                   </div>
                 ) : (
                   <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 max-lg:gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {latest.posts.map((p, i) => (
+                    {latestPosts.map((p, i) => (
                       <li key={p.id} className="min-w-0">
                         <PostCard post={p} priority={false} gridCell index={i} />
                       </li>

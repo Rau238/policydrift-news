@@ -4,6 +4,8 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, ShieldCheck, AlertCircle, Eye, EyeOff, KeyRound, ArrowLeft } from 'lucide-react';
+import { BrandMark } from '@/components/BrandMark';
+import { AnimatedBackButton } from '@/components/AnimatedBackButton';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -84,22 +86,14 @@ export default function AdminLoginPage() {
       <div className="relative w-full max-w-md">
         {/* Top return link */}
         <div className="mb-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 transition hover:text-teal-300"
-          >
-            <ArrowLeft size={14} />
-            <span>Return to Public Site</span>
-          </Link>
+          <AnimatedBackButton href="/" label="Return to Public Site" useHistory={false} />
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-slate-800/90 bg-[#0c1220]/95 p-8 shadow-2xl backdrop-blur-xl ring-1 ring-slate-700/30">
+        <div className="rounded-2xl border border-slate-800/90 bg-[#0c1220]/95 p-6 sm:p-8 shadow-2xl backdrop-blur-xl ring-1 ring-slate-700/30">
           {/* Logo Brand Header */}
           <div className="mb-6 flex flex-col items-center text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 shadow-xl shadow-teal-500/20 ring-1 ring-teal-400/40">
-              <ShieldCheck size={28} className="text-white" />
-            </div>
+            <BrandMark sizeClass="h-16 w-16" />
             <div className="mt-3.5">
               <p className="text-[11px] font-bold uppercase tracking-widest text-teal-400">
                 PolicyDrift News Desk

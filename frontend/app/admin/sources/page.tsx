@@ -33,6 +33,7 @@ import {
 import { AdminSidebar } from '../_components/AdminSidebar';
 import { CategoryGlyph, categoryLabel } from '@/lib/category-theme';
 import { getDarkCategoryBadge } from '../_components/DashboardCharts';
+import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -179,6 +180,9 @@ export default function AdminSourcesPage() {
   const [testerCategory, setTesterCategory] = useState('Politics');
   const [testerLoading, setTesterLoading] = useState(false);
   const [testerResult, setTesterResult] = useState<TestFeedResult | null>(null);
+
+  // Custom Admin Confirmation Modal State
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message });
@@ -384,24 +388,35 @@ export default function AdminSourcesPage() {
   // ─── Delete Source ──────────────────────────────────────────────────────────
 
   async function handleDeleteSource(source: Source) {
-    if (!confirm(`Are you sure you want to delete source "${source.name}"?`)) return;
-    const key = `${source.id}:delete`;
-    setRowAction(key);
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Feed Source',
+      message: `Are you sure you want to permanently delete the feed source "${source.name}"? Ingestion will stop for this RSS endpoint.`,
+      confirmText: 'Delete Source',
+      cancelText: 'Cancel',
+      intent: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog((prev) => (prev ? { ...prev, isLoading: true } : null));
+        const key = `${source.id}:delete`;
+        setRowAction(key);
 
-    try {
-      const res = await fetch(`/api/admin/sources/${source.id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (res.ok && data.ok !== false) {
-        showToast('success', data.message || 'Source deleted');
-        await fetchSources();
-      } else {
-        showToast('error', data.error || 'Failed to delete source');
-      }
-    } catch {
-      showToast('error', 'Network error deleting source');
-    } finally {
-      setRowAction(null);
-    }
+        try {
+          const res = await fetch(`/api/admin/sources/${source.id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (res.ok && data.ok !== false) {
+            showToast('success', data.message || 'Source deleted');
+            await fetchSources();
+          } else {
+            showToast('error', data.error || 'Failed to delete source');
+          }
+        } catch {
+          showToast('error', 'Network error deleting source');
+        } finally {
+          setRowAction(null);
+          setConfirmDialog(null);
+        }
+      },
+    });
   }
 
   // ─── Add / Edit Submit ──────────────────────────────────────────────────────
@@ -561,7 +576,7 @@ export default function AdminSourcesPage() {
             </div>
 
             {/* Top Action Buttons */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 no-scrollbar sm:flex-wrap">
               {/* Sync Curated Feeds Button */}
               <button
                 onClick={handleSyncCuratedFeeds}
@@ -617,7 +632,7 @@ export default function AdminSourcesPage() {
                 className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-teal-900/50 ring-1 ring-teal-400/40 transition hover:from-teal-400 hover:to-emerald-400 active:scale-95"
               >
                 <Plus size={15} className="text-white stroke-[3]" />
-                <span>+ Add RSS Source</span>
+                <span>Add RSS Source</span>
               </button>
             </div>
           </div>
@@ -765,7 +780,7 @@ export default function AdminSourcesPage() {
                     className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-bold text-white shadow hover:bg-teal-500 transition"
                   >
                     <Plus size={13} />
-                    <span>+ Add RSS Source</span>
+                    <span>Add RSS Source</span>
                   </button>
                 </div>
               </div>
@@ -1379,6 +1394,12 @@ export default function AdminSourcesPage() {
           </div>
         </div>
       )}
+
+      {/* Custom Theme Admin Confirmation Modal */}
+      <AdminConfirmModal
+        dialog={confirmDialog}
+        onClose={() => setConfirmDialog(null)}
+      />
     </div>
   );
 }

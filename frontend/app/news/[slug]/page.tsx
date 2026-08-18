@@ -6,10 +6,16 @@ import { formatPublishedAt } from '@/lib/format';
 import { newsArticleJsonLd, serializeJsonLd } from '@/lib/jsonld';
 import { buildNewsArticleBodyForSchema, isBodyRedundantWithExcerpt, prepareArticleBodyForDisplay } from '@/lib/article-body';
 import { decodeHtmlEntities } from '@/lib/sanitize';
-import { resolveOgImageUrl, resolvePostImageUrl } from '@/lib/story-image';
+import { resolveOgImageUrl, resolvePostImageUrl, extractArticleImages } from '@/lib/story-image';
 import { absoluteUrl, siteName } from '@/lib/site';
 import { curatorImageSrc, curatorName, curatorProfileUrl } from '@/lib/site-trust';
 import { ArticleKeyTakeaways } from '@/components/ArticleKeyTakeaways';
+import { StoryOverviewBox } from '@/components/StoryOverviewBox';
+import { ParticleStoryImageStack } from '@/components/ParticleStoryImageStack';
+import { PublisherCreditCard } from '@/components/PublisherCreditCard';
+import { AnimatedBackButton } from '@/components/AnimatedBackButton';
+import { ArticleEngagementBar } from '@/components/ArticleEngagementBar';
+import { MultiSourceCoverage } from '@/components/MultiSourceCoverage';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import { PostCard } from '@/components/PostCard';
 import { LiveMarketsAside } from '@/components/LiveMarketsAside';
@@ -237,7 +243,14 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   /** Show the body block only when it adds substance beyond the deck under the headline. */
   const showArticleBody = hasArticleBody && !bodyDuplicatesExcerpt;
   const url = absoluteUrl(`/news/${post.slug}`);
-  const heroSrc = resolvePostImageUrl(post.image_url);
+  const storyImages = extractArticleImages(
+    post.image_url,
+    decodeHtmlEntities(post.title),
+    post.category,
+    rawBody || articleHtml,
+  );
+  const heroSrc = storyImages[0]?.src || resolvePostImageUrl(post.image_url);
+  const relatedImages = storyImages.slice(1);
   const desc = clipMetaDescription(post.excerpt?.trim() || post.title);
   const takeaways = post.key_takeaways?.trim() ?? '';
   /** Matches visible article text: headline, excerpt, curator, takeaways, full syndicated body (uncapped). */
@@ -281,17 +294,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
       <div className="border-b border-slate-800/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
         <div className="mx-auto max-w-7xl px-4 py-3.5 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Link
-              href="/news"
-              className="group inline-flex items-center gap-1.5 text-[13px] font-semibold text-slate-300 transition hover:text-white"
-            >
-              <ArrowLeft
-                className="h-3.5 w-3.5 transition group-hover:-translate-x-0.5"
-                strokeWidth={2.25}
-                aria-hidden
-              />
-              All news
-            </Link>
+            <AnimatedBackButton href="/news" label="All news" />
             <nav className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
               <Link href="/" className="transition hover:text-teal-200">
                 Home
@@ -358,108 +361,82 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                     {excerptText}
                   </p>
                 ) : null}
+
+                {/* Top Engagement Bar (Likes, Bookmarks, Share) */}
+                <ArticleEngagementBar
+                  postId={post.id}
+                  slug={post.slug}
+                  title={post.title}
+                  initialLikes={post.like_count}
+                />
               </header>
 
               <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm shadow-slate-900/5">
-                <figure className={`relative bg-slate-900 ${categoryArticleHeroRingClass(post.category)}`}>
-                  <div className="relative aspect-[16/9] w-full sm:aspect-[2/1]">
-                    <RemoteStoryImage
-                      src={heroSrc}
-                      alt={decodeHtmlEntities(post.title)}
-                      title={decodeHtmlEntities(post.title)}
-                      category={post.category}
-                      priority
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
-                    <div
-                      className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-slate-950/40 to-transparent"
-                      aria-hidden
-                    />
-                  </div>
-                </figure>
+                {/* Particle.news Style 3D Overlapping Image Stack / Hero Section */}
+                <div className="p-3 sm:p-5 pb-0 sm:pb-0">
+                  <ParticleStoryImageStack
+                    mainImageSrc={heroSrc}
+                    mainTitle={post.title}
+                    category={post.category}
+                    relatedImages={relatedImages}
+                  />
+                </div>
 
-                {takeaways ? (
-                  <div className="border-b border-slate-100 px-4 py-4 sm:px-6">
-                    <ArticleKeyTakeaways raw={takeaways} />
-                  </div>
-                ) : null}
+                {/* Unified Editorial Article Story Content */}
+                <div className="px-5 py-6 sm:px-8 sm:py-8 border-b border-slate-100">
+                  <StoryOverviewBox
+                    excerpt={excerptText}
+                    takeawaysRaw={takeaways}
+                  />
 
-                {showArticleBody ? (
-                  <div className="border-b border-slate-100 px-4 py-6 sm:px-7 sm:py-7">
-                    <div
-                      className="article-prose article-detail-prose prose-policy w-full overflow-x-auto text-left feed-article-body [overflow-wrap:anywhere] [word-break:break-word]"
-                      dangerouslySetInnerHTML={{ __html: articleHtml }}
-                      suppressHydrationWarning
-                    />
-                  </div>
-                ) : excerptText ? (
-                  <div className="border-b border-slate-100 px-4 py-5 sm:px-7 sm:py-6">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-teal-700/90">Summary</p>
-                    <p className="mt-2.5 font-display text-[1.125rem] font-medium leading-relaxed text-slate-800 sm:text-[1.2rem] sm:leading-[1.65]">
-                      {excerptText}
-                    </p>
-                  </div>
-                ) : null}
-
-                <div className="bg-gradient-to-br from-slate-50 to-white px-4 py-5 sm:px-7 sm:py-6">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                    <a
-                      href={post.original_url}
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3.5 text-sm font-semibold text-white shadow-md shadow-teal-900/15 transition hover:bg-accent-dark sm:flex-none sm:min-w-[16rem]"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      Continue on publisher site
-                      <ExternalLink className="h-4 w-4 shrink-0 opacity-90" strokeWidth={2.25} aria-hidden />
-                    </a>
-                    <Link
-                      href={categoryHref(post.category)}
-                      className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-[13px] font-semibold text-slate-600 transition hover:border-teal-200 hover:text-accent"
-                    >
-                      More in {categoryLabel(post.category)}
-                      <span aria-hidden>→</span>
-                    </Link>
-                  </div>
                   {showArticleBody ? (
-                    <p className="mt-3 text-[10px] leading-relaxed text-slate-400">
-                      Syndicated feed text, sanitized for display. Publisher site may have updates.
-                    </p>
+                    <div className="mt-6 pt-6 border-t border-slate-100">
+                      <div
+                        className="article-prose article-detail-prose prose-policy w-full overflow-x-auto text-left feed-article-body [overflow-wrap:anywhere] [word-break:break-word]"
+                        dangerouslySetInnerHTML={{ __html: articleHtml }}
+                        suppressHydrationWarning
+                      />
+                    </div>
                   ) : null}
                 </div>
-              </div>
-            </article>
 
-            {relatedPosts.length > 0 ? (
-              <section
-                className={`mt-8 w-full max-w-3xl rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm sm:p-6 border-l-4 ${categoryVerticalBarClass(post.category)}`}
-                aria-labelledby="article-related-heading"
-              >
-                <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
-                  <div>
-                    <h2
-                      id="article-related-heading"
-                      className="font-display text-xl font-bold tracking-tight text-ink sm:text-2xl"
-                    >
-                      {`More in ${categoryLabel(post.category)}`}
-                    </h2>
-                    <p className="mt-1 text-[13px] font-medium text-slate-500">Continue reading on this desk</p>
-                  </div>
-                  <Link
-                    href={categoryHref(post.category)}
-                    className="shrink-0 text-sm font-semibold text-accent transition hover:text-accent-dark"
-                  >
-                    {`All ${categoryLabel(post.category)} →`}
-                  </Link>
+                {/* News Publisher Credit & Original Source Attribution */}
+                <div className="p-4 sm:p-6 bg-slate-50/40 border-b border-slate-100">
+                  <PublisherCreditCard
+                    originalUrl={post.original_url}
+                    sourceFeed={post.source_feed}
+                    author={post.author}
+                    publishedAt={post.published_at}
+                    category={post.category}
+                  />
                 </div>
-                <ul className="mt-5 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2">
-                  {relatedPosts.map((p, i) => (
-                    <li key={p.id} className="min-w-0">
-                      <PostCard post={p} compact gridCell index={i} />
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
+
+                {/* Navigation and Desk Link */}
+                <div className="bg-white px-4 py-4 sm:px-7 sm:py-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <Link
+                      href={categoryHref(post.category)}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent transition hover:text-accent-dark"
+                    >
+                      <span>Explore all {categoryLabel(post.category)} stories</span>
+                      <span aria-hidden>→</span>
+                    </Link>
+                    <p className="text-[11px] text-slate-400">
+                      Syndicated feed content with full publisher credit.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Multi-Source Perspectives & Related Web Coverage */}
+              <MultiSourceCoverage
+                mainTitle={post.title}
+                originalUrl={post.original_url}
+                sourceFeed={post.source_feed}
+                category={post.category}
+                relatedPosts={relatedPosts}
+              />
+            </article>
           </div>
 
           <aside className="flex min-w-0 flex-col gap-5 lg:sticky lg:top-24">

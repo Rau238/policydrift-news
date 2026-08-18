@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { verifyAdminSessionToken } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -16,16 +17,16 @@ function getBackendBase() {
 async function handleAdminProxy(req: NextRequest, { params }: { params: { path: string[] } }) {
   const secret = process.env.ADMIN_SECRET?.trim() || process.env.INSIGHTS_ADMIN_SECRET?.trim() || 'Raunak@123';
 
-  // Check auth: cookie pd_admin OR x-admin-secret header OR Authorization Bearer
+  // Check auth: signed cookie pd_admin OR x-admin-secret header OR Authorization Bearer
   const cookieStore = cookies();
   const cookieVal = cookieStore.get('pd_admin')?.value?.trim();
   const headerSecret = req.headers.get('x-admin-secret')?.trim();
   const authHeader = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '').trim();
 
   const isAuthed =
-    (cookieVal && cookieVal === secret) ||
-    (headerSecret && headerSecret === secret) ||
-    (authHeader && authHeader === secret);
+    verifyAdminSessionToken(cookieVal) ||
+    verifyAdminSessionToken(headerSecret) ||
+    verifyAdminSessionToken(authHeader);
 
   if (!isAuthed) {
     return NextResponse.json(

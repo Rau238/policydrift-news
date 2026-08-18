@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 import { AdminSidebar } from '../_components/AdminSidebar';
 import { DashboardCharts } from '../_components/DashboardCharts';
+import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -282,6 +283,9 @@ function DashboardContent() {
   // Publish All Pending Review Articles state
   const [publishingAllPending, setPublishingAllPending] = useState(false);
 
+  // Custom Admin Confirmation Modal state
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
+
   // Search debounce
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -507,30 +511,41 @@ function DashboardContent() {
   }
 
   async function handleDeleteArticle(id: number | string) {
-    if (!confirm('Are you sure you want to archive this article?')) return;
-    const key = `${id}:delete`;
-    setActionLoading(key);
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Archive Article',
+      message: 'Are you sure you want to archive this article? It will be removed from the public live feed.',
+      confirmText: 'Archive Article',
+      cancelText: 'Cancel',
+      intent: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog((prev) => (prev ? { ...prev, isLoading: true } : null));
+        const key = `${id}:delete`;
+        setActionLoading(key);
 
-    try {
-      const res = await fetch(`/api/admin/articles/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (res.ok && data.ok !== false) {
-        showFeedback('success', data.message || 'Article archived');
-        setArticles((prev) => prev.filter((a) => Number(a.id) !== Number(id)));
-        setTotal((t) => Math.max(0, t - 1));
-        fetchStats();
-        fetchArticles(true);
-        if (previewArticle?.id === id) setPreviewArticle(null);
-      } else {
-        showFeedback('error', data.error || 'Failed to archive article');
-        fetchArticles(true);
-      }
-    } catch {
-      showFeedback('error', 'Network error deleting article');
-      fetchArticles(true);
-    } finally {
-      setActionLoading(null);
-    }
+        try {
+          const res = await fetch(`/api/admin/articles/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (res.ok && data.ok !== false) {
+            showFeedback('success', data.message || 'Article archived');
+            setArticles((prev) => prev.filter((a) => Number(a.id) !== Number(id)));
+            setTotal((t) => Math.max(0, t - 1));
+            fetchStats();
+            fetchArticles(true);
+            if (previewArticle?.id === id) setPreviewArticle(null);
+          } else {
+            showFeedback('error', data.error || 'Failed to archive article');
+            fetchArticles(true);
+          }
+        } catch {
+          showFeedback('error', 'Network error deleting article');
+          fetchArticles(true);
+        } finally {
+          setActionLoading(null);
+          setConfirmDialog(null);
+        }
+      },
+    });
   }
 
   // ─── Bulk Operations ────────────────────────────────────────────────────────
@@ -574,36 +589,40 @@ function DashboardContent() {
       return;
     }
 
-    if (
-      !confirm(
-        `Are you sure you want to publish all ${stats.pending} review articles to the live site immediately?`
-      )
-    ) {
-      return;
-    }
-
-    setPublishingAllPending(true);
-    try {
-      const res = await fetch('/api/admin/articles/publish-all-pending', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await res.json();
-      if (res.ok && data.ok !== false) {
-        showFeedback(
-          'success',
-          data.message || `Published ${data.affected || 0} review articles live`
-        );
-        fetchStats();
-        fetchArticles(true);
-      } else {
-        showFeedback('error', data.error || 'Failed to publish review articles');
-      }
-    } catch {
-      showFeedback('error', 'Network error publishing review articles');
-    } finally {
-      setPublishingAllPending(false);
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Publish All Review Articles',
+      message: `Are you sure you want to publish all ${stats.pending.toLocaleString()} review articles to the live site immediately? This will push all pending RSS articles live to the public website.`,
+      confirmText: `Publish ${stats.pending.toLocaleString()} Articles Live`,
+      cancelText: 'Keep in Queue',
+      intent: 'success',
+      onConfirm: async () => {
+        setConfirmDialog((prev) => (prev ? { ...prev, isLoading: true } : null));
+        setPublishingAllPending(true);
+        try {
+          const res = await fetch('/api/admin/articles/publish-all-pending', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          });
+          const data = await res.json();
+          if (res.ok && data.ok !== false) {
+            showFeedback(
+              'success',
+              data.message || `Published ${data.affected || 0} review articles live`
+            );
+            fetchStats();
+            fetchArticles(true);
+          } else {
+            showFeedback('error', data.error || 'Failed to publish review articles');
+          }
+        } catch {
+          showFeedback('error', 'Network error publishing review articles');
+        } finally {
+          setPublishingAllPending(false);
+          setConfirmDialog(null);
+        }
+      },
+    });
   }
 
   // ─── Worker Pipelines ───────────────────────────────────────────────────────
@@ -674,10 +693,10 @@ function DashboardContent() {
             </div>
 
             {/* View Mode Switcher */}
-            <div className="flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900/90 p-1">
+            <div className="flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900/90 p-1 overflow-x-auto max-w-full no-scrollbar shrink-0">
               <button
                 onClick={() => router.push('/admin/dashboard', { scroll: false })}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
                   !statusParam
                     ? 'bg-teal-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
@@ -688,7 +707,7 @@ function DashboardContent() {
               </button>
               <button
                 onClick={() => handleStatusChange('all')}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
                   statusParam && statusParam !== 'pending'
                     ? 'bg-teal-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
@@ -699,7 +718,7 @@ function DashboardContent() {
               </button>
               <button
                 onClick={() => handleStatusChange('pending')}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
                   statusParam === 'pending'
                     ? 'bg-amber-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
@@ -716,7 +735,7 @@ function DashboardContent() {
             </div>
 
             {/* Quick Worker Triggers */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 no-scrollbar sm:flex-wrap">
               {stats.pending > 0 && (
                 <button
                   onClick={handlePublishAllPending}
@@ -792,7 +811,7 @@ function DashboardContent() {
                 className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-teal-600 to-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-teal-900/30 transition hover:from-teal-500 hover:to-emerald-500 active:scale-95"
               >
                 <Plus size={13} />
-                <span>+ Add RSS Source</span>
+                <span>Add RSS Source</span>
               </Link>
             </div>
           </div>
@@ -1431,9 +1450,18 @@ function DashboardContent() {
               {/* Archive Button */}
               <button
                 onClick={() => {
-                  if (confirm(`Archive ${selectedIds.length} selected articles?`)) {
-                    executeBulkAction('archive');
-                  }
+                  setConfirmDialog({
+                    isOpen: true,
+                    title: 'Archive Selected Articles',
+                    message: `Are you sure you want to archive ${selectedIds.length} selected articles? They will be removed from the active live feed.`,
+                    confirmText: `Archive ${selectedIds.length} Articles`,
+                    cancelText: 'Cancel',
+                    intent: 'danger',
+                    onConfirm: async () => {
+                      setConfirmDialog(null);
+                      executeBulkAction('archive');
+                    },
+                  });
                 }}
                 disabled={bulkExecuting}
                 title="Archive selected articles"
@@ -1642,6 +1670,12 @@ function DashboardContent() {
           </div>
         </div>
       )}
+
+      {/* Custom Theme Admin Confirmation Modal */}
+      <AdminConfirmModal
+        dialog={confirmDialog}
+        onClose={() => setConfirmDialog(null)}
+      />
     </div>
   );
 }
