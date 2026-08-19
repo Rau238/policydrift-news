@@ -92,6 +92,7 @@ export async function dispatchSocialPost(payload) {
 
   const rawImage = payload.directImageUrl || payload.rawImageUrl || payload.imageUrl || payload.image_url || '';
   const finalEditedImage = publicCdnUrl || savedEditedCardUrl || payload.cardImageUrl || `https://www.policydrift.live/social-card?title=${encodeURIComponent(title)}&category=${encodeURIComponent(payload.category || '')}&ratio=${encodeURIComponent(payload.aspectRatio || '1.91:1')}&image=${encodeURIComponent(rawImage)}`;
+  const primaryImage = finalEditedImage || rawImage;
 
   const articleUrl = `https://www.policydrift.live/news/${slug || articleId}`;
   const primaryCaption = payload.caption || payload.captions?.linkedin || payload.title || '';
