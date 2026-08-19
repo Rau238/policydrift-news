@@ -343,7 +343,7 @@ export default function FootballMatchCenterPage() {
             </div>
             <h3 className="text-base font-bold text-slate-800">No Football Fixtures Found</h3>
             <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
-              There are currently no active matches for the selected filter. Check back soon for today's upcoming matches.
+              There are currently no active matches for the selected filter. Check back soon for today&apos;s upcoming matches.
             </p>
             <button
               onClick={() => {
