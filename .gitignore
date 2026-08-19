@@ -1,5 +1,5 @@
-# Logs
-logs
+# ─── Logs ────────────────────────────────────────────────────────────────────
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,25 +7,62 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-.next
+# ─── Node / Build ─────────────────────────────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+.next/
 *.local
+.vercel/
+
+# ─── Environment / Secrets ────────────────────────────────────────────────────
 .env
 .env.development
 .env.production
 .env.*.local
 !.env.example
 
-# Editor directories and files
+# ─── Editor ───────────────────────────────────────────────────────────────────
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.vercel
+
+# ─── TypeScript incremental build cache ───────────────────────────────────────
+frontend/tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# ─── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+.Python
+*.egg-info/
+dist/
+build/
+*.so
+
+# ─── Playwright / Scraper browser profiles ────────────────────────────────────
+# Large persistent browser profile — NEVER push to git
+cricbuzz_scraper/browser_profile/
+
+# ─── Live scraped data (runtime-generated, large, constantly changing) ────────
+# These are produced by the scraper daemon at runtime — not source code
+backend/data/cricket/
+backend/data/football/
+
+# DO NOT ignore these — they ARE source code:
+# backend/src/controllers/
+# backend/src/routes/
+# cricbuzz_scraper/*.py
+
+# ─── PM2 / ecosystem ──────────────────────────────────────────────────────────
+# ecosystem.config.cjs is deployable config — keep it tracked (remove from here if it was here)

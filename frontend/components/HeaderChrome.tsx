@@ -4,7 +4,6 @@ import { CategoryNav } from '@/components/CategoryNav';
 import { AnimatedTrendingIcon } from '@/components/AnimatedTrendingIcon';
 import { BrandMark } from '@/components/BrandMark';
 import { LocalConditions } from '@/components/LocalConditions';
-import { HeaderClock } from '@/components/HeaderClock';
 
 export function HeaderChrome() {
   return (
@@ -17,10 +16,9 @@ export function HeaderChrome() {
           </Link>
 
           <div className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:gap-3 md:gap-3.5">
-            <HeaderClock />
             <LocalConditions />
 
-            <nav className="hidden items-center md:flex" aria-label="Primary">
+            <nav className="flex items-center gap-1.5" aria-label="Primary">
               <Link
                 href="/trending-india"
                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-amber-200/95 transition hover:bg-amber-500/15 hover:text-amber-100 lg:px-4"
@@ -39,3 +37,4 @@ export function HeaderChrome() {
     </header>
   );
 }
+

@@ -219,7 +219,7 @@ export function SiteFooter() {
             <Link href="/terms" className="transition hover:text-white">
               Terms
             </Link>
-            <Link href="/editorial-standards" className="transition hover:text-white">
+            <Link href="/cookies" className="transition hover:text-white">
               Cookies
             </Link>
             <Link href="/sitemap.xml" className="transition hover:text-white">

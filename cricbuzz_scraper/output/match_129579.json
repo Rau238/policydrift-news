@@ -1,0 +1,63 @@
+{
+  "match_id": "129579",
+  "title": "England vs Pakistan, 1st Test",
+  "series": "Pakistan tour of England 2026",
+  "match_format": "TEST",
+  "state": "LIVE",
+  "status_text": "Day 1: 1st Session",
+  "venue": null,
+  "toss": "England elected to bowling",
+  "innings": [
+    {
+      "team_name": "PAK",
+      "runs": 0,
+      "wickets": 1,
+      "overs": 0.2,
+      "score_str": "0/1 (0.2 ov)",
+      "is_batting": true,
+      "is_declared": false
+    }
+  ],
+  "current_batting_team": null,
+  "current_bowling_team": null,
+  "current_batsmen": [
+    {
+      "name": "Shan Masood",
+      "runs": 0,
+      "balls": 1,
+      "fours": 0,
+      "sixes": 0,
+      "strike_rate": 0.0,
+      "is_striker": true,
+      "out_desc": null
+    },
+    {
+      "name": "Imam-ul-Haq",
+      "runs": 0,
+      "balls": 0,
+      "fours": 0,
+      "sixes": 0,
+      "strike_rate": 0.0,
+      "is_striker": false,
+      "out_desc": null
+    }
+  ],
+  "current_bowlers": [
+    {
+      "name": "Ollie Robinson",
+      "overs": 0.2,
+      "maidens": 0,
+      "runs": 0,
+      "wickets": 1,
+      "economy": 0.0
+    }
+  ],
+  "crr": null,
+  "rrr": null,
+  "target": null,
+  "partnership": "0 runs (1 balls)",
+  "last_wicket": "Azan Awais  lbw b Ollie Robinson 0(1)  - 0/1 in 0.1 ov.",
+  "recent_overs": "W 0",
+  "recent_commentary": [],
+  "last_updated": "2026-08-19T10:04:31.111520+00:00"
+}

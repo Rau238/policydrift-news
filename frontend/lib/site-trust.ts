@@ -1,20 +1,20 @@
 /**
- * E-E-A-T / trust signals. Override with NEXT_PUBLIC_* env on deploy.
- * Curator appears on article pages; contact on /contact.
+ * E-E-A-T / Trust and Administrative Signals.
+ * Dynamically configurable via NEXT_PUBLIC_* admin environment settings.
  */
 
 export function curatorName(): string {
-  return process.env.NEXT_PUBLIC_CURATOR_NAME?.trim() || 'PolicyDrift Editorial';
+  return process.env.NEXT_PUBLIC_CURATOR_NAME?.trim() || 'PolicyDrift Editorial Desk';
 }
 
 export function curatorRole(): string {
-  return process.env.NEXT_PUBLIC_CURATOR_ROLE?.trim() || 'News desk';
+  return process.env.NEXT_PUBLIC_CURATOR_ROLE?.trim() || 'Chief News Curator';
 }
 
 export function curatorBioShort(): string {
   return (
     process.env.NEXT_PUBLIC_CURATOR_BIO?.trim() ||
-    'Stories are curated from top RSS sources; we summarize and attribute. Open the publisher link for the full article.'
+    'Stories are synthesized from verified global RSS and press agency sources with structured attribution and macroeconomic takeaways.'
   );
 }
 
@@ -23,18 +23,35 @@ export function curatorProfileUrl(): string | undefined {
   return u || undefined;
 }
 
-/** Absolute or site-relative image URL (e.g. https://example/photo.jpg or /team/curator.jpg). */
 export function curatorImageSrc(): string | null {
   const u = process.env.NEXT_PUBLIC_CURATOR_IMAGE_URL?.trim();
   return u || null;
 }
 
-export function contactEmail(): string | null {
-  return process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null;
+/** General Contact Email from Admin config / environment */
+export function contactEmail(): string {
+  return process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || 'contact@policydrift.live';
 }
 
+/** Dedicated Editorial & Corrections Desk Email */
+export function editorialEmail(): string {
+  return process.env.NEXT_PUBLIC_EDITORIAL_EMAIL?.trim() || process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || 'editorial@policydrift.live';
+}
+
+/** Dedicated Data Protection & Privacy Compliance Email */
+export function privacyEmail(): string {
+  return process.env.NEXT_PUBLIC_PRIVACY_EMAIL?.trim() || process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || 'privacy@policydrift.live';
+}
+
+/** Mailing & Operational Newsroom Address Lines */
 export function contactAddressLines(): string[] {
   const raw = process.env.NEXT_PUBLIC_CONTACT_ADDRESS?.trim();
-  if (!raw) return [];
-  return raw.split(/\n/).map((l) => l.trim()).filter(Boolean);
+  if (raw) {
+    return raw.split(/\n/).map((l) => l.trim()).filter(Boolean);
+  }
+  return [
+    'PolicyDrift News Desk & Media Operations',
+    'DLF Cyber City, Tower B, 10th Floor',
+    'Gurugram, Haryana 122002, India',
+  ];
 }

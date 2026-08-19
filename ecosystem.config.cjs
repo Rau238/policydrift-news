@@ -76,5 +76,20 @@ module.exports = {
         ...fileEnv,
       },
     },
+    {
+      name: 'policydrift-cricket',
+      cwd: root,
+      script: 'cricbuzz_scraper/hub.py',
+      interpreter: 'python',
+      instances: 1,
+      exec_mode: 'fork',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '600M',
+      env_production: {
+        PYTHONUNBUFFERED: '1',
+        PYTHONPATH: root,
+      },
+    },
   ],
 };

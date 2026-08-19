@@ -302,3 +302,51 @@ export async function getGoogleTrendsBundle(opts?: GoogleTrendsBundleParams): Pr
     return emptyTrends;
   }
 }
+
+import type { LiveMatchesOverview, DetailedLiveMatch } from './cricket-types';
+
+export async function getCricketOverview(): Promise<LiveMatchesOverview> {
+  const fallback: LiveMatchesOverview = {
+    live_matches: [],
+    recent_matches: [],
+    upcoming_matches: [],
+    timestamp: new Date().toISOString(),
+  };
+  try {
+    const res = await safeFetchJson<{ ok: boolean; data: LiveMatchesOverview }>(
+      '/api/cricket/overview',
+      { ok: true, data: fallback },
+      { next: { revalidate: 5 } }
+    );
+    return res.data || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export async function getCricketRecent(): Promise<DetailedLiveMatch[]> {
+  try {
+    const res = await safeFetchJson<{ ok: boolean; data: DetailedLiveMatch[] }>(
+      '/api/cricket/recent',
+      { ok: true, data: [] },
+      { next: { revalidate: 15 } }
+    );
+    return res.data || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getCricketMatch(matchId: string | number): Promise<DetailedLiveMatch | null> {
+  try {
+    const res = await safeFetchJson<{ ok: boolean; data?: DetailedLiveMatch; error?: string }>(
+      `/api/cricket/match/${matchId}`,
+      { ok: false },
+      { cache: 'no-store' }
+    );
+    return res.data || null;
+  } catch {
+    return null;
+  }
+}
+

@@ -1,0 +1,782 @@
+{
+  "match_id": "163013",
+  "title": "Sri Lanka vs India, 1st Test",
+  "series": "India tour of Sri Lanka 2026",
+  "match_format": "TEST",
+  "state": "COMPLETED",
+  "status_text": "India won by 165 runs",
+  "venue": null,
+  "toss": "India elected to batting",
+  "winner": "India",
+  "player_of_the_match": "Devdutt Padikkal",
+  "innings": [
+    {
+      "team_name": "IND",
+      "runs": 462,
+      "wickets": 10,
+      "overs": 116.4,
+      "score_str": "462/10 (116.4 ov)",
+      "is_batting": false,
+      "is_declared": false
+    },
+    {
+      "team_name": "SL",
+      "runs": 284,
+      "wickets": 10,
+      "overs": 79.4,
+      "score_str": "284/10 (79.4 ov)",
+      "is_batting": false,
+      "is_declared": false
+    },
+    {
+      "team_name": "IND",
+      "runs": 193,
+      "wickets": 10,
+      "overs": 48.5,
+      "score_str": "193/10 (48.5 ov)",
+      "is_batting": false,
+      "is_declared": false
+    },
+    {
+      "team_name": "SL",
+      "runs": 206,
+      "wickets": 10,
+      "overs": 77.4,
+      "score_str": "206/10 (77.4 ov)",
+      "is_batting": false,
+      "is_declared": false
+    }
+  ],
+  "full_scorecard": [
+    {
+      "innings_id": 1,
+      "team_name": "IND",
+      "runs": 462,
+      "wickets": 10,
+      "overs": 116.4,
+      "run_rate": 3.96,
+      "score_str": "462/10 (116.4 ov)",
+      "is_declared": false,
+      "is_follow_on": false,
+      "batsmen": [
+        {
+          "name": "Yashasvi Jaiswal",
+          "runs": 32,
+          "balls": 37,
+          "fours": 5,
+          "sixes": 0,
+          "strike_rate": 86.49,
+          "is_striker": false,
+          "out_desc": "run out (Prabath Jayasuriya/Niroshan Dickwella)"
+        },
+        {
+          "name": "KL Rahul",
+          "runs": 82,
+          "balls": 175,
+          "fours": 10,
+          "sixes": 1,
+          "strike_rate": 46.86,
+          "is_striker": false,
+          "out_desc": "c Nishan Fernando b Keshara Nuwantha"
+        },
+        {
+          "name": "Devdutt Padikkal",
+          "runs": 167,
+          "balls": 230,
+          "fours": 15,
+          "sixes": 1,
+          "strike_rate": 72.61,
+          "is_striker": false,
+          "out_desc": "st Niroshan Dickwella b Prabath Jayasuriya"
+        },
+        {
+          "name": "Shubman Gill",
+          "runs": 16,
+          "balls": 28,
+          "fours": 2,
+          "sixes": 0,
+          "strike_rate": 57.14,
+          "is_striker": false,
+          "out_desc": "c Lahiru Udara b Prabath Jayasuriya"
+        },
+        {
+          "name": "Rishabh Pant",
+          "runs": 39,
+          "balls": 62,
+          "fours": 4,
+          "sixes": 1,
+          "strike_rate": 62.9,
+          "is_striker": false,
+          "out_desc": "c Sonal Dinusha b Keshara Nuwantha"
+        },
+        {
+          "name": "Dhruv Jurel",
+          "runs": 51,
+          "balls": 68,
+          "fours": 4,
+          "sixes": 1,
+          "strike_rate": 75.0,
+          "is_striker": false,
+          "out_desc": "c Dhananjaya de Silva b Prabath Jayasuriya"
+        },
+        {
+          "name": "Ravindra Jadeja",
+          "runs": 13,
+          "balls": 25,
+          "fours": 1,
+          "sixes": 0,
+          "strike_rate": 52.0,
+          "is_striker": false,
+          "out_desc": "lbw b Keshara Nuwantha"
+        },
+        {
+          "name": "Manav Suthar",
+          "runs": 24,
+          "balls": 43,
+          "fours": 2,
+          "sixes": 0,
+          "strike_rate": 55.81,
+          "is_striker": false,
+          "out_desc": "c Lahiru Udara b Prabath Jayasuriya"
+        },
+        {
+          "name": "Mohammed Siraj",
+          "runs": 11,
+          "balls": 15,
+          "fours": 0,
+          "sixes": 1,
+          "strike_rate": 73.33,
+          "is_striker": false,
+          "out_desc": "c Dhananjaya de Silva b Asitha Fernando"
+        },
+        {
+          "name": "Kuldeep Yadav",
+          "runs": 13,
+          "balls": 14,
+          "fours": 2,
+          "sixes": 0,
+          "strike_rate": 92.86,
+          "is_striker": false,
+          "out_desc": "not out"
+        },
+        {
+          "name": "Prasidh Krishna",
+          "runs": 2,
+          "balls": 7,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 28.57,
+          "is_striker": false,
+          "out_desc": "c Niroshan Dickwella b Asitha Fernando"
+        }
+      ],
+      "bowlers": [
+        {
+          "name": "Asitha Fernando",
+          "overs": 17.4,
+          "maidens": 1,
+          "runs": 63,
+          "wickets": 2,
+          "economy": 3.6
+        },
+        {
+          "name": "Lahiru Kumara",
+          "overs": 13.0,
+          "maidens": 1,
+          "runs": 76,
+          "wickets": 0,
+          "economy": 5.8
+        },
+        {
+          "name": "Keshara Nuwantha",
+          "overs": 39.0,
+          "maidens": 1,
+          "runs": 175,
+          "wickets": 3,
+          "economy": 4.5
+        },
+        {
+          "name": "Prabath Jayasuriya",
+          "overs": 39.0,
+          "maidens": 6,
+          "runs": 109,
+          "wickets": 4,
+          "economy": 2.8
+        },
+        {
+          "name": "Dhananjaya de Silva",
+          "overs": 4.0,
+          "maidens": 0,
+          "runs": 15,
+          "wickets": 0,
+          "economy": 3.8
+        },
+        {
+          "name": "Sonal Dinusha",
+          "overs": 4.0,
+          "maidens": 0,
+          "runs": 17,
+          "wickets": 0,
+          "economy": 4.2
+        }
+      ],
+      "extras": "12 (b 4, lb 3, w 1, nb 4)"
+    },
+    {
+      "innings_id": 2,
+      "team_name": "SL",
+      "runs": 284,
+      "wickets": 10,
+      "overs": 79.4,
+      "run_rate": 3.56,
+      "score_str": "284/10 (79.4 ov)",
+      "is_declared": false,
+      "is_follow_on": false,
+      "batsmen": [
+        {
+          "name": "Nishan Madushka",
+          "runs": 0,
+          "balls": 2,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 0.0,
+          "is_striker": false,
+          "out_desc": "c Devdutt Padikkal b Mohammed Siraj"
+        },
+        {
+          "name": "Lahiru Udara",
+          "runs": 27,
+          "balls": 44,
+          "fours": 6,
+          "sixes": 0,
+          "strike_rate": 61.36,
+          "is_striker": false,
+          "out_desc": "c Yashasvi Jaiswal b Manav Suthar"
+        },
+        {
+          "name": "Dinesh Chandimal",
+          "runs": 4,
+          "balls": 16,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 25.0,
+          "is_striker": false,
+          "out_desc": "c Rishabh Pant b Manav Suthar"
+        },
+        {
+          "name": "Kamindu Mendis",
+          "runs": 14,
+          "balls": 25,
+          "fours": 1,
+          "sixes": 1,
+          "strike_rate": 56.0,
+          "is_striker": false,
+          "out_desc": "c Shubman Gill b Kuldeep Yadav"
+        },
+        {
+          "name": "Dhananjaya de Silva",
+          "runs": 21,
+          "balls": 41,
+          "fours": 4,
+          "sixes": 0,
+          "strike_rate": 51.22,
+          "is_striker": false,
+          "out_desc": "c KL Rahul b Ravindra Jadeja"
+        },
+        {
+          "name": "Sonal Dinusha",
+          "runs": 100,
+          "balls": 168,
+          "fours": 4,
+          "sixes": 2,
+          "strike_rate": 59.52,
+          "is_striker": false,
+          "out_desc": "lbw b Ravindra Jadeja"
+        },
+        {
+          "name": "Niroshan Dickwella",
+          "runs": 80,
+          "balls": 115,
+          "fours": 7,
+          "sixes": 0,
+          "strike_rate": 69.57,
+          "is_striker": false,
+          "out_desc": "c Rishabh Pant b Prasidh Krishna"
+        },
+        {
+          "name": "Keshara Nuwantha",
+          "runs": 2,
+          "balls": 18,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 11.11,
+          "is_striker": false,
+          "out_desc": "c Shubman Gill b Ravindra Jadeja"
+        },
+        {
+          "name": "Prabath Jayasuriya",
+          "runs": 10,
+          "balls": 43,
+          "fours": 2,
+          "sixes": 0,
+          "strike_rate": 23.26,
+          "is_striker": false,
+          "out_desc": "c Dhruv Jurel b Manav Suthar"
+        },
+        {
+          "name": "Lahiru Kumara",
+          "runs": 10,
+          "balls": 5,
+          "fours": 1,
+          "sixes": 1,
+          "strike_rate": 200.0,
+          "is_striker": false,
+          "out_desc": "st Rishabh Pant b Manav Suthar"
+        },
+        {
+          "name": "Asitha Fernando",
+          "runs": 0,
+          "balls": 5,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 0.0,
+          "is_striker": false,
+          "out_desc": "batting"
+        }
+      ],
+      "bowlers": [
+        {
+          "name": "Mohammed Siraj",
+          "overs": 9.0,
+          "maidens": 3,
+          "runs": 29,
+          "wickets": 1,
+          "economy": 3.2
+        },
+        {
+          "name": "Prasidh Krishna",
+          "overs": 14.0,
+          "maidens": 0,
+          "runs": 47,
+          "wickets": 1,
+          "economy": 3.4
+        },
+        {
+          "name": "Manav Suthar",
+          "overs": 21.4,
+          "maidens": 1,
+          "runs": 76,
+          "wickets": 4,
+          "economy": 3.5
+        },
+        {
+          "name": "Kuldeep Yadav",
+          "overs": 14.0,
+          "maidens": 0,
+          "runs": 65,
+          "wickets": 1,
+          "economy": 4.6
+        },
+        {
+          "name": "Ravindra Jadeja",
+          "overs": 21.0,
+          "maidens": 5,
+          "runs": 57,
+          "wickets": 3,
+          "economy": 2.7
+        }
+      ],
+      "extras": "16 (b 8, lb 2, w 2, nb 4)"
+    },
+    {
+      "innings_id": 3,
+      "team_name": "IND",
+      "runs": 193,
+      "wickets": 10,
+      "overs": 48.5,
+      "run_rate": 3.95,
+      "score_str": "193/10 (48.5 ov)",
+      "is_declared": false,
+      "is_follow_on": false,
+      "batsmen": [
+        {
+          "name": "Yashasvi Jaiswal",
+          "runs": 0,
+          "balls": 3,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 0.0,
+          "is_striker": false,
+          "out_desc": "c Niroshan Dickwella b Asitha Fernando"
+        },
+        {
+          "name": "KL Rahul",
+          "runs": 35,
+          "balls": 47,
+          "fours": 2,
+          "sixes": 2,
+          "strike_rate": 74.47,
+          "is_striker": false,
+          "out_desc": "c (sub)Milan Rathnayake b Prabath Jayasuriya"
+        },
+        {
+          "name": "Devdutt Padikkal",
+          "runs": 44,
+          "balls": 75,
+          "fours": 6,
+          "sixes": 0,
+          "strike_rate": 58.67,
+          "is_striker": false,
+          "out_desc": "lbw b Keshara Nuwantha"
+        },
+        {
+          "name": "Shubman Gill",
+          "runs": 8,
+          "balls": 20,
+          "fours": 1,
+          "sixes": 0,
+          "strike_rate": 40.0,
+          "is_striker": false,
+          "out_desc": "lbw b Prabath Jayasuriya"
+        },
+        {
+          "name": "Rishabh Pant",
+          "runs": 66,
+          "balls": 69,
+          "fours": 8,
+          "sixes": 2,
+          "strike_rate": 95.65,
+          "is_striker": false,
+          "out_desc": "c Niroshan Dickwella b Lahiru Kumara"
+        },
+        {
+          "name": "Dhruv Jurel",
+          "runs": 7,
+          "balls": 15,
+          "fours": 1,
+          "sixes": 0,
+          "strike_rate": 46.67,
+          "is_striker": false,
+          "out_desc": "c Niroshan Dickwella b Asitha Fernando"
+        },
+        {
+          "name": "Ravindra Jadeja",
+          "runs": 9,
+          "balls": 19,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 47.37,
+          "is_striker": false,
+          "out_desc": "c Pasindu Sooriyabandara b Lahiru Kumara"
+        },
+        {
+          "name": "Manav Suthar",
+          "runs": 9,
+          "balls": 25,
+          "fours": 1,
+          "sixes": 0,
+          "strike_rate": 36.0,
+          "is_striker": false,
+          "out_desc": "c Niroshan Dickwella b Asitha Fernando"
+        },
+        {
+          "name": "Kuldeep Yadav",
+          "runs": 5,
+          "balls": 10,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 50.0,
+          "is_striker": false,
+          "out_desc": "c Dhananjaya de Silva b Prabath Jayasuriya"
+        },
+        {
+          "name": "Mohammed Siraj",
+          "runs": 2,
+          "balls": 6,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 33.33,
+          "is_striker": false,
+          "out_desc": "batting"
+        },
+        {
+          "name": "Prasidh Krishna",
+          "runs": 2,
+          "balls": 7,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 28.57,
+          "is_striker": false,
+          "out_desc": "c Lahiru Kumara b Asitha Fernando"
+        }
+      ],
+      "bowlers": [
+        {
+          "name": "Asitha Fernando",
+          "overs": 8.5,
+          "maidens": 0,
+          "runs": 31,
+          "wickets": 4,
+          "economy": 3.5
+        },
+        {
+          "name": "Keshara Nuwantha",
+          "overs": 23.0,
+          "maidens": 3,
+          "runs": 86,
+          "wickets": 1,
+          "economy": 3.7
+        },
+        {
+          "name": "Prabath Jayasuriya",
+          "overs": 11.0,
+          "maidens": 0,
+          "runs": 43,
+          "wickets": 3,
+          "economy": 3.9
+        },
+        {
+          "name": "Dhananjaya de Silva",
+          "overs": 1.0,
+          "maidens": 0,
+          "runs": 4,
+          "wickets": 0,
+          "economy": 4.0
+        },
+        {
+          "name": "Lahiru Kumara",
+          "overs": 5.0,
+          "maidens": 0,
+          "runs": 28,
+          "wickets": 2,
+          "economy": 5.6
+        }
+      ],
+      "extras": "6 (b 0, lb 1, w 2, nb 3)"
+    },
+    {
+      "innings_id": 4,
+      "team_name": "SL",
+      "runs": 206,
+      "wickets": 10,
+      "overs": 77.4,
+      "run_rate": 2.65,
+      "score_str": "206/10 (77.4 ov)",
+      "is_declared": false,
+      "is_follow_on": false,
+      "batsmen": [
+        {
+          "name": "Nishan Madushka",
+          "runs": 6,
+          "balls": 27,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 22.22,
+          "is_striker": false,
+          "out_desc": "c Prasidh Krishna b Mohammed Siraj"
+        },
+        {
+          "name": "Lahiru Udara",
+          "runs": 16,
+          "balls": 58,
+          "fours": 1,
+          "sixes": 0,
+          "strike_rate": 27.59,
+          "is_striker": false,
+          "out_desc": "c Dhruv Jurel b Manav Suthar"
+        },
+        {
+          "name": "Pasindu Sooriyabandara",
+          "runs": 0,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 0.0,
+          "is_striker": false,
+          "out_desc": "lbw b Manav Suthar"
+        },
+        {
+          "name": "Kamindu Mendis",
+          "runs": 2,
+          "balls": 12,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 16.67,
+          "is_striker": false,
+          "out_desc": "c KL Rahul b Prasidh Krishna"
+        },
+        {
+          "name": "Dhananjaya de Silva",
+          "runs": 59,
+          "balls": 151,
+          "fours": 7,
+          "sixes": 0,
+          "strike_rate": 39.07,
+          "is_striker": false,
+          "out_desc": "c Manav Suthar b Ravindra Jadeja"
+        },
+        {
+          "name": "Sonal Dinusha",
+          "runs": 84,
+          "balls": 128,
+          "fours": 8,
+          "sixes": 1,
+          "strike_rate": 65.62,
+          "is_striker": false,
+          "out_desc": "c Dhruv Jurel b Manav Suthar"
+        },
+        {
+          "name": "Niroshan Dickwella",
+          "runs": 10,
+          "balls": 17,
+          "fours": 1,
+          "sixes": 0,
+          "strike_rate": 58.82,
+          "is_striker": false,
+          "out_desc": "c Rishabh Pant b Prasidh Krishna"
+        },
+        {
+          "name": "Keshara Nuwantha",
+          "runs": 20,
+          "balls": 69,
+          "fours": 3,
+          "sixes": 0,
+          "strike_rate": 28.99,
+          "is_striker": false,
+          "out_desc": "b Manav Suthar"
+        },
+        {
+          "name": "Prabath Jayasuriya",
+          "runs": 0,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 0.0,
+          "is_striker": false,
+          "out_desc": "b Manav Suthar"
+        },
+        {
+          "name": "Lahiru Kumara",
+          "runs": 0,
+          "balls": 4,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 0.0,
+          "is_striker": false,
+          "out_desc": "c Rishabh Pant b Manav Suthar"
+        },
+        {
+          "name": "Asitha Fernando",
+          "runs": 0,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 0.0,
+          "is_striker": false,
+          "out_desc": "not out"
+        },
+        {
+          "name": "Dinesh Chandimal",
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "strike_rate": 0.0,
+          "is_striker": false,
+          "out_desc": "not out"
+        }
+      ],
+      "bowlers": [
+        {
+          "name": "Mohammed Siraj",
+          "overs": 9.0,
+          "maidens": 2,
+          "runs": 15,
+          "wickets": 1,
+          "economy": 1.7
+        },
+        {
+          "name": "Manav Suthar",
+          "overs": 23.4,
+          "maidens": 2,
+          "runs": 55,
+          "wickets": 6,
+          "economy": 2.3
+        },
+        {
+          "name": "Prasidh Krishna",
+          "overs": 10.0,
+          "maidens": 3,
+          "runs": 16,
+          "wickets": 2,
+          "economy": 1.6
+        },
+        {
+          "name": "Ravindra Jadeja",
+          "overs": 23.0,
+          "maidens": 3,
+          "runs": 71,
+          "wickets": 1,
+          "economy": 3.1
+        },
+        {
+          "name": "Kuldeep Yadav",
+          "overs": 11.0,
+          "maidens": 0,
+          "runs": 38,
+          "wickets": 0,
+          "economy": 3.5
+        },
+        {
+          "name": "Devdutt Padikkal",
+          "overs": 1.0,
+          "maidens": 0,
+          "runs": 5,
+          "wickets": 0,
+          "economy": 5.0
+        }
+      ],
+      "extras": "9 (b 5, lb 1, w 0, nb 3)"
+    }
+  ],
+  "current_batting_team": null,
+  "current_bowling_team": null,
+  "current_batsmen": [
+    {
+      "name": "Asitha Fernando",
+      "runs": 0,
+      "balls": 1,
+      "fours": 0,
+      "sixes": 0,
+      "strike_rate": 0.0,
+      "is_striker": true,
+      "out_desc": null
+    }
+  ],
+  "current_bowlers": [
+    {
+      "name": "Manav Suthar",
+      "overs": 23.4,
+      "maidens": 2,
+      "runs": 55,
+      "wickets": 6,
+      "economy": 2.32
+    },
+    {
+      "name": "Ravindra Jadeja",
+      "overs": 23.0,
+      "maidens": 3,
+      "runs": 71,
+      "wickets": 1,
+      "economy": 3.09
+    }
+  ],
+  "crr": 2.65,
+  "rrr": null,
+  "target": 372,
+  "partnership": "7 runs (10 balls)",
+  "last_wicket": "Keshara Nuwantha   b Manav Suthar 20(69)  - 206/10 in 77.4 ov.",
+  "recent_overs": "... 0 W  | 0 0 0 0 1 0  | 0 4 2 W",
+  "recent_commentary": [],
+  "last_updated": "2026-08-19T10:09:38.906428+00:00"
+}

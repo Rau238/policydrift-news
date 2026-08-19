@@ -7,6 +7,8 @@ import postRoutes from './routes/post.routes.js';
 import metaRoutes from './routes/meta.routes.js';
 import newsRoutes from './routes/news.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import cricketRoutes from './routes/cricket.routes.js';
+import footballRoutes from './routes/football.routes.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -65,6 +67,11 @@ app.use('/api/meta', metaRoutes);
 app.use('/api/news', newsRoutes);
 // v2 admin endpoints (protected by requireAdmin middleware)
 app.use('/api/admin', adminRoutes);
+// Cricbuzz live and completed cricket score endpoints
+app.use('/api/cricket', cricketRoutes);
+app.use('/api/cricket-proxy', cricketRoutes);
+// Tribuna live and completed football match endpoints
+app.use('/api/football', footballRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);

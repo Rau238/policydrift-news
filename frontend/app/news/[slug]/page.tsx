@@ -23,6 +23,7 @@ import { SidebarPostList } from '@/components/SidebarPostList';
 import { TrendingAside } from '@/components/TrendingAside';
 import { CategoryDeskView } from '@/components/CategoryDeskView';
 import { CategoryDeskHero } from '@/components/CategoryDeskHero';
+import { LiveCricketTicker } from '@/components/LiveCricketTicker';
 import { PaginationBar } from '@/components/PaginationBar';
 import {
   categoryArticleHeroRingClass,
@@ -179,6 +180,11 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
 
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        {category === 'Sports' && (
+          <div className="border-b border-slate-800/80 bg-slate-950">
+            <LiveCricketTicker />
+          </div>
+        )}
         <CategoryDeskHero category={category} intro={intro} storyCount={countHere} />
         <CategoryDeskView
           category={category}
