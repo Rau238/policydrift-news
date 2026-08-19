@@ -129,6 +129,14 @@ const TOPIC_PHOTO_REGISTRY: Array<{ keywords: string[]; images: Array<{ url: str
     ],
   },
   {
+    keywords: ['oil', 'crude', 'iran', 'oman', 'opec', 'energy', 'petroleum', 'barrel', 'gas', 'tanker', 'refinery', 'drill', 'fuel'],
+    images: [
+      { url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=85', caption: 'Global Oil Markets, Tankers & Energy Infrastructure' },
+      { url: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1200&q=85', caption: 'Energy Industry & Petroleum Refining Facility' },
+      { url: 'https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&w=1200&q=85', caption: 'Maritime Shipping, Crude Cargo & Geopolitical Trade' },
+    ],
+  },
+  {
     keywords: ['space', 'nasa', 'spacex', 'moon', 'mars', 'rocket', 'satellite', 'astronomy', 'telescope'],
     images: [
       { url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80', caption: 'Orbital Space Exploration & Satellite Telemetry' },

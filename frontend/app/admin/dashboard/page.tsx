@@ -38,10 +38,12 @@ import {
   ChevronDown,
   Menu,
   Plus,
+  Share2,
 } from 'lucide-react';
 import { AdminSidebar } from '../_components/AdminSidebar';
 import { DashboardCharts } from '../_components/DashboardCharts';
 import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
+import { SocialPublishModal } from '@/components/SocialPublishModal';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -282,6 +284,9 @@ function DashboardContent() {
 
   // Publish All Pending Review Articles state
   const [publishingAllPending, setPublishingAllPending] = useState(false);
+
+  // Social Publishing Studio modal state
+  const [socialModalArticle, setSocialModalArticle] = useState<Article | null>(null);
 
   // Custom Admin Confirmation Modal state
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
@@ -1273,11 +1278,20 @@ function DashboardContent() {
                                 </button>
                               )}
 
+                              {/* Create Social Post */}
+                              <button
+                                onClick={() => setSocialModalArticle(item)}
+                                title="Create Branded Social Media Post"
+                                className="rounded p-1 text-teal-400 hover:bg-teal-950/50 hover:text-teal-300 transition"
+                              >
+                                <Share2 size={13} />
+                              </button>
+
                               {/* View Details Modal */}
                               <button
                                 onClick={() => setPreviewArticle(item)}
                                 title="Preview article"
-                                className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
+                                className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white transition"
                               >
                                 <Eye size={13} />
                               </button>
@@ -1287,7 +1301,7 @@ function DashboardContent() {
                                 onClick={() => handleDeleteArticle(item.id)}
                                 disabled={isRowLoading}
                                 title="Archive article"
-                                className="rounded p-1 text-slate-500 hover:bg-rose-950/40 hover:text-rose-400"
+                                className="rounded p-1 text-slate-500 hover:bg-rose-950/40 hover:text-rose-400 transition"
                               >
                                 <Trash2 size={13} />
                               </button>
@@ -1654,6 +1668,18 @@ function DashboardContent() {
 
               <div className="flex items-center gap-2">
                 <button
+                  onClick={() => {
+                    const art = previewArticle;
+                    setPreviewArticle(null);
+                    setSocialModalArticle(art);
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg border border-teal-500/40 bg-gradient-to-r from-teal-950/60 to-emerald-950/60 px-3 py-2 text-xs font-bold text-teal-200 hover:bg-teal-900/60 hover:text-white transition"
+                >
+                  <Share2 size={14} className="text-teal-400" />
+                  <span>Social Studio</span>
+                </button>
+
+                <button
                   onClick={() => handleDeleteArticle(previewArticle.id)}
                   className="rounded-lg border border-rose-500/30 px-3 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-950/30"
                 >
@@ -1670,6 +1696,23 @@ function DashboardContent() {
           </div>
         </div>
       )}
+
+      {/* Social Media Studio Publishing Modal */}
+      <SocialPublishModal
+        isOpen={Boolean(socialModalArticle)}
+        article={socialModalArticle ? {
+          id: socialModalArticle.id,
+          title: socialModalArticle.title,
+          slug: socialModalArticle.slug,
+          excerpt: socialModalArticle.excerpt,
+          body: socialModalArticle.body,
+          key_takeaways: socialModalArticle.key_takeaways,
+          category: socialModalArticle.category,
+          image_url: socialModalArticle.image_url,
+        } : null}
+        onClose={() => setSocialModalArticle(null)}
+        onPostSuccess={(msg) => showFeedback('success', msg)}
+      />
 
       {/* Custom Theme Admin Confirmation Modal */}
       <AdminConfirmModal

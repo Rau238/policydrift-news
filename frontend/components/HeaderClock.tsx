@@ -31,13 +31,14 @@ export function HeaderClock() {
   }, []);
 
   if (!parts) {
-    return <div className="hidden h-5 min-w-[10rem] sm:block" aria-hidden />;
+    return <div className="hidden h-5 min-w-[10rem] sm:block" aria-hidden suppressHydrationWarning />;
   }
 
   return (
     <time
       className="hidden min-w-0 shrink text-right text-[11px] font-medium tabular-nums leading-none text-teal-50/95 sm:block md:text-xs"
       dateTime={parts.iso}
+      suppressHydrationWarning
     >
       {parts.line}
     </time>

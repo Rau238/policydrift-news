@@ -21,6 +21,7 @@ import {
   CheckCircle2,
   PanelLeftClose,
   PanelLeftOpen,
+  Share2,
 } from 'lucide-react';
 import { BrandMark } from '@/components/BrandMark';
 import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
@@ -96,6 +97,9 @@ export function AdminSidebar({
     if (itemHref === '/admin/sources') {
       return pathname.startsWith('/admin/sources');
     }
+    if (itemHref === '/admin/social') {
+      return pathname.startsWith('/admin/social');
+    }
     if (itemHref === '/admin/activity') {
       return pathname.startsWith('/admin/activity');
     }
@@ -163,6 +167,12 @@ export function AdminSidebar({
       icon: <Clock size={20} />,
       badge: pendingCount && pendingCount > 0 ? pendingCount : null,
       badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
+    },
+    {
+      label: 'Social Media Hub',
+      href: '/admin/social',
+      icon: <Share2 size={20} />,
+      badge: null,
     },
     {
       label: 'RSS Sources',

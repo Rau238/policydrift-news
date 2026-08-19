@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAdmin } from '../middleware/auth.middleware.js';
 import * as adminController from '../controllers/admin.controller.js';
+import * as socialController from '../controllers/social.controller.js';
 import { env } from '../config/env.js';
 
 const router = Router();
@@ -88,6 +89,11 @@ router.patch('/sources/:id',               adminController.updateSource);
 router.delete('/sources/:id',              adminController.deleteSource);
 router.post('/sources/:id/test',           adminController.testSource);
 router.post('/sources/:id/fetch',          adminController.fetchSource);
+
+// ── Social Media Automation & Publishing ─────────────────────────────────────
+router.post('/social/publish',             socialController.publishPost);
+router.get('/social/status',               socialController.getStatus);
+router.get('/social/logs',                 socialController.getLogs);
 
 // ── Worker triggers ───────────────────────────────────────────────────────────
 router.post('/ingest',                     adminController.triggerIngest);
