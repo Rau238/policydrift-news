@@ -204,7 +204,7 @@ export default async function HomePage() {
               <div className="mt-5 flex flex-wrap items-center gap-3 max-lg:mt-4 max-lg:gap-2.5">
                 <Link
                   href="/news"
-                  className={`group inline-flex h-11 items-center justify-center gap-2.5 rounded-xl border px-5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${theme.btnBg}`}
+                  className={`group inline-flex h-11 items-center justify-center gap-2.5 rounded-xl border px-5 text-sm font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${theme.btnBg}`}
                 >
                   <LayoutGrid className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:rotate-6" strokeWidth={2.25} aria-hidden />
                   <span>All news</span>
@@ -212,14 +212,14 @@ export default async function HomePage() {
                 </Link>
                 <Link
                   href={categoryHref('India')}
-                  className="group inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-md shadow-sm transition-all duration-200 hover:border-white/40 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98]"
+                  className="group inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-md shadow-sm transition-all duration-200 hover:border-white/40 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <CategoryGlyph name="India" className="h-4 w-4 shrink-0 text-amber-300 transition-transform duration-200 group-hover:scale-110" />
                   <span>{categoryLabel('India')}</span>
                 </Link>
                 <Link
                   href="/trending-india"
-                  className="group inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-amber-400/30 bg-amber-500/15 px-5 text-sm font-semibold text-amber-200 backdrop-blur-md shadow-sm transition-all duration-200 hover:border-amber-300/60 hover:bg-amber-500/25 hover:text-amber-100 hover:scale-[1.02] active:scale-[0.98]"
+                  className="group inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-amber-400/50 bg-amber-500/25 px-5 text-sm font-bold text-white backdrop-blur-md shadow-md transition-all duration-200 hover:border-amber-300/80 hover:bg-amber-500/40 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <AnimatedTrendingIcon className="h-4 w-4 text-amber-300 transition-transform duration-200 group-hover:scale-110" />
                   <span>Trending in India</span>
@@ -307,20 +307,20 @@ export default async function HomePage() {
                   <div className="relative">
                     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-5">
                       <div className="min-w-0">
-                        <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-400/40 bg-rose-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-rose-200">
-                          <Zap className="h-3.5 w-3.5 fill-rose-400 text-rose-400" />
+                        <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-rose-700 shadow-sm">
+                          <Zap className="h-3.5 w-3.5 fill-rose-600 text-rose-600" />
                           Live Desk
                         </div>
-                        <h2 className="mt-2.5 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                        <h2 className="mt-2.5 font-display text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
                           Breaking desk
                         </h2>
-                        <p className="mt-1 text-sm font-medium text-slate-200/90">
+                        <p className="mt-1 text-sm font-medium text-slate-600">
                           Fast-moving developments and flash reports across global regions.
                         </p>
                       </div>
                       <Link
                         href={categoryHref('Breaking')}
-                        className="inline-flex shrink-0 items-center gap-2 self-start rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white shadow-sm backdrop-blur-md transition hover:border-white/40 hover:bg-white/20 sm:self-auto sm:px-5 sm:py-2.5"
+                        className="inline-flex shrink-0 items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 sm:self-auto sm:px-5 sm:py-2.5"
                       >
                         View all breaking
                         <ArrowRight className="h-4 w-4" strokeWidth={2.25} aria-hidden />
