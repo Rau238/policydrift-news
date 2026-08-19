@@ -91,42 +91,33 @@ export async function dispatchSocialPost(payload) {
   }
 
   const rawImage = payload.directImageUrl || payload.rawImageUrl || payload.imageUrl || payload.image_url || '';
-  const finalEditedImage = publicCdnUrl || savedEditedCardUrl || payload.cardImageUrl || payload.mediaUrl || `https://www.policydrift.live/social-card?title=${encodeURIComponent(title)}&category=${encodeURIComponent(payload.category || '')}&ratio=${encodeURIComponent(payload.aspectRatio || '1.91:1')}&image=${encodeURIComponent(rawImage)}`;
-  const primaryImage = finalEditedImage || rawImage;
+  const finalEditedImage = publicCdnUrl || savedEditedCardUrl || payload.cardImageUrl || `https://www.policydrift.live/social-card?title=${encodeURIComponent(title)}&category=${encodeURIComponent(payload.category || '')}&ratio=${encodeURIComponent(payload.aspectRatio || '1.91:1')}&image=${encodeURIComponent(rawImage)}`;
+
+  const articleUrl = `https://www.policydrift.live/news/${slug || articleId}`;
+  const primaryCaption = payload.caption || payload.captions?.linkedin || payload.title || '';
 
   // 2. If a Universal Webhook (Zapier/Make/Buffer/N8n) is configured, trigger it
   if (webhookUrl) {
     try {
-      const primaryCaption = payload.caption || payload.captions?.linkedin || payload.title || '';
-
       const resp = await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          source: 'PolicyDrift Social Hub',
+          source: 'PolicyDrift',
           timestamp,
           articleId,
           title,
           slug,
           category: payload.category || '',
-          channels,
+          url: articleUrl,
           caption: primaryCaption,
-          content: primaryCaption,
-          text: primaryCaption,
           linkedin_caption: payload.linkedinCaption || payload.captions?.linkedin || primaryCaption,
           instagram_caption: payload.instagramCaption || payload.captions?.instagram || primaryCaption,
           facebook_caption: payload.facebookCaption || payload.captions?.facebook || primaryCaption,
           twitter_caption: payload.twitterCaption || payload.captions?.twitter || primaryCaption,
-          image_url: primaryImage,
-          imageUrl: primaryImage,
-          media_url: primaryImage,
-          mediaUrl: primaryImage,
-          cdn_image_url: primaryImage,
-          edited_image_url: primaryImage,
-          card_image_url: primaryImage,
+          edited_image_url: finalEditedImage,
           raw_image_url: rawImage,
-          direct_image_url: rawImage,
-          card_data_base64: pureBase64,
+          image_url: finalEditedImage,
         }),
       });
       results['webhook'] = { ok: resp.ok, status: resp.status };
