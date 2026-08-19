@@ -253,7 +253,7 @@ export function CategoryDeskView({
               <div className="flex items-center justify-center gap-2 py-8 text-center">
                 <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-semibold text-slate-600 shadow-sm">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  <span>You're all caught up • All {posts.length} stories loaded</span>
+                  <span>You&apos;re all caught up • All {posts.length} stories loaded</span>
                 </div>
               </div>
             )}
