@@ -261,12 +261,11 @@ async function conditionsFor(
 
 /** Compact animated weather · place · temp · AQI. GPS in parallel; Mumbai only as fallback. */
 export function LocalConditions() {
-  const [data, setData] = useState<Conditions | null>(() => {
-    if (typeof window === 'undefined') return null;
-    return readCache();
-  });
+  const [mounted, setMounted] = useState(false);
+  const [data, setData] = useState<Conditions | null>(null);
 
   useEffect(() => {
+    setMounted(true);
     let cancelled = false;
     /** Once GPS weather is applied, never overwrite with Mumbai. */
     let fromGeo = false;
@@ -336,12 +335,12 @@ export function LocalConditions() {
     };
   }, []);
 
-  const aqiTone = aqiMeta(data?.aqi ?? null);
-  const place = data?.place ?? 'City';
-  const tempLabel = data ? `${data.tempC}°` : '—°';
-  const aqiLabel = data ? `AQI ${data.aqi ?? '—'}` : 'AQI —';
-  const ready = Boolean(data);
-  const kind = data?.kind ?? 'unknown';
+  const ready = mounted && Boolean(data);
+  const aqiTone = aqiMeta(ready ? (data?.aqi ?? null) : null);
+  const place = ready && data ? data.place : 'City';
+  const tempLabel = ready && data ? `${data.tempC}°` : '—°';
+  const aqiLabel = ready && data ? `AQI ${data.aqi ?? '—'}` : 'AQI —';
+  const kind = ready && data ? data.kind : 'unknown';
 
   return (
     <div

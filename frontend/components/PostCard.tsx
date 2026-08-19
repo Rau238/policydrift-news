@@ -17,7 +17,7 @@ type Props = {
 };
 
 export function PostCard({ post, priority, compact, gridCell, index }: Props) {
-  const imageSrc = resolvePostImageUrl(post.image_url);
+  const imageSrc = resolvePostImageUrl(post.image_url, post.title, post.category);
   const href = `/news/${post.slug}`;
   const thumbLabel = decodeHtmlEntities(post.title).trim() || 'News story';
   const title = decodeHtmlEntities(post.title);
@@ -34,7 +34,7 @@ export function PostCard({ post, priority, compact, gridCell, index }: Props) {
       <Link
         href={href}
         style={{ backgroundColor: cardBgHex }}
-        className="group flex h-full min-h-0 flex-col overflow-hidden rounded-[20px] border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.14)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_32px_rgba(0,0,0,0.28)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 sm:rounded-[22px]"
+        className="group flex h-full min-h-0 flex-col overflow-hidden rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.14)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 sm:rounded-[22px]"
       >
         {/* Card Header Image with Seamless Color Flush */}
         <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-black/40">
@@ -43,8 +43,9 @@ export function PostCard({ post, priority, compact, gridCell, index }: Props) {
             alt={thumbLabel}
             title={thumbLabel}
             category={post.category}
+            cardBgHex={cardBgHex}
             priority={priority}
-            className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+            className="h-full w-full object-cover object-center"
             hideCaption
           />
           {/* Smooth gradient flush merging photo directly into background color */}

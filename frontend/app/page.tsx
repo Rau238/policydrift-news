@@ -11,23 +11,65 @@ import { resolvePostImageUrl, storyFallbackImageUrl } from '@/lib/story-image';
 import { absoluteUrl, siteDescription, siteName } from '@/lib/site';
 import Link from 'next/link';
 import { ArrowRight, LayoutGrid, Newspaper, Zap } from 'lucide-react';
-import { categoryChipClass, categoryHref, categoryLabel, CategoryGlyph } from '@/lib/categories';
+import { categoryChipClass, categoryHref, categoryLabel, categoryNavPillClass, CategoryGlyph } from '@/lib/categories';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import { AnimatedTrendingIcon } from '@/components/AnimatedTrendingIcon';
 import { formatPublishedAt } from '@/lib/format';
 import { decodeHtmlEntities } from '@/lib/sanitize';
 
-/** Full Tailwind classes, picked at random on each request (see `dynamic`). */
-const HERO_BACKDROP_GRADIENTS = [
-  'bg-gradient-to-br from-teal-900 via-teal-700 to-emerald-800',
-  'bg-gradient-to-br from-cyan-900 via-teal-700 to-green-800',
-  'bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]',
-  'bg-gradient-to-br from-gray-900 via-gray-800 to-black',
-  'bg-gradient-to-br from-slate-900 via-slate-700 to-slate-800',
-  'bg-gradient-to-br from-zinc-900 via-neutral-800 to-black',
-] as const;
-
 export const dynamic = 'force-dynamic';
+
+/** Curated luxury editorial dynamic color themes that rotate on every visit/refresh. */
+const HERO_COLOR_THEMES = [
+  {
+    name: 'Midnight Sapphire',
+    wash: 'from-[#050e24] via-[#091838] to-[#040816]',
+    orb: 'bg-blue-500/20',
+    accentGradient: 'from-sky-300 via-cyan-200 to-blue-300',
+    badgeBorder: 'border-cyan-400/30 bg-cyan-950/70 text-cyan-300',
+    btnBg: 'bg-cyan-600 hover:bg-cyan-500 border-cyan-400/30 shadow-cyan-950/40',
+  },
+  {
+    name: 'Deep Emerald Teal',
+    wash: 'from-[#031510] via-[#07261d] to-[#020e0b]',
+    orb: 'bg-emerald-500/20',
+    accentGradient: 'from-emerald-300 via-teal-200 to-cyan-300',
+    badgeBorder: 'border-teal-400/30 bg-teal-950/70 text-teal-300',
+    btnBg: 'bg-teal-600 hover:bg-teal-500 border-teal-400/30 shadow-teal-950/40',
+  },
+  {
+    name: 'Royal Plum & Indigo',
+    wash: 'from-[#0f0720] via-[#1a0d38] to-[#080312]',
+    orb: 'bg-purple-500/20',
+    accentGradient: 'from-fuchsia-300 via-purple-200 to-indigo-300',
+    badgeBorder: 'border-purple-400/30 bg-purple-950/70 text-purple-300',
+    btnBg: 'bg-indigo-600 hover:bg-indigo-500 border-indigo-400/30 shadow-indigo-950/40',
+  },
+  {
+    name: 'Warm Amber & Obsidian',
+    wash: 'from-[#140b04] via-[#241407] to-[#0b0502]',
+    orb: 'bg-amber-500/20',
+    accentGradient: 'from-amber-300 via-yellow-200 to-orange-300',
+    badgeBorder: 'border-amber-400/30 bg-amber-950/70 text-amber-300',
+    btnBg: 'bg-amber-600 hover:bg-amber-500 border-amber-400/30 shadow-amber-950/40',
+  },
+  {
+    name: 'Ruby Velvet Slate',
+    wash: 'from-[#16060e] via-[#280b1a] to-[#0e0308]',
+    orb: 'bg-rose-500/20',
+    accentGradient: 'from-rose-300 via-pink-200 to-red-300',
+    badgeBorder: 'border-rose-400/30 bg-rose-950/70 text-rose-300',
+    btnBg: 'bg-rose-600 hover:bg-rose-500 border-rose-400/30 shadow-rose-950/40',
+  },
+  {
+    name: 'Nordic Slate Charcoal',
+    wash: 'from-[#080e1a] via-[#111d32] to-[#050912]',
+    orb: 'bg-teal-500/15',
+    accentGradient: 'from-teal-300 via-slate-200 to-sky-300',
+    badgeBorder: 'border-teal-400/30 bg-slate-900/80 text-teal-300',
+    btnBg: 'bg-teal-600 hover:bg-teal-500 border-teal-400/30 shadow-teal-950/40',
+  },
+] as const;
 
 export const metadata: Metadata = {
   title: { absolute: `${siteName} — Real-Time News, Global Policy & Market Briefs` },
@@ -124,92 +166,114 @@ export default async function HomePage() {
   // 7. Sidebar Trending
   const trending = (trendingRaw || []).filter((p) => p.id !== lead?.id).slice(0, 6);
 
-  const heroBackdropGradient =
-    HERO_BACKDROP_GRADIENTS[Math.floor(Math.random() * HERO_BACKDROP_GRADIENTS.length)];
+  const theme = HERO_COLOR_THEMES[Math.floor(Math.random() * HERO_COLOR_THEMES.length)];
 
   return (
     <div className="min-h-screen max-w-[100vw] overflow-x-clip bg-paper">
       <div className="relative overflow-x-clip">
-        {/* One dark wash that fades into paper — longer soft blend */}
+        {/* Proper Full-Width Linear Gradient Fade with Multi-Stop Easing Mask */}
         <div
-          className={`pointer-events-none absolute inset-x-0 top-0 h-[min(46rem,100vw)] sm:h-[min(42rem,78vh)] ${heroBackdropGradient} pd-hero-fade-mask`}
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute right-0 top-24 h-56 w-56 translate-x-1/4 rounded-full bg-accent/10 blur-3xl pd-hero-fade-mask sm:h-64 sm:w-64"
+          className={`pointer-events-none absolute inset-x-0 top-0 h-[min(48rem,100vw)] bg-gradient-to-b ${theme.wash}`}
+          style={{
+            maskImage:
+              'linear-gradient(to bottom, #000 8%, rgba(0,0,0,0.85) 24%, rgba(0,0,0,0.55) 48%, rgba(0,0,0,0.25) 68%, rgba(0,0,0,0.06) 86%, transparent 100%)',
+            WebkitMaskImage:
+              'linear-gradient(to bottom, #000 8%, rgba(0,0,0,0.85) 24%, rgba(0,0,0,0.55) 48%, rgba(0,0,0,0.25) 68%, rgba(0,0,0,0.06) 86%, transparent 100%)',
+          }}
           aria-hidden
         />
 
-        <div className="relative mx-auto flex max-w-7xl min-h-0 flex-col px-4 pb-14 pt-8 max-lg:px-3.5 max-lg:pb-12 max-lg:pt-7 sm:px-6 sm:pb-16 sm:pt-8 lg:max-h-[min(58vh,34rem)] lg:justify-center lg:px-6 lg:pb-20 lg:pt-8">
-          <div className="grid items-center gap-5 max-lg:gap-5 lg:grid-cols-12 lg:gap-10">
-            <div className="lg:col-span-4 xl:col-span-4">
-              <h1 className="font-display text-[1.875rem] font-bold leading-[1.12] tracking-tight text-white max-lg:text-[1.6875rem] sm:text-4xl lg:text-[2.5rem] lg:leading-[1.08] xl:text-[2.85rem]">
+
+        {/* Hero Content Section */}
+        <section className="relative mx-auto flex max-w-7xl min-h-0 flex-col px-4 pb-14 pt-8 max-lg:px-3.5 max-lg:pb-12 max-lg:pt-7 sm:px-6 sm:pb-16 sm:pt-9 lg:px-6 lg:pb-20 lg:pt-10">
+          <div className="grid items-center gap-6 max-lg:gap-6 lg:grid-cols-12 lg:gap-8">
+            <div className="lg:col-span-5 xl:col-span-5">
+              <div className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-xs font-semibold backdrop-blur-md ${theme.badgeBorder}`}>
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                Live Editorial Feed
+              </div>
+
+              <h1 className="mt-3 font-display text-[1.85rem] font-extrabold leading-[1.12] tracking-tight text-white max-lg:text-[1.6875rem] sm:text-4xl lg:text-[2.5rem] lg:leading-[1.08]">
                 World and policy news,{' '}
-                <span className="text-teal-200">clearly told.</span>
+                <span className={`bg-gradient-to-r ${theme.accentGradient} bg-clip-text text-transparent`}>
+                  clearly told.
+                </span>
               </h1>
-              <p className="mt-3 font-display text-base italic leading-snug text-teal-100/85 sm:text-[1.0625rem]">
-                One feed. Eight desks. Zero noise.
+              <p className="mt-2.5 font-display text-base font-normal leading-relaxed text-slate-300/90 sm:text-[1.0625rem]">
+                Real-time policy intelligence across 8 global desks. Zero noise.
               </p>
-              <div className="mt-5 flex flex-wrap gap-2 max-lg:mt-5 max-lg:gap-2 sm:mt-6 sm:gap-2.5">
+              <div className="mt-5 flex flex-wrap items-center gap-3 max-lg:mt-4 max-lg:gap-2.5">
                 <Link
                   href="/news"
-                  className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-accent px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-light hover:text-brand-night"
+                  className={`group inline-flex h-11 items-center justify-center gap-2.5 rounded-xl border px-5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${theme.btnBg}`}
                 >
-                  <LayoutGrid className="h-4 w-4 shrink-0" strokeWidth={2.25} aria-hidden />
-                  All news
-                  <ArrowRight className="h-4 w-4 shrink-0 opacity-90" strokeWidth={2.25} aria-hidden />
+                  <LayoutGrid className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:rotate-6" strokeWidth={2.25} aria-hidden />
+                  <span>All news</span>
+                  <ArrowRight className="h-4 w-4 shrink-0 opacity-90 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2.25} aria-hidden />
                 </Link>
                 <Link
                   href={categoryHref('India')}
-                  className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition hover:border-white/25 hover:bg-white/10"
+                  className="group inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-md shadow-sm transition-all duration-200 hover:border-white/40 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <CategoryGlyph name="India" className="h-4 w-4 shrink-0 text-amber-200" />
-                  {categoryLabel('India')}
+                  <CategoryGlyph name="India" className="h-4 w-4 shrink-0 text-amber-300 transition-transform duration-200 group-hover:scale-110" />
+                  <span>{categoryLabel('India')}</span>
                 </Link>
                 <Link
                   href="/trending-india"
-                  className="inline-flex items-center gap-2 rounded-lg border border-amber-400/35 bg-amber-500/15 px-5 py-2.5 text-sm font-semibold text-amber-50 transition hover:border-amber-300/50 hover:bg-amber-500/25"
+                  className="group inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-amber-400/30 bg-amber-500/15 px-5 text-sm font-semibold text-amber-200 backdrop-blur-md shadow-sm transition-all duration-200 hover:border-amber-300/60 hover:bg-amber-500/25 hover:text-amber-100 hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <AnimatedTrendingIcon className="h-4 w-4 text-amber-200" />
-                  Trending in India
+                  <AnimatedTrendingIcon className="h-4 w-4 text-amber-300 transition-transform duration-200 group-hover:scale-110" />
+                  <span>Trending in India</span>
                 </Link>
               </div>
             </div>
 
-            <div className="min-w-0 lg:col-span-8 xl:col-span-8">
+            <div className="min-w-0 lg:col-span-7 xl:col-span-7">
               {lead ? (
-                <Link href={`/news/${lead.slug}`} className="group grid overflow-hidden rounded-xl border border-white/10 bg-slate-950/90  
-                ring-1 ring-white/[0.06] transition hover:border-teal-500/35 hover:ring-teal-500/15 max-lg:rounded-2xl  sm:min-h-[15rem] 
-                sm:grid-cols-[minmax(16rem,44%)_1fr] sm:rounded-2xl lg:min-h-[16rem] lg:grid-cols-[minmax(17.5rem,46%)_1fr]">
-                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-900 sm:aspect-auto sm:h-full sm:min-h-[15rem] lg:min-h-[16rem]">
+                <Link
+                  href={`/news/${lead.slug}`}
+                  className="flex flex-col overflow-hidden rounded-2xl bg-slate-950/85 backdrop-blur-xl shadow-2xl sm:h-[13.5rem] sm:flex-row lg:h-[14rem]"
+                >
+                  <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-slate-900 sm:aspect-auto sm:h-full sm:w-[42%]">
                     <RemoteStoryImage
-                      src={resolvePostImageUrl(lead.image_url)}
+                      src={resolvePostImageUrl(lead.image_url, lead.title, lead.category)}
                       alt={decodeHtmlEntities(lead.title)}
                       title={decodeHtmlEntities(lead.title)}
                       category={lead.category}
                       priority
-                      className="h-full w-full object-cover object-center transition duration-500 ease-out group-hover:scale-[1.02]"
+                      className="h-full w-full object-cover object-center"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent sm:hidden" />
                   </div>
-                  <div className="flex min-h-0 min-w-0 flex-col justify-center border-t border-white/10 px-3.5 py-3.5 max-lg:px-3.5 max-lg:py-3.5 sm:border-l 
-                  sm:border-t-0 sm:px-7 sm:py-6">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-md border border-white/15 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider
-                       text-slate-200">Featured</span>
-                      <span className={`inline-flex items-center gap-1 rounded-md text-white px-2 py-0.5 text-[10px] font-bold ${categoryChipClass(lead.category)}`}>
-                        <CategoryGlyph name={lead.category} className="h-3 w-3" />{categoryLabel(lead.category)}</span>
+                  <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-between p-4 sm:p-5">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full border border-teal-400/50 bg-teal-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-teal-300">
+                          Featured Lead
+                        </span>
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold shadow-sm ring-1 ${categoryNavPillClass(lead.category)}`}>
+                          <CategoryGlyph name={lead.category} className="h-3 w-3" />
+                          {categoryLabel(lead.category)}
+                        </span>
+                      </div>
+                      <h2 className="font-display text-base font-bold leading-snug text-white line-clamp-2 sm:text-[1.125rem]">
+                        {decodeHtmlEntities(lead.title)}
+                      </h2>
+                      {lead.excerpt ? (
+                        <p className="text-xs leading-relaxed text-slate-300/85 line-clamp-2">
+                          {decodeHtmlEntities(lead.excerpt)}
+                        </p>
+                      ) : null}
                     </div>
-                    <h2 className="mt-2.5 font-display text-base font-bold leading-snug text-white max-lg:mt-2 sm:mt-3 sm:text-xl lg:text-[1.375rem]">
-                      {lead.title}
-                    </h2>
-                    {lead.excerpt ? (
-                      <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                        {lead.excerpt}
-                      </p>
-                    ) : null}
-                    <p className="mt-auto pt-3 text-[10px] font-semibold tabular-nums tracking-wide text-slate-500">
-                      {formatPublishedAt(lead.published_at)}
-                    </p>
+                    <div className="flex items-center justify-between pt-2 text-[11px] text-slate-400">
+                      <time dateTime={lead.published_at} className="font-medium">
+                        {formatPublishedAt(lead.published_at)}
+                      </time>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-teal-400/30 bg-teal-500/15 px-3 py-1 text-xs font-semibold text-teal-200">
+                        Read story
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </span>
+                    </div>
                   </div>
                 </Link>
               ) : (
@@ -223,36 +287,33 @@ export default async function HomePage() {
               )}
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="relative mx-auto max-w-7xl px-4 py-8 max-lg:px-3.5 max-lg:py-8 sm:px-6 sm:py-10">
+        {/* 2. Main Content Body on Pure Crisp Paper Background */}
+        <main className="relative mx-auto max-w-7xl px-4 py-8 max-lg:px-3.5 max-lg:py-8 sm:px-6 sm:py-10">
           <div className="grid min-w-0 gap-8 max-lg:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,min(380px,100%))] lg:items-start">
             <div className="min-w-0 space-y-12 max-lg:space-y-10 lg:space-y-20">
               {breakingPosts.length > 0 ? (
-                <section className="relative overflow-hidden rounded-2xl max-lg:rounded-2xl max-lg:shadow-sm lg:rounded-3xl">
-                  <div className="relative md:px-6">
-                    <div className="mb-5 flex flex-col gap-4 max-lg:mb-5 max-lg:gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:gap-5">
+                <section className="relative overflow-hidden rounded-2xl">
+                  <div className="relative">
+                    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-5">
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/20 bg-accent-soft text-accent-dark">
-                            <Zap className="h-5 w-5" strokeWidth={2.25} aria-hidden />
-                          </span>
-                          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-accent-dark/80">
-                            Live desk
-                          </span>
+                        <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-400/40 bg-rose-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-rose-200">
+                          <Zap className="h-3.5 w-3.5 fill-rose-400 text-rose-400" />
+                          Live Desk
                         </div>
-                        <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-ink max-lg:text-[1.375rem] sm:mt-4 sm:text-3xl">
+                        <h2 className="mt-2.5 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
                           Breaking desk
                         </h2>
-                        <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-ink-soft max-lg:mt-1.5 max-lg:text-[13px] sm:mt-2">
-                          Fast-moving stories in a simple grid no sideways scrolling.
+                        <p className="mt-1 text-sm font-medium text-slate-200/90">
+                          Fast-moving developments and flash reports across global regions.
                         </p>
                       </div>
                       <Link
                         href={categoryHref('Breaking')}
-                        className="inline-flex shrink-0 items-center gap-2 self-start rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-accent-dark transition hover:border-accent/50 hover:bg-accent-soft/60 max-lg:w-full max-lg:justify-center max-lg:py-2.5 sm:w-auto sm:self-auto sm:rounded-xl sm:px-5 sm:py-3"
+                        className="inline-flex shrink-0 items-center gap-2 self-start rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white shadow-sm backdrop-blur-md transition hover:border-white/40 hover:bg-white/20 sm:self-auto sm:px-5 sm:py-2.5"
                       >
-                        View all
+                        View all breaking
                         <ArrowRight className="h-4 w-4" strokeWidth={2.25} aria-hidden />
                       </Link>
                     </div>
@@ -340,7 +401,7 @@ export default async function HomePage() {
               <TrendingAside posts={trending} />
             </div>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

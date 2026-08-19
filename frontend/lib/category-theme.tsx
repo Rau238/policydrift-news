@@ -2,13 +2,19 @@ import type { LucideIcon } from 'lucide-react';
 import {
   Bitcoin,
   Briefcase,
+  Building2,
+  Coins,
+  Flame,
   Globe2,
   Landmark,
   LineChart,
   MapPin,
   Newspaper,
-  PiggyBank,
+  Scale,
+  TrendingUp,
   Trophy,
+  Vote,
+  Wallet,
   Zap,
 } from 'lucide-react';
 
@@ -48,7 +54,7 @@ type Theme = {
 export const CATEGORY_THEME: Record<string, Theme> = {
   Breaking: {
     label: 'Breaking',
-    Icon: Zap,
+    Icon: Flame,
     chip: 'bg-rose-50 text-rose-900 ring-1 ring-rose-200/90',
     navPill:
       'bg-rose-500/15 text-rose-100 ring-rose-400/30 hover:bg-rose-500/25 hover:ring-rose-400/50',
@@ -92,7 +98,7 @@ export const CATEGORY_THEME: Record<string, Theme> = {
   },
   Business: {
     label: 'Business',
-    Icon: Briefcase,
+    Icon: Building2,
     chip: 'bg-violet-50 text-violet-950 ring-1 ring-violet-200/90',
     navPill:
       'bg-violet-500/15 text-violet-100 ring-violet-400/30 hover:bg-violet-500/25 hover:ring-violet-400/50',
@@ -103,7 +109,7 @@ export const CATEGORY_THEME: Record<string, Theme> = {
   },
   'Banking & Economics': {
     label: 'Banking & Economics',
-    Icon: PiggyBank,
+    Icon: Landmark,
     chip: 'bg-cyan-50 text-cyan-950 ring-1 ring-cyan-200/90',
     navPill:
       'bg-cyan-500/15 text-cyan-100 ring-cyan-400/30 hover:bg-cyan-500/25 hover:ring-cyan-400/50',
@@ -114,7 +120,7 @@ export const CATEGORY_THEME: Record<string, Theme> = {
   },
   Politics: {
     label: 'Politics',
-    Icon: Landmark,
+    Icon: Vote,
     chip: 'bg-indigo-50 text-indigo-950 ring-1 ring-indigo-200/90',
     navPill:
       'bg-indigo-500/15 text-indigo-100 ring-indigo-400/30 hover:bg-indigo-500/25 hover:ring-indigo-400/50',
@@ -125,7 +131,7 @@ export const CATEGORY_THEME: Record<string, Theme> = {
   },
   'Stocks & Markets': {
     label: 'Markets',
-    Icon: LineChart,
+    Icon: TrendingUp,
     chip: 'bg-emerald-50 text-emerald-950 ring-1 ring-emerald-200/90',
     navPill:
       'bg-emerald-500/15 text-emerald-100 ring-emerald-400/30 hover:bg-emerald-500/25 hover:ring-emerald-400/50',
@@ -136,7 +142,7 @@ export const CATEGORY_THEME: Record<string, Theme> = {
   },
   Crypto: {
     label: 'Crypto',
-    Icon: Bitcoin,
+    Icon: Coins,
     chip: 'bg-orange-50 text-orange-950 ring-1 ring-orange-200/90',
     navPill:
       'bg-orange-500/15 text-orange-100 ring-orange-400/30 hover:bg-orange-500/25 hover:ring-orange-400/50',

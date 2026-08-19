@@ -3,15 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { STORY_FALLBACK_PATH } from '@/lib/story-image';
 import { CategoryStoryPlaceholder } from '@/components/CategoryStoryPlaceholder';
+import { BrandMark } from '@/components/BrandMark';
+import { getCardBgHex } from '@/lib/category-theme';
 
 function isLocalFallbackPath(s: string): boolean {
   return s === STORY_FALLBACK_PATH || s.endsWith(STORY_FALLBACK_PATH);
 }
 
 /**
- * Progressive story image (Zomato-style):
- * light shimmer / soft blur first → full image fades in sharp when loaded.
- * Bytes are requested only after the slot is near the viewport (unless `priority`).
+ * Progressive story image:
+ * Branded PolicyDrift logo with vibrant category shade while loading → full image fades in sharp once loaded.
  */
 type Props = {
   src: string;
@@ -22,13 +23,25 @@ type Props = {
   priority?: boolean;
   /** Desk name — drives shade + outline art when there is no photo */
   category?: string;
+  /** Hex color to match parent card shade */
+  cardBgHex?: string;
   /** Smaller placeholder (sidebar thumbs) */
   compact?: boolean;
   /** Hide caption on card placeholders (chip already shows desk) */
   hideCaption?: boolean;
 };
 
-export function RemoteStoryImage({ src, alt, title, className, priority, category, compact, hideCaption }: Props) {
+export function RemoteStoryImage({
+  src,
+  alt,
+  title,
+  className,
+  priority,
+  category,
+  cardBgHex,
+  compact,
+  hideCaption,
+}: Props) {
   const wrapRef = useRef<HTMLSpanElement>(null);
   const [swapToFallback, setSwapToFallback] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -36,6 +49,7 @@ export function RemoteStoryImage({ src, alt, title, className, priority, categor
   const useFallback = swapToFallback || isLocalFallbackPath(src);
   const safeAlt = alt.trim() || 'News story image';
   const safeTitle = (title ?? safeAlt).trim() || safeAlt;
+  const bgHex = cardBgHex || (category ? getCardBgHex(category) : '#0f766e');
 
   useEffect(() => {
     if (priority) {
@@ -83,7 +97,7 @@ export function RemoteStoryImage({ src, alt, title, className, priority, categor
 
   if (useFallback) {
     return (
-      <span ref={wrapRef} className="relative block h-full w-full overflow-hidden bg-slate-200/80">
+      <span ref={wrapRef} style={{ backgroundColor: bgHex }} className="relative block h-full w-full overflow-hidden">
         {inView ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
@@ -100,15 +114,26 @@ export function RemoteStoryImage({ src, alt, title, className, priority, categor
   }
 
   return (
-    <span ref={wrapRef} className="relative block h-full w-full overflow-hidden bg-slate-200/90">
-      {/* Lightweight blur / shimmer while waiting or loading bytes */}
+    <span ref={wrapRef} style={{ backgroundColor: bgHex }} className="relative block h-full w-full overflow-hidden">
+      {/* Branded PolicyDrift Logo with Vibrant Card Shade while loading */}
       <span
-        className={`pointer-events-none absolute inset-0 z-[1] transition-opacity duration-500 ease-out ${
+        style={{
+          background: `radial-gradient(circle at center, ${bgHex}d9 0%, ${bgHex} 100%)`,
+        }}
+        className={`pointer-events-none absolute inset-0 z-[1] flex items-center justify-center transition-opacity duration-500 ease-out ${
           loaded ? 'opacity-0' : 'opacity-100'
         }`}
         aria-hidden
       >
-        <span className="absolute inset-0 pd-img-blur-wash" />
+        <span className="absolute inset-0 animate-pulse bg-gradient-to-r from-white/5 via-white/15 to-white/5" />
+        <span className="relative flex flex-col items-center justify-center gap-2">
+          <BrandMark sizeClass={compact ? 'h-8 w-8' : 'h-12 w-12'} className="animate-pulse shadow-black/40 ring-white/30" />
+          {!compact ? (
+            <span className="text-[10px] font-bold tracking-widest text-white/90 uppercase drop-shadow-sm">
+              PolicyDrift
+            </span>
+          ) : null}
+        </span>
       </span>
 
       {inView ? (

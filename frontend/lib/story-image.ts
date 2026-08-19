@@ -33,15 +33,84 @@ function isLoopbackOrInvalidStored(url: string): boolean {
   }
 }
 
+export const CATEGORY_DEFAULT_PHOTOS: Record<string, string[]> = {
+  Breaking: [
+    'https://images.unsplash.com/photo-1508873696983-2df5293cb32b?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80',
+  ],
+  'World News': [
+    'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+  ],
+  India: [
+    'https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80',
+  ],
+  Sports: [
+    'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=1200&q=80',
+  ],
+  Business: [
+    'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80',
+  ],
+  'Banking & Economics': [
+    'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80',
+  ],
+  Politics: [
+    'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&fit=crop&w=1200&q=80',
+  ],
+  'Stocks & Markets': [
+    'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
+  ],
+  Crypto: [
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1622979135225-d2ba269bc1df?auto=format&fit=crop&w=1200&q=80',
+  ],
+  General: [
+    'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80',
+  ],
+};
+
 /**
- * For `<img src>` (Server or Client). Uses a root-relative fallback so production never requests localhost.
+ * For `<img src>` (Server or Client). Uses topic/category editorial photography fallback so cards always look rich.
  */
-export function resolvePostImageUrl(stored: string | null | undefined): string {
+export function resolvePostImageUrl(
+  stored: string | null | undefined,
+  title?: string,
+  category?: string,
+): string {
   const u = stored?.trim();
-  if (!u || u === 'null' || u === 'undefined' || isLoopbackOrInvalidStored(u)) {
-    return STORY_FALLBACK_PATH;
+  if (u && u !== 'null' && u !== 'undefined' && !isLoopbackOrInvalidStored(u) && u !== STORY_FALLBACK_PATH) {
+    return u;
   }
-  return u;
+
+  // 1. Topic search by title keywords if title is provided
+  if (title) {
+    const titleLower = title.toLowerCase();
+    for (const entry of TOPIC_PHOTO_REGISTRY) {
+      if (entry.keywords.some((kw) => kw.length > 2 && new RegExp(`\\b${kw}\\b`, 'i').test(titleLower))) {
+        if (entry.images[0]?.url) {
+          return entry.images[0].url;
+        }
+      }
+    }
+  }
+
+  // 2. Category photo fallback
+  if (category && CATEGORY_DEFAULT_PHOTOS[category]?.length) {
+    const pool = CATEGORY_DEFAULT_PHOTOS[category];
+    // Deterministic pick based on title length or hash
+    const index = title ? Math.abs(title.length) % pool.length : 0;
+    return pool[index];
+  }
+
+  return 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80';
 }
 
 /**
