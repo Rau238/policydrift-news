@@ -113,8 +113,8 @@ export default async function NewsListingPage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <div className="border-b border-slate-200/80 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4 py-10 text-white sm:px-6 sm:py-12">
-        <div className="mx-auto max-w-7xl md:px-6">
+      <div className="border-b border-slate-200/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14 2xl:max-w-[1440px]">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-teal-300/90">Archive</p>
           <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             All news
@@ -131,7 +131,7 @@ export default async function NewsListingPage({ searchParams }: Props) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14 2xl:max-w-[1440px]">
         <div className="grid gap-12 lg:grid-cols-[1fr_min(380px,100%)] lg:items-start lg:gap-10">
           <div>
             {posts.length === 0 ? (

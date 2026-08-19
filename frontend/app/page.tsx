@@ -11,7 +11,7 @@ import { resolvePostImageUrl, storyFallbackImageUrl } from '@/lib/story-image';
 import { absoluteUrl, siteDescription, siteName } from '@/lib/site';
 import Link from 'next/link';
 import { ArrowRight, LayoutGrid, Newspaper, Zap } from 'lucide-react';
-import { categoryChipClass, categoryHref, categoryLabel, categoryNavPillClass, CategoryGlyph } from '@/lib/categories';
+import { categoryChipClass, categoryHref, categoryLabel, categoryNavPillClass, CategoryGlyph, getCardBgHex } from '@/lib/categories';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import { AnimatedTrendingIcon } from '@/components/AnimatedTrendingIcon';
 import { formatPublishedAt } from '@/lib/format';
@@ -183,10 +183,9 @@ export default async function HomePage() {
           aria-hidden
         />
 
-
         {/* Hero Content Section */}
-        <section className="relative mx-auto flex max-w-7xl min-h-0 flex-col px-4 pb-14 pt-8 max-lg:px-3.5 max-lg:pb-12 max-lg:pt-7 sm:px-6 sm:pb-16 sm:pt-9 lg:px-6 lg:pb-20 lg:pt-10">
-          <div className="grid items-center gap-6 max-lg:gap-6 lg:grid-cols-12 lg:gap-8">
+        <section className="relative mx-auto flex max-w-7xl min-h-0 flex-col px-4 pb-14 pt-8 sm:px-6 sm:pb-16 sm:pt-9 lg:px-8 lg:pb-20 lg:pt-10 2xl:max-w-[1440px]">
+          <div className="grid items-center gap-6 max-lg:gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">
             <div className="lg:col-span-5 xl:col-span-5">
               <div className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-xs font-semibold backdrop-blur-md ${theme.badgeBorder}`}>
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -232,31 +231,41 @@ export default async function HomePage() {
               {lead ? (
                 <Link
                   href={`/news/${lead.slug}`}
-                  className="flex flex-col overflow-hidden rounded-2xl bg-slate-950/85 backdrop-blur-xl shadow-2xl sm:h-[13.5rem] sm:flex-row lg:h-[14rem]"
+                  className="group relative flex flex-col overflow-hidden rounded-2xl shadow-2xl transition-all duration-300 sm:h-[13.5rem] sm:flex-row lg:h-[14rem]"
+                  style={{
+                    backgroundColor: getCardBgHex(lead.category, 0, lead.id),
+                  }}
                 >
-                  <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-slate-900 sm:aspect-auto sm:h-full sm:w-[42%]">
+                  <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden sm:aspect-auto sm:h-full sm:w-[42%]">
                     <RemoteStoryImage
                       src={resolvePostImageUrl(lead.image_url, lead.title, lead.category)}
                       alt={decodeHtmlEntities(lead.title)}
-                      title={decodeHtmlEntities(lead.title)}
-                      category={lead.category}
                       priority
-                      className="h-full w-full object-cover object-center"
+                      className="h-full w-full object-cover transition-opacity duration-300"
+                      category={lead.category}
+                      cardBgHex={getCardBgHex(lead.category, 0, lead.id)}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent sm:hidden" />
+                    <div
+                      className="pointer-events-none absolute inset-0 hidden sm:block"
+                      style={{
+                        background: `linear-gradient(to right, transparent 0%, transparent 65%, ${getCardBgHex(lead.category, 0, lead.id)} 100%)`,
+                      }}
+                      aria-hidden
+                    />
                   </div>
+
                   <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-between p-4 sm:p-5">
                     <div className="space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full border border-teal-400/50 bg-teal-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-teal-300">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center rounded-full border border-teal-400/40 bg-teal-500/20 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-teal-300 shadow-sm backdrop-blur-md">
                           Featured Lead
                         </span>
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold shadow-sm ring-1 ${categoryNavPillClass(lead.category)}`}>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-slate-200 backdrop-blur-md">
                           <CategoryGlyph name={lead.category} className="h-3 w-3" />
                           {categoryLabel(lead.category)}
                         </span>
                       </div>
-                      <h2 className="font-display text-base font-bold leading-snug text-white line-clamp-2 sm:text-[1.125rem]">
+                      <h2 className="font-display text-base font-bold leading-snug tracking-tight text-white line-clamp-2 sm:text-lg lg:text-[1.1875rem]">
                         {decodeHtmlEntities(lead.title)}
                       </h2>
                       {lead.excerpt ? (
@@ -290,7 +299,7 @@ export default async function HomePage() {
         </section>
 
         {/* 2. Main Content Body on Pure Crisp Paper Background */}
-        <main className="relative mx-auto max-w-7xl px-4 py-8 max-lg:px-3.5 max-lg:py-8 sm:px-6 sm:py-10">
+        <main className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12 2xl:max-w-[1440px]">
           <div className="grid min-w-0 gap-8 max-lg:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,min(380px,100%))] lg:items-start">
             <div className="min-w-0 space-y-12 max-lg:space-y-10 lg:space-y-20">
               {breakingPosts.length > 0 ? (
@@ -323,13 +332,13 @@ export default async function HomePage() {
               ) : null}
 
               {topStories.length > 0 ? (
-                <section className="sm:px-6">
+                <section>
                   <TopStoriesSection posts={topStories} />
                 </section>
               ) : null}
 
               {(trendingRanked.length > 0 || popular.length > 0) ? (
-                <div className="grid grid-cols-1 gap-6 sm:px-6 lg:grid-cols-2 lg:gap-8">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
                   {trendingRanked.length > 0 ? (
                     <div>
                       <TrendingSection posts={trendingRanked} />
@@ -343,21 +352,21 @@ export default async function HomePage() {
                 </div>
               ) : null}
 
-              <section className="sm:px-6">
-                <div className="mb-6 flex flex-col gap-4  max-lg:mb-6 max-lg:gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between sm:gap-5">
+              <section>
+                <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:gap-5">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-subtle text-ink ring-1 ring-slate-200/80 max-lg:h-9 max-lg:w-9 max-lg:rounded-lg sm:h-10 sm:w-10 sm:rounded-xl">
-                        <Newspaper className="h-[1.15rem] w-[1.15rem] text-accent-dark max-lg:h-[1.1rem] max-lg:w-[1.1rem] sm:h-5 sm:w-5" strokeWidth={2} aria-hidden />
+                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-subtle text-ink ring-1 ring-slate-200/80 sm:h-10 sm:w-10 sm:rounded-xl">
+                        <Newspaper className="h-5 w-5 text-accent-dark" strokeWidth={2} aria-hidden />
                       </span>
                       <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-ink-soft sm:text-[11px]">
                         All desks
                       </span>
                     </div>
-                    <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-ink max-lg:text-[1.375rem] sm:mt-4 sm:text-3xl">
+                    <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-ink sm:mt-4 sm:text-3xl">
                       Latest across desks
                     </h2>
-                    <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-ink-soft max-lg:mt-1.5 max-lg:text-[13px] sm:mt-2">
+                    <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-ink-soft sm:mt-2">
                       World, India, sports, business, politics, markets and crypto, updated as feeds run.
                     </p>
                   </div>
@@ -396,7 +405,7 @@ export default async function HomePage() {
               </section>
             </div>
 
-            <div className="flex min-w-0 flex-col gap-6 max-lg:mt-1 max-lg:gap-6 lg:sticky lg:top-24 lg:gap-8 ">
+            <div className="flex min-w-0 flex-col gap-6 max-lg:mt-1 max-lg:gap-6 lg:sticky lg:top-20">
               <LiveMarketsAside />
               <TrendingAside posts={trending} />
             </div>

@@ -21,6 +21,7 @@ import { PostCard } from '@/components/PostCard';
 import { LiveMarketsAside } from '@/components/LiveMarketsAside';
 import { SidebarPostList } from '@/components/SidebarPostList';
 import { TrendingAside } from '@/components/TrendingAside';
+import { CategoryDeskView } from '@/components/CategoryDeskView';
 import { CategoryDeskHero } from '@/components/CategoryDeskHero';
 import { PaginationBar } from '@/components/PaginationBar';
 import {
@@ -166,10 +167,9 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   const category = categoryFromSlug(params.slug);
   if (category) {
     const listPage = Math.max(1, parseInt(searchParams.page || '1', 10) || 1);
-    const [{ posts, total, limit }, categories, trending] = await Promise.all([
-      getPosts({ page: listPage, limit: 12, category }),
+    const [{ posts, total, limit }, categories] = await Promise.all([
+      getPosts({ page: listPage, limit: 17, category }),
       getCategories(),
-      getTrending(5),
     ]);
     const totalPages = Math.max(1, Math.ceil(total / limit));
     const label = categoryLabel(category);
@@ -180,36 +180,14 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
         <CategoryDeskHero category={category} intro={intro} storyCount={countHere} />
-
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
-          <div className="grid gap-12 lg:grid-cols-[1fr_min(380px,100%)] lg:items-start lg:gap-10">
-            <div>
-              {posts.length === 0 ? (
-                <p className="text-slate-600">No posts in this category yet.</p>
-              ) : (
-                <ul className="grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:gap-8">
-                  {posts.map((p, i) => (
-                    <li key={p.id} className="min-w-0">
-                      <PostCard post={p} gridCell index={i} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              <PaginationBar
-                page={listPage}
-                totalPages={totalPages}
-                hrefForPage={(p) =>
-                  p <= 1 ? `/news/${slugSegment}` : `/news/${slugSegment}?page=${p}`
-                }
-              />
-            </div>
-            <div className="flex min-w-0 flex-col gap-8 lg:sticky lg:top-24">
-              <LiveMarketsAside />
-              <TrendingAside posts={trending} />
-            </div>
-          </div>
-        </div>
+        <CategoryDeskView
+          category={category}
+          posts={posts}
+          total={total}
+          listPage={listPage}
+          totalPages={totalPages}
+          slugSegment={slugSegment}
+        />
       </div>
     );
   }
@@ -292,7 +270,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   return (
     <div className="min-h-screen bg-[#f7f8fa]">
       <div className="border-b border-slate-800/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-        <div className="mx-auto max-w-7xl px-4 py-3.5 sm:px-6">
+        <div className="mx-auto max-w-7xl px-4 py-3.5 sm:px-6 lg:px-8 2xl:max-w-[1440px]">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <AnimatedBackButton href="/news" label="All news" />
             <nav className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
@@ -312,21 +290,21 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 pb-14 pt-6 sm:px-6 sm:pb-16 sm:pt-8">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_min(340px,100%)] lg:items-start lg:gap-10">
+      <div className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6 sm:pb-20 sm:pt-8 lg:px-8 2xl:max-w-[1440px]">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-10">
           <div className="min-w-0">
-            <article className="relative w-full max-w-3xl" itemScope itemType="https://schema.org/NewsArticle">
+            <article className="relative w-full min-w-0" itemScope itemType="https://schema.org/NewsArticle">
               <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
               />
 
-              <header className="mb-5">
+              <header className="mb-6 space-y-3">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                   <Link
                     href={categoryHref(post.category)}
                     aria-label={`Browse all ${categoryLabel(post.category)} stories`}
-                    className={`inline-flex w-fit max-w-full items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-bold shadow-sm ring-1 transition hover:brightness-[0.98] ${categoryChipClass(post.category)}`}
+                    className={`inline-flex w-fit max-w-full items-center gap-1.5 rounded-full px-3.5 py-1 text-[12px] font-bold shadow-sm ring-1 transition hover:brightness-[0.98] ${categoryChipClass(post.category)}`}
                   >
                     <CategoryGlyph name={post.category} className="h-3.5 w-3.5 shrink-0" />
                     <span className="min-w-0 text-left">{categoryLabel(post.category)}</span>
@@ -348,7 +326,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                 <h1
                   id="article-headline"
                   itemProp="headline"
-                  className="mt-3.5 text-balance font-display text-[1.7rem] font-bold leading-[1.18] tracking-tight text-ink sm:text-[2.15rem] sm:leading-[1.12]"
+                  className="text-balance font-display text-2xl font-bold leading-tight tracking-tight text-slate-950 sm:text-3xl lg:text-[2.25rem] lg:leading-[1.15]"
                 >
                   {decodeHtmlEntities(post.title)}
                 </h1>
@@ -356,7 +334,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                   <p
                     id="article-excerpt"
                     itemProp="description"
-                    className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-slate-600 sm:text-[1.0625rem]"
+                    className="max-w-3xl text-base leading-relaxed text-slate-600 sm:text-lg"
                   >
                     {excerptText}
                   </p>
@@ -373,7 +351,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
 
               <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm shadow-slate-900/5">
                 {/* Particle.news Style 3D Overlapping Image Stack / Hero Section */}
-                <div className="p-3 sm:p-5 pb-0 sm:pb-0">
+                <div className="p-4 sm:p-6 lg:p-8 pb-0 sm:pb-0 lg:pb-0">
                   <ParticleStoryImageStack
                     mainImageSrc={heroSrc}
                     mainTitle={post.title}
@@ -382,17 +360,17 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                   />
                 </div>
 
-                {/* Unified Editorial Article Story Content */}
-                <div className="px-5 py-6 sm:px-8 sm:py-8 border-b border-slate-100">
+                {/* Unified Editorial Article Story Content with Generous Padding */}
+                <div className="p-6 sm:p-8 lg:p-10 border-b border-slate-100 space-y-6">
                   <StoryOverviewBox
                     excerpt={excerptText}
                     takeawaysRaw={takeaways}
                   />
 
                   {showArticleBody ? (
-                    <div className="mt-6 pt-6 border-t border-slate-100">
+                    <div className="pt-6 border-t border-slate-100">
                       <div
-                        className="article-prose article-detail-prose prose-policy w-full overflow-x-auto text-left feed-article-body [overflow-wrap:anywhere] [word-break:break-word]"
+                        className="article-prose article-detail-prose prose-policy w-full overflow-x-auto text-left feed-article-body [overflow-wrap:anywhere] [word-break:break-word] text-base leading-relaxed text-slate-800"
                         dangerouslySetInnerHTML={{ __html: articleHtml }}
                         suppressHydrationWarning
                       />
@@ -401,7 +379,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                 </div>
 
                 {/* News Publisher Credit & Original Source Attribution */}
-                <div className="p-4 sm:p-6 bg-slate-50/40 border-b border-slate-100">
+                <div className="p-6 sm:p-8 bg-slate-50/50 border-b border-slate-100">
                   <PublisherCreditCard
                     originalUrl={post.original_url}
                     sourceFeed={post.source_feed}
@@ -412,11 +390,11 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                 </div>
 
                 {/* Navigation and Desk Link */}
-                <div className="bg-white px-4 py-4 sm:px-7 sm:py-5">
+                <div className="bg-white p-5 sm:p-6 lg:px-8">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <Link
                       href={categoryHref(post.category)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent transition hover:text-accent-dark"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 transition hover:text-teal-800"
                     >
                       <span>Explore all {categoryLabel(post.category)} stories</span>
                       <span aria-hidden>→</span>
@@ -429,31 +407,59 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
               </div>
 
               {/* Multi-Source Perspectives & Related Web Coverage */}
-              <MultiSourceCoverage
-                mainTitle={post.title}
-                originalUrl={post.original_url}
-                sourceFeed={post.source_feed}
-                category={post.category}
-                relatedPosts={relatedPosts}
-              />
+              <div className="mt-8">
+                <MultiSourceCoverage
+                  mainTitle={post.title}
+                  originalUrl={post.original_url}
+                  sourceFeed={post.source_feed}
+                  category={post.category}
+                  relatedPosts={relatedPosts}
+                />
+              </div>
+
+              {/* More Stories from this Desk Grid */}
+              {relatedPosts.length > 0 ? (
+                <section className="mt-8 rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm">
+                  <div className="mb-6 flex items-center justify-between">
+                    <div>
+                      <h2 className="font-display text-xl font-bold tracking-tight text-slate-950">
+                        More from {categoryLabel(post.category)}
+                      </h2>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Latest developments and reports from the desk
+                      </p>
+                    </div>
+                    <Link
+                      href={categoryHref(post.category)}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 hover:text-teal-800"
+                    >
+                      All stories →
+                    </Link>
+                  </div>
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    {relatedPosts.slice(0, 3).map((p, i) => (
+                      <PostCard key={p.id} post={p} gridCell index={i} priority={false} />
+                    ))}
+                  </div>
+                </section>
+              ) : null}
             </article>
           </div>
 
-          <aside className="flex min-w-0 flex-col gap-5 lg:sticky lg:top-24">
-            <LiveMarketsAside />
+          <aside className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-20">
+            {trendingPosts.length > 0 ? (
+              <TrendingAside posts={trendingPosts} />
+            ) : null}
             {breakingPosts.length > 0 ? (
               <SidebarPostList
-                title="Breaking elsewhere"
-                subtitle="Latest from the Breaking desk"
+                title="Breaking desk"
+                subtitle="Live flash reports elsewhere"
                 posts={breakingPosts}
                 icon={Zap}
                 tone="breaking"
                 footerHref={categoryHref('Breaking')}
                 footerLabel="All breaking news →"
               />
-            ) : null}
-            {trendingPosts.length > 0 ? (
-              <TrendingAside posts={trendingPosts} />
             ) : null}
           </aside>
         </div>

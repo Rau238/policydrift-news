@@ -59,7 +59,6 @@ function TrendingAsideSkeleton() {
           <div key={i} className="flex gap-3 py-3">
             <Skeleton className="h-9 w-9 shrink-0 rounded-lg" />
             <div className="min-w-0 flex-1 space-y-2">
-              <Skeleton className="h-3 w-20" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-3 w-28" />
             </div>
@@ -76,12 +75,13 @@ function TrendingAsideSkeleton() {
 export function NewsCategoryHubSkeleton() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white" aria-busy="true" aria-label="Loading desk">
-      <div className="relative overflow-hidden border-b border-slate-800/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-10 text-white sm:px-6 sm:py-12">
+      {/* Hero Skeleton */}
+      <div className="relative overflow-hidden border-b border-slate-800/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
         <div
           className="pointer-events-none absolute -right-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-teal-500/10 blur-3xl"
           aria-hidden
         />
-        <div className="relative mx-auto max-w-7xl md:px-6">
+        <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14 2xl:max-w-[1440px]">
           <Link
             href="/news"
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-300 transition hover:text-white"
@@ -104,31 +104,52 @@ export function NewsCategoryHubSkeleton() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
-        <div className="grid gap-12 lg:grid-cols-[1fr_min(380px,100%)] lg:items-start lg:gap-10">
-          <div>
-            <ul className="grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:gap-8">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <li key={i} className="min-w-0">
-                  <PostCardSkeleton />
-                </li>
-              ))}
-            </ul>
-            <nav
-              className="mt-12 flex flex-wrap items-center justify-center gap-2"
-              aria-label="Pagination loading"
-              aria-busy="true"
-            >
-              <Skeleton className="h-10 w-24 rounded-lg" />
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-10 w-24 rounded-lg" />
-            </nav>
+      {/* Body Skeleton */}
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10 2xl:max-w-[1440px]">
+        {/* Lead Feature Story Spotlight Skeleton */}
+        <div className="mb-8 overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] sm:h-[220px] sm:grid sm:grid-cols-12">
+          <div className="relative aspect-[16/9] w-full bg-slate-100 sm:col-span-5 sm:aspect-auto sm:h-full lg:col-span-4">
+            <Skeleton className="h-full w-full rounded-none" />
           </div>
-          <div className="flex min-w-0 flex-col gap-8 lg:sticky lg:top-24">
-            <MarketsAsideSkeleton />
-            <TrendingAsideSkeleton />
+          <div className="flex h-full flex-col justify-between overflow-hidden p-4 sm:col-span-7 sm:p-5 lg:col-span-8 lg:p-5">
+            <div className="space-y-2.5">
+              <Skeleton className="h-3 w-32" />
+              <Skeleton className="h-6 w-full max-w-md" />
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="mt-2 h-3.5 w-full" />
+              <Skeleton className="h-3.5 w-4/5" />
+            </div>
+            <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-3.5 w-20" />
+            </div>
           </div>
         </div>
+
+        {/* 4-Column Magazine Grid Skeleton */}
+        <div className="mb-4 flex items-center justify-between border-b border-slate-200/80 pb-2.5">
+          <Skeleton className="h-3.5 w-36" />
+          <Skeleton className="h-3 w-24" />
+        </div>
+
+        <ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <li key={i} className="min-w-0">
+              <PostCardSkeleton compact />
+            </li>
+          ))}
+        </ul>
+
+        {/* Pagination Skeleton */}
+        <nav
+          className="mt-8 flex flex-wrap items-center justify-center gap-2"
+          aria-label="Pagination loading"
+          aria-busy="true"
+        >
+          <Skeleton className="h-9 w-20 rounded-lg" />
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-9 w-20 rounded-lg" />
+        </nav>
       </div>
     </div>
   );
@@ -174,16 +195,14 @@ export function NewsArticleSkeleton() {
       aria-label="Loading article"
     >
       <div className="border-b border-slate-800/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 lg:px-8 2xl:max-w-[1440px]">
           <Skeleton className="h-4 w-20 rounded bg-white/10" />
           <Skeleton className="h-3 w-40 rounded bg-white/10" />
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 sm:pb-16 sm:pt-8">
-        <p className="mb-5 text-[13px] font-medium text-slate-500" role="status" aria-live="polite">
-          Loading story…
-        </p>
+      <div className="mx-auto max-w-7xl px-4 pb-14 pt-6 sm:px-6 sm:pb-16 sm:pt-8 lg:px-8 lg:pb-20 lg:pt-10 2xl:max-w-[1440px]">
+
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_min(360px,100%)] lg:items-start lg:gap-12">
           <div className="min-w-0">
@@ -194,7 +213,7 @@ export function NewsArticleSkeleton() {
               </div>
               <Skeleton className="mt-4 h-10 w-full max-w-xl sm:h-12" />
               <Skeleton className="mt-3 h-5 w-full max-w-lg" />
-              <Skeleton className="mt-2 h-5 w-full max-w-md" />
+              <Skeleton className="mt-2 h-5 w-full max-md" />
 
               <div className="mt-7 overflow-hidden rounded-2xl border border-slate-200/90 bg-slate-100 shadow-lg">
                 <Skeleton className="aspect-[16/9] w-full rounded-none sm:aspect-[2/1]" />
@@ -270,15 +289,15 @@ export function NewsArticleSkeleton() {
 }
 
 /**
- * Matches `/news` index: Newsroom hero, filter chips, grid + asides.
+ * Matches `/news` index: Newsroom hero, grid + asides.
  */
 export function NewsroomIndexSkeleton() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white" aria-busy="true" aria-label="Loading newsroom">
-      <div className="border-b border-slate-200/80 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4 py-10 text-white sm:px-6 sm:py-12">
-        <div className="mx-auto max-w-7xl md:px-6">
+      <div className="border-b border-slate-200/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14 2xl:max-w-[1440px]">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-teal-300/90" role="status" aria-live="polite">
-            Newsroom
+            Archive
           </p>
           <div className="mt-2 space-y-3">
             <DarkLine className="h-9 w-[min(14rem,70vw)] sm:h-11 sm:w-[min(16rem,85vw)]" />
@@ -290,15 +309,8 @@ export function NewsroomIndexSkeleton() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
-        <Skeleton className="h-6 w-40 sm:h-7 sm:w-44" />
-        <Skeleton className="mt-2 h-4 w-full max-w-lg" />
-        <div className="mt-6 flex flex-wrap gap-2">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <Skeleton key={i} className="h-10 w-[7.25rem] rounded-full" />
-          ))}
-        </div>
-        <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_min(380px,100%)] lg:items-start lg:gap-10">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14 2xl:max-w-[1440px]">
+        <div className="grid gap-12 lg:grid-cols-[1fr_min(380px,100%)] lg:items-start lg:gap-10">
           <div>
             <ul className="grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:gap-8">
               {Array.from({ length: 6 }).map((_, i) => (

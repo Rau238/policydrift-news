@@ -17,8 +17,8 @@ export default function RootLoading() {
         />
 
         {/* Hero Section Skeleton (Matching 1:1 Geometry with page.tsx) */}
-        <section className="relative mx-auto flex max-w-7xl min-h-0 flex-col px-4 pb-14 pt-8 max-lg:px-3.5 max-lg:pb-12 max-lg:pt-7 sm:px-6 sm:pb-16 sm:pt-9 lg:px-6 lg:pb-20 lg:pt-10">
-          <div className="grid items-center gap-6 max-lg:gap-6 lg:grid-cols-12 lg:gap-8">
+        <section className="relative mx-auto flex max-w-7xl min-h-0 flex-col px-4 pb-14 pt-8 sm:px-6 sm:pb-16 sm:pt-9 lg:px-8 lg:pb-20 lg:pt-10 2xl:max-w-[1440px]">
+          <div className="grid items-center gap-6 max-lg:gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">
             {/* Hero Left Column (5 Cols) */}
             <div className="space-y-4 lg:col-span-5 xl:col-span-5">
               <Skeleton className="h-6 w-36 rounded-full bg-slate-800/80" />
@@ -42,7 +42,7 @@ export default function RootLoading() {
         </section>
 
         {/* Main Content Layout Skeleton */}
-        <main className="relative mx-auto max-w-7xl px-4 py-8 max-lg:px-3.5 max-lg:py-8 sm:px-6 sm:py-10">
+        <main className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12 2xl:max-w-[1440px]">
           <div className="grid min-w-0 gap-8 max-lg:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,min(380px,100%))] lg:items-start">
             {/* Left Column: Breaking Desk & Latest Feed */}
             <div className="min-w-0 space-y-12 max-lg:space-y-10 lg:space-y-20">

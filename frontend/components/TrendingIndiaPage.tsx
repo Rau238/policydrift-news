@@ -151,7 +151,7 @@ export function TrendingIndiaPage({ data }: { data: GoogleTrendsBundle }) {
           aria-hidden
         />
 
-        <div className="relative z-10 mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 sm:pb-12 md:px-6">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 sm:pb-12 lg:px-8 lg:pb-14 lg:pt-8 2xl:max-w-[1440px]">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-200 transition hover:text-white"
@@ -194,7 +194,7 @@ export function TrendingIndiaPage({ data }: { data: GoogleTrendsBundle }) {
         </div>
       </div>
 
-      <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-8 sm:px-6 md:px-6">
+      <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-8 sm:px-6 lg:px-8 lg:pb-20 lg:pt-10 2xl:max-w-[1440px]">
         {disabledEmpty ? (
           <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-10 text-center">
             <p className="text-sm font-semibold text-white">Trends are off</p>

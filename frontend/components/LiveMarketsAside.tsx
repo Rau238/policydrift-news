@@ -852,35 +852,56 @@ export function LiveMarketsAside() {
     [flatRows],
   );
 
+  const [filterTab, setFilterTab] = useState<'all' | 'indices' | 'crypto' | 'commodities'>('all');
+
+  const filteredFlatRows = useMemo(() => {
+    return flatRowsMain.filter(({ section }) => {
+      if (filterTab === 'indices') {
+        return ['us', 'india', 'china', 'united_kingdom', 'japan', 'germany'].includes(section);
+      }
+      if (filterTab === 'crypto') return section === 'crypto';
+      if (filterTab === 'commodities') return section === 'commodities' || section === 'fx';
+      return true;
+    });
+  }, [flatRowsMain, filterTab]);
+
   return (
-    <aside className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 font-markets shadow-sm antialiased max-lg:rounded-2xl max-lg:border-slate-200/90 max-lg:shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] max-lg:ring-1 max-lg:ring-teal-900/[0.06]">
-      <div className="relative flex items-center justify-between gap-3 rounded-t-xl border-b border-slate-200/80 bg-gradient-to-r from-slate-950 via-slate-900 to-teal-950 px-3.5 py-3.5 text-white max-lg:rounded-t-2xl">
-        <div className="relative flex min-w-0 items-center gap-3">
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-500/20 ring-1 ring-teal-300/40">
-            <Activity className="h-5 w-5 text-teal-300" strokeWidth={2.25} aria-hidden />
+    <aside className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/90 bg-white font-markets shadow-sm antialiased transition-all duration-300 hover:shadow-md">
+      {/* Widget Header */}
+      <div className="relative flex items-center justify-between gap-3 border-b border-slate-800 bg-gradient-to-r from-slate-950 via-[#0c1424] to-slate-900 px-4 py-3.5 text-white">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-teal-500/20 text-teal-300 ring-1 ring-teal-400/30 shadow-inner">
+            <Activity className="h-4 w-4" strokeWidth={2.25} aria-hidden />
           </span>
           <div className="min-w-0">
-            <h2 className="font-markets text-base font-bold leading-tight tracking-tight text-white">
-              Markets
-            </h2>
-            <p className="mt-0.5 truncate text-[11px] font-medium text-slate-400">
+            <div className="flex items-center gap-1.5">
+              <h2 className="font-display text-sm font-bold leading-tight tracking-tight text-white">
+                Markets Wire
+              </h2>
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-1.5 py-0.2 text-[9.5px] font-extrabold uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-400/30">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live
+              </span>
+            </div>
+            <p className="truncate text-[10.5px] font-medium text-slate-400">
               {fetchedAt ? (
                 <>
-                  <span className="text-teal-200/90">{formatRelativeTime(fetchedAt)}</span>
-                  {refreshing ? ' · updating' : ''}
-                  <span className="text-slate-500"> · Yahoo Finance</span>
+                  <span className="text-teal-300">{formatRelativeTime(fetchedAt)}</span>
+                  {refreshing ? ' • updating' : ''}
+                  <span> • Global Markets</span>
                 </>
               ) : (
-                'Loading quotes…'
+                'Loading live quotes…'
               )}
             </p>
           </div>
         </div>
+
         <button
           type="button"
           onClick={() => load(true)}
           disabled={loading || refreshing}
-          className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/15 transition hover:bg-white/15 disabled:opacity-40"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white disabled:opacity-40 active:scale-95"
           aria-label="Refresh quotes"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} aria-hidden />
@@ -888,174 +909,216 @@ export function LiveMarketsAside() {
       </div>
 
       {error ? (
-        <p className="border-b border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-950 max-lg:px-3.5 max-lg:py-2">
+        <p className="border-b border-amber-200 bg-amber-50 px-3.5 py-2 text-xs font-medium text-amber-900">
           {error}
         </p>
       ) : null}
 
       <div className="space-y-0">
         {!loading && !quotes.length && !error ? (
-          <p className="px-3 py-8 text-center text-sm text-slate-500">No data.</p>
+          <p className="px-3 py-8 text-center text-xs text-slate-500">No market data available.</p>
         ) : null}
 
         <MarketDetailPopover tip={tip} onEnter={clearHideTimer} onLeave={scheduleHide} />
 
         {loading && !quotes.length ? (
-          <div className="space-y-3 px-3 py-3">
+          <div className="space-y-3 p-3">
             <div className="h-4 w-28 animate-pulse rounded bg-slate-200" aria-hidden />
-            <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
+            <div className="grid grid-cols-2 gap-2">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex items-center justify-between gap-2 px-3 py-2.5">
-                  <div className="h-3.5 w-20 animate-pulse rounded bg-slate-100" />
-                  <div className="h-3.5 w-24 animate-pulse rounded bg-slate-100" />
-                </div>
-              ))}
-            </div>
-            <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-12 animate-pulse bg-slate-50/80" />
+                <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-100" />
               ))}
             </div>
           </div>
         ) : null}
 
+        {/* Top Movers 2-Column Mini Cards Grid */}
         {quotes.length > 0 ? (
-          <div className="border-b border-slate-100 px-3 py-3 max-lg:border-teal-900/5 max-lg:bg-gradient-to-b max-lg:from-slate-50/80 max-lg:to-transparent max-lg:px-2.5 max-lg:py-2.5">
-            <p className="mb-2 text-xs font-semibold text-slate-500 max-lg:mb-2 max-lg:text-[11px] max-lg:uppercase max-lg:tracking-wider">
-              <span className="max-lg:hidden">Top 6</span>
-              <span className="hidden max-lg:inline">Top movers</span>
-            </p>
-            <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white max-lg:grid max-lg:grid-cols-2 max-lg:gap-2 max-lg:divide-y-0 max-lg:border-0 max-lg:bg-transparent max-lg:p-0">
+          <div className="border-b border-slate-100 bg-gradient-to-b from-slate-50/90 to-white p-3">
+            <div className="mb-2.5 flex items-center justify-between px-0.5">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
+                Key Movers
+              </p>
+              <span className="text-[10.5px] font-bold text-teal-700">
+                Real-Time
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
               {TOP_SIX_IDS.map((id) => {
                 const q = quoteById.get(id);
                 const headline = TOP_SIX_LABELS[id];
-                if (!q) {
-                  return (
-                    <li
-                      key={id}
-                      className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm text-slate-400 max-lg:rounded-xl max-lg:border max-lg:border-slate-200/90 max-lg:bg-white max-lg:px-2.5 max-lg:py-2 max-lg:shadow-sm"
-                    >
-                      <span className="flex min-w-0 items-center gap-2 font-medium text-slate-500">
-                        <InstrumentRowIdentifier id={id} />
-                        <span className="truncate">{headline}</span>
-                      </span>
-                      <span>-</span>
-                    </li>
-                  );
-                }
-                const section = resolveSectionId(q);
-                if (!section) {
-                  return (
-                    <li
-                      key={id}
-                      className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm max-lg:rounded-xl max-lg:border max-lg:border-slate-200/90 max-lg:bg-white max-lg:px-2.5 max-lg:py-2 max-lg:shadow-sm"
-                    >
-                      <span className="flex min-w-0 items-center gap-2 font-medium text-slate-800">
-                        <InstrumentRowIdentifier id={id} />
-                        <span className="truncate">{headline}</span>
-                      </span>
-                      <span className="text-slate-400">-</span>
-                    </li>
-                  );
-                }
+                if (!q) return null;
+                const section = resolveSectionId(q) || 'us';
+                const isUp = (q.changePercent ?? 0) > 0;
+                const isDown = (q.changePercent ?? 0) < 0;
+
                 return (
-                  <li
+                  <div
                     key={id}
                     role="presentation"
-                    className={`flex cursor-default items-center justify-between gap-2 px-3 py-2.5 transition-colors hover:bg-slate-50 max-lg:min-h-[4.25rem] max-lg:cursor-pointer max-lg:flex-col max-lg:items-stretch max-lg:justify-between max-lg:gap-2 max-lg:rounded-xl max-lg:border max-lg:border-slate-200/90 max-lg:bg-gradient-to-br max-lg:from-white max-lg:to-slate-50/90 max-lg:px-2.5 max-lg:py-2.5 max-lg:shadow-sm max-lg:active:scale-[0.99] lg:cursor-default ${ROW_STRIPE[section]}`}
-                    onMouseEnter={narrowLayout ? undefined : (e) => showTip(e, q, section)}
-                    onMouseLeave={narrowLayout ? undefined : scheduleHide}
-                    onClick={narrowLayout ? (e) => toggleTip(e, q, section) : undefined}
+                    className={`group relative flex flex-col justify-between rounded-xl border p-2.5 transition-all duration-200 hover:scale-[1.02] cursor-pointer ${
+                      isUp
+                        ? 'border-emerald-300/80 bg-emerald-50/70 hover:bg-emerald-100/80 shadow-[0_2px_8px_rgba(16,185,129,0.08)]'
+                        : isDown
+                        ? 'border-rose-300/80 bg-rose-50/70 hover:bg-rose-100/80 shadow-[0_2px_8px_rgba(244,63,94,0.08)]'
+                        : 'border-slate-200 bg-white hover:bg-slate-50 shadow-sm'
+                    }`}
+                    onMouseEnter={(e) => showTip(e, q, section)}
+                    onMouseLeave={scheduleHide}
+                    onClick={(e) => toggleTip(e, q, section)}
                   >
-                    <span className="flex min-w-0 shrink items-center gap-2 font-medium text-sm leading-snug text-slate-800 max-lg:w-full max-lg:justify-between max-lg:text-[13px]">
-                      <span className="flex min-w-0 items-center gap-2">
+                    {/* Header: Flag + Name + Change Badge */}
+                    <div className="flex items-start justify-between gap-1">
+                      <div className="flex min-w-0 items-center gap-1.5">
                         <InstrumentRowIdentifier id={id} />
-                        <span className="truncate">{headline}</span>
+                        <span className="truncate font-display text-xs font-bold text-slate-900">
+                          {headline}
+                        </span>
+                      </div>
+
+                      <span
+                        className={`inline-flex shrink-0 items-center gap-0.5 rounded px-1.5 py-0.5 text-[9.5px] font-black tabular-nums shadow-sm ${
+                          isUp
+                            ? 'bg-emerald-600 text-white'
+                            : isDown
+                            ? 'bg-rose-600 text-white'
+                            : 'bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        {isUp && <TrendingUp className="h-2 w-2 stroke-[2.5]" />}
+                        {isDown && <TrendingDown className="h-2 w-2 stroke-[2.5]" />}
+                        <span>
+                          {q.changePercent != null
+                            ? `${isUp ? '+' : ''}${q.changePercent.toFixed(1)}%`
+                            : '0%'}
+                        </span>
                       </span>
-                    </span>
-                    <div className="flex shrink-0 flex-wrap items-center justify-end gap-x-2 gap-y-1 max-lg:w-full max-lg:justify-between max-lg:gap-1.5">
+                    </div>
+
+                    {/* Price & Points */}
+                    <div className="mt-2 flex items-baseline justify-between gap-1">
+                      <span className="font-markets-mono text-[13.5px] font-black tabular-nums text-slate-950">
+                        {formatPrice(q)}
+                      </span>
+                      {q.change != null && (
+                        <span
+                          className={`text-[10px] font-bold tabular-nums ${
+                            isUp ? 'text-emerald-700' : isDown ? 'text-rose-700' : 'text-slate-500'
+                          }`}
+                        >
+                          {isUp ? '+' : ''}
+                          {q.change.toFixed(1)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
+        {/* Filter Tabs */}
+        {flatRowsMain.length > 0 && (
+          <div className="border-b border-slate-100 bg-slate-50/70 px-3 py-2">
+            <div className="flex items-center gap-1 rounded-xl border border-slate-200/80 bg-white p-0.5 text-[11px] font-semibold">
+              {(
+                [
+                  { id: 'all', label: 'All' },
+                  { id: 'indices', label: 'Indices' },
+                  { id: 'crypto', label: 'Crypto' },
+                  { id: 'commodities', label: 'Commodities' },
+                ] as const
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setFilterTab(tab.id)}
+                  className={`flex-1 rounded-lg py-1 text-center font-bold transition ${
+                    filterTab === tab.id
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Filtered Quotes Clean List */}
+        {filteredFlatRows.length > 0 ? (
+          <div className="p-3">
+            <div className="overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-inner divide-y divide-slate-100">
+              {filteredFlatRows.map(({ q, section }, index) => {
+                const isUp = (q.changePercent ?? 0) > 0;
+                const isDown = (q.changePercent ?? 0) < 0;
+
+                return (
+                  <div
+                    key={q.id}
+                    role="presentation"
+                    className={`grid grid-cols-[minmax(0,1fr)_minmax(6.5rem,auto)] items-center gap-x-2 px-3 py-2 transition-colors cursor-pointer hover:bg-slate-50/90 ${sentimentRowBg(
+                      q.ok,
+                      q.change,
+                      index,
+                    )}`}
+                    onMouseEnter={(e) => showTip(e, q, section)}
+                    onMouseLeave={scheduleHide}
+                    onClick={(e) => toggleTip(e, q, section)}
+                  >
+                    <div className="flex min-w-0 items-start gap-2">
+                      <span className="mt-0.5 shrink-0">
+                        <InstrumentRowIdentifier id={q.id} />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-bold leading-snug text-slate-900">
+                          {q.label}
+                        </p>
+                        <CountryFlagsLine q={q} section={section} theme="light" textOnlySubline />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-0.5 text-right">
                       {q.ok ? (
                         <>
-                          <span className="text-right font-markets-mono text-sm tabular-nums text-slate-900">
+                          <p className="font-markets-mono text-xs font-black tabular-nums text-slate-950">
                             {formatPrice(q)}
                             {q.currency ? (
-                              <span className="ml-1 font-markets text-[10px] font-normal text-slate-500">{q.currency}</span>
+                              <span className="ml-1 text-[9px] font-bold text-slate-400">
+                                {q.currency}
+                              </span>
                             ) : null}
+                          </p>
+                          <span
+                            className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.2 text-[10px] font-black tabular-nums ${
+                              isUp
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : isDown
+                                ? 'bg-rose-100 text-rose-800'
+                                : 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            {isUp && <TrendingUp className="h-2.5 w-2.5 stroke-[2.5]" />}
+                            {isDown && <TrendingDown className="h-2.5 w-2.5 stroke-[2.5]" />}
+                            <span>{formatSignedPercent(q.changePercent)}</span>
                           </span>
-                          <MoveReadout
-                            compact
-                            change={q.change}
-                            pct={formatSignedPercent(q.changePercent)}
-                          />
                         </>
                       ) : (
                         <span className="text-xs text-slate-400">-</span>
                       )}
                     </div>
-                  </li>
+                  </div>
                 );
               })}
-            </ul>
-          </div>
-        ) : null}
-
-        {flatRowsMain.length > 0 ? (
-          <div className="px-3 pb-3 pt-2 max-lg:px-2 max-lg:pb-2 max-lg:pt-1.5">
-            <p className="mb-2 text-xs font-semibold text-slate-500 max-lg:mb-1.5 max-lg:px-0.5 max-lg:text-[11px] max-lg:uppercase max-lg:tracking-wider">
-              <span className="max-lg:hidden">Others</span>
-              <span className="hidden max-lg:inline">More quotes</span>
-            </p>
-            <div className="rounded-lg border border-slate-200 bg-white max-lg:max-h-[min(48vh,20rem)] max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:rounded-xl max-lg:shadow-inner max-lg:[scrollbar-width:thin] max-lg:[&::-webkit-scrollbar]:h-1.5 max-lg:[&::-webkit-scrollbar]:w-1.5 max-lg:[&::-webkit-scrollbar-thumb]:rounded-full max-lg:[&::-webkit-scrollbar-thumb]:bg-slate-300/90">
-              {flatRowsMain.map(({ q, section }, index) => (
-                <div
-                  key={q.id}
-                  role="presentation"
-                  className={`grid grid-cols-[minmax(0,1fr)_minmax(7.25rem,auto)] items-center gap-x-2 border-t border-slate-100 px-2.5 py-2 first:border-t-0 cursor-default max-lg:grid-cols-[minmax(0,1fr)_minmax(5.75rem,auto)] max-lg:gap-x-1.5 max-lg:px-2 max-lg:py-1.5 max-lg:first:rounded-t-xl max-lg:last:rounded-b-xl max-lg:cursor-pointer max-lg:active:bg-teal-50/40 lg:cursor-default ${sentimentRowBg(q.ok, q.change, index)} ${sentimentRowHover()}`}
-                  onMouseEnter={narrowLayout ? undefined : (e) => showTip(e, q, section)}
-                  onMouseLeave={narrowLayout ? undefined : scheduleHide}
-                  onClick={narrowLayout ? (e) => toggleTip(e, q, section) : undefined}
-                >
-                  <div className="flex min-w-0 items-start gap-2 max-lg:gap-1.5">
-                    <span className="mt-0.5 shrink-0 max-lg:mt-px">
-                      <InstrumentRowIdentifier id={q.id} />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-medium leading-snug text-slate-900 max-lg:text-[12px] max-lg:leading-tight">
-                        {q.label}
-                      </p>
-                      <CountryFlagsLine q={q} section={section} theme="light" textOnlySubline />
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 text-right max-lg:gap-0.5">
-                    {q.ok ? (
-                      <>
-                        <p className="font-markets-mono text-[14px] leading-tight tabular-nums text-slate-900 max-lg:text-[12px]">
-                          {formatPrice(q)}
-                          {q.currency ? (
-                            <span className="ml-1 font-markets text-[10px] font-normal text-slate-500">{q.currency}</span>
-                          ) : null}
-                        </p>
-                        <MoveReadout
-                          compact
-                          change={q.change}
-                          pct={formatSignedPercent(q.changePercent)}
-                        />
-                      </>
-                    ) : (
-                      <span className="text-xs text-slate-400">-</span>
-                    )}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         ) : null}
 
-        <p className="border-t border-slate-100 bg-slate-50 px-3 py-2.5 text-center text-[10px] leading-relaxed text-slate-500 max-lg:bg-gradient-to-r max-lg:from-slate-50 max-lg:to-teal-50/30 max-lg:px-2.5 max-lg:py-2 max-lg:text-[9px]">
-          <span className="max-lg:hidden">Green / red = day move · Hover row for detail · Delayed data</span>
-          <span className="hidden max-lg:inline">
-            Day move · Tap a row for detail · Delayed quotes
-          </span>
+        {/* Footer info subline */}
+        <p className="border-t border-slate-100 bg-slate-50/80 px-3 py-2 text-center text-[10px] font-medium text-slate-500">
+          Delayed quotes • Hover or tap row for full metrics
         </p>
       </div>
     </aside>

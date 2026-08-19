@@ -217,14 +217,21 @@ export function CategoryDeskHero({ category, intro, storyCount }: Props) {
 
   return (
     <div
-      className={`relative overflow-hidden border-b border-white/10 bg-gradient-to-br ${wash} px-4 py-8 text-white sm:px-6 sm:py-12`}
+      className={`relative overflow-hidden border-b border-slate-800/80 bg-gradient-to-br text-white ${
+        HERO_WASH[category] || HERO_WASH.General
+      }`}
     >
-      <div className={`pointer-events-none absolute -right-16 top-0 h-72 w-72 rounded-full ${orb} blur-3xl`} aria-hidden />
-      <div className={`pointer-events-none absolute -left-20 bottom-0 h-56 w-56 rounded-full ${orb} blur-3xl max-md:opacity-40`} aria-hidden />
-
-      {/* Decorative art — far right / bottom on mobile so copy stays clear */}
+      {/* Soft ambient glow */}
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 flex w-[42%] items-end justify-end text-white opacity-[0.14] sm:inset-y-[-8%] sm:right-[-2%] sm:w-[min(62%,46rem)] sm:items-center sm:opacity-[0.45] md:opacity-[0.55]"
+        className={`pointer-events-none absolute -right-8 top-0 h-72 w-72 rounded-full blur-3xl ${
+          ACCENT_ORB[category] || ACCENT_ORB.General
+        }`}
+        aria-hidden
+      />
+
+      {/* Desk outline art (subtle) */}
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 flex w-[42%] items-end justify-end opacity-[0.14] sm:inset-y-[-6%] sm:right-[-4%] sm:w-[min(52%,36rem)] sm:items-center sm:opacity-[0.24]"
         aria-hidden
       >
         <div className="h-[70%] w-full sm:h-full">
@@ -238,7 +245,7 @@ export function CategoryDeskHero({ category, intro, storyCount }: Props) {
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto max-w-7xl md:px-6">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14 2xl:max-w-[1440px]">
         <Link
           href="/news"
           className="inline-flex items-center gap-2 text-sm font-semibold text-slate-200 transition hover:text-white"

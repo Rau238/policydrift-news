@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, JetBrains_Mono, Lora, Outfit } from 'next/font/google';
+import { Sora, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
@@ -8,22 +8,11 @@ import { PwaSplash } from '@/components/PwaSplash';
 import { storyFallbackImageUrl } from '@/lib/story-image';
 import { absoluteUrl, publicSiteOrigin, siteDescription, siteName } from '@/lib/site';
 
-const inter = Inter({
+const sora = Sora({
   subsets: ['latin'],
   variable: '--font-geist-sans',
   display: 'swap',
-});
-
-const lora = Lora({
-  subsets: ['latin'],
-  variable: '--font-news',
-  display: 'swap',
-});
-
-const outfitMarkets = Outfit({
-  subsets: ['latin'],
-  variable: '--font-markets',
-  display: 'swap',
+  weight: ['400', '500', '600', '700', '800'],
 });
 
 const jetbrainsMarketsMono = JetBrains_Mono({
@@ -127,7 +116,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${lora.variable} ${outfitMarkets.variable} ${jetbrainsMarketsMono.variable}`}
+      className={`${sora.variable} ${jetbrainsMarketsMono.variable}`}
     >
       <body className="flex min-h-screen flex-col bg-paper font-sans antialiased text-ink">
         {loadAdsenseScript ? (
