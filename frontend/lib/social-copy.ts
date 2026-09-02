@@ -23,17 +23,17 @@ export interface SocialPlatformCopy {
 }
 
 const CATEGORY_HASHTAGS: Record<string, string[]> = {
-  politics: ['#Politics', '#PolicyUpdate', '#Governance', '#CurrentAffairs', '#PolicyDrift'],
-  business: ['#BusinessNews', '#Economy', '#Markets', '#Finance', '#PolicyDrift'],
-  economy: ['#Economy', '#Macroeconomics', '#GDP', '#FinancialMarkets', '#PolicyDrift'],
-  markets: ['#StockMarket', '#Trading', '#Nifty', '#Sensex', '#Investing', '#PolicyDrift'],
-  india: ['#IndiaNews', '#NationalUpdates', '#IndiaPolicy', '#Bharat', '#PolicyDrift'],
-  world: ['#WorldNews', '#GlobalAffairs', '#Geopolitics', '#InternationalNews', '#PolicyDrift'],
-  tech: ['#Technology', '#AI', '#TechNews', '#Innovation', '#DigitalTransformation', '#PolicyDrift'],
-  science: ['#Science', '#Research', '#Discovery', '#FutureTech', '#PolicyDrift'],
-  sports: ['#Sports', '#SportsNews', '#Cricket', '#Football', '#PolicyDrift'],
-  opinion: ['#Editorial', '#Opinion', '#Analysis', '#Perspectives', '#PolicyDrift'],
-  editorial: ['#Editorial', '#DeepDive', '#InDepth', '#Analysis', '#PolicyDrift'],
+  politics: ['#Politics', '#PolicyUpdate', '#Governance', '#CurrentAffairs', '#NewsFree365'],
+  business: ['#BusinessNews', '#Economy', '#Markets', '#Finance', '#NewsFree365'],
+  economy: ['#Economy', '#Macroeconomics', '#GDP', '#FinancialMarkets', '#NewsFree365'],
+  markets: ['#StockMarket', '#Trading', '#Nifty', '#Sensex', '#Investing', '#NewsFree365'],
+  india: ['#IndiaNews', '#NationalUpdates', '#IndiaPolicy', '#Bharat', '#NewsFree365'],
+  world: ['#WorldNews', '#GlobalAffairs', '#Geopolitics', '#InternationalNews', '#NewsFree365'],
+  tech: ['#Technology', '#AI', '#TechNews', '#Innovation', '#DigitalTransformation', '#NewsFree365'],
+  science: ['#Science', '#Research', '#Discovery', '#FutureTech', '#NewsFree365'],
+  sports: ['#Sports', '#SportsNews', '#Cricket', '#Football', '#NewsFree365'],
+  opinion: ['#Editorial', '#Opinion', '#Analysis', '#Perspectives', '#NewsFree365'],
+  editorial: ['#Editorial', '#DeepDive', '#InDepth', '#Analysis', '#NewsFree365'],
 };
 
 function getHashtagsForCategory(category: string): string[] {
@@ -42,7 +42,7 @@ function getHashtagsForCategory(category: string): string[] {
   if (found) return found;
 
   const capitalized = category ? `#${category.replace(/[^a-zA-Z0-9]/g, '')}` : '#News';
-  return [capitalized, '#NewsUpdate', '#CurrentAffairs', '#PolicyDrift'];
+  return [capitalized, '#NewsUpdate', '#CurrentAffairs', '#NewsFree365'];
 }
 
 function cleanText(text?: string | null): string {
@@ -134,7 +134,7 @@ export function generateLinkedInCopy(article: SocialArticleInput): SocialPlatfor
 💡 Key Takeaways:
 ${bodyHighlights}
 
-👉 Read the verified policy briefing & full analysis on PolicyDrift:
+👉 Read the verified policy briefing & full analysis on NewsFree365:
 🔗 ${articleUrl}
 
 ${tags.join(' ')}`;
@@ -142,7 +142,7 @@ ${tags.join(' ')}`;
   return {
     platform: 'linkedin',
     platformName: 'LinkedIn',
-    charLimit: 3000,
+    charLimit: 3050,
     caption: caption.trim(),
     hashtags: tags,
     suggestedAspectRatio: '1.91:1',
@@ -191,7 +191,7 @@ ${keyPoints}
 💬 What is your perspective on this development? Join the discussion below!
 
 🔗 Link to full coverage in bio & stories.
-Follow @PolicyDrift for verified real-time journalism.
+Follow @NewsFree365 for verified real-time journalism.
 
 .
 .
@@ -222,7 +222,7 @@ export function generateFacebookCopy(article: SocialArticleInput): SocialPlatfor
 
 📰 ${title}
 
-${excerpt ? `📌 ${excerpt}\n\n` : ''}👉 Read the complete report & context on PolicyDrift:
+${excerpt ? `📌 ${excerpt}\n\n` : ''}👉 Read the complete report & context on NewsFree365:
 🔗 ${articleUrl}
 
 ${tags.join(' ')}`;

@@ -186,7 +186,7 @@ export default function AdminSourcesPage() {
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message });
-    setTimeout(() => setFeedback(null), 4000);
+    setTimeout(() => setFeedback(null), 4050);
   };
 
   // ─── Fetch Sources ──────────────────────────────────────────────────────────
@@ -327,7 +327,7 @@ export default function AdminSourcesPage() {
           try {
             const host = new URL(form.rss_url).hostname.replace(/^www\./, '');
             setForm((f) => ({ ...f, name: `${host} (${form.category})` }));
-          } catch {}
+          } catch { }
         }
       } else {
         showToast('error', data.error || 'Feed test failed');
@@ -644,11 +644,10 @@ export default function AdminSourcesPage() {
           {feedback && (
             <div className="fixed bottom-6 right-6 z-50 pointer-events-none">
               <div
-                className={`pointer-events-auto flex items-center justify-between gap-3 rounded-xl border p-4 text-xs font-semibold shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-3 ${
-                  feedback.type === 'success'
+                className={`pointer-events-auto flex items-center justify-between gap-3 rounded-xl border p-4 text-xs font-semibold shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-3 ${feedback.type === 'success'
                     ? 'border-emerald-500/40 bg-slate-900/95 text-emerald-300'
                     : 'border-rose-500/40 bg-slate-900/95 text-rose-300'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   {feedback.type === 'success' ? (
@@ -703,18 +702,16 @@ export default function AdminSourcesPage() {
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
-                    isActive
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${isActive
                       ? 'bg-teal-600 text-white shadow-sm'
                       : 'border border-slate-800 bg-slate-900/80 text-slate-400 hover:border-slate-700 hover:text-slate-200'
-                  }`}
+                    }`}
                 >
                   {cat !== 'all' && <CategoryGlyph name={cat} className="h-3 w-3" />}
                   <span>{cat === 'all' ? 'All Feeds' : cat}</span>
                   <span
-                    className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                      isActive ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'
-                    }`}
+                    className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'
+                      }`}
                   >
                     {count}
                   </span>

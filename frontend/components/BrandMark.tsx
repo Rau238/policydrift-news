@@ -8,11 +8,11 @@ type Props = {
   title?: string;
 };
 
-/** Circular PolicyDrift mark — bold hash (#) on teal. */
+/** Circular NewsFree365 mark — bold hash (#) on teal. */
 export function BrandMark({
   className = '',
   sizeClass = 'h-9 w-9',
-  title = 'PolicyDrift',
+  title = 'NewsFree365',
 }: Props) {
   const uid = useId().replace(/:/g, '');
   const bg = `pd-bg-${uid}`;

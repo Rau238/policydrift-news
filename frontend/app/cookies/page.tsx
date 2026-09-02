@@ -13,14 +13,14 @@ import {
 
 export const metadata = legalMetadata(
   'Cookie Policy & Storage Transparency',
-  'Learn how PolicyDrift utilizes essential cookies and client storage for security and preference persistence.',
+  'Learn how NewsFree365 utilizes essential cookies and client storage for security and preference persistence.',
 );
 
 export default function CookiesPage() {
   return (
     <LegalPageShell
       title="Cookie Settings & Policy"
-      subtitle="Complete transparency regarding cookies, browser LocalStorage, and technical data storage across PolicyDrift."
+      subtitle="Complete transparency regarding cookies, browser LocalStorage, and technical data storage across NewsFree365."
       badge="Cookies & Storage"
       lastUpdated="August 2026"
       activePath="/cookies"
@@ -35,7 +35,7 @@ export default function CookiesPage() {
           Cookies and LocalStorage are standard web technologies that allow websites to store small pieces of textual data on your browser. They enable web applications to remember your session state, maintain security headers, and preserve user preferences (like your preferred viewing mode).
         </p>
         <p>
-          At PolicyDrift, we maintain a <strong>minimalist storage philosophy</strong>: we do not use cookies to profile you across the web or sell your browsing history to third-party ad networks.
+          At NewsFree365, we maintain a <strong>minimalist storage philosophy</strong>: we do not use cookies to profile you across the web or sell your browsing history to third-party ad networks.
         </p>
       </section>
 
@@ -43,7 +43,7 @@ export default function CookiesPage() {
       <section className="space-y-3 pt-6 border-t border-white/[0.08]">
         <h2 className="text-xl font-bold text-white flex items-center gap-2.5">
           <Sliders className="h-5 w-5 text-cyan-400 shrink-0" />
-          <span>2. How PolicyDrift Uses Storage</span>
+          <span>2. How NewsFree365 Uses Storage</span>
         </h2>
         <div className="space-y-3 pt-1">
           {/* Strictly Necessary */}

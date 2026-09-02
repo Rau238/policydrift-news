@@ -1,4 +1,4 @@
-# PolicyDrift
+# NewsFree365
 
 Full-stack news platform: **Node.js + Express**, **MySQL**, **Next.js 14 (App Router)**, **Tailwind CSS**.
 
@@ -84,7 +84,7 @@ cp .env.example .env.production
 Set `MYSQL_*`, ports, and URLs per environment:
 
 - **Development:** API `http://localhost:4001`, web `http://localhost:3001`
-- **Production:** API/web ports `4000` / `3000` (or reverse proxy); `NEXT_PUBLIC_*` = live domain (e.g. `https://www.policydrift.live`)
+- **Production:** API/web ports `4050` / `3050` (or reverse proxy); `NEXT_PUBLIC_*` = live domain (e.g. `https://www.newsfree365.live`)
 
 Optional shared overrides can go in root `.env` (loaded first; env-specific files win).
 
@@ -104,8 +104,8 @@ Terminal A + B, or one command:
 npm run dev
 ```
 
-- API: `http://localhost:<API_PORT>` (default **4000**) — health: `GET /health`
-- Web: `http://localhost:<WEB_PORT>` (default **3000**)
+- API: `http://localhost:<API_PORT>` (default **4050**) — health: `GET /health`
+- Web: `http://localhost:<WEB_PORT>` (default **3050**)
 
 ### 5. First content load (RSS → MySQL)
 
@@ -142,7 +142,7 @@ npm run pm2:start    # PM2 API + web (production)
 
 `NEXT_PUBLIC_*` values are **baked in at build time** — always run `build:prod` before deploying live.
 
-- **Vercel (or any hosted frontend) cannot use `http://127.0.0.1:4000` as the API** — expose the API publicly and set `NEXT_PUBLIC_API_URL` on Vercel, plus `CORS_ORIGIN` on the API. See **[docs/VERCEL_PRODUCTION_API.md](./docs/VERCEL_PRODUCTION_API.md)**.
+- **Vercel (or any hosted frontend) cannot use `http://127.0.0.1:4050` as the API** — expose the API publicly and set `NEXT_PUBLIC_API_URL` on Vercel, plus `CORS_ORIGIN` on the API. See **[docs/VERCEL_PRODUCTION_API.md](./docs/VERCEL_PRODUCTION_API.md)**.
 - Keep `OPENAI_API_KEY` server-side only (never `NEXT_PUBLIC_*`).
 
 ## License

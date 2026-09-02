@@ -12,14 +12,14 @@ import {
 
 export const metadata = legalMetadata(
   'Terms of Use & Service Agreement',
-  'Terms and legal conditions governing the use of the PolicyDrift platform and news services.',
+  'Terms and legal conditions governing the use of the NewsFree365 platform and news services.',
 );
 
 export default function TermsPage() {
   return (
     <LegalPageShell
       title="Terms of Use"
-      subtitle="The rules, conditions, and legal disclaimers governing your access to and use of the PolicyDrift platform."
+      subtitle="The rules, conditions, and legal disclaimers governing your access to and use of the NewsFree365 platform."
       badge="Legal Agreement"
       lastUpdated="August 2026"
       activePath="/terms"
@@ -31,7 +31,7 @@ export default function TermsPage() {
           <span>1. Acceptance of Terms</span>
         </h2>
         <p>
-          Welcome to PolicyDrift (<code>https://www.policydrift.live</code>). By accessing, browsing, or utilizing any portion of our website, real-time sports tickers, RSS feeds, or API endpoints, you agree to be bound by these Terms of Use and our associated{' '}
+          Welcome to NewsFree365 (<code>https://www.newsfree365.live</code>). By accessing, browsing, or utilizing any portion of our website, real-time sports tickers, RSS feeds, or API endpoints, you agree to be bound by these Terms of Use and our associated{' '}
           <Link href="/privacy" className="text-emerald-400 font-semibold hover:underline">
             Privacy Policy
           </Link>
@@ -46,7 +46,7 @@ export default function TermsPage() {
           <span>2. Platform Scope & News Syndication</span>
         </h2>
         <p>
-          PolicyDrift is an editorial curation and news intelligence platform. We aggregate headlines, briefs, and official announcements from verified open syndication feeds and wire sources.
+          NewsFree365 is an editorial curation and news intelligence platform. We aggregate headlines, briefs, and official announcements from verified open syndication feeds and wire sources.
         </p>
         <ul className="space-y-2 list-disc pl-5 text-slate-300">
           <li>
@@ -56,7 +56,7 @@ export default function TermsPage() {
             We provide direct links to the source of record and encourage readers to view full reports on the original publisher&apos;s site.
           </li>
           <li>
-            While we take rigorous steps to ensure timely and factual data, PolicyDrift makes no warranties regarding the absolute completeness, accuracy, or uninterrupted availability of third-party feeds.
+            While we take rigorous steps to ensure timely and factual data, NewsFree365 makes no warranties regarding the absolute completeness, accuracy, or uninterrupted availability of third-party feeds.
           </li>
         </ul>
       </section>
@@ -70,7 +70,7 @@ export default function TermsPage() {
         <div className="rounded-xl border border-amber-500/20 bg-amber-950/30 p-4 text-xs text-amber-200/90 leading-relaxed space-y-2">
           <p className="font-bold text-amber-300 text-sm">IMPORTANT NOTICE:</p>
           <p>
-            Content published on PolicyDrift—including economic key takeaways, market indices, regulatory summaries, and legal briefs—is provided exclusively for informational and educational purposes.
+            Content published on NewsFree365—including economic key takeaways, market indices, regulatory summaries, and legal briefs—is provided exclusively for informational and educational purposes.
           </p>
           <p>
             Nothing on this website constitutes financial investment advice, legal counsel, or tax guidance. Always consult licensed financial advisors, legal attorneys, or official government gazettes before making commercial or legal decisions.
@@ -85,10 +85,10 @@ export default function TermsPage() {
           <span>4. Intellectual Property Rights</span>
         </h2>
         <p>
-          Original journalistic reporting, photography, and trademarks belong to their respective publishers and wire services. PolicyDrift claims no proprietary interest in third-party content.
+          Original journalistic reporting, photography, and trademarks belong to their respective publishers and wire services. NewsFree365 claims no proprietary interest in third-party content.
         </p>
         <p>
-          The PolicyDrift name, logo, site design, frontend software, editorial framing algorithms, and custom data visualizations are the intellectual property of PolicyDrift and are protected by applicable copyright and intellectual property laws.
+          The NewsFree365 name, logo, site design, frontend software, editorial framing algorithms, and custom data visualizations are the intellectual property of NewsFree365 and are protected by applicable copyright and intellectual property laws.
         </p>
       </section>
 
@@ -107,7 +107,7 @@ export default function TermsPage() {
             Attempt to probe, scan, or compromise the vulnerability of our servers, reverse proxies, or APIs.
           </li>
           <li>
-            Misrepresent or republish PolicyDrift summaries in a misleading manner that strips source attribution.
+            Misrepresent or republish NewsFree365 summaries in a misleading manner that strips source attribution.
           </li>
         </ul>
       </section>
@@ -119,7 +119,7 @@ export default function TermsPage() {
           <span>6. Limitation of Liability & Governing Law</span>
         </h2>
         <p>
-          To the maximum extent permitted by law, PolicyDrift and its operators shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use this platform or reliance on its syndicated reports.
+          To the maximum extent permitted by law, NewsFree365 and its operators shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use this platform or reliance on its syndicated reports.
         </p>
         <p>
           These Terms of Use shall be governed by and construed in accordance with applicable laws. Any legal disputes shall be subject to the exclusive jurisdiction of the competent courts.

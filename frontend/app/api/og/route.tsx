@@ -6,7 +6,7 @@ export const runtime = 'edge';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const title = searchParams.get('title')?.slice(0, 150) || 'PolicyDrift — Real-Time News & Global Policy';
+    const title = searchParams.get('title')?.slice(0, 150) || 'NewsFree365 — Real-Time News & Global Policy';
     const category = searchParams.get('category')?.toUpperCase() || 'NEWS';
     const date = searchParams.get('date') || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
                     lineHeight: 1,
                   }}
                 >
-                  P
+                  N
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
                     color: '#f8fafc',
                   }}
                 >
-                  PolicyDrift
+                  NewsFree365
                 </span>
                 <span
                   style={{
@@ -170,7 +170,7 @@ export async function GET(req: NextRequest) {
                 letterSpacing: '0.5px',
               }}
             >
-              policydrift.live
+              newsfree365.live
             </div>
           </div>
         </div>
@@ -181,7 +181,7 @@ export async function GET(req: NextRequest) {
       },
     );
   } catch (e) {
-    console.error('[PolicyDrift] Error generating OG image:', e);
+    console.error('[NewsFree365] Error generating OG image:', e);
     return new Response('Failed to generate image', { status: 500 });
   }
 }

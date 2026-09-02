@@ -96,7 +96,7 @@ export default function AdminLoginPage() {
             <BrandMark sizeClass="h-16 w-16" />
             <div className="mt-3.5">
               <p className="text-[11px] font-bold uppercase tracking-widest text-teal-400">
-                PolicyDrift News Desk
+                NewsFree365 News Desk
               </p>
               <h1 className="text-xl font-bold tracking-tight text-white mt-0.5">
                 Admin & Pipeline Access

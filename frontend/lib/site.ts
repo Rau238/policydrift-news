@@ -1,8 +1,8 @@
-export const siteName = 'PolicyDrift';
+export const siteName = 'NewsFree365';
 export const siteDescription =
-  'PolicyDrift is a calm newsroom for law, governance, and world events: plain-language briefs, clear attribution, and steady updates so you can scan what matters.';
+  'NewsFree365 is a calm newsroom for law, governance, and world events: plain-language briefs, clear attribution, and steady updates so you can scan what matters.';
 
-export const PRODUCTION_SITE_URL = 'https://www.policydrift.live';
+export const PRODUCTION_SITE_URL = 'https://www.newsfree365.live';
 
 /**
  * Canonical public origin for absolute URLs (OG, JSON-LD, metadata).
@@ -13,7 +13,7 @@ export function publicSiteOrigin(): string {
   if (explicit) return explicit.replace(/\/$/, '');
   const vercel = process.env.VERCEL_URL?.trim();
   if (vercel) return `https://${vercel.replace(/^https?:\/\//, '').replace(/\/$/, '')}`;
-  return 'http://localhost:3000';
+  return 'http://localhost:3050';
 }
 
 export function absoluteUrl(path: string): string {
@@ -24,7 +24,7 @@ export function absoluteUrl(path: string): string {
 
 /**
  * Guaranteed live production URL for social media copy, sharing, and external distribution.
- * Always returns https://www.policydrift.live (never localhost).
+ * Always returns https://www.newsfree365.live (never localhost).
  */
 export function productionShareUrl(path: string): string {
   const p = path.startsWith('/') ? path : `/${path}`;

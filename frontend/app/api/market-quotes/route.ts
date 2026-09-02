@@ -11,7 +11,7 @@ function backendCandidates(): string[] {
   const out: string[] = [];
   const internal = process.env.API_INTERNAL_URL?.trim();
   if (internal) out.push(trimBase(internal));
-  const port = (process.env.API_PORT || '4000').trim();
+  const port = (process.env.API_PORT || '4050').trim();
   out.push(`http://127.0.0.1:${port}`);
   const pub = process.env.NEXT_PUBLIC_API_URL?.trim();
   if (pub) {
@@ -54,7 +54,7 @@ export async function GET() {
 
   return NextResponse.json(
     {
-      error: 'Could not reach PolicyDrift API',
+      error: 'Could not reach NewsFree365 API',
       tried: candidates,
       lastError: lastErr,
       lastUpstream: lastBody,

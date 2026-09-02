@@ -32,7 +32,7 @@ function required(name, fallback = null) {
 
 export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
-  PORT: parseInt(process.env.API_PORT || process.env.PORT || '4000', 10),
+  PORT: parseInt(process.env.API_PORT || process.env.PORT || '4050', 10),
   MYSQL_HOST: required('MYSQL_HOST', '127.0.0.1'),
   MYSQL_PORT: parseInt(process.env.MYSQL_PORT || '3306', 10),
   MYSQL_USER: required('MYSQL_USER', 'root'),
@@ -52,7 +52,7 @@ export const env = {
     59,
     Math.max(1, parseInt(process.env.RSS_CRON_INTERVAL_MINUTES || '15', 10) || 15),
   ),
-  CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000,http://127.0.0.1:3000',
+  CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3050,http://127.0.0.1:3050',
   SITE_PUBLIC_URL: (process.env.SITE_PUBLIC_URL || process.env.NEXT_PUBLIC_SITE_URL || '').trim(),
   INDEXNOW_KEY: (process.env.INDEXNOW_KEY || '').trim(),
   STORY_FALLBACK_IMAGE_URL: (process.env.STORY_FALLBACK_IMAGE_URL || '').trim(),
@@ -72,7 +72,7 @@ export const env = {
   // ── Worker process control ────────────────────────────────────────────
   /**
    * Set WORKER_ENABLED=true in .env.production to tell server.js that a
-   * dedicated policydrift-worker PM2 process is running the RSS cron,
+   * dedicated newsfree365-worker PM2 process is running the RSS cron,
    * preventing double-ingestion when both processes share the same MySQL DB.
    */
   WORKER_ENABLED: process.env.WORKER_ENABLED === 'true',

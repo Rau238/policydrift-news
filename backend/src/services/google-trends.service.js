@@ -72,7 +72,7 @@ function firstArticleWhyFromDailyItem(item) {
     const line = [t, s]
       .filter((x) => typeof x === 'string' && x.trim())
       .join('. ');
-    if (line) return line.slice(0, 4000);
+    if (line) return line.slice(0, 4050);
   }
   return null;
 }
@@ -94,10 +94,10 @@ function parseDailyTrends(jsonStr) {
         typeof title === 'string'
           ? title
           : title?.query ||
-            title?.searchTitle ||
-            item?.articleTitle ||
-            item?.query ||
-            item?.name;
+          title?.searchTitle ||
+          item?.articleTitle ||
+          item?.query ||
+          item?.name;
       if (typeof q !== 'string' || !q.trim()) continue;
       const traffic =
         typeof item?.formattedTraffic === 'string'
@@ -141,7 +141,7 @@ function parseRealTimeTrends(jsonStr) {
         .filter((x) => typeof x === 'string' && x.trim())
         .join('. ');
       if (line) {
-        why = line.slice(0, 4000);
+        why = line.slice(0, 4050);
         break;
       }
     }
@@ -590,7 +590,7 @@ function attachMatches(topics, posts, matchPerTopic, g) {
     const matches = [];
     const candidates =
       t.category_key === 'India' &&
-      (t.source === 'daily' || t.source === 'realtime' || t.source === 'google_news')
+        (t.source === 'daily' || t.source === 'realtime' || t.source === 'google_news')
         ? posts
         : posts.filter((p) => p.category === t.category_key);
     for (const p of candidates) {

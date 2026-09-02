@@ -1,5 +1,5 @@
 /**
- * PolicyDrift — Deduplication & String Utility Tests
+ * NewsFree365 — Deduplication & String Utility Tests
  *
  * Tests the pure utility functions used during RSS ingestion for duplicate
  * detection.  No database required — all logic under test is stateless.
@@ -85,8 +85,8 @@ describe('toCleanString', () => {
   });
 
   test('Buffer is decoded as UTF-8 and trimmed', () => {
-    const buf = Buffer.from('  PolicyDrift  ', 'utf8');
-    assert.equal(toCleanString(buf), 'PolicyDrift');
+    const buf = Buffer.from('  NewsFree365  ', 'utf8');
+    assert.equal(toCleanString(buf), 'NewsFree365');
   });
 
   test('Buffer with UTF-8 multibyte chars decoded correctly', () => {

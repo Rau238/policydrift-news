@@ -18,12 +18,12 @@ async function start() {
   }
 
   app.listen(env.PORT, () => {
-    console.log(`PolicyDrift API listening on http://localhost:${env.PORT}`);
+    console.log(`NewsFree365 API listening on http://localhost:${env.PORT}`);
   });
 
   const feedCount = getFeedEntries(env).length;
   if (env.CRON_ENABLED && feedCount > 0 && !env.WORKER_ENABLED) {
-    // When WORKER_ENABLED=true a dedicated policydrift-worker PM2 process
+    // When WORKER_ENABLED=true a dedicated newsfree365-worker PM2 process
     // runs the ingest cron — skip it here to avoid double-ingestion.
     const n = env.RSS_CRON_INTERVAL_MINUTES;
     cron.schedule(`*/${n} * * * *`, async () => {
@@ -37,7 +37,7 @@ async function start() {
     });
     console.log(`Cron: RSS ingest every ${n} minute(s) (${feedCount} feed(s))`);
   } else if (env.WORKER_ENABLED) {
-    console.log('Cron: RSS ingest delegated to policydrift-worker process.');
+    console.log('Cron: RSS ingest delegated to newsfree365-worker process.');
   }
 
   if (env.CRON_ENABLED && env.TRENDS_ENABLED && env.TRENDS_CRON) {

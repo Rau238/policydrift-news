@@ -12,7 +12,7 @@ function isLocalFallbackPath(s: string): boolean {
 
 /**
  * Progressive story image:
- * Branded PolicyDrift logo with vibrant category shade while loading → full image fades in sharp once loaded.
+ * Branded NewsFree365 logo with vibrant category shade while loading → full image fades in sharp once loaded.
  */
 type Props = {
   src: string;
@@ -115,7 +115,7 @@ export function RemoteStoryImage({
 
   return (
     <span ref={wrapRef} style={{ backgroundColor: bgHex }} className="relative block h-full w-full overflow-hidden">
-      {/* Branded PolicyDrift Logo with Vibrant Card Shade while loading */}
+      {/* Branded NewsFree365 Logo with Vibrant Card Shade while loading */}
       <span
         style={{
           background: `radial-gradient(circle at center, ${bgHex}d9 0%, ${bgHex} 100%)`,
@@ -130,7 +130,7 @@ export function RemoteStoryImage({
           <BrandMark sizeClass={compact ? 'h-8 w-8' : 'h-12 w-12'} className="animate-pulse shadow-black/40 ring-white/30" />
           {!compact ? (
             <span className="text-[10px] font-bold tracking-widest text-white/90 uppercase drop-shadow-sm">
-              PolicyDrift
+              NewsFree365
             </span>
           ) : null}
         </span>

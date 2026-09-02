@@ -35,7 +35,7 @@ TRIBUNA_MATCHES_URL = "https://tribuna.com/en/match/"
 class AsyncTribunaFootballScraper:
     """Production asynchronous Playwright scraper for Tribuna football match data."""
 
-    def __init__(self, headless: bool = True, timeout: int = 40000):
+    def __init__(self, headless: bool = True, timeout: int = 40500):
         self.headless = headless
         self.timeout = timeout
         self._playwright = None

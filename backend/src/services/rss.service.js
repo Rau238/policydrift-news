@@ -7,7 +7,7 @@ const parser = new Parser({
   headers: {
     /* Some publishers (e.g. Moneycontrol) return 403 to generic “bot” UAs; keep a normal browser string. */
     'User-Agent':
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 PolicyDrift/1.0',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 NewsFree365/1.0',
     Accept: 'application/rss+xml, application/xml, text/xml;q=0.9,*/*;q=0.8',
   },
   customFields: {
@@ -279,7 +279,7 @@ export async function fetchLeadImageFromArticlePage(articleUrl, timeoutMs = 3200
       headers: {
         Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
         'User-Agent':
-          'Mozilla/5.0 (compatible; PolicyDriftBot/1.0; +https://policydrift.local) AppleWebKit/537.36',
+          'Mozilla/5.0 (compatible; NewsFree365Bot/1.0; +https://www.newsfree365.live) AppleWebKit/537.36',
       },
     });
     if (!res.ok) return null;

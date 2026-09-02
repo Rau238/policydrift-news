@@ -38,8 +38,8 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
         card: 'summary_large_image',
         title: `${title} | ${siteName}`,
         description,
-        site: '@policydrift',
-        creator: '@policydrift',
+        site: '@newsfree365',
+        creator: '@newsfree365',
         images: [ogImage],
       },
       robots: {
@@ -77,8 +77,8 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       card: 'summary_large_image',
       title: `${title} | ${siteName}`,
       description,
-      site: '@policydrift',
-      creator: '@policydrift',
+      site: '@newsfree365',
+      creator: '@newsfree365',
       images: [ogImage],
     },
     robots: {

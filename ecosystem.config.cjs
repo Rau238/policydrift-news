@@ -1,12 +1,4 @@
-/**
- * PM2 — production API + Next web.
- * Env files: repo root `.env.production` (loaded by backend env.js + dotenv in start).
- *
- * Usage (from repo root):
- *   npm run build:prod
- *   npm run pm2:start
- *   pm2 save
- */
+
 const path = require('path');
 const fs = require('fs');
 const dotenv = require('dotenv');
@@ -20,13 +12,16 @@ const fileEnv = {
   ...dotenv.parse(fs.existsSync(prodEnvPath) ? fs.readFileSync(prodEnvPath) : ''),
 };
 
-const webPort = String(fileEnv.WEB_PORT || process.env.WEB_PORT || '3000');
-const apiPort = String(fileEnv.API_PORT || process.env.API_PORT || '4000');
+const webPort = String(fileEnv.WEB_PORT || process.env.WEB_PORT || '3050');
+const apiPort = String(fileEnv.API_PORT || process.env.API_PORT || '4050');
 
 module.exports = {
   apps: [
+    // ─────────────────────────────────────────────────────────────────────────
+    // WORKER — RSS ingestion cron (runs independently, NEVER scales > 1)
+    // ─────────────────────────────────────────────────────────────────────────
     {
-      name: 'policydrift-worker',
+      name: 'newsfree365-worker',
       cwd: path.join(root, 'backend'),
       script: 'src/workers/worker.js',
       interpreter: 'node',
@@ -38,12 +33,16 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         API_PORT: apiPort,
-        WORKER_ENABLED: 'true', // tells policydrift-api to skip its RSS cron
+        WORKER_ENABLED: 'true',
         ...fileEnv,
       },
     },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // API — Express backend on port 4050
+    // ─────────────────────────────────────────────────────────────────────────
     {
-      name: 'policydrift-api',
+      name: 'newsfree365-api',
       cwd: path.join(root, 'backend'),
       script: 'src/server.js',
       interpreter: 'node',
@@ -59,8 +58,12 @@ module.exports = {
         ...fileEnv,
       },
     },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // WEB — Next.js frontend on port 3050
+    // ─────────────────────────────────────────────────────────────────────────
     {
-      name: 'policydrift-web',
+      name: 'newsfree365-web',
       cwd: path.join(root, 'frontend'),
       script: 'node_modules/next/dist/bin/next',
       args: `start -p ${webPort}`,
@@ -73,15 +76,20 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         WEB_PORT: webPort,
+        PORT: webPort,
         ...fileEnv,
       },
     },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // SPORTS HUB — Unified Cricket + Football scraper daemon
+    // Runs cricbuzz_scraper/hub.py (PM2 script must be a real file path)
+    // ─────────────────────────────────────────────────────────────────────────
     {
-      name: 'policydrift-sports',
+      name: 'newsfree365-sports',
       cwd: root,
-      script: 'python',
-      args: '-m cricbuzz_scraper.cli hub',
-      interpreter: 'none',
+      script: path.join(root, 'cricbuzz_scraper', 'hub.py'),
+      interpreter: 'python',
       instances: 1,
       exec_mode: 'fork',
       autorestart: true,
@@ -90,6 +98,7 @@ module.exports = {
       env_production: {
         PYTHONUNBUFFERED: '1',
         PYTHONPATH: root,
+        ...fileEnv,
       },
     },
   ],

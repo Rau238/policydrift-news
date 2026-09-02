@@ -1,7 +1,7 @@
 /**
- * PolicyDrift — Background Worker
+ * NewsFree365 — Background Worker
  *
- * Run as a dedicated PM2 process (policydrift-worker) so background jobs are
+ * Run as a dedicated PM2 process (newsfree365-worker) so background jobs are
  * isolated from the API process and never block HTTP responses.
  *
  * Cron jobs:

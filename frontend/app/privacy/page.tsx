@@ -14,14 +14,14 @@ import {
 
 export const metadata = legalMetadata(
   'Privacy Policy & Data Protection',
-  'PolicyDrift is built privacy-first. Learn how we handle server telemetry, cookies, and protect user data.',
+  'NewsFree365 is built privacy-first. Learn how we handle server telemetry, cookies, and protect user data.',
 );
 
 export default function PrivacyPage() {
   return (
     <LegalPageShell
       title="Privacy Policy"
-      subtitle="Transparency on how PolicyDrift handles technical data, respects your privacy, and safeguards your digital rights."
+      subtitle="Transparency on how NewsFree365 handles technical data, respects your privacy, and safeguards your digital rights."
       badge="Privacy & Security"
       lastUpdated="August 2026"
       activePath="/privacy"
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
           <span>1. Commitment to Reader Privacy</span>
         </h2>
         <p>
-          At PolicyDrift (<code>https://www.policydrift.live</code>), we believe reading the news should never come at the cost of your personal privacy.
+          At NewsFree365 (<code>https://www.newsfree365.live</code>), we believe reading the news should never come at the cost of your personal privacy.
           Our architecture is built privacy-first: <strong>we do not sell user data, we do not deploy invasive cross-site tracking beacons, and we do not require account registration to read our stories.</strong>
         </p>
         <p>
@@ -67,7 +67,7 @@ export default function PrivacyPage() {
               <span>No Forced User Accounts</span>
             </span>
             <p className="text-xs text-slate-400">
-              General readership on PolicyDrift does not require creating an account, supplying email addresses, or sharing phone numbers. Administrative portals are restricted to authorized editorial staff.
+              General readership on NewsFree365 does not require creating an account, supplying email addresses, or sharing phone numbers. Administrative portals are restricted to authorized editorial staff.
             </p>
           </div>
 
@@ -90,7 +90,7 @@ export default function PrivacyPage() {
           <span>3. Cookies & Tracking Technologies</span>
         </h2>
         <p>
-          PolicyDrift uses essential, non-invasive cookies for load balancing, security session integrity, and edge caching. For comprehensive details on cookie categorization and how to manage browser storage settings, review our dedicated{' '}
+          NewsFree365 uses essential, non-invasive cookies for load balancing, security session integrity, and edge caching. For comprehensive details on cookie categorization and how to manage browser storage settings, review our dedicated{' '}
           <Link href="/cookies" className="font-semibold text-emerald-400 hover:underline">
             Cookie Policy
           </Link>
@@ -105,7 +105,7 @@ export default function PrivacyPage() {
           <span>4. Outbound Links & External Publishers</span>
         </h2>
         <p>
-          PolicyDrift provides direct canonical links to original news publishers and official sources. Once you click an outbound link to an external website, their respective privacy policies and terms apply. We encourage you to review the privacy statements of any external properties you visit.
+          NewsFree365 provides direct canonical links to original news publishers and official sources. Once you click an outbound link to an external website, their respective privacy policies and terms apply. We encourage you to review the privacy statements of any external properties you visit.
         </p>
       </section>
 

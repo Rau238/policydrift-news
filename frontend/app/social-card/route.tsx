@@ -7,7 +7,7 @@ export const runtime = 'edge';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const title = searchParams.get('title') || 'PolicyDrift — Verified Global Intelligence';
+    const title = searchParams.get('title') || 'NewsFree365 — Verified Global Intelligence';
     const category = searchParams.get('category') || 'NEWS';
     const ratio = searchParams.get('ratio') || '1.91:1';
     const bgImage = searchParams.get('image') || '';
@@ -133,7 +133,7 @@ export async function GET(req: NextRequest) {
                 textShadow: '0 2px 14px rgba(0, 0, 0, 0.9)',
               }}
             >
-              PolicyDrift
+              NewsFree365
             </span>
           </div>
 

@@ -4,8 +4,8 @@ import { Mail, MapPin, Building2, HelpCircle, PhoneCall, ShieldCheck } from 'luc
 import { contactAddressLines, contactEmail, editorialEmail, privacyEmail } from '@/lib/site-trust';
 
 export const metadata = legalMetadata(
-  'Contact PolicyDrift News Desk',
-  'Reach PolicyDrift for editorial corrections, publisher syndication, legal notices, and newsroom inquiries.',
+  'Contact NewsFree365 News Desk',
+  'Reach NewsFree365 for editorial corrections, publisher syndication, legal notices, and newsroom inquiries.',
 );
 
 export default function ContactPage() {
@@ -17,7 +17,7 @@ export default function ContactPage() {
   return (
     <LegalPageShell
       title="Contact Newsroom"
-      subtitle="Reach the PolicyDrift desk for corrections, publisher partnerships, privacy requests, and operational inquiries."
+      subtitle="Reach the NewsFree365 desk for corrections, publisher partnerships, privacy requests, and operational inquiries."
       badge="Newsroom Desk"
       lastUpdated="August 2026"
       activePath="/contact"

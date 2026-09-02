@@ -208,11 +208,10 @@ function MetricCard({
   return (
     <div
       onClick={onClick}
-      className={`relative overflow-hidden rounded-xl border p-4 transition-all duration-200 ${
-        active
+      className={`relative overflow-hidden rounded-xl border p-4 transition-all duration-200 ${active
           ? 'border-teal-500/60 bg-teal-950/20 shadow-lg shadow-teal-950/40 ring-1 ring-teal-500/30'
           : 'border-slate-800/80 bg-[#0c1220]/80 hover:border-slate-700/80 hover:bg-[#0f172a]/80'
-      } ${onClick ? 'cursor-pointer' : ''}`}
+        } ${onClick ? 'cursor-pointer' : ''}`}
     >
       <div className="flex items-center justify-between">
         <div>
@@ -327,7 +326,7 @@ function DashboardContent() {
   // Floating Toast Helper (never causes layout shift)
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message });
-    setTimeout(() => setFeedback(null), 4000);
+    setTimeout(() => setFeedback(null), 4050);
   };
 
   // ─── Fetch Stats ─────────────────────────────────────────────────────────────
@@ -701,33 +700,30 @@ function DashboardContent() {
             <div className="flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900/90 p-1 overflow-x-auto max-w-full no-scrollbar shrink-0">
               <button
                 onClick={() => router.push('/admin/dashboard', { scroll: false })}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
-                  !statusParam
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${!statusParam
                     ? 'bg-teal-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
-                }`}
+                  }`}
               >
                 <BarChart3 size={14} />
                 <span>Executive Charts</span>
               </button>
               <button
                 onClick={() => handleStatusChange('all')}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
-                  statusParam && statusParam !== 'pending'
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${statusParam && statusParam !== 'pending'
                     ? 'bg-teal-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
-                }`}
+                  }`}
               >
                 <Newspaper size={14} />
                 <span>Articles Table</span>
               </button>
               <button
                 onClick={() => handleStatusChange('pending')}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
-                  statusParam === 'pending'
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${statusParam === 'pending'
                     ? 'bg-amber-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
-                }`}
+                  }`}
               >
                 <Clock size={14} />
                 <span>Review Queue</span>
@@ -892,471 +888,466 @@ function DashboardContent() {
 
               {/* Table Container */}
               <section className="relative rounded-xl border border-slate-800/80 bg-[#0c1220]/90 shadow-xl backdrop-blur-md min-h-[500px]">
-            {/* Filter Toolbar */}
-            <div className="border-b border-slate-800/80 p-4 space-y-3">
-              {/* Top Row: Search & Filters */}
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                {/* Search Bar */}
-                <div className="relative flex-1 max-w-md">
-                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-                  <input
-                    type="text"
-                    placeholder="Search by title, excerpt, or slug..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-lg border border-slate-800 bg-slate-900/90 pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 outline-none transition focus:border-teal-500 focus:ring-1 focus:ring-teal-500/40"
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
-                    >
-                      <X size={14} />
-                    </button>
-                  )}
-                </div>
-
-                {/* Dropdown Filters */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <select
-                    value={categoryFilter}
-                    onChange={(e) => {
-                      setCategoryFilter(e.target.value);
-                      setPage(1);
-                    }}
-                    className="rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-200 outline-none transition focus:border-teal-500 capitalize"
-                  >
-                    {CATEGORIES.map((c) => (
-                      <option key={c} value={c} className="capitalize">
-                        {c === 'all' ? 'All Categories' : c}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    value={sortOption}
-                    onChange={(e) => {
-                      setSortOption(e.target.value);
-                      setPage(1);
-                    }}
-                    className="rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-200 outline-none transition focus:border-teal-500"
-                  >
-                    <option value="created_at_desc">Newest Ingested</option>
-                    <option value="published_at_desc">Latest Published</option>
-                    <option value="views">Most Views</option>
-                    <option value="trending">Trending Score</option>
-                    <option value="top">Top Ranked</option>
-                    <option value="oldest">Oldest First</option>
-                  </select>
-
-                  <select
-                    value={limit}
-                    onChange={(e) => {
-                      setLimit(Number(e.target.value));
-                      setPage(1);
-                    }}
-                    className="rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-200 outline-none transition focus:border-teal-500"
-                  >
-                    <option value={10}>10 / page</option>
-                    <option value={20}>20 / page</option>
-                    <option value={50}>50 / page</option>
-                    <option value={100}>100 / page</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Status Filter Tabs */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {[
-                    { key: 'all', label: 'All Articles', count: stats.total },
-                    { key: 'published', label: 'Published', count: stats.published },
-                    { key: 'pending', label: 'Review Queue', count: stats.pending },
-                    { key: 'draft', label: 'Drafts', count: stats.draft },
-                    { key: 'archived', label: 'Archived', count: stats.archived },
-                  ].map((tab) => (
-                    <button
-                      key={tab.key}
-                      onClick={() => handleStatusChange(tab.key)}
-                      className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                        statusFilter === tab.key
-                          ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40 shadow-sm'
-                          : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 border border-transparent'
-                      }`}
-                    >
-                      <span>{tab.label}</span>
-                      <span
-                        className={`rounded-full px-1.5 py-0.2 text-[10px] tabular-nums ${
-                          statusFilter === tab.key ? 'bg-teal-500/30 text-teal-200' : 'bg-slate-800 text-slate-400'
-                        }`}
-                      >
-                        {fmtNum(tab.count)}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-
-                {stats.pending > 0 && statusFilter !== 'pending' && (
-                  <button
-                    onClick={handlePublishAllPending}
-                    disabled={publishingAllPending}
-                    className="flex items-center gap-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 px-3 py-1.5 text-xs font-bold text-emerald-300 hover:bg-emerald-900/60 hover:text-emerald-200 transition shadow-sm active:scale-95 disabled:opacity-50"
-                    title={`Publish all ${stats.pending} review queue articles`}
-                  >
-                    {publishingAllPending ? (
-                      <Loader2 size={13} className="animate-spin text-emerald-400" />
-                    ) : (
-                      <CheckCircle2 size={13} className="text-emerald-400" />
-                    )}
-                    <span>Publish All Review ({stats.pending})</span>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Review Queue Banner when filtering by pending */}
-            {statusFilter === 'pending' && stats.pending > 0 && (
-              <div className="m-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-slate-900/90 to-emerald-950/30 p-4 shadow-lg">
-                <div className="flex items-start sm:items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-inner">
-                    <Clock size={20} />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-white">Editorial Review Queue</h3>
-                      <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
-                        {stats.pending} Pending Articles
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-300 mt-0.5">
-                      Articles from RSS feeds awaiting editorial clearance. Click to publish all {stats.pending} articles to the public site in one click.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={handlePublishAllPending}
-                    disabled={publishingAllPending || stats.pending === 0}
-                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-emerald-950/60 transition hover:from-emerald-500 hover:to-teal-500 active:scale-95 disabled:opacity-50"
-                  >
-                    {publishingAllPending ? (
-                      <Loader2 size={15} className="animate-spin text-white" />
-                    ) : (
-                      <CheckCircle2 size={15} className="text-white" />
-                    )}
-                    <span>Publish All {stats.pending} Review Articles</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Stable Table Container */}
-            <div className="relative overflow-x-auto">
-              <table className="w-full min-w-[1020px] table-fixed border-collapse text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-800/80 bg-slate-900/60 font-bold uppercase tracking-wider text-slate-400">
-                    {/* Checkbox Column */}
-                    <th className="w-12 px-4 py-3.5 text-center">
-                      <button
-                        onClick={toggleSelectAll}
-                        title={isAllSelected ? 'Deselect all' : 'Select all on this page'}
-                        className="inline-flex items-center justify-center text-slate-400 hover:text-teal-400 transition"
-                      >
-                        {isAllSelected ? (
-                          <CheckSquare size={16} className="text-teal-400" />
-                        ) : isPartiallySelected ? (
-                          <MinusSquare size={16} className="text-teal-400" />
-                        ) : (
-                          <Square size={16} />
-                        )}
-                      </button>
-                    </th>
-                    <th className="w-80 px-4 py-3.5">Article Details</th>
-                    <th className="w-28 px-3 py-3.5">Category</th>
-                    <th className="w-24 px-3 py-3.5">Status</th>
-                    <th className="w-28 px-3 py-3.5">Engagement</th>
-                    <th className="w-28 px-3 py-3.5">Promotions</th>
-                    <th className="w-24 px-3 py-3.5">Priority</th>
-                    <th className="w-36 px-4 py-3.5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60">
-                  {loading ? (
-                    // Stable Skeleton Rows (prevents layout collapse)
-                    Array.from({ length: 8 }).map((_, idx) => (
-                      <tr key={idx} className="h-16 animate-pulse bg-slate-900/20">
-                        <td className="px-4 py-3 text-center">
-                          <div className="mx-auto h-4 w-4 rounded bg-slate-800" />
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="h-4 w-3/4 rounded bg-slate-800 mb-1.5" />
-                          <div className="h-3 w-1/2 rounded bg-slate-800/60" />
-                        </td>
-                        <td className="px-3 py-3">
-                          <div className="h-5 w-16 rounded bg-slate-800" />
-                        </td>
-                        <td className="px-3 py-3">
-                          <div className="h-5 w-20 rounded bg-slate-800" />
-                        </td>
-                        <td className="px-3 py-3">
-                          <div className="h-4 w-12 rounded bg-slate-800" />
-                        </td>
-                        <td className="px-3 py-3">
-                          <div className="h-5 w-16 rounded bg-slate-800" />
-                        </td>
-                        <td className="px-3 py-3">
-                          <div className="h-5 w-14 rounded bg-slate-800" />
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="inline-block h-6 w-24 rounded bg-slate-800" />
-                        </td>
-                      </tr>
-                    ))
-                  ) : articles.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className="py-20 text-center text-slate-400">
-                        <Newspaper size={36} className="mx-auto mb-2 text-slate-600" />
-                        <p className="text-sm font-semibold text-slate-300">No articles found</p>
-                        <p className="mt-1 text-xs text-slate-500">
-                          Try adjusting your search query, status filters, or category.
-                        </p>
-                      </td>
-                    </tr>
-                  ) : (
-                    articles.map((item) => {
-                      const isSelected = selectedIds.includes(Number(item.id));
-                      const isRowLoading = actionLoading?.startsWith(`${item.id}:`);
-
-                      return (
-                        <tr
-                          key={item.id}
-                          className={`group transition-colors ${
-                            isSelected ? 'bg-teal-950/20' : 'hover:bg-slate-800/40'
-                          }`}
+                {/* Filter Toolbar */}
+                <div className="border-b border-slate-800/80 p-4 space-y-3">
+                  {/* Top Row: Search & Filters */}
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    {/* Search Bar */}
+                    <div className="relative flex-1 max-w-md">
+                      <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input
+                        type="text"
+                        placeholder="Search by title, excerpt, or slug..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full rounded-lg border border-slate-800 bg-slate-900/90 pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 outline-none transition focus:border-teal-500 focus:ring-1 focus:ring-teal-500/40"
+                      />
+                      {searchQuery && (
+                        <button
+                          onClick={() => setSearchQuery('')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
                         >
-                          {/* Checkbox */}
-                          <td className="px-4 py-3.5 text-center">
-                            <button
-                              onClick={() => toggleSelectRow(Number(item.id))}
-                              className="inline-flex items-center justify-center text-slate-400 hover:text-teal-400 transition"
-                            >
-                              {isSelected ? (
-                                <CheckSquare size={16} className="text-teal-400" />
-                              ) : (
-                                <Square size={16} />
-                              )}
-                            </button>
-                          </td>
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
 
-                          {/* Article Title & Source */}
-                          <td className="px-4 py-3.5">
-                            <div className="space-y-1">
-                              <button
-                                onClick={() => setPreviewArticle(item)}
-                                className="text-left font-semibold text-slate-100 hover:text-teal-300 transition-colors line-clamp-1"
-                                title={item.title}
-                              >
-                                {item.title}
-                              </button>
-                              <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                                {item.source_name && (
-                                  <span className="font-medium text-teal-400/90 truncate max-w-[120px]">
-                                    {item.source_name}
-                                  </span>
-                                )}
-                                <span>•</span>
-                                <span className="tabular-nums">{fmtDate(item.created_at)}</span>
-                              </div>
-                            </div>
-                          </td>
+                    {/* Dropdown Filters */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
+                        value={categoryFilter}
+                        onChange={(e) => {
+                          setCategoryFilter(e.target.value);
+                          setPage(1);
+                        }}
+                        className="rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-200 outline-none transition focus:border-teal-500 capitalize"
+                      >
+                        {CATEGORIES.map((c) => (
+                          <option key={c} value={c} className="capitalize">
+                            {c === 'all' ? 'All Categories' : c}
+                          </option>
+                        ))}
+                      </select>
 
-                          {/* Category */}
-                          <td className="px-3 py-3.5 whitespace-nowrap">
-                            <span className="inline-flex items-center rounded border border-slate-800 bg-slate-900 px-2 py-0.5 text-[11px] font-medium capitalize text-slate-300">
-                              {item.category}
-                            </span>
-                          </td>
+                      <select
+                        value={sortOption}
+                        onChange={(e) => {
+                          setSortOption(e.target.value);
+                          setPage(1);
+                        }}
+                        className="rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-200 outline-none transition focus:border-teal-500"
+                      >
+                        <option value="created_at_desc">Newest Ingested</option>
+                        <option value="published_at_desc">Latest Published</option>
+                        <option value="views">Most Views</option>
+                        <option value="trending">Trending Score</option>
+                        <option value="top">Top Ranked</option>
+                        <option value="oldest">Oldest First</option>
+                      </select>
 
-                          {/* Status */}
-                          <td className="px-3 py-3.5 whitespace-nowrap">
-                            <StatusBadge status={item.status} />
-                          </td>
+                      <select
+                        value={limit}
+                        onChange={(e) => {
+                          setLimit(Number(e.target.value));
+                          setPage(1);
+                        }}
+                        className="rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-200 outline-none transition focus:border-teal-500"
+                      >
+                        <option value={10}>10 / page</option>
+                        <option value={20}>20 / page</option>
+                        <option value={50}>50 / page</option>
+                        <option value={100}>100 / page</option>
+                      </select>
+                    </div>
+                  </div>
 
-                          {/* Engagement */}
-                          <td className="px-3 py-3.5 whitespace-nowrap text-slate-300 tabular-nums">
-                            <div className="flex items-center gap-1.5">
-                              <Eye size={12} className="text-slate-400" />
-                              <span>{fmtNum(item.view_count || item.views)}</span>
-                            </div>
-                          </td>
+                  {/* Status Filter Tabs */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {[
+                        { key: 'all', label: 'All Articles', count: stats.total },
+                        { key: 'published', label: 'Published', count: stats.published },
+                        { key: 'pending', label: 'Review Queue', count: stats.pending },
+                        { key: 'draft', label: 'Drafts', count: stats.draft },
+                        { key: 'archived', label: 'Archived', count: stats.archived },
+                      ].map((tab) => (
+                        <button
+                          key={tab.key}
+                          onClick={() => handleStatusChange(tab.key)}
+                          className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${statusFilter === tab.key
+                              ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40 shadow-sm'
+                              : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 border border-transparent'
+                            }`}
+                        >
+                          <span>{tab.label}</span>
+                          <span
+                            className={`rounded-full px-1.5 py-0.2 text-[10px] tabular-nums ${statusFilter === tab.key ? 'bg-teal-500/30 text-teal-200' : 'bg-slate-800 text-slate-400'
+                              }`}
+                          >
+                            {fmtNum(tab.count)}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
 
-                          {/* Featured & Breaking Pills */}
-                          <td className="px-3 py-3.5 whitespace-nowrap">
-                            <div className="flex items-center gap-1">
-                              {/* Featured Toggle */}
-                              <button
-                                onClick={() =>
-                                  handleSingleAction(
-                                    item.id,
-                                    item.is_featured ? 'unfeature' : 'feature',
-                                    { hours: 24 }
-                                  )
-                                }
-                                disabled={isRowLoading}
-                                title={item.is_featured ? 'Click to unfeature' : 'Feature for 24h'}
-                                className={`rounded p-1 transition ${
-                                  item.is_featured
-                                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                                    : 'text-slate-600 hover:text-slate-300'
-                                }`}
-                              >
-                                <Star size={13} className={item.is_featured ? 'fill-amber-400 text-amber-400' : ''} />
-                              </button>
+                    {stats.pending > 0 && statusFilter !== 'pending' && (
+                      <button
+                        onClick={handlePublishAllPending}
+                        disabled={publishingAllPending}
+                        className="flex items-center gap-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 px-3 py-1.5 text-xs font-bold text-emerald-300 hover:bg-emerald-900/60 hover:text-emerald-200 transition shadow-sm active:scale-95 disabled:opacity-50"
+                        title={`Publish all ${stats.pending} review queue articles`}
+                      >
+                        {publishingAllPending ? (
+                          <Loader2 size={13} className="animate-spin text-emerald-400" />
+                        ) : (
+                          <CheckCircle2 size={13} className="text-emerald-400" />
+                        )}
+                        <span>Publish All Review ({stats.pending})</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
 
-                              {/* Breaking Toggle */}
-                              <button
-                                onClick={() =>
-                                  handleSingleAction(
-                                    item.id,
-                                    item.is_breaking ? 'unbreaking' : 'breaking',
-                                    { hours: 2 }
-                                  )
-                                }
-                                disabled={isRowLoading}
-                                title={item.is_breaking ? 'Click to unmark breaking' : 'Mark breaking for 2h'}
-                                className={`rounded p-1 transition ${
-                                  item.is_breaking
-                                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                                    : 'text-slate-600 hover:text-slate-300'
-                                }`}
-                              >
-                                <Zap size={13} className={item.is_breaking ? 'fill-rose-400 text-rose-400' : ''} />
-                              </button>
-                            </div>
-                          </td>
+                {/* Review Queue Banner when filtering by pending */}
+                {statusFilter === 'pending' && stats.pending > 0 && (
+                  <div className="m-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-slate-900/90 to-emerald-950/30 p-4 shadow-lg">
+                    <div className="flex items-start sm:items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-inner">
+                        <Clock size={20} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-bold text-white">Editorial Review Queue</h3>
+                          <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
+                            {stats.pending} Pending Articles
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-300 mt-0.5">
+                          Articles from RSS feeds awaiting editorial clearance. Click to publish all {stats.pending} articles to the public site in one click.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={handlePublishAllPending}
+                        disabled={publishingAllPending || stats.pending === 0}
+                        className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-emerald-950/60 transition hover:from-emerald-500 hover:to-teal-500 active:scale-95 disabled:opacity-50"
+                      >
+                        {publishingAllPending ? (
+                          <Loader2 size={15} className="animate-spin text-white" />
+                        ) : (
+                          <CheckCircle2 size={15} className="text-white" />
+                        )}
+                        <span>Publish All {stats.pending} Review Articles</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-                          {/* Priority */}
-                          <td className="px-3 py-3.5 whitespace-nowrap">
-                            <select
-                              value={item.editorial_priority || 'normal'}
-                              onChange={(e) =>
-                                handlePriorityChange(
-                                  item.id,
-                                  e.target.value as 'normal' | 'high' | 'pinned'
-                                )
-                              }
-                              disabled={isRowLoading}
-                              className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5 text-[11px] text-slate-300 outline-none capitalize"
-                            >
-                              <option value="normal">Normal</option>
-                              <option value="high">High</option>
-                              <option value="pinned">Pinned</option>
-                            </select>
-                          </td>
-
-                          {/* Action Buttons */}
-                          <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                            <div className="flex items-center justify-end gap-1.5">
-                              {/* Publish / Unpublish Toggle */}
-                              {item.status === 'published' ? (
-                                <button
-                                  onClick={() => handleSingleAction(item.id, 'unpublish')}
-                                  disabled={isRowLoading}
-                                  title="Unpublish to Draft"
-                                  className="rounded border border-slate-700 bg-slate-800/80 px-2 py-1 text-[11px] font-semibold text-slate-300 transition hover:bg-slate-700"
-                                >
-                                  Draft
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => handleSingleAction(item.id, 'publish')}
-                                  disabled={isRowLoading}
-                                  title="Publish article live"
-                                  className="rounded border border-emerald-500/30 bg-emerald-950/30 px-2 py-1 text-[11px] font-semibold text-emerald-300 transition hover:bg-emerald-900/50"
-                                >
-                                  Publish
-                                </button>
-                              )}
-
-                              {/* Create Social Post */}
-                              <button
-                                onClick={() => setSocialModalArticle(item)}
-                                title="Create Branded Social Media Post"
-                                className="rounded p-1 text-teal-400 hover:bg-teal-950/50 hover:text-teal-300 transition"
-                              >
-                                <Share2 size={13} />
-                              </button>
-
-                              {/* View Details Modal */}
-                              <button
-                                onClick={() => setPreviewArticle(item)}
-                                title="Preview article"
-                                className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white transition"
-                              >
-                                <Eye size={13} />
-                              </button>
-
-                              {/* Archive / Delete */}
-                              <button
-                                onClick={() => handleDeleteArticle(item.id)}
-                                disabled={isRowLoading}
-                                title="Archive article"
-                                className="rounded p-1 text-slate-500 hover:bg-rose-950/40 hover:text-rose-400 transition"
-                              >
-                                <Trash2 size={13} />
-                              </button>
-                            </div>
+                {/* Stable Table Container */}
+                <div className="relative overflow-x-auto">
+                  <table className="w-full min-w-[1020px] table-fixed border-collapse text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800/80 bg-slate-900/60 font-bold uppercase tracking-wider text-slate-400">
+                        {/* Checkbox Column */}
+                        <th className="w-12 px-4 py-3.5 text-center">
+                          <button
+                            onClick={toggleSelectAll}
+                            title={isAllSelected ? 'Deselect all' : 'Select all on this page'}
+                            className="inline-flex items-center justify-center text-slate-400 hover:text-teal-400 transition"
+                          >
+                            {isAllSelected ? (
+                              <CheckSquare size={16} className="text-teal-400" />
+                            ) : isPartiallySelected ? (
+                              <MinusSquare size={16} className="text-teal-400" />
+                            ) : (
+                              <Square size={16} />
+                            )}
+                          </button>
+                        </th>
+                        <th className="w-80 px-4 py-3.5">Article Details</th>
+                        <th className="w-28 px-3 py-3.5">Category</th>
+                        <th className="w-24 px-3 py-3.5">Status</th>
+                        <th className="w-28 px-3 py-3.5">Engagement</th>
+                        <th className="w-28 px-3 py-3.5">Promotions</th>
+                        <th className="w-24 px-3 py-3.5">Priority</th>
+                        <th className="w-36 px-4 py-3.5 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {loading ? (
+                        // Stable Skeleton Rows (prevents layout collapse)
+                        Array.from({ length: 8 }).map((_, idx) => (
+                          <tr key={idx} className="h-16 animate-pulse bg-slate-900/20">
+                            <td className="px-4 py-3 text-center">
+                              <div className="mx-auto h-4 w-4 rounded bg-slate-800" />
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="h-4 w-3/4 rounded bg-slate-800 mb-1.5" />
+                              <div className="h-3 w-1/2 rounded bg-slate-800/60" />
+                            </td>
+                            <td className="px-3 py-3">
+                              <div className="h-5 w-16 rounded bg-slate-800" />
+                            </td>
+                            <td className="px-3 py-3">
+                              <div className="h-5 w-20 rounded bg-slate-800" />
+                            </td>
+                            <td className="px-3 py-3">
+                              <div className="h-4 w-12 rounded bg-slate-800" />
+                            </td>
+                            <td className="px-3 py-3">
+                              <div className="h-5 w-16 rounded bg-slate-800" />
+                            </td>
+                            <td className="px-3 py-3">
+                              <div className="h-5 w-14 rounded bg-slate-800" />
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="inline-block h-6 w-24 rounded bg-slate-800" />
+                            </td>
+                          </tr>
+                        ))
+                      ) : articles.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="py-20 text-center text-slate-400">
+                            <Newspaper size={36} className="mx-auto mb-2 text-slate-600" />
+                            <p className="text-sm font-semibold text-slate-300">No articles found</p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              Try adjusting your search query, status filters, or category.
+                            </p>
                           </td>
                         </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                      ) : (
+                        articles.map((item) => {
+                          const isSelected = selectedIds.includes(Number(item.id));
+                          const isRowLoading = actionLoading?.startsWith(`${item.id}:`);
 
-            {/* Pagination Toolbar */}
-            <div className="flex flex-col gap-3 border-t border-slate-800/80 p-4 sm:flex-row sm:items-center sm:justify-between text-xs text-slate-400">
-              <div className="flex items-center gap-2">
-                <span>
-                  Showing <strong className="text-white">{articles.length ? (page - 1) * limit + 1 : 0}</strong> to{' '}
-                  <strong className="text-white">{Math.min(page * limit, total)}</strong> of{' '}
-                  <strong className="text-white">{fmtNum(total)}</strong> articles
-                </span>
-                {selectedIds.length > 0 && (
-                  <span className="rounded-full bg-teal-500/20 px-2 py-0.5 text-[11px] font-bold text-teal-300 border border-teal-500/30">
-                    {selectedIds.length} Selected
-                  </span>
-                )}
-              </div>
+                          return (
+                            <tr
+                              key={item.id}
+                              className={`group transition-colors ${isSelected ? 'bg-teal-950/20' : 'hover:bg-slate-800/40'
+                                }`}
+                            >
+                              {/* Checkbox */}
+                              <td className="px-4 py-3.5 text-center">
+                                <button
+                                  onClick={() => toggleSelectRow(Number(item.id))}
+                                  className="inline-flex items-center justify-center text-slate-400 hover:text-teal-400 transition"
+                                >
+                                  {isSelected ? (
+                                    <CheckSquare size={16} className="text-teal-400" />
+                                  ) : (
+                                    <Square size={16} />
+                                  )}
+                                </button>
+                              </td>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1 || loading}
-                  className="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 font-semibold text-slate-300 transition hover:bg-slate-800 disabled:opacity-40"
-                >
-                  <ChevronLeft size={14} />
-                  Previous
-                </button>
-                <span className="px-2 font-medium text-slate-300">
-                  Page {page} of {totalPages}
-                </span>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages || loading}
-                  className="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 font-semibold text-slate-300 transition hover:bg-slate-800 disabled:opacity-40"
-                >
-                  Next
-                  <ChevronRight size={14} />
-                </button>
-              </div>
-            </div>
-          </section>
-        </>
-      )}
-    </div>
-  </main>
+                              {/* Article Title & Source */}
+                              <td className="px-4 py-3.5">
+                                <div className="space-y-1">
+                                  <button
+                                    onClick={() => setPreviewArticle(item)}
+                                    className="text-left font-semibold text-slate-100 hover:text-teal-300 transition-colors line-clamp-1"
+                                    title={item.title}
+                                  >
+                                    {item.title}
+                                  </button>
+                                  <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                                    {item.source_name && (
+                                      <span className="font-medium text-teal-400/90 truncate max-w-[120px]">
+                                        {item.source_name}
+                                      </span>
+                                    )}
+                                    <span>•</span>
+                                    <span className="tabular-nums">{fmtDate(item.created_at)}</span>
+                                  </div>
+                                </div>
+                              </td>
+
+                              {/* Category */}
+                              <td className="px-3 py-3.5 whitespace-nowrap">
+                                <span className="inline-flex items-center rounded border border-slate-800 bg-slate-900 px-2 py-0.5 text-[11px] font-medium capitalize text-slate-300">
+                                  {item.category}
+                                </span>
+                              </td>
+
+                              {/* Status */}
+                              <td className="px-3 py-3.5 whitespace-nowrap">
+                                <StatusBadge status={item.status} />
+                              </td>
+
+                              {/* Engagement */}
+                              <td className="px-3 py-3.5 whitespace-nowrap text-slate-300 tabular-nums">
+                                <div className="flex items-center gap-1.5">
+                                  <Eye size={12} className="text-slate-400" />
+                                  <span>{fmtNum(item.view_count || item.views)}</span>
+                                </div>
+                              </td>
+
+                              {/* Featured & Breaking Pills */}
+                              <td className="px-3 py-3.5 whitespace-nowrap">
+                                <div className="flex items-center gap-1">
+                                  {/* Featured Toggle */}
+                                  <button
+                                    onClick={() =>
+                                      handleSingleAction(
+                                        item.id,
+                                        item.is_featured ? 'unfeature' : 'feature',
+                                        { hours: 24 }
+                                      )
+                                    }
+                                    disabled={isRowLoading}
+                                    title={item.is_featured ? 'Click to unfeature' : 'Feature for 24h'}
+                                    className={`rounded p-1 transition ${item.is_featured
+                                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                        : 'text-slate-600 hover:text-slate-300'
+                                      }`}
+                                  >
+                                    <Star size={13} className={item.is_featured ? 'fill-amber-400 text-amber-400' : ''} />
+                                  </button>
+
+                                  {/* Breaking Toggle */}
+                                  <button
+                                    onClick={() =>
+                                      handleSingleAction(
+                                        item.id,
+                                        item.is_breaking ? 'unbreaking' : 'breaking',
+                                        { hours: 2 }
+                                      )
+                                    }
+                                    disabled={isRowLoading}
+                                    title={item.is_breaking ? 'Click to unmark breaking' : 'Mark breaking for 2h'}
+                                    className={`rounded p-1 transition ${item.is_breaking
+                                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                                        : 'text-slate-600 hover:text-slate-300'
+                                      }`}
+                                  >
+                                    <Zap size={13} className={item.is_breaking ? 'fill-rose-400 text-rose-400' : ''} />
+                                  </button>
+                                </div>
+                              </td>
+
+                              {/* Priority */}
+                              <td className="px-3 py-3.5 whitespace-nowrap">
+                                <select
+                                  value={item.editorial_priority || 'normal'}
+                                  onChange={(e) =>
+                                    handlePriorityChange(
+                                      item.id,
+                                      e.target.value as 'normal' | 'high' | 'pinned'
+                                    )
+                                  }
+                                  disabled={isRowLoading}
+                                  className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5 text-[11px] text-slate-300 outline-none capitalize"
+                                >
+                                  <option value="normal">Normal</option>
+                                  <option value="high">High</option>
+                                  <option value="pinned">Pinned</option>
+                                </select>
+                              </td>
+
+                              {/* Action Buttons */}
+                              <td className="px-4 py-3.5 text-right whitespace-nowrap">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  {/* Publish / Unpublish Toggle */}
+                                  {item.status === 'published' ? (
+                                    <button
+                                      onClick={() => handleSingleAction(item.id, 'unpublish')}
+                                      disabled={isRowLoading}
+                                      title="Unpublish to Draft"
+                                      className="rounded border border-slate-700 bg-slate-800/80 px-2 py-1 text-[11px] font-semibold text-slate-300 transition hover:bg-slate-700"
+                                    >
+                                      Draft
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => handleSingleAction(item.id, 'publish')}
+                                      disabled={isRowLoading}
+                                      title="Publish article live"
+                                      className="rounded border border-emerald-500/30 bg-emerald-950/30 px-2 py-1 text-[11px] font-semibold text-emerald-300 transition hover:bg-emerald-900/50"
+                                    >
+                                      Publish
+                                    </button>
+                                  )}
+
+                                  {/* Create Social Post */}
+                                  <button
+                                    onClick={() => setSocialModalArticle(item)}
+                                    title="Create Branded Social Media Post"
+                                    className="rounded p-1 text-teal-400 hover:bg-teal-950/50 hover:text-teal-300 transition"
+                                  >
+                                    <Share2 size={13} />
+                                  </button>
+
+                                  {/* View Details Modal */}
+                                  <button
+                                    onClick={() => setPreviewArticle(item)}
+                                    title="Preview article"
+                                    className="rounded p-1 text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                                  >
+                                    <Eye size={13} />
+                                  </button>
+
+                                  {/* Archive / Delete */}
+                                  <button
+                                    onClick={() => handleDeleteArticle(item.id)}
+                                    disabled={isRowLoading}
+                                    title="Archive article"
+                                    className="rounded p-1 text-slate-500 hover:bg-rose-950/40 hover:text-rose-400 transition"
+                                  >
+                                    <Trash2 size={13} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination Toolbar */}
+                <div className="flex flex-col gap-3 border-t border-slate-800/80 p-4 sm:flex-row sm:items-center sm:justify-between text-xs text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <span>
+                      Showing <strong className="text-white">{articles.length ? (page - 1) * limit + 1 : 0}</strong> to{' '}
+                      <strong className="text-white">{Math.min(page * limit, total)}</strong> of{' '}
+                      <strong className="text-white">{fmtNum(total)}</strong> articles
+                    </span>
+                    {selectedIds.length > 0 && (
+                      <span className="rounded-full bg-teal-500/20 px-2 py-0.5 text-[11px] font-bold text-teal-300 border border-teal-500/30">
+                        {selectedIds.length} Selected
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page <= 1 || loading}
+                      className="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 font-semibold text-slate-300 transition hover:bg-slate-800 disabled:opacity-40"
+                    >
+                      <ChevronLeft size={14} />
+                      Previous
+                    </button>
+                    <span className="px-2 font-medium text-slate-300">
+                      Page {page} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={page >= totalPages || loading}
+                      className="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 font-semibold text-slate-300 transition hover:bg-slate-800 disabled:opacity-40"
+                    >
+                      Next
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
+        </div>
+      </main>
 
       {/* ─── Floating Bulk Actions Command Bar (Full-Size Enterprise Dock with Scrolling) ─── */}
       {selectedIds.length > 0 && (
@@ -1501,11 +1492,10 @@ function DashboardContent() {
       {feedback && (
         <div className="fixed bottom-6 right-6 z-50 pointer-events-none">
           <div
-            className={`pointer-events-auto flex items-center justify-between gap-3 rounded-xl border p-4 text-xs font-semibold shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-3 ${
-              feedback.type === 'success'
+            className={`pointer-events-auto flex items-center justify-between gap-3 rounded-xl border p-4 text-xs font-semibold shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-3 ${feedback.type === 'success'
                 ? 'border-emerald-500/40 bg-slate-900/95 text-emerald-300'
                 : 'border-rose-500/40 bg-slate-900/95 text-rose-300'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2.5">
               {feedback.type === 'success' ? (

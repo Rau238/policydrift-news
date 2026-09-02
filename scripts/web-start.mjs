@@ -3,9 +3,9 @@ import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const port = process.env.WEB_PORT || '3000';
+const port = process.env.WEB_PORT || '3050';
 
-const child = spawn('npm', ['run', 'start', '-w', 'policydrift-frontend', '--', '-p', port], {
+const child = spawn('npm', ['run', 'start', '-w', 'newsfree365-frontend', '--', '-p', port], {
   cwd: root,
   stdio: 'inherit',
   shell: true,

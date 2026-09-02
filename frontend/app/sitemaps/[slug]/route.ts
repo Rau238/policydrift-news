@@ -73,7 +73,7 @@ export async function GET(_req: Request, { params }: RouteProps) {
           return new Response('Sitemap chunk not found', { status: 404 });
         }
       } catch (e) {
-        console.warn('[PolicyDrift] Sitemap index check failed, proceeding with chunk fetch:', e);
+        console.warn('[NewsFree365] Sitemap index check failed, proceeding with chunk fetch:', e);
       }
 
       const chunkData = await getSitemapArticleChunk(chunk, 50000);
@@ -103,7 +103,7 @@ export async function GET(_req: Request, { params }: RouteProps) {
     // Unrecognized sitemap name
     return new Response('Sitemap not found', { status: 404 });
   } catch (error) {
-    console.error(`[PolicyDrift] Error generating sitemap for slug ${slug}:`, error);
+    console.error(`[NewsFree365] Error generating sitemap for slug ${slug}:`, error);
     return new Response('Internal Server Error', { status: 500 });
   }
 }

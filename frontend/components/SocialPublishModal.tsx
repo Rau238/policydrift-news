@@ -98,7 +98,7 @@ export function SocialPublishModal({
     try {
       await navigator.clipboard.writeText(currentCaption);
       setCopiedCaption(true);
-      setTimeout(() => setCopiedCaption(false), 3000);
+      setTimeout(() => setCopiedCaption(false), 3050);
     } catch {
       // ignore
     }
@@ -134,7 +134,7 @@ export function SocialPublishModal({
       if (selectedBg) params.set('image', selectedBg);
 
       // Full public URL for the branded card (both /social-card and /api/social/card)
-      const brandedCardUrl = `https://www.policydrift.live/social-card?${params.toString()}`;
+      const brandedCardUrl = `https://www.newsfree365.live/social-card?${params.toString()}`;
       const primaryCaption = customCaptions[selectedPlatform] || customCaptions.linkedin || currentCaption || article.title;
 
       const payload = {
@@ -246,11 +246,10 @@ export function SocialPublishModal({
                     key={ratio}
                     type="button"
                     onClick={() => setAspectRatio(ratio)}
-                    className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${
-                      aspectRatio === ratio
+                    className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${aspectRatio === ratio
                         ? 'bg-teal-600 text-white shadow-sm'
                         : 'text-slate-400 hover:text-slate-200'
-                    }`}
+                      }`}
                   >
                     {ratio === '1.91:1' && 'Landscape (1.91:1)'}
                     {ratio === '1:1' && 'Square (1:1)'}
@@ -274,11 +273,10 @@ export function SocialPublishModal({
                       key={idx}
                       type="button"
                       onClick={() => setActiveImageUrl(img.src)}
-                      className={`relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
-                        activeImageUrl === img.src
+                      className={`relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${activeImageUrl === img.src
                           ? 'border-teal-400 shadow-md shadow-teal-500/20 ring-2 ring-teal-500/40 scale-105'
                           : 'border-slate-800 opacity-60 hover:opacity-100'
-                      }`}
+                        }`}
                       title={img.title}
                     >
                       <img src={img.src} alt={img.title} className="h-full w-full object-cover" />
@@ -323,11 +321,10 @@ export function SocialPublishModal({
                     key={plat}
                     type="button"
                     onClick={() => handlePlatformTabChange(plat)}
-                    className={`flex-1 rounded-lg py-1.5 text-xs font-bold capitalize transition ${
-                      selectedPlatform === plat
+                    className={`flex-1 rounded-lg py-1.5 text-xs font-bold capitalize transition ${selectedPlatform === plat
                         ? 'bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-sm ring-1 ring-teal-500/30'
                         : 'text-slate-400 hover:text-white'
-                    }`}
+                      }`}
                   >
                     {plat === 'twitter' ? 'X (Twitter)' : plat}
                   </button>
@@ -368,22 +365,20 @@ export function SocialPublishModal({
                       key={ch.key}
                       type="button"
                       onClick={() => toggleTargetChannel(ch.key)}
-                      className={`flex flex-col items-start rounded-xl border p-3 text-left transition-all ${
-                        active
+                      className={`flex flex-col items-start rounded-xl border p-3 text-left transition-all ${active
                           ? 'border-teal-500/60 bg-teal-950/30 ring-1 ring-teal-500/30'
                           : 'border-slate-800 bg-slate-900/50 hover:border-slate-700'
-                      }`}
+                        }`}
                     >
                       <div className="flex w-full items-center justify-between">
                         <span className={`text-xs font-bold ${active ? 'text-teal-300' : 'text-slate-300'}`}>
                           {ch.label}
                         </span>
                         <div
-                          className={`flex h-4 w-4 items-center justify-center rounded-md border text-[10px] ${
-                            active
+                          className={`flex h-4 w-4 items-center justify-center rounded-md border text-[10px] ${active
                               ? 'border-teal-400 bg-teal-500 text-slate-950 font-black'
                               : 'border-slate-700 bg-slate-800'
-                          }`}
+                            }`}
                         >
                           {active && '✓'}
                         </div>
@@ -398,11 +393,10 @@ export function SocialPublishModal({
             {/* Feedback Alert */}
             {publishStatus && (
               <div
-                className={`flex items-start gap-2.5 rounded-xl border p-3 text-xs font-medium ${
-                  publishStatus.type === 'success'
+                className={`flex items-start gap-2.5 rounded-xl border p-3 text-xs font-medium ${publishStatus.type === 'success'
                     ? 'border-emerald-500/40 bg-emerald-950/40 text-emerald-300'
                     : 'border-rose-500/40 bg-rose-950/40 text-rose-300'
-                }`}
+                  }`}
               >
                 {publishStatus.type === 'success' ? (
                   <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-400" />

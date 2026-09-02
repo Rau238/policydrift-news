@@ -77,7 +77,8 @@ export const metadata: Metadata = {
   keywords: [
     'news',
     'breaking news',
-    'policy drift',
+    'newsfree365',
+    'news free 365',
     'world news',
     'India news',
     'politics',
@@ -98,7 +99,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     images: [
       {
-        url: storyFallbackImageUrl({ title: 'PolicyDrift — Real-Time News, Global Policy & Market Briefs', category: 'LIVE DESK' }),
+        url: storyFallbackImageUrl({ title: 'NewsFree365 — Real-Time News, Global Policy & Market Briefs', category: 'LIVE DESK' }),
         width: 1200,
         height: 630,
         alt: `${siteName} Cover`,
@@ -110,9 +111,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: `${siteName} — Real-Time News & Global Policy`,
     description: siteDescription,
-    site: '@policydrift',
-    creator: '@policydrift',
-    images: [storyFallbackImageUrl({ title: 'PolicyDrift — Real-Time News, Global Policy & Market Briefs', category: 'LIVE DESK' })],
+    site: '@newsfree365',
+    creator: '@newsfree365',
+    images: [storyFallbackImageUrl({ title: 'NewsFree365 — Real-Time News, Global Policy & Market Briefs', category: 'LIVE DESK' })],
   },
   robots: {
     index: true,

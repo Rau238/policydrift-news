@@ -38,8 +38,8 @@ try {
   await c.end();
   console.log('  ✓ MySQL: connected');
   console.log(`  ✓ Table posts: OK (${rows[0].n} rows)\n`);
-  const apiPort = process.env.API_PORT || process.env.PORT || '4000';
-  const webPort = process.env.WEB_PORT || '3000';
+  const apiPort = process.env.API_PORT || process.env.PORT || '4050';
+  const webPort = process.env.WEB_PORT || '3050';
   console.log('Next steps:');
   console.log(`  1. npm run dev          (API :${apiPort} + web :${webPort}, .env.development)`);
   console.log(`  2. npm run build:prod   (Next production build with .env.production)`);

@@ -4,7 +4,7 @@
  */
 
 export function curatorName(): string {
-  return process.env.NEXT_PUBLIC_CURATOR_NAME?.trim() || 'PolicyDrift Editorial Desk';
+  return process.env.NEXT_PUBLIC_CURATOR_NAME?.trim() || 'NewsFree365 Editorial Desk';
 }
 
 export function curatorRole(): string {
@@ -30,17 +30,17 @@ export function curatorImageSrc(): string | null {
 
 /** General Contact Email from Admin config / environment */
 export function contactEmail(): string {
-  return process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || 'contact@policydrift.live';
+  return process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || 'contact@newsfree365.live';
 }
 
 /** Dedicated Editorial & Corrections Desk Email */
 export function editorialEmail(): string {
-  return process.env.NEXT_PUBLIC_EDITORIAL_EMAIL?.trim() || process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || 'editorial@policydrift.live';
+  return process.env.NEXT_PUBLIC_EDITORIAL_EMAIL?.trim() || process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || 'editorial@newsfree365.live';
 }
 
 /** Dedicated Data Protection & Privacy Compliance Email */
 export function privacyEmail(): string {
-  return process.env.NEXT_PUBLIC_PRIVACY_EMAIL?.trim() || process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || 'privacy@policydrift.live';
+  return process.env.NEXT_PUBLIC_PRIVACY_EMAIL?.trim() || process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || 'privacy@newsfree365.live';
 }
 
 /** Mailing & Operational Newsroom Address Lines */
@@ -50,7 +50,7 @@ export function contactAddressLines(): string[] {
     return raw.split(/\n/).map((l) => l.trim()).filter(Boolean);
   }
   return [
-    'PolicyDrift News Desk & Media Operations',
+    'NewsFree365 News Desk & Media Operations',
     'DLF Cyber City, Tower B, 10th Floor',
     'Gurugram, Haryana 122002, India',
   ];

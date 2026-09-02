@@ -31,6 +31,7 @@ export function FootballTeamLogo({
       <div
         className={`relative inline-flex shrink-0 items-center justify-center rounded-full bg-white p-0.5 shadow-2xs border border-slate-200/90 overflow-hidden ${sizeClass} ${className}`}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={logoUrl}
           alt={name}

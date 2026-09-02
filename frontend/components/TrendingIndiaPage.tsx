@@ -168,7 +168,7 @@ export function TrendingIndiaPage({ data }: { data: GoogleTrendsBundle }) {
             What India is searching
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-200 sm:text-base sm:text-slate-300">
-            Live topics for India, mapped to PolicyDrift desks — with matched stories when we have coverage.
+            Live topics for India, mapped to NewsFree365 desks — with matched stories when we have coverage.
           </p>
 
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">

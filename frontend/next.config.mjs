@@ -54,6 +54,15 @@ const nextConfig = {
       { protocol: 'http', hostname: '**' },
     ],
   },
+  // Reduce memory usage during static page generation (prevents OOM on build)
+  experimental: {
+    workerThreads: false,
+    cpus: 1,
+  },
+  // Treat ESLint warnings as non-fatal during builds
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;

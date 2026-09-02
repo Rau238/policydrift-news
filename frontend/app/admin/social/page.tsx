@@ -77,7 +77,7 @@ export default function AdminSocialPage() {
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message });
-    setTimeout(() => setFeedback(null), 4000);
+    setTimeout(() => setFeedback(null), 4050);
   };
 
   const fetchArticlesAndStatus = useCallback(async () => {
@@ -393,11 +393,10 @@ export default function AdminSocialPage() {
         {feedback && (
           <div className="fixed bottom-6 right-6 z-50 pointer-events-none">
             <div
-              className={`pointer-events-auto flex items-center justify-between gap-3 rounded-xl border p-4 text-xs font-semibold shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-3 ${
-                feedback.type === 'success'
+              className={`pointer-events-auto flex items-center justify-between gap-3 rounded-xl border p-4 text-xs font-semibold shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-3 ${feedback.type === 'success'
                   ? 'border-emerald-500/40 bg-slate-900/95 text-emerald-300'
                   : 'border-rose-500/40 bg-slate-900/95 text-rose-300'
-              }`}
+                }`}
             >
               <span>{feedback.message}</span>
             </div>

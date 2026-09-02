@@ -1,5 +1,5 @@
 /**
- * PolicyDrift — centralised ranking configuration.
+ * NewsFree365 — centralised ranking configuration.
  *
  * All weights, half-lives, and thresholds live here.
  * Override nothing in individual service files.

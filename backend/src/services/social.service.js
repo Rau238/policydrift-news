@@ -76,7 +76,7 @@ export async function dispatchSocialPost(payload) {
         const filePath = path.join(targetDir, filename);
         fs.writeFileSync(filePath, buffer);
 
-        const siteBase = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.policydrift.live').replace(/\/$/, '');
+        const siteBase = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.newsfree365.live').replace(/\/$/, '');
         savedEditedCardUrl = `${siteBase}/social-cards/${filename}`;
 
         // Upload to public CDN for guaranteed live LinkedIn/Make.com image delivery
@@ -91,10 +91,10 @@ export async function dispatchSocialPost(payload) {
   }
 
   const rawImage = payload.directImageUrl || payload.rawImageUrl || payload.imageUrl || payload.image_url || '';
-  const finalEditedImage = publicCdnUrl || savedEditedCardUrl || payload.cardImageUrl || `https://www.policydrift.live/social-card?title=${encodeURIComponent(title)}&category=${encodeURIComponent(payload.category || '')}&ratio=${encodeURIComponent(payload.aspectRatio || '1.91:1')}&image=${encodeURIComponent(rawImage)}`;
+  const finalEditedImage = publicCdnUrl || savedEditedCardUrl || payload.cardImageUrl || `https://www.newsfree365.live/social-card?title=${encodeURIComponent(title)}&category=${encodeURIComponent(payload.category || '')}&ratio=${encodeURIComponent(payload.aspectRatio || '1.91:1')}&image=${encodeURIComponent(rawImage)}`;
   const primaryImage = finalEditedImage || rawImage;
 
-  const articleUrl = `https://www.policydrift.live/news/${slug || articleId}`;
+  const articleUrl = `https://www.newsfree365.live/news/${slug || articleId}`;
   const primaryCaption = payload.caption || payload.captions?.linkedin || payload.title || '';
 
   // 2. If a Universal Webhook (Zapier/Make/Buffer/N8n) is configured, trigger it
@@ -104,7 +104,7 @@ export async function dispatchSocialPost(payload) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          source: 'PolicyDrift',
+          source: 'NewsFree365',
           timestamp,
           articleId,
           title,

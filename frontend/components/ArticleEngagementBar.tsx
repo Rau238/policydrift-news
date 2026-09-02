@@ -71,7 +71,7 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
   };
 
   const handleShare = async () => {
-    const url = typeof window !== 'undefined' ? window.location.href : `https://policydrift.com/news/${slug}`;
+    const url = typeof window !== 'undefined' ? window.location.href : `https://www.newsfree365.live/news/${slug}`;
     if (navigator.share) {
       try {
         await navigator.share({
@@ -87,7 +87,7 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
   };
 
   const handleCopyLink = async () => {
-    const url = typeof window !== 'undefined' ? window.location.href : `https://policydrift.com/news/${slug}`;
+    const url = typeof window !== 'undefined' ? window.location.href : `https://www.newsfree365.live/news/${slug}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);

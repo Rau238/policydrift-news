@@ -42,8 +42,8 @@ export function legalMetadata(title: string, description: string): Metadata {
       card: 'summary_large_image',
       title: `${title} | ${siteName}`,
       description,
-      site: '@policydrift',
-      creator: '@policydrift',
+      site: '@newsfree365',
+      creator: '@newsfree365',
       images: [ogImage],
     },
     robots: {
@@ -226,7 +226,7 @@ export function LegalPageShell({
             <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 shadow-xl backdrop-blur-md space-y-2.5 text-xs">
               <span className="font-bold text-white uppercase tracking-wider block text-[11px]">Related Information</span>
               <Link href="/about" className="flex items-center justify-between text-slate-300 hover:text-white group">
-                <span>About PolicyDrift</span>
+                <span>About NewsFree365</span>
                 <ArrowUpRight className="h-3.5 w-3.5 text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
               </Link>
               <Link href="/contact" className="flex items-center justify-between text-slate-300 hover:text-white group">

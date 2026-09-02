@@ -3,7 +3,7 @@ import { MARKET_QUOTE_ROWS } from '../config/market-symbols.js';
 const TTL_MS = 45_000;
 
 const UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 PolicyDrift/1.0';
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 NewsFree365/1.0';
 
 let cache = { at: 0, payload: null };
 

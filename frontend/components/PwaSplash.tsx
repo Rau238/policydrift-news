@@ -44,7 +44,7 @@ export function PwaSplash() {
       }`}
       role="status"
       aria-live="polite"
-      aria-label="Loading PolicyDrift"
+      aria-label="Loading NewsFree365"
     >
       <div className="pd-splash-orb pd-splash-orb-a" aria-hidden />
       <div className="pd-splash-orb pd-splash-orb-b" aria-hidden />

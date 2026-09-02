@@ -7,7 +7,7 @@ import { storyFallbackImageUrl } from '@/lib/story-image';
 export const dynamic = 'force-dynamic';
 
 const description =
-  'See what people in India are searching for on Google, mapped to PolicyDrift desks and matched headlines, updated from our trends cache.';
+  'See what people in India are searching for on Google, mapped to NewsFree365 desks and matched headlines, updated from our trends cache.';
 
 export const metadata: Metadata = {
   title: { absolute: `Trending in India — Live Search Topics & News | ${siteName}` },
@@ -35,8 +35,8 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: `Trending in India — Live Search Topics & News | ${siteName}`,
     description,
-    site: '@policydrift',
-    creator: '@policydrift',
+    site: '@newsfree365',
+    creator: '@newsfree365',
     images: [storyFallbackImageUrl({ title: 'Trending in India — Live Search Topics & News', category: 'TRENDING INDIA' })],
   },
   robots: {

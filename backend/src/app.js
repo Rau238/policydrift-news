@@ -33,13 +33,13 @@ app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use('/social-cards', express.static(path.resolve(__dirname, '../../frontend/public/social-cards')));
 
 app.get('/health', (_req, res) => {
-  res.json({ ok: true, service: 'policydrift-api' });
+  res.json({ ok: true, service: 'newsfree365-api' });
 });
 
 // Dynamic social card endpoint fallback
 app.get('/api/social/card', async (req, res) => {
   const query = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
-  const nextBase = process.env.NEXT_INTERNAL_URL || 'http://127.0.0.1:3000';
+  const nextBase = process.env.NEXT_INTERNAL_URL || 'http://127.0.0.1:3050';
 
   try {
     const upstream = await fetch(`${nextBase}/api/social/card${query}`);

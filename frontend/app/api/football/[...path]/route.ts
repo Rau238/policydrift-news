@@ -14,9 +14,9 @@ function backendCandidates(): string[] {
   const port = (process.env.API_PORT || '4001').trim();
   out.push(`http://127.0.0.1:${port}`);
   out.push('http://127.0.0.1:4001');
-  out.push('http://127.0.0.1:4000');
+  out.push('http://127.0.0.1:4050');
   out.push('http://localhost:4001');
-  out.push('http://localhost:4000');
+  out.push('http://localhost:4050');
   const pub = process.env.NEXT_PUBLIC_API_URL?.trim();
   if (pub) {
     const b = trimBase(pub);
@@ -45,11 +45,11 @@ export async function GET(
 
       if (res.ok) {
         const contentType = res.headers.get('content-type') || '';
-        
+
         // Handle Server-Sent Events (SSE) stream piping
         if (contentType.includes('text/event-stream')) {
           const { readable, writable } = new TransformStream();
-          res.body?.pipeTo(writable).catch(() => {});
+          res.body?.pipeTo(writable).catch(() => { });
 
           return new Response(readable, {
             status: 200,

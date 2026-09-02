@@ -79,8 +79,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         card: 'summary_large_image',
         title: `${label} | ${siteName}`,
         description,
-        site: '@policydrift',
-        creator: '@policydrift',
+        site: '@newsfree365',
+        creator: '@newsfree365',
         images: [ogImage],
       },
       robots: {
@@ -118,7 +118,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       'current affairs',
       'breaking news',
       siteName,
-      'PolicyDrift news',
+      'NewsFree365 news',
     ],
     alternates: { canonical: url },
     openGraph: {
@@ -146,8 +146,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title: post.title,
       description: desc,
-      site: '@policydrift',
-      creator: '@policydrift',
+      site: '@newsfree365',
+      creator: '@newsfree365',
       images: [ogImage],
     },
     robots: {

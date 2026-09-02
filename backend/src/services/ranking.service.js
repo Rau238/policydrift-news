@@ -1,5 +1,5 @@
 /**
- * PolicyDrift — Ranking Service
+ * NewsFree365 — Ranking Service
  *
  * Computes five component scores for each article and combines them into
  * trending_score and top_score.  All scores are bounded [0, 1].

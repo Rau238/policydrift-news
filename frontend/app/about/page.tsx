@@ -4,14 +4,14 @@ import { BookOpen, Award, CheckCircle2, Shield, ArrowUpRight, Sparkles, Layers }
 import { contactEmail, editorialEmail } from '@/lib/site-trust';
 
 export const metadata = legalMetadata(
-  'About PolicyDrift Newsroom',
-  'PolicyDrift is an editorial newsroom synthesizing law, governance, markets, and world intelligence.',
+  'About NewsFree365 Newsroom',
+  'NewsFree365 is an editorial newsroom synthesizing law, governance, markets, and world intelligence.',
 );
 
 export default function AboutPage() {
   return (
     <LegalPageShell
-      title="About PolicyDrift"
+      title="About NewsFree365"
       subtitle="A modern, noise-free newsroom for law, macroeconomic policy, financial markets, and world events with honest attribution."
       badge="About Our Newsroom"
       lastUpdated="August 2026"
@@ -24,7 +24,7 @@ export default function AboutPage() {
           <span>Who We Are</span>
         </h2>
         <p>
-          PolicyDrift brings together headlines and reporting from verified RSS and syndication feeds across breaking news, world politics, India, business, banking, and real-time sports.
+          NewsFree365 brings together headlines and reporting from verified RSS and syndication feeds across breaking news, world politics, India, business, banking, and real-time sports.
         </p>
         <p>
           Our mission is to help readers scan what matters with clear labels, stable URLs, transparent sourcing, and plain-language summaries—without replacing the dedicated field reporters and editors who produce the primary reporting.
@@ -38,7 +38,7 @@ export default function AboutPage() {
           <span>Editorial Value-Add on Syndicated Reporting</span>
         </h2>
         <p>
-          Pure aggregation without context creates information overload. PolicyDrift adds value through:
+          Pure aggregation without context creates information overload. NewsFree365 adds value through:
         </p>
         <ul className="space-y-2 list-disc pl-5 text-slate-300">
           <li>

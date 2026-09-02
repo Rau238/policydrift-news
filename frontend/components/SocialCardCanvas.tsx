@@ -104,7 +104,7 @@ export function SocialCardCanvas({
       const padding = Math.round(width * 0.038);
       const topY = Math.round(height * (aspectRatio === '9:16' ? 0.038 : 0.035));
 
-      // 4. Draw Official PolicyDrift BrandMark Directly on Canvas (Top-Left)
+      // 4. Draw Official NewsFree365 BrandMark Directly on Canvas (Top-Left)
       const brandFontSize = Math.round(width * (aspectRatio === '9:16' ? 0.04 : 0.036));
       const logoRadius = Math.round(width * (aspectRatio === '9:16' ? 0.034 : 0.03));
       const logoX = padding + logoRadius;
@@ -165,7 +165,7 @@ export function SocialCardCanvas({
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       const textStartX = logoX + logoRadius + logoGap;
-      ctx.fillText('PolicyDrift', textStartX, logoY);
+      ctx.fillText('NewsFree365', textStartX, logoY);
       ctx.restore();
 
       // 5. Calculate Dynamic Bottom-Anchored Typography Layout (Closer to Bottom Edge)
@@ -296,7 +296,7 @@ export function SocialCardCanvas({
     setDownloading(true);
     try {
       const link = document.createElement('a');
-      link.download = `policydrift-${category}-${aspectRatio.replace(':', '-')}.png`;
+      link.download = `newsfree365-${category}-${aspectRatio.replace(':', '-')}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch {
@@ -317,7 +317,7 @@ export function SocialCardCanvas({
             new ClipboardItem({ 'image/png': blob }),
           ]);
           setCopied(true);
-          setTimeout(() => setCopied(false), 3000);
+          setTimeout(() => setCopied(false), 3050);
         }
       });
     } catch {

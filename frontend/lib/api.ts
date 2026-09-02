@@ -2,7 +2,7 @@ import type { CategoryRow, GoogleTrendsBundle, NewsSource, PostDetail, PostListI
 
 /**
  * Base URL for API fetches.
- * SSR (production): must use API_INTERNAL_URL → local Express (e.g. http://127.0.0.1:4000).
+ * SSR (production): must use API_INTERNAL_URL → local Express (e.g. http://127.0.0.1:4050).
  * Never call the public https://www… domain from the same server — hairpin/DNS often fails
  * and safeFetchJson then returns empty news.
  * Browser: NEXT_PUBLIC_API_URL (public origin or same host with reverse proxy).
@@ -12,12 +12,12 @@ function getBaseUrl(): string {
   const url = (
     isServer
       ? process.env.API_INTERNAL_URL ||
-        process.env.API_URL ||
-        process.env.INTERNAL_API_URL ||
-        process.env.NEXT_PUBLIC_API_URL
+      process.env.API_URL ||
+      process.env.INTERNAL_API_URL ||
+      process.env.NEXT_PUBLIC_API_URL
       : process.env.NEXT_PUBLIC_API_URL
   )?.trim();
-  const fallbackPort = process.env.API_PORT?.trim() || '4000';
+  const fallbackPort = process.env.API_PORT?.trim() || '4050';
   return (url || `http://127.0.0.1:${fallbackPort}`).replace(/\/$/, '');
 }
 
@@ -39,7 +39,7 @@ async function safeFetchJson<T>(path: string, fallback: T, init?: RequestInit): 
   try {
     return await fetchJson<T>(path, init);
   } catch (e) {
-    console.error(`[PolicyDrift] API fetch failed (${getBaseUrl()}${path}):`, e instanceof Error ? e.message : e);
+    console.error(`[NewsFree365] API fetch failed (${getBaseUrl()}${path}):`, e instanceof Error ? e.message : e);
     return fallback;
   }
 }
@@ -66,12 +66,12 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
     });
     if (res.status === 404) return null;
     if (!res.ok) {
-      console.error(`[PolicyDrift] getPostBySlug ${res.status} via ${getBaseUrl()}`);
+      console.error(`[NewsFree365] getPostBySlug ${res.status} via ${getBaseUrl()}`);
       return null;
     }
     return res.json() as Promise<PostDetail>;
   } catch (e) {
-    console.error(`[PolicyDrift] getPostBySlug failed via ${getBaseUrl()}:`, e instanceof Error ? e.message : e);
+    console.error(`[NewsFree365] getPostBySlug failed via ${getBaseUrl()}:`, e instanceof Error ? e.message : e);
     return null;
   }
 }
@@ -82,12 +82,12 @@ export async function getTrending(limit = 6): Promise<PostListItem[]> {
       cache: 'no-store',
     });
     if (!res.ok) {
-      console.error(`[PolicyDrift] getTrending ${res.status} via ${getBaseUrl()}`);
+      console.error(`[NewsFree365] getTrending ${res.status} via ${getBaseUrl()}`);
       return [];
     }
     return res.json() as Promise<PostListItem[]>;
   } catch (e) {
-    console.error(`[PolicyDrift] getTrending failed via ${getBaseUrl()}:`, e instanceof Error ? e.message : e);
+    console.error(`[NewsFree365] getTrending failed via ${getBaseUrl()}:`, e instanceof Error ? e.message : e);
     return [];
   }
 }
@@ -105,24 +105,24 @@ export async function getLatestNews(params: {
   source?: number;
 }): Promise<{ posts: PostListItem[]; total: number; page: number; limit: number }> {
   const sp = new URLSearchParams();
-  sp.set('page',  String(params.page  ?? 1));
+  sp.set('page', String(params.page ?? 1));
   sp.set('limit', String(params.limit ?? 20));
   if (params.category) sp.set('category', params.category);
-  if (params.source)   sp.set('source',   String(params.source));
+  if (params.source) sp.set('source', String(params.source));
   return safeFetchJson(`/api/news/latest?${sp}`, { posts: [], total: 0, page: 1, limit: 20 });
 }
 
 export async function getTopNews(params: { limit?: number; days?: number } = {}): Promise<PostListItem[]> {
   const sp = new URLSearchParams();
   if (params.limit) sp.set('limit', String(params.limit));
-  if (params.days)  sp.set('days',  String(params.days));
+  if (params.days) sp.set('days', String(params.days));
   return safeFetchJson(`/api/news/top?${sp}`, [], { next: { revalidate: 60 } });
 }
 
 export async function getTrendingNews(params: { limit?: number; days?: number } = {}): Promise<PostListItem[]> {
   const sp = new URLSearchParams();
   if (params.limit) sp.set('limit', String(params.limit));
-  if (params.days)  sp.set('days',  String(params.days));
+  if (params.days) sp.set('days', String(params.days));
   try {
     const res = await fetch(`${getBaseUrl()}/api/news/trending?${sp}`, { cache: 'no-store' });
     if (!res.ok) return [];
@@ -135,7 +135,7 @@ export async function getPopularNews(params: {
   period?: 'day' | 'week' | 'month';
 } = {}): Promise<PostListItem[]> {
   const sp = new URLSearchParams();
-  if (params.limit)  sp.set('limit',  String(params.limit));
+  if (params.limit) sp.set('limit', String(params.limit));
   if (params.period) sp.set('period', params.period);
   return safeFetchJson(`/api/news/popular?${sp}`, [], { next: { revalidate: 300 } });
 }
@@ -182,9 +182,9 @@ export async function adminGetArticles(params: {
   category?: string;
 } = {}): Promise<{ posts: PostListItem[]; total: number; page: number; limit: number }> {
   const sp = new URLSearchParams();
-  if (params.page)     sp.set('page',     String(params.page));
-  if (params.limit)    sp.set('limit',    String(params.limit ?? 20));
-  if (params.status)   sp.set('status',   params.status);
+  if (params.page) sp.set('page', String(params.page));
+  if (params.limit) sp.set('limit', String(params.limit ?? 20));
+  if (params.status) sp.set('status', params.status);
   if (params.category) sp.set('category', params.category);
   return adminFetch(`/articles?${sp}`);
 }
@@ -294,7 +294,7 @@ export async function getGoogleTrendsBundle(opts?: GoogleTrendsBundleParams): Pr
   } catch (e) {
     if (process.env.NODE_ENV === 'development') {
       console.warn(
-        '[PolicyDrift] getGoogleTrendsBundle failed. Check API is running and API_URL / NEXT_PUBLIC_API_URL:',
+        '[NewsFree365] getGoogleTrendsBundle failed. Check API is running and API_URL / NEXT_PUBLIC_API_URL:',
         getBaseUrl(),
         e,
       );

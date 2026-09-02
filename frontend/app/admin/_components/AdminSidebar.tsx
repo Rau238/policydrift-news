@@ -139,10 +139,10 @@ export function AdminSidebar({
       const res = await fetch('/api/admin/ranking', { method: 'POST' });
       const data = (await res.json()) as { ok?: boolean; message?: string; ranked?: number };
       setRankingResult(data.message || `Ranked ${data.ranked || 0} articles`);
-      setTimeout(() => setRankingResult(null), 4000);
+      setTimeout(() => setRankingResult(null), 4050);
     } catch {
       setRankingResult('Failed');
-      setTimeout(() => setRankingResult(null), 3000);
+      setTimeout(() => setRankingResult(null), 3050);
     } finally {
       setRankingLoading(false);
     }
@@ -193,25 +193,22 @@ export function AdminSidebar({
 
     return (
       <aside
-        className={`flex h-full flex-shrink-0 flex-col border-r border-slate-800/80 bg-[#090d16] text-slate-200 transition-all duration-300 ease-in-out ${
-          isMobile ? 'w-72 max-w-[85vw]' : isCollapsed ? 'w-20' : 'w-64'
-        }`}
+        className={`flex h-full flex-shrink-0 flex-col border-r border-slate-800/80 bg-[#090d16] text-slate-200 transition-all duration-300 ease-in-out ${isMobile ? 'w-72 max-w-[85vw]' : isCollapsed ? 'w-20' : 'w-64'
+          }`}
       >
         {/* Brand Header */}
         <div
-          className={`flex border-b border-slate-800/80 transition-all ${
-            isCollapsed
-              ? 'flex-col items-center justify-center gap-2.5 px-2 py-3.5'
-              : 'items-center justify-between px-4 py-3.5'
-          }`}
+          className={`flex border-b border-slate-800/80 transition-all ${isCollapsed
+            ? 'flex-col items-center justify-center gap-2.5 px-2 py-3.5'
+            : 'items-center justify-between px-4 py-3.5'
+            }`}
         >
           <Link
             href="/admin/dashboard"
             onClick={onCloseMobile}
-            className={`flex items-center gap-2.5 group min-w-0 ${
-              isCollapsed ? 'justify-center' : ''
-            }`}
-            title="PolicyDrift Admin"
+            className={`flex items-center gap-2.5 group min-w-0 ${isCollapsed ? 'justify-center' : ''
+              }`}
+            title="NewsFree365 Admin"
           >
             {/* Official Website Brand Mark */}
             <BrandMark sizeClass={isCollapsed ? 'h-9 w-9' : 'h-8 w-8'} />
@@ -219,7 +216,7 @@ export function AdminSidebar({
               <div className="min-w-0 overflow-hidden">
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm font-bold tracking-tight text-white truncate">
-                    PolicyDrift
+                    NewsFree365
                   </span>
                   <span className="rounded bg-teal-500/20 px-1.5 py-0.2 text-[9px] font-bold text-teal-300 border border-teal-500/30 shrink-0">
                     ADMIN
@@ -235,11 +232,10 @@ export function AdminSidebar({
             <button
               type="button"
               onClick={toggleCollapsed}
-              className={`hidden md:flex items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-800 hover:text-white ${
-                isCollapsed
-                  ? 'h-6 w-6 rounded-md bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-teal-300 hover:border-teal-500/50 hover:bg-slate-700 shadow-sm'
-                  : 'h-7 w-7'
-              }`}
+              className={`hidden md:flex items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-800 hover:text-white ${isCollapsed
+                ? 'h-6 w-6 rounded-md bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-teal-300 hover:border-teal-500/50 hover:bg-slate-700 shadow-sm'
+                : 'h-7 w-7'
+                }`}
               title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             >
               {isCollapsed ? <PanelLeftOpen size={13} /> : <PanelLeftClose size={16} />}
@@ -275,13 +271,11 @@ export function AdminSidebar({
                     href={item.href}
                     onClick={onCloseMobile}
                     title={isCollapsed ? item.label : undefined}
-                    className={`group relative flex items-center rounded-xl p-2.5 text-sm font-medium transition-all ${
-                      isCollapsed ? 'justify-center' : 'justify-between px-3'
-                    } ${
-                      active
+                    className={`group relative flex items-center rounded-xl p-2.5 text-sm font-medium transition-all ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+                      } ${active
                         ? 'bg-gradient-to-r from-teal-600/90 to-teal-700 text-white shadow-sm shadow-teal-900/40 ring-1 ring-teal-500/40'
                         : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                    }`}
+                      }`}
                   >
                     <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
                       <span
@@ -297,13 +291,11 @@ export function AdminSidebar({
                     {/* Badge */}
                     {item.badge !== null && (
                       <span
-                        className={`font-bold tabular-nums ${
-                          isCollapsed
-                            ? 'absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] text-slate-950 font-black shadow-md'
-                            : `rounded-full px-2 py-0.5 text-[11px] ${
-                                item.badgeColor || 'bg-slate-800 text-slate-300'
-                              }`
-                        }`}
+                        className={`font-bold tabular-nums ${isCollapsed
+                          ? 'absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] text-slate-950 font-black shadow-md'
+                          : `rounded-full px-2 py-0.5 text-[11px] ${item.badgeColor || 'bg-slate-800 text-slate-300'
+                          }`
+                          }`}
                       >
                         {item.badge}
                       </span>
@@ -326,9 +318,8 @@ export function AdminSidebar({
                 href="/admin/sources?action=new"
                 onClick={onCloseMobile}
                 title={isCollapsed ? 'Add RSS Source' : undefined}
-                className={`flex items-center rounded-xl border border-teal-500/40 bg-gradient-to-r from-teal-950/60 to-emerald-950/60 p-2 text-xs font-bold text-teal-200 transition hover:border-teal-400 hover:bg-teal-900/60 hover:text-white shadow-sm ${
-                  isCollapsed ? 'justify-center' : 'justify-between px-3'
-                }`}
+                className={`flex items-center rounded-xl border border-teal-500/40 bg-gradient-to-r from-teal-950/60 to-emerald-950/60 p-2 text-xs font-bold text-teal-200 transition hover:border-teal-400 hover:bg-teal-900/60 hover:text-white shadow-sm ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+                  }`}
               >
                 <span className="flex items-center gap-2">
                   <Plus size={16} className="text-teal-400 shrink-0" />
@@ -346,9 +337,8 @@ export function AdminSidebar({
                   onClick={onPublishAllReview}
                   disabled={isPublishingReview}
                   title={isCollapsed ? `Publish All (${pendingCount})` : undefined}
-                  className={`flex w-full items-center rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/70 to-teal-950/70 p-2 text-xs font-bold text-emerald-200 transition hover:border-emerald-400 hover:bg-emerald-900/70 hover:text-white shadow-sm disabled:opacity-50 ${
-                    isCollapsed ? 'justify-center' : 'justify-between px-3'
-                  }`}
+                  className={`flex w-full items-center rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/70 to-teal-950/70 p-2 text-xs font-bold text-emerald-200 transition hover:border-emerald-400 hover:bg-emerald-900/70 hover:text-white shadow-sm disabled:opacity-50 ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+                    }`}
                 >
                   <span className="flex items-center gap-2">
                     {isPublishingReview ? (
@@ -371,9 +361,8 @@ export function AdminSidebar({
                   onClick={onIngest}
                   disabled={ingestLoading}
                   title={isCollapsed ? 'Ingest RSS Feeds' : undefined}
-                  className={`flex w-full items-center rounded-xl border border-slate-800 bg-slate-900/60 p-2 text-xs font-medium text-slate-300 transition hover:border-teal-500/40 hover:bg-slate-800/80 hover:text-teal-300 disabled:opacity-50 ${
-                    isCollapsed ? 'justify-center' : 'justify-between px-3'
-                  }`}
+                  className={`flex w-full items-center rounded-xl border border-slate-800 bg-slate-900/60 p-2 text-xs font-medium text-slate-300 transition hover:border-teal-500/40 hover:bg-slate-800/80 hover:text-teal-300 disabled:opacity-50 ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+                    }`}
                 >
                   <span className="flex items-center gap-2">
                     {ingestLoading ? (
@@ -391,9 +380,8 @@ export function AdminSidebar({
                 onClick={handleQuickRanking}
                 disabled={rankingLoading}
                 title={isCollapsed ? 'Run Ranking Pass' : undefined}
-                className={`flex w-full items-center rounded-xl border border-slate-800 bg-slate-900/60 p-2 text-xs font-medium text-slate-300 transition hover:border-amber-500/40 hover:bg-slate-800/80 hover:text-amber-300 disabled:opacity-50 ${
-                  isCollapsed ? 'justify-center' : 'justify-between px-3'
-                }`}
+                className={`flex w-full items-center rounded-xl border border-slate-800 bg-slate-900/60 p-2 text-xs font-medium text-slate-300 transition hover:border-amber-500/40 hover:bg-slate-800/80 hover:text-amber-300 disabled:opacity-50 ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+                  }`}
               >
                 <span className="flex items-center gap-2">
                   {rankingLoading ? (
@@ -426,9 +414,8 @@ export function AdminSidebar({
               target="_blank"
               rel="noopener noreferrer"
               title={isCollapsed ? 'View Public Portal' : undefined}
-              className={`flex items-center rounded-xl border border-slate-800/60 bg-slate-900/40 p-2 text-xs font-medium text-slate-400 transition hover:bg-slate-800 hover:text-slate-200 ${
-                isCollapsed ? 'justify-center' : 'justify-between px-3'
-              }`}
+              className={`flex items-center rounded-xl border border-slate-800/60 bg-slate-900/40 p-2 text-xs font-medium text-slate-400 transition hover:bg-slate-800 hover:text-slate-200 ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+                }`}
             >
               <span className="flex items-center gap-2">
                 <Layers size={16} className="shrink-0" />
@@ -456,9 +443,8 @@ export function AdminSidebar({
             onClick={confirmSignOut}
             disabled={loggingOut}
             title={isCollapsed ? 'Sign Out' : undefined}
-            className={`flex w-full items-center rounded-xl border border-slate-800 bg-slate-900 p-2 text-xs font-semibold text-slate-300 transition hover:border-red-500/40 hover:bg-red-950/40 hover:text-red-300 active:scale-95 disabled:opacity-50 ${
-              isCollapsed ? 'justify-center' : 'justify-center gap-2'
-            }`}
+            className={`flex w-full items-center rounded-xl border border-slate-800 bg-slate-900 p-2 text-xs font-semibold text-slate-300 transition hover:border-red-500/40 hover:bg-red-950/40 hover:text-red-300 active:scale-95 disabled:opacity-50 ${isCollapsed ? 'justify-center' : 'justify-center gap-2'
+              }`}
           >
             {loggingOut ? (
               <Loader2 size={16} className="animate-spin text-red-400 shrink-0" />

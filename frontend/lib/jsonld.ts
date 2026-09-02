@@ -45,9 +45,9 @@ export function siteGraphJsonLd() {
         correctionsPolicy: absoluteUrl('/editorial'),
         ethicsPolicy: absoluteUrl('/editorial'),
         sameAs: [
-          'https://twitter.com/policydrift',
-          'https://linkedin.com/company/policydrift',
-          'https://www.youtube.com/@policydrift',
+          'https://twitter.com/newsfree365',
+          'https://linkedin.com/company/newsfree365',
+          'https://www.youtube.com/@newsfree365',
         ],
         contactPoint: {
           '@type': 'ContactPoint',

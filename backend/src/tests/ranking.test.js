@@ -1,5 +1,5 @@
 /**
- * PolicyDrift — Ranking Service Unit Tests
+ * NewsFree365 — Ranking Service Unit Tests
  *
  * Tests all five component score calculators and the two composite scores
  * (trending_score, top_score) using only Node's built-in test runner.

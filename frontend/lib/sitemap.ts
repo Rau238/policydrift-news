@@ -1,5 +1,5 @@
 /**
- * PolicyDrift — Dynamic SEO XML Sitemap Helpers
+ * NewsFree365 — Dynamic SEO XML Sitemap Helpers
  * Compliant with sitemaps.org schema and Google Search Console requirements.
  */
 

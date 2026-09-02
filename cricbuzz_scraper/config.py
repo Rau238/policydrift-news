@@ -59,7 +59,7 @@ DEFAULT_CONTEXT_CONFIG: Dict[str, Any] = {
 
 # Operational Timeouts (in milliseconds)
 PAGE_TIMEOUT_MS = 25000
-NAVIGATION_TIMEOUT_MS = 30000
+NAVIGATION_TIMEOUT_MS = 30500
 ELEMENT_TIMEOUT_MS = 8000
 
 # Live Monitoring Config

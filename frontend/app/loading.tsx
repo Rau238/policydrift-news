@@ -2,7 +2,7 @@ import { LeadStorySkeleton, PostCardSkeleton, Skeleton } from '@/components/ui/S
 
 export default function RootLoading() {
   return (
-    <div className="min-h-screen max-w-[100vw] overflow-x-clip bg-paper" aria-busy="true" aria-label="Loading PolicyDrift">
+    <div className="min-h-screen max-w-[100vw] overflow-x-clip bg-paper" aria-busy="true" aria-label="Loading NewsFree365">
       <div className="relative overflow-x-clip">
         {/* Full-Width Linear Gradient Fade with Exact Matching Easing Mask */}
         <div

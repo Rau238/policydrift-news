@@ -1,5 +1,5 @@
 /**
- * PolicyDrift — Metrics Service
+ * NewsFree365 — Metrics Service
  *
  * Thin wrapper around the metrics model that can be called by the worker
  * or an admin endpoint.

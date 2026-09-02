@@ -16,7 +16,7 @@ Render’s Node flow often runs **`npm run build`**. This repo’s API is plain 
 
 If you use a **monorepo** from the repo root:
 
-- **Build Command** might be `npm install && npm run build -w policydrift-backend`  
+- **Build Command** might be `npm install && npm run build -w newsfree365-backend`  
   or `cd backend && npm install && npm run build`.
 
 ## Environment variables

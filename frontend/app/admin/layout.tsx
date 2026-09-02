@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'PolicyDrift Admin Portal',
+  title: 'NewsFree365 Admin Portal',
   description: 'Editorial desk, news pipelines, RSS sources and ranking controls.',
   robots: {
     index: false,

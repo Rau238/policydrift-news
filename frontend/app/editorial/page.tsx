@@ -14,7 +14,7 @@ import {
 
 export const metadata = legalMetadata(
   'Editorial Standards & Sourcing Guidelines',
-  'How PolicyDrift verifies, curates, attributes, and presents syndicated news with clarity and integrity.',
+  'How NewsFree365 verifies, curates, attributes, and presents syndicated news with clarity and integrity.',
 );
 
 export default function EditorialPage() {
@@ -33,7 +33,7 @@ export default function EditorialPage() {
           <span>1. Mission & Editorial Charter</span>
         </h2>
         <p>
-          PolicyDrift is a modern, high-frequency newsroom dedicated to delivering concise, factual, and actionable
+          NewsFree365 is a modern, high-frequency newsroom dedicated to delivering concise, factual, and actionable
           briefs across global politics, law, governance, financial markets, and world affairs. Our objective is to
           eliminate sensationalism and information overload by providing clean, categorized intelligence that empowers
           readers to scan and comprehend what matters in seconds.
@@ -52,7 +52,7 @@ export default function EditorialPage() {
           <span>2. Sourcing, Verification & Attribution</span>
         </h2>
         <p>
-          Authenticity and intellectual honesty are fundamental to our work. Every story published on PolicyDrift adheres
+          Authenticity and intellectual honesty are fundamental to our work. Every story published on NewsFree365 adheres
           to strict attribution standards:
         </p>
         <ul className="space-y-2 list-disc pl-5 text-slate-300">
@@ -142,7 +142,7 @@ export default function EditorialPage() {
           <span>5. Journalistic Independence & Neutrality</span>
         </h2>
         <p>
-          PolicyDrift is fully independent. Desk grouping, headline curation, and priority feeds are driven purely by
+          NewsFree365 is fully independent. Desk grouping, headline curation, and priority feeds are driven purely by
           newsworthiness, public interest, and verifiability. We maintain strict neutrality and do not endorse any political
           party, commercial sponsor, or ideological faction.
         </p>

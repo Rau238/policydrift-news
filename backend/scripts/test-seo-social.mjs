@@ -2,7 +2,7 @@ async function testSeo() {
   console.log('Testing SEO, OpenGraph & Social Media endpoints...\n');
 
   // 1. OG Image Endpoint
-  const ogRes = await fetch('http://localhost:3000/api/og?title=India+Announces+Major+Policy+Reform&category=POLITICS');
+  const ogRes = await fetch('http://localhost:3050/api/og?title=India+Announces+Major+Policy+Reform&category=POLITICS');
   const ogBuffer = await ogRes.arrayBuffer();
   console.log('✓ /api/og dynamic image:', {
     status: ogRes.status,
@@ -11,19 +11,19 @@ async function testSeo() {
   });
 
   // 2. Robots.txt
-  const robRes = await fetch('http://localhost:3000/robots.txt');
+  const robRes = await fetch('http://localhost:3050/robots.txt');
   const robText = await robRes.text();
   console.log('\n✓ /robots.txt content:\n' + robText.trim());
 
   // 3. Sitemap index
-  const sitemapRes = await fetch('http://localhost:3000/sitemap.xml');
+  const sitemapRes = await fetch('http://localhost:3050/sitemap.xml');
   console.log('\n✓ /sitemap.xml index:', {
     status: sitemapRes.status,
     contentType: sitemapRes.headers.get('content-type'),
   });
 
   // 4. Homepage HTML & JSON-LD
-  const homeRes = await fetch('http://localhost:3000/');
+  const homeRes = await fetch('http://localhost:3050/');
   const homeHtml = await homeRes.text();
   const hasNewsOrg = homeHtml.includes('NewsMediaOrganization');
   const hasWebSite = homeHtml.includes('WebSite');
@@ -38,7 +38,7 @@ async function testSeo() {
   });
 
   // 5. Test Sample Article Page
-  const articleRes = await fetch('http://localhost:3000/news/my-husband-and-i-are-at-odds-should-we-tap-our-home-equity-or-sell-stocks-to-build-a-dollar100000-emergency-fund');
+  const articleRes = await fetch('http://localhost:3050/news/my-husband-and-i-are-at-odds-should-we-tap-our-home-equity-or-sell-stocks-to-build-a-dollar100000-emergency-fund');
   const articleHtml = await articleRes.text();
   console.log('\n✓ Article Page SEO Elements:', {
     status: articleRes.status,

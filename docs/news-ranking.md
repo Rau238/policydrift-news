@@ -465,8 +465,8 @@ MYSQL_DATABASE=policydrift
 
 # App
 NODE_ENV=production
-API_PORT=4000
-WEB_PORT=3000
+API_PORT=4050
+WEB_PORT=3050
 CORS_ORIGIN=https://policydrift.in
 SITE_PUBLIC_URL=https://policydrift.in
 

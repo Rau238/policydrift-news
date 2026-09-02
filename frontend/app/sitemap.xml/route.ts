@@ -17,7 +17,7 @@ export async function GET() {
         latestLastMod = info.latestLastMod;
       }
     } catch (e) {
-      console.error('[PolicyDrift] Failed to fetch sitemap index info from backend:', e);
+      console.error('[NewsFree365] Failed to fetch sitemap index info from backend:', e);
     }
 
     const sitemaps: SitemapIndexEntry[] = [
@@ -49,7 +49,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('[PolicyDrift] Error generating sitemap index:', error);
+    console.error('[NewsFree365] Error generating sitemap index:', error);
     return new Response('Internal Server Error', { status: 500 });
   }
 }

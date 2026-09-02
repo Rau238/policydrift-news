@@ -1,5 +1,5 @@
 /**
- * PolicyDrift — Scheduler Service
+ * NewsFree365 — Scheduler Service
  *
  * Handles two time-sensitive tasks:
  *   1. Publish articles whose `scheduled_at` has arrived.
