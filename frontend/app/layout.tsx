@@ -105,8 +105,12 @@ export const metadata: Metadata = {
       'max-video-preview': -1,
     },
   },
-  /** Bing Webmaster Tools: explicit meta name="msvalidate.01" */
+  verification: {
+    google: 'UuJfYPFX1nOwmN_mg9mUJEZQkJQWqSsLxHmF3VJF63c',
+  },
+  /** Bing Webmaster Tools: explicit meta name="msvalidate.01" & Google Search Console */
   other: {
+    'google-site-verification': 'UuJfYPFX1nOwmN_mg9mUJEZQkJQWqSsLxHmF3VJF63c',
     'msvalidate.01': 'EC6F809ECC7199497C4F3C2803B7C39C',
     ...(loadAdsenseScript ? { 'google-adsense-account': adsenseClient } : {}),
   },
