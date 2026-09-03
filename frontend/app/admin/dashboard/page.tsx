@@ -745,14 +745,24 @@ function DashboardContent() {
               </button>
             </div>
 
-            {/* Quick Worker Triggers */}
+            {/* Quick Actions & Worker Triggers */}
             <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 no-scrollbar sm:flex-wrap">
+              {/* Broadcast Newsletter Button - High Priority */}
+              <button
+                onClick={() => setNewsletterModalOpen(true)}
+                title="Broadcast Email Newsletter Digest to Subscribers"
+                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-teal-950/50 hover:from-teal-400 hover:to-emerald-500 transition active:scale-95 shrink-0"
+              >
+                <Mail size={13} className="text-white" />
+                <span>Broadcast Newsletter</span>
+              </button>
+
               {stats.pending > 0 && (
                 <button
                   onClick={handlePublishAllPending}
                   disabled={publishingAllPending}
                   title={`Publish all ${stats.pending} review articles immediately`}
-                  className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-emerald-950/40 transition hover:from-emerald-500 hover:to-teal-500 active:scale-95 disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-emerald-950/40 transition hover:from-emerald-500 hover:to-teal-500 active:scale-95 disabled:opacity-50 shrink-0"
                 >
                   {publishingAllPending ? (
                     <Loader2 size={13} className="animate-spin text-white" />
@@ -767,7 +777,7 @@ function DashboardContent() {
                 onClick={() => handleTriggerWorker('ingest')}
                 disabled={Boolean(workerRunning)}
                 title="Fetch all active RSS feeds immediately"
-                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-300 shadow-sm transition hover:border-teal-500/40 hover:bg-slate-800 hover:text-white disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-300 shadow-sm transition hover:border-teal-500/40 hover:bg-slate-800 hover:text-white disabled:opacity-50 shrink-0"
               >
                 {workerRunning === 'ingest' ? (
                   <Loader2 size={13} className="animate-spin text-teal-400" />
@@ -781,7 +791,7 @@ function DashboardContent() {
                 onClick={() => handleTriggerWorker('ranking')}
                 disabled={Boolean(workerRunning)}
                 title="Re-calculate velocity and trending scores"
-                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-300 shadow-sm transition hover:border-amber-500/40 hover:bg-slate-800 hover:text-white disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-300 shadow-sm transition hover:border-amber-500/40 hover:bg-slate-800 hover:text-white disabled:opacity-50 shrink-0"
               >
                 {workerRunning === 'ranking' ? (
                   <Loader2 size={13} className="animate-spin text-amber-400" />
@@ -795,7 +805,7 @@ function DashboardContent() {
                 onClick={() => handleTriggerWorker('metrics')}
                 disabled={Boolean(workerRunning)}
                 title="Roll up engagement metrics"
-                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-300 shadow-sm transition hover:border-purple-500/40 hover:bg-slate-800 hover:text-white disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-300 shadow-sm transition hover:border-purple-500/40 hover:bg-slate-800 hover:text-white disabled:opacity-50 shrink-0"
               >
                 {workerRunning === 'metrics' ? (
                   <Loader2 size={13} className="animate-spin text-purple-400" />
@@ -811,27 +821,18 @@ function DashboardContent() {
                   fetchArticles(true);
                 }}
                 title="Refresh dashboard data"
-                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-300 shadow-sm transition hover:border-teal-500/40 hover:bg-slate-800 hover:text-white"
+                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-300 shadow-sm transition hover:border-teal-500/40 hover:bg-slate-800 hover:text-white shrink-0"
               >
                 <RefreshCw size={13} className={loading || refreshing ? 'animate-spin text-teal-400' : ''} />
                 Refresh
               </button>
 
-              <button
-                onClick={() => setNewsletterModalOpen(true)}
-                title="Broadcast Email Newsletter Digest to Subscribers"
-                className="flex items-center gap-1.5 rounded-lg border border-teal-500/40 bg-teal-950/40 px-3.5 py-1.5 text-xs font-bold text-teal-200 shadow-md transition hover:border-teal-400 hover:bg-teal-900/60 active:scale-95"
-              >
-                <Mail size={13} className="text-teal-400" />
-                <span>Newsletter Digest</span>
-              </button>
-
               <Link
                 href="/admin/sources?action=new"
-                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-teal-600 to-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-teal-900/30 transition hover:from-teal-500 hover:to-emerald-500 active:scale-95"
+                className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/90 px-3.5 py-1.5 text-xs font-semibold text-slate-300 shadow-sm transition hover:border-teal-500 hover:text-white active:scale-95 shrink-0"
               >
                 <Plus size={13} />
-                <span>Add RSS Source</span>
+                <span>Add Source</span>
               </Link>
             </div>
           </div>

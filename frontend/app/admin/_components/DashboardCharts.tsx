@@ -30,6 +30,9 @@ import {
   Landmark,
   LineChart,
   Bitcoin,
+  Mail,
+  Send,
+  Bell,
 } from 'lucide-react';
 import { CategoryGlyph, categoryLabel } from '@/lib/category-theme';
 
@@ -161,6 +164,44 @@ export function DashboardCharts({
 
   return (
     <div className="w-full min-w-0 space-y-6">
+      {/* ─── Direct Broadcast & Distribution Command Banner ───────────────── */}
+      <div className="relative overflow-hidden rounded-2xl border border-teal-500/40 bg-gradient-to-r from-teal-950/40 via-slate-900/90 to-slate-950 p-5 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-500/20 text-teal-300 border border-teal-500/30 shadow-inner">
+            <Mail size={22} />
+          </div>
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-bold text-white">Audience Broadcast & Distribution</h2>
+              <span className="rounded bg-teal-500/20 px-2 py-0.5 text-[10px] font-bold text-teal-300 border border-teal-500/30">
+                1-Click Dispatch
+              </span>
+            </div>
+            <p className="text-xs text-slate-300">
+              Send verified daily intelligence briefings to email subscribers and push alerts to reader browsers.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <Link
+            href="/admin/newsletter"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-teal-950/60 hover:from-teal-400 hover:to-emerald-500 transition active:scale-95"
+          >
+            <Send size={14} />
+            <span>Open Newsletter Hub</span>
+          </Link>
+
+          <Link
+            href="/admin/social"
+            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/90 px-4 py-2.5 text-xs font-semibold text-slate-200 hover:border-teal-500 hover:text-white transition active:scale-95"
+          >
+            <Bell size={14} className="text-amber-400" />
+            <span>Social & Push Studio</span>
+          </Link>
+        </div>
+      </div>
+
       {/* ─── Hero KPI Metric Cards ────────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 w-full">
         {/* Total Published */}
