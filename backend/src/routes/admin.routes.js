@@ -103,8 +103,17 @@ router.get('/push/status',                 pushController.getPushStatus);
 
 // ── Email Newsletter ─────────────────────────────────────────────────────────
 router.get('/newsletter/subscribers',      newsletterController.listSubscribers);
+router.get('/newsletter/stories',          newsletterController.getRecentStories);
 router.post('/newsletter/broadcast',       newsletterController.broadcast);
 router.get('/newsletter/stats',            newsletterController.getStats);
+router.post('/newsletter/auto-10am',       async (req, res, next) => {
+  try {
+    const result = await newsletterController.checkAndRunAutomated10AmDigest();
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
 
 // ── Worker triggers ───────────────────────────────────────────────────────────
 router.post('/ingest',                     adminController.triggerIngest);

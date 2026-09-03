@@ -30,6 +30,7 @@ import {
 import { ingestFromRss } from '../services/ingestion.service.js';
 import { pruneOldEvents } from '../models/events.model.js';
 import { RANKING } from '../config/ranking.js';
+import { checkAndRunAutomated10AmDigest } from '../controllers/newsletter.controller.js';
 
 // ─── Startup ──────────────────────────────────────────────────────────────────
 
@@ -107,6 +108,17 @@ async function start() {
       console.log('[worker] cleanup: pruned %d old events', deleted);
     } catch (e) {
       console.error('[worker] cleanup error:', e.message);
+    }
+  });
+
+  // ── 7. Daily 10:00 AM Newsletter Auto-Digest ─────────────────────────────
+  cron.schedule('0 10 * * *', async () => {
+    console.log('[worker] Checking 10:00 AM daily newsletter status…');
+    try {
+      const r = await checkAndRunAutomated10AmDigest();
+      console.log('[worker] 10:00 AM newsletter result:', r);
+    } catch (e) {
+      console.error('[worker] 10:00 AM newsletter error:', e.message);
     }
   });
 

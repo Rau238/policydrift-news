@@ -6,6 +6,7 @@ import { pingDb } from './db/pool.js';
 import { logMysqlStorageOnStartup } from './db/storage-stats.js';
 import { ingestFromRss } from './services/ingestion.service.js';
 import { refreshTrendsCache } from './services/google-trends.service.js';
+import { checkAndRunAutomated10AmDigest } from './controllers/newsletter.controller.js';
 
 async function start() {
   try {
@@ -51,6 +52,20 @@ async function start() {
       }
     });
     console.log(`Cron: Google Trends refresh (${env.TRENDS_CRON}, geo=${env.TRENDS_GEO})`);
+  }
+
+  if (env.CRON_ENABLED) {
+    // Daily 10:00 AM Newsletter check (auto-broadcasts top stories if not sent manually today)
+    cron.schedule('0 10 * * *', async () => {
+      console.log('[cron] Checking 10:00 AM daily newsletter status…');
+      try {
+        const r = await checkAndRunAutomated10AmDigest();
+        console.log('[cron] 10:00 AM newsletter result:', r);
+      } catch (e) {
+        console.error('[cron] 10:00 AM newsletter error:', e);
+      }
+    });
+    console.log('Cron: Daily 10:00 AM Newsletter Auto-Digest scheduled.');
   }
 }
 

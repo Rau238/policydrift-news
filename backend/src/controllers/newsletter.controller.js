@@ -20,11 +20,13 @@ export async function subscribe(req, res, next) {
     });
 
     // Send welcome email in background
-    emailService.sendWelcomeEmail({
-      email: result.email,
-      name,
-      token: result.token,
-    }).catch((e) => console.warn('[newsletter.controller] Welcome email err:', e.message));
+    emailService
+      .sendWelcomeEmail({
+        email: result.email,
+        name,
+        token: result.token,
+      })
+      .catch((e) => console.warn('[newsletter.controller] Welcome email err:', e.message));
 
     return res.json({
       ok: true,
@@ -90,13 +92,17 @@ export async function broadcast(req, res, next) {
     }
 
     let stories = [];
+    let selectedIds = [];
+
     if (Array.isArray(postIds) && postIds.length > 0) {
-      const posts = await Promise.all(postIds.slice(0, 10).map((id) => postModel.findById(id)));
+      const posts = await Promise.all(postIds.slice(0, 12).map((id) => postModel.findById(id)));
       stories = posts.filter(Boolean);
+      selectedIds = stories.map((s) => s.id);
     } else {
       // Pick top 5 latest published stories automatically
-      const res = await postModel.listPosts({ limit: 5 });
-      stories = res?.posts || [];
+      const resPosts = await postModel.listPosts({ limit: 5 });
+      stories = resPosts?.posts || [];
+      selectedIds = stories.map((s) => s.id);
     }
 
     const result = await emailService.broadcastNewsletter({
@@ -107,13 +113,38 @@ export async function broadcast(req, res, next) {
       frequency: frequency || 'all',
     });
 
+    // Record this dispatch in MySQL
+    await newsletterModel
+      .recordDispatch({
+        subject: subject.trim(),
+        headline: headline?.trim() || subject.trim(),
+        storyIds: selectedIds,
+        recipientCount: result.sent || 0,
+        dispatchType: 'manual',
+      })
+      .catch((e) => console.warn('[newsletter.controller] recordDispatch notice:', e.message));
+
     return res.json({
       ok: true,
       message: result.message,
       sent: result.sent,
       failed: result.failed,
       total: result.total,
+      storiesCount: stories.length,
     });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Admin: Get recent published stories for custom selection
+ */
+export async function getRecentStories(req, res, next) {
+  try {
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit || '30', 10)));
+    const result = await postModel.listPosts({ limit });
+    return res.json({ ok: true, stories: result?.posts || [] });
   } catch (err) {
     next(err);
   }
@@ -136,20 +167,82 @@ export async function listSubscribers(req, res, next) {
 }
 
 /**
- * Admin: Stats & SMTP Config Status
+ * Admin: Stats, today's dispatch status & SMTP Config Status
  */
 export async function getStats(req, res, next) {
   try {
     const count = await newsletterModel.countActiveSubscribers();
+    const todayDispatch = await newsletterModel.hasDispatchedToday();
+    const recentDispatches = await newsletterModel.getRecentDispatches({ limit: 5 });
     const hasSmtp = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 
     return res.json({
       ok: true,
       subscribersCount: count,
+      todayDispatched: Boolean(todayDispatch),
+      todayDispatchInfo: todayDispatch || null,
+      recentDispatches,
       smtpConfigured: hasSmtp,
       smtpHost: process.env.SMTP_HOST || null,
     });
   } catch (err) {
     next(err);
+  }
+}
+
+/**
+ * Automated 10:00 AM Daily Fallback Check:
+ * If no newsletter has been sent today by 10 AM, automatically sends top 5 stories.
+ */
+export async function checkAndRunAutomated10AmDigest() {
+  try {
+    const alreadySent = await newsletterModel.hasDispatchedToday();
+    if (alreadySent) {
+      console.log('[newsletter.scheduler] Daily newsletter was already dispatched today. Skipping 10:00 AM auto-send.');
+      return { ok: true, skipped: true, reason: 'Already dispatched today' };
+    }
+
+    const subscriberCount = await newsletterModel.countActiveSubscribers();
+    if (subscriberCount === 0) {
+      console.log('[newsletter.scheduler] No active subscribers to send 10:00 AM digest to.');
+      return { ok: true, skipped: true, reason: 'Zero subscribers' };
+    }
+
+    console.log('[newsletter.scheduler] 10:00 AM auto-dispatch starting for %d subscribers…', subscriberCount);
+
+    const resPosts = await postModel.listPosts({ limit: 5 });
+    const stories = resPosts?.posts || [];
+
+    if (!stories.length) {
+      console.log('[newsletter.scheduler] No published stories available to broadcast.');
+      return { ok: true, skipped: true, reason: 'No published stories' };
+    }
+
+    const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const subject = `NewsFree365 Daily Intelligence Briefing — ${dateStr}`;
+    const headline = `Today's Verified News & Policy Briefing`;
+    const intro = `Here is your automated morning intelligence digest curated from today's top verified stories across all desks.`;
+
+    const result = await emailService.broadcastNewsletter({
+      subject,
+      headline,
+      intro,
+      stories,
+      frequency: 'all',
+    });
+
+    await newsletterModel.recordDispatch({
+      subject,
+      headline,
+      storyIds: stories.map((s) => s.id),
+      recipientCount: result.sent || 0,
+      dispatchType: 'automated_10am',
+    });
+
+    console.log('[newsletter.scheduler] 10:00 AM auto-dispatch successfully sent to %d subscribers.', result.sent);
+    return { ok: true, dispatched: true, sent: result.sent, total: result.total };
+  } catch (err) {
+    console.error('[newsletter.scheduler] 10:00 AM auto-dispatch error:', err.message);
+    return { ok: false, error: err.message };
   }
 }

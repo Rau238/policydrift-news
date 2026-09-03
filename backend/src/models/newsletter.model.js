@@ -121,3 +121,78 @@ export async function countActiveSubscribers() {
   const [rows] = await pool.query(`SELECT COUNT(*) AS count FROM news_newsletter_subscribers WHERE is_active = 1`);
   return rows[0]?.count ?? 0;
 }
+
+/**
+ * Ensure the dispatch logs table exists.
+ */
+export async function ensureDispatchesTableExists() {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS news_newsletter_dispatches (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      subject VARCHAR(255) NOT NULL,
+      headline VARCHAR(255) NOT NULL,
+      story_ids JSON NULL,
+      recipient_count INT NOT NULL DEFAULT 0,
+      dispatch_type ENUM('manual', 'automated_10am') NOT NULL DEFAULT 'manual',
+      sent_date DATE NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_sent_date (sent_date)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `;
+  try {
+    await pool.query(sql);
+  } catch (err) {
+    console.warn('[newsletter.model] Dispatches table init notice:', err.message);
+  }
+}
+
+/**
+ * Check if a newsletter has already been sent today.
+ */
+export async function hasDispatchedToday() {
+  await ensureDispatchesTableExists();
+  const [rows] = await pool.query(
+    `SELECT id, dispatch_type, created_at FROM news_newsletter_dispatches WHERE sent_date = CURDATE() LIMIT 1`
+  );
+  return rows.length > 0 ? rows[0] : null;
+}
+
+/**
+ * Record a newsletter dispatch.
+ */
+export async function recordDispatch({
+  subject,
+  headline,
+  storyIds = [],
+  recipientCount = 0,
+  dispatchType = 'manual',
+}) {
+  await ensureDispatchesTableExists();
+  const sql = `
+    INSERT INTO news_newsletter_dispatches
+      (subject, headline, story_ids, recipient_count, dispatch_type, sent_date)
+    VALUES (?, ?, ?, ?, ?, CURDATE())
+  `;
+  const [result] = await pool.query(sql, [
+    subject,
+    headline,
+    JSON.stringify(storyIds),
+    recipientCount,
+    dispatchType,
+  ]);
+  return { id: result.insertId };
+}
+
+/**
+ * Get recent newsletter dispatches.
+ */
+export async function getRecentDispatches({ limit = 10 } = {}) {
+  await ensureDispatchesTableExists();
+  const [rows] = await pool.query(
+    `SELECT id, subject, headline, story_ids, recipient_count, dispatch_type, sent_date, created_at
+     FROM news_newsletter_dispatches
+     ORDER BY id DESC LIMIT ?`,
+    [limit]
+  );
+  return rows;
+}
