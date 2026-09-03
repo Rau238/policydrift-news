@@ -177,7 +177,7 @@ export function SpotlightSearchModal({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Spotlight Search — search stories, topics, keywords, breaking alerts..."
+            placeholder="Search news..."
             className="w-full bg-transparent text-sm sm:text-base font-medium text-white placeholder-slate-400 outline-none"
           />
 
