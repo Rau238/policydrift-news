@@ -29,7 +29,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin/', '/api/admin/'],
       },
     ],
-    sitemap: absoluteUrl('/sitemap.xml'),
+    sitemap: [absoluteUrl('/sitemap.xml'), absoluteUrl('/news-sitemap.xml')],
     host: absoluteUrl('/'),
   };
 }

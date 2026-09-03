@@ -82,3 +82,45 @@ export function buildUrlSetXml(urls: SitemapUrlEntry[]): string {
 ${entries}
 </urlset>`.trim();
 }
+
+export interface GoogleNewsSitemapEntry {
+  loc: string;
+  publicationName?: string;
+  publicationLanguage?: string;
+  publicationDate: string | Date;
+  title: string;
+}
+
+/**
+ * Builds specialized Google News XML sitemap (for articles published in last 48 hours).
+ */
+export function buildGoogleNewsSitemapXml(articles: GoogleNewsSitemapEntry[]): string {
+  const entries = articles
+    .map((a) => {
+      const loc = escapeXml(a.loc);
+      const pubName = escapeXml(a.publicationName || 'NewsFree365');
+      const pubLang = escapeXml(a.publicationLanguage || 'en');
+      const pubDate = formatLastmod(a.publicationDate);
+      const title = escapeXml(a.title);
+
+      return `  <url>
+    <loc>${loc}</loc>
+    <news:news>
+      <news:publication>
+        <news:name>${pubName}</news:name>
+        <news:language>${pubLang}</news:language>
+      </news:publication>
+      <news:publication_date>${pubDate}</news:publication_date>
+      <news:title>${title}</news:title>
+    </news:news>
+  </url>`;
+    })
+    .join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+${entries}
+</urlset>`.trim();
+}
+

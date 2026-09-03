@@ -41,6 +41,17 @@ const adsenseClient =
 const loadAdsenseScript =
   process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_ADSENSE_DISABLED !== 'true';
 
+/** Optional search engine domain verifications from environment */
+const yandexVerify = process.env.NEXT_PUBLIC_YANDEX_VERIFY?.trim();
+const pinterestVerify = process.env.NEXT_PUBLIC_PINTEREST_VERIFY?.trim();
+const facebookVerify = process.env.NEXT_PUBLIC_FACEBOOK_VERIFY?.trim();
+
+/** Google Analytics 4 (GA4) measurement ID (e.g. G-XXXXXXXXXX) */
+const gaId = process.env.NEXT_PUBLIC_GA_ID?.trim();
+
+/** OneSignal Web Push App ID */
+const oneSignalAppId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID?.trim();
+
 export const metadata: Metadata = {
   metadataBase: new URL(publicSiteOrigin()),
   title: {
@@ -107,11 +118,15 @@ export const metadata: Metadata = {
   },
   verification: {
     google: 'UuJfYPFX1nOwmN_mg9mUJEZQkJQWqSsLxHmF3VJF63c',
+    ...(yandexVerify ? { yandex: yandexVerify } : {}),
   },
-  /** Bing Webmaster Tools: explicit meta name="msvalidate.01" & Google Search Console */
+  /** Search Engine Verification & Integration tags */
   other: {
     'google-site-verification': 'UuJfYPFX1nOwmN_mg9mUJEZQkJQWqSsLxHmF3VJF63c',
     'msvalidate.01': 'EC6F809ECC7199497C4F3C2803B7C39C',
+    ...(yandexVerify ? { 'yandex-verification': yandexVerify } : {}),
+    ...(pinterestVerify ? { 'p:domain_verify': pinterestVerify } : {}),
+    ...(facebookVerify ? { 'facebook-domain-verification': facebookVerify } : {}),
     ...(loadAdsenseScript ? { 'google-adsense-account': adsenseClient } : {}),
   },
 };
@@ -123,6 +138,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${sora.variable} ${jetbrainsMarketsMono.variable}`}
     >
       <body className="flex min-h-screen flex-col bg-paper font-sans antialiased text-ink">
+        {gaId ? (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`}
+            />
+            <script
+              id="ga-init"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${gaId}', { page_path: window.location.pathname });
+                `,
+              }}
+            />
+          </>
+        ) : null}
+
+        {oneSignalAppId ? (
+          <script
+            src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+            defer
+          />
+        ) : null}
+
         {loadAdsenseScript ? (
           <script
             async
@@ -139,3 +181,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
