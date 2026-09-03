@@ -139,21 +139,29 @@ export function SpotlightSearchModal({
         className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-slate-700/60 bg-slate-900/95 shadow-2xl shadow-black/90 backdrop-blur-3xl text-slate-100 flex flex-col max-h-[75vh] animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Sleek macOS Spotlight Header */}
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-800/80 bg-slate-950/70">
-          {/* macOS traffic light window dots */}
-          <div className="flex items-center gap-1.5 mr-1">
-            <span
-              className="h-3 w-3 rounded-full bg-rose-500/90 border border-rose-600/70 cursor-pointer hover:opacity-80 transition"
-              onClick={onClose}
-              title="Close"
-            />
-            <span className="h-3 w-3 rounded-full bg-amber-500/90 border border-amber-600/70" />
-            <span className="h-3 w-3 rounded-full bg-emerald-500/90 border border-emerald-600/70" />
-          </div>
+        {/* Subtle Animated Top Border Shimmer */}
+        <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-teal-400/80 to-transparent animate-pulse" />
 
-          <div className="text-teal-400 pl-1">
-            {loading ? <Loader2 size={20} className="animate-spin text-teal-400" /> : <Search size={20} />}
+        {/* Sleek macOS Spotlight Header */}
+        <div className="flex items-center gap-3.5 px-5 py-4 border-b border-slate-800/80 bg-slate-950/70">
+          {/* Animated Futuristic Glowing Search Scanner Icon */}
+          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center">
+            {/* Ambient Pulse Ring */}
+            <span className="absolute h-full w-full rounded-full bg-teal-500/20 animate-ping opacity-70" />
+            
+            {/* Spinning Gradient Border */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-teal-500 via-emerald-400 to-cyan-500 p-[1.5px] animate-spin [animation-duration:4s]">
+              <div className="h-full w-full rounded-full bg-slate-950" />
+            </div>
+
+            {/* Center Icon */}
+            <div className="relative z-10 text-teal-400">
+              {loading ? (
+                <Loader2 size={18} className="animate-spin text-teal-300" />
+              ) : (
+                <Search size={18} className="text-teal-300" />
+              )}
+            </div>
           </div>
 
           <input
