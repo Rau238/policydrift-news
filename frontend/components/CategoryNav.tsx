@@ -14,7 +14,7 @@ function deskPillClass(themeClass: string, extra = '') {
 export function CategoryNav() {
   return (
     <nav
-      className="flex snap-x snap-mandatory items-center gap-1.5 overflow-x-auto overflow-y-hidden scroll-py-1 px-4 pb-1.5 pt-1 pd-scrollbar-none sm:mx-0 sm:flex-wrap sm:items-center sm:justify-end sm:gap-2 sm:overflow-visible sm:px-3 sm:pb-0 sm:pt-0.5"
+      className="flex snap-x snap-mandatory items-center gap-1.5 overflow-x-auto overflow-y-hidden scroll-py-1 pb-1 pt-0.5 pd-scrollbar-none sm:flex-wrap sm:items-center sm:justify-start sm:gap-2 sm:overflow-visible sm:p-0"
       aria-label="News desks"
     >
       {CATEGORY_ORDER.filter((c) => c !== 'General').map((key) => (

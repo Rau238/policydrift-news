@@ -15,11 +15,11 @@ const POPULAR_SEARCH_TOPICS = [
 
 export function TrendingSearchesBar() {
   return (
-    <div className="border-b border-slate-800/60 bg-slate-950/80 backdrop-blur-sm text-xs py-1.5 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-7xl items-center gap-2.5 overflow-x-auto pd-scrollbar-none 2xl:max-w-[1440px]">
-        <div className="flex shrink-0 items-center gap-1 font-bold text-amber-400">
+    <div className="border-b border-slate-800/60 bg-slate-950/80 backdrop-blur-sm text-xs py-2">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 overflow-x-auto px-4 sm:px-6 lg:px-8 pd-scrollbar-none 2xl:max-w-[1440px]">
+        <div className="flex shrink-0 items-center gap-1.5 font-bold text-amber-400">
           <Flame className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
-          <span className="uppercase tracking-wider text-[10px] text-slate-300">Hot Topics:</span>
+          <span className="uppercase tracking-wider text-[10px] font-bold text-slate-300">Hot Topics:</span>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">

@@ -159,10 +159,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ) : null}
 
         {oneSignalAppId ? (
-          <script
-            src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
-            defer
-          />
+          <>
+            <script
+              src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+              defer
+            />
+            <script
+              id="onesignal-init"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.OneSignalDeferred = window.OneSignalDeferred || [];
+                  OneSignalDeferred.push(async function(OneSignal) {
+                    await OneSignal.init({
+                      appId: '${oneSignalAppId}',
+                      allowLocalhostAsSecureOrigin: true,
+                    });
+                  });
+                `,
+              }}
+            />
+          </>
         ) : null}
 
         {loadAdsenseScript ? (
