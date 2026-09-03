@@ -17,6 +17,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { categoryLabel } from '@/lib/category-theme';
+import { decodeHtmlEntities } from '@/lib/format';
 
 interface StoryOption {
   id: number;
@@ -76,25 +77,35 @@ export function NewsletterBroadcastModal({
       .catch(() => {});
   }, []);
 
-  // Fetch recent published stories for custom picker
+  // Fetch published stories with real-time server-side search across entire database
   useEffect(() => {
-    if (selectionMode === 'custom' && availableStories.length === 0) {
+    if (selectionMode !== 'custom') return;
+
+    const timer = setTimeout(() => {
       setLoadingStories(true);
-      fetch('/api/admin/newsletter/stories?limit=35')
+      const params = new URLSearchParams();
+      params.set('limit', '50');
+      if (storySearch.trim()) {
+        params.set('search', storySearch.trim());
+      }
+
+      fetch(`/api/admin/newsletter/stories?${params.toString()}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.ok && Array.isArray(data.stories)) {
             setAvailableStories(data.stories);
-            // Default select first 5
-            if (selectedStoryIds.length === 0) {
+            // Default select first 5 if none selected yet
+            if (selectedStoryIds.length === 0 && !storySearch.trim()) {
               setSelectedStoryIds(data.stories.slice(0, 5).map((s: StoryOption) => s.id));
             }
           }
         })
         .catch(() => {})
         .finally(() => setLoadingStories(false));
-    }
-  }, [selectionMode, availableStories.length, selectedStoryIds.length]);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [selectionMode, storySearch]);
 
   function toggleStory(id: number) {
     setSelectedStoryIds((prev) =>
@@ -110,13 +121,7 @@ export function NewsletterBroadcastModal({
     setSelectedStoryIds([]);
   }
 
-  const filteredStories = useMemo(() => {
-    if (!storySearch.trim()) return availableStories;
-    const q = storySearch.toLowerCase();
-    return availableStories.filter(
-      (s) => s.title.toLowerCase().includes(q) || s.category?.toLowerCase().includes(q)
-    );
-  }, [availableStories, storySearch]);
+  const filteredStories = availableStories;
 
   async function handleBroadcast(e: React.FormEvent) {
     e.preventDefault();
@@ -352,7 +357,7 @@ export function NewsletterBroadcastModal({
                               </span>
                             )}
                           </div>
-                          <p className="text-xs font-semibold text-white line-clamp-1">{story.title}</p>
+                          <p className="text-xs font-semibold text-white line-clamp-1">{decodeHtmlEntities(story.title)}</p>
                         </div>
                       </div>
                     );

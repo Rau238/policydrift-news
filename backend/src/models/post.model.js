@@ -28,13 +28,18 @@ export async function incrementViews(id) {
   await pool.query('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [id]);
 }
 
-export async function listPosts({ category, page = 1, limit = 12 }) {
+export async function listPosts({ category, search, page = 1, limit = 12 }) {
   const offset = (page - 1) * limit;
   const params = [];
   let where = "status = 'published'";
   if (category && category !== 'all') {
     where += ' AND category = ?';
     params.push(category);
+  }
+  if (search && String(search).trim()) {
+    where += ' AND (title LIKE ? OR excerpt LIKE ?)';
+    const q = `%${String(search).trim()}%`;
+    params.push(q, q);
   }
   const [rows] = await pool.query(
     `SELECT ${listFields} FROM posts WHERE ${where} ORDER BY published_at DESC LIMIT ? OFFSET ?`,

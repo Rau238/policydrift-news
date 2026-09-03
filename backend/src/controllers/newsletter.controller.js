@@ -142,8 +142,9 @@ export async function broadcast(req, res, next) {
  */
 export async function getRecentStories(req, res, next) {
   try {
-    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit || '30', 10)));
-    const result = await postModel.listPosts({ limit });
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '50', 10)));
+    const search = req.query.search || req.query.q || '';
+    const result = await postModel.listPosts({ search, limit });
     return res.json({ ok: true, stories: result?.posts || [] });
   } catch (err) {
     next(err);

@@ -8,7 +8,8 @@ export async function listPosts(req, res, next) {
     const page = Math.max(1, parseInt(req.query.page || '1', 10));
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit || '12', 10)));
     const category = req.query.category || 'all';
-    const data = await postModel.listPosts({ category, page, limit });
+    const search = req.query.search || req.query.q || '';
+    const data = await postModel.listPosts({ category, search, page, limit });
     res.json({
       ...data,
       posts: data.posts.map((p) => serializePostDates(withStoryImageFallback(p))),

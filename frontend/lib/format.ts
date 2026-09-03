@@ -53,3 +53,21 @@ export function formatTimeAgoUpper(iso: string): string {
   return `${Math.floor(s / 604800)}W AGO`;
 }
 
+export function decodeHtmlEntities(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#(\d+);/g, (_, code) => {
+      try {
+        return String.fromCharCode(Number(code));
+      } catch {
+        return '';
+      }
+    });
+}
+
