@@ -11,13 +11,22 @@ export const CATEGORY_TO_SLUG: Record<string, string> = {
   'Banking & Economics': 'banking-economics',
   Politics: 'politics',
   'Stocks & Markets': 'stocks-markets',
+  Technology: 'technology',
   Crypto: 'crypto',
   General: 'general',
 };
 
-const SLUG_TO_CATEGORY: Record<string, string> = Object.fromEntries(
-  Object.entries(CATEGORY_TO_SLUG).map(([k, v]) => [v, k]),
-);
+const SLUG_TO_CATEGORY: Record<string, string> = {
+  ...Object.fromEntries(
+    Object.entries(CATEGORY_TO_SLUG).map(([k, v]) => [v, k]),
+  ),
+  // High-frequency route aliases & shortcuts
+  markets: 'Stocks & Markets',
+  world: 'World News',
+  tech: 'Technology',
+  technology: 'Technology',
+  banking: 'Banking & Economics',
+};
 
 /** Category slugs shown in primary nav (exclude General hub). */
 export const NAV_CATEGORY_SLUGS = [
@@ -29,6 +38,7 @@ export const NAV_CATEGORY_SLUGS = [
   'banking-economics',
   'politics',
   'stocks-markets',
+  'technology',
   'crypto',
 ] as const;
 
@@ -76,9 +86,12 @@ export const CATEGORY_INTRO: Record<string, string> = {
   Politics: 'Government, legislation, campaigns, and political developments across regions.',
   'Stocks & Markets':
     'Equities, indices, macro moves, and market structure from our syndicated feeds.',
+  Technology:
+    'Emerging tech, artificial intelligence breakthroughs, cybersecurity, gadget news, and digital innovation.',
   Crypto: 'Digital assets, regulation, and on-chain trends worth watching.',
   General: 'Stories that cross beats or sit outside a single topic.',
 };
 
 /** @deprecated use CATEGORY_INTRO */
 export const DESK_INTRO = CATEGORY_INTRO;
+

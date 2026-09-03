@@ -28,6 +28,7 @@ export const CATEGORY_ORDER = [
   'Banking & Economics',
   'Politics',
   'Stocks & Markets',
+  'Technology',
   'Crypto',
   'General',
 ] as const;
@@ -139,6 +140,17 @@ export const CATEGORY_THEME: Record<string, Theme> = {
     placeholder: 'from-emerald-200/80 via-emerald-50 to-teal-50',
     cardStripe: 'from-emerald-500/80 via-teal-400/40 to-cyan-500/20',
     articleHeroRing: 'ring-emerald-300/75',
+  },
+  Technology: {
+    label: 'Tech',
+    Icon: Zap,
+    chip: 'bg-teal-50 text-teal-950 ring-1 ring-teal-200/90',
+    navPill:
+      'bg-teal-500/15 text-teal-100 ring-teal-400/30 hover:bg-teal-500/25 hover:ring-teal-400/50',
+    cardRing: 'hover:ring-teal-400/55',
+    placeholder: 'from-teal-200/80 via-teal-50 to-cyan-50',
+    cardStripe: 'from-teal-500/80 via-cyan-400/40 to-blue-500/20',
+    articleHeroRing: 'ring-teal-300/75',
   },
   Crypto: {
     label: 'Crypto',

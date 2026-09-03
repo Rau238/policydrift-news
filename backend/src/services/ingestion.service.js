@@ -58,19 +58,18 @@ function estimateReadingTime(html) {
 // ─── DB-source loading (falls back to rss-feeds.js) ──────────────────────────
 
 /**
- * Seed the news_sources table from the hardcoded RSS_FEEDS_BY_CATEGORY config.
- * Only runs when the table is empty to avoid duplicate rows.
+ * Seed or sync curated sources into news_sources table from hardcoded config.
  */
 async function seedSourcesIfEmpty() {
   try {
-    const count = await sourceModel.countSources();
-    if (count > 0) return;
     const { getCuratedFeedEntries } = await import('../config/rss-feeds.js');
     const entries = getCuratedFeedEntries();
     const result = await sourceModel.syncCuratedSources(entries);
-    console.log(`[ingest] Seeded ${result.inserted} source(s) into news_sources.`);
+    if (result.inserted > 0) {
+      console.log(`[ingest] Seeded/synced ${result.inserted} new source(s) into news_sources.`);
+    }
   } catch (e) {
-    console.warn('[ingest] Could not seed sources:', e.message);
+    console.warn('[ingest] Could not sync sources:', e.message);
   }
 }
 

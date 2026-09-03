@@ -115,6 +115,18 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://feeds.bloomberg.com/markets/news.rss',
     'https://www.ft.com/rss/markets',
   ],
+  Technology: [
+    'https://techcrunch.com/feed/',
+    'https://www.theverge.com/rss/index.xml',
+    'https://feeds.arstechnica.com/arstechnica/index',
+    'https://www.wired.com/feed/rss',
+    'https://gadgets360.com/rss/feeds',
+    'https://timesofindia.indiatimes.com/rssfeeds/66949542.cms',
+    'https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms',
+    'https://feeds.bbci.co.uk/news/technology/rss.xml',
+    'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml',
+    'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0JXVnVMVWRDR2dKSlRpZ0FQAQ?hl=en-IN&gl=IN&ceid=IN:en',
+  ],
   Crypto: [
     'https://cointelegraph.com/rss',
     'https://www.coindesk.com/arc/outboundfeeds/rss/',
@@ -229,6 +241,11 @@ export function generateFeedName(url, category) {
       if (path.includes('realtimeheadlines')) return 'MarketWatch - Realtime Headlines';
       return 'MarketWatch - Top Stories';
     }
+    if (host.includes('techcrunch.com')) return 'TechCrunch';
+    if (host.includes('theverge.com')) return 'The Verge';
+    if (host.includes('arstechnica.com')) return 'Ars Technica';
+    if (host.includes('wired.com')) return 'Wired Tech';
+    if (host.includes('gadgets360.com')) return 'Gadgets 360';
     if (host.includes('cointelegraph.com')) return 'CoinTelegraph - Crypto';
     if (host.includes('coindesk.com')) return 'CoinDesk - Web3 & Crypto';
     if (host.includes('decrypt.co')) return 'Decrypt - Crypto News';
