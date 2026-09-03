@@ -95,8 +95,8 @@ export async function broadcast(req, res, next) {
       stories = posts.filter(Boolean);
     } else {
       // Pick top 5 latest published stories automatically
-      const latest = await postModel.findAll({ status: 'published', limit: 5 });
-      stories = latest || [];
+      const res = await postModel.listPosts({ limit: 5 });
+      stories = res?.posts || [];
     }
 
     const result = await emailService.broadcastNewsletter({

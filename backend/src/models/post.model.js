@@ -19,6 +19,11 @@ export async function findBySlug(slug) {
   return rows[0] || null;
 }
 
+export async function findById(id) {
+  const [rows] = await pool.query(`SELECT * FROM posts WHERE id = ? LIMIT 1`, [id]);
+  return rows[0] || null;
+}
+
 export async function incrementViews(id) {
   await pool.query('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [id]);
 }
