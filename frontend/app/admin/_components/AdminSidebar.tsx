@@ -101,6 +101,9 @@ export function AdminSidebar({
     if (itemHref === '/admin/social') {
       return pathname.startsWith('/admin/social');
     }
+    if (itemHref === '/admin/newsletter') {
+      return pathname.startsWith('/admin/newsletter');
+    }
     if (itemHref === '/admin/activity') {
       return pathname.startsWith('/admin/activity');
     }

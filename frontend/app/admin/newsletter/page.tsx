@@ -173,6 +173,31 @@ export default function AdminNewsletterPage() {
             </div>
           </div>
 
+          {/* Broadcast Action Banner */}
+          <div className="relative overflow-hidden rounded-2xl border border-teal-500/40 bg-gradient-to-r from-teal-950/40 via-slate-900/90 to-slate-950 p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1 max-w-xl">
+              <div className="flex items-center gap-2">
+                <span className="rounded bg-teal-500/20 px-2.5 py-0.5 text-[10px] font-bold text-teal-300 border border-teal-500/30 uppercase tracking-wider">
+                  Automated Intelligence Digest
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-white">
+                Ready to Send Today&apos;s Verified News Briefing?
+              </h3>
+              <p className="text-xs text-slate-300">
+                Click below to compose your headline, review the top 5 stories automatically selected from your published feeds, and dispatch the digest to all email subscribers.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setModalOpen(true)}
+              className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 px-6 py-3 text-xs font-bold text-white shadow-lg shadow-teal-950/60 hover:from-teal-400 hover:to-emerald-500 transition active:scale-95"
+            >
+              <Send size={15} />
+              <span>Broadcast Newsletter Now</span>
+            </button>
+          </div>
+
           {/* Subscribers Table Card */}
           <div className="rounded-2xl border border-slate-800/80 bg-[#0c1220]/90 shadow-xl overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 border-b border-slate-800/80">
