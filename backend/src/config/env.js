@@ -69,6 +69,13 @@ export const env = {
   /** Shared secret for admin API endpoints (x-admin-secret header). */
   ADMIN_SECRET: (process.env.ADMIN_SECRET || '').trim(),
 
+  // ── Email Newsletter (SMTP) ───────────────────────────────────────────
+  SMTP_HOST: (process.env.SMTP_HOST || '').trim(),
+  SMTP_PORT: parseInt(process.env.SMTP_PORT || '587', 10) || 587,
+  SMTP_USER: (process.env.SMTP_USER || '').trim(),
+  SMTP_PASS: (process.env.SMTP_PASS || '').trim(),
+  SMTP_FROM: (process.env.SMTP_FROM || '').trim(),
+
   // ── Worker process control ────────────────────────────────────────────
   /**
    * Set WORKER_ENABLED=true in .env.production to tell server.js that a
