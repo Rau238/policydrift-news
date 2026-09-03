@@ -52,7 +52,20 @@ export function PushBroadcastModal({
   const [imageUrl, setImageUrl] = useState(article.image_url || '');
 
   const [sending, setSending] = useState(false);
-  const [result, setResult] = useState<{ ok: boolean; message: string; recipients?: number } | null>(null);
+  const [result, setResult] = useState<{ ok: boolean; message: string; recipients?: number; sent?: number } | null>(null);
+  const [subscribersCount, setSubscribersCount] = useState<number | null>(null);
+
+  // Fetch current subscriber count from backend MySQL
+  useState(() => {
+    fetch('/api/admin/push/status')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok && typeof data.subscribersCount === 'number') {
+          setSubscribersCount(data.subscribersCount);
+        }
+      })
+      .catch(() => {});
+  });
 
   async function handleSendPush(e: React.FormEvent) {
     e.preventDefault();
@@ -83,11 +96,12 @@ export function PushBroadcastModal({
       setResult({
         ok: true,
         message: data.message || 'Push notification sent successfully!',
-        recipients: data.recipients,
+        recipients: data.sent ?? data.recipients ?? 0,
+        sent: data.sent,
       });
 
       if (onSuccess) {
-        onSuccess({ recipients: data.recipients || 0, id: data.id });
+        onSuccess({ recipients: data.sent ?? data.recipients ?? 0, id: data.id });
       }
     } catch (err: any) {
       setResult({
@@ -111,12 +125,17 @@ export function PushBroadcastModal({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-white">Broadcast Web Push Alert</h2>
-                <span className="rounded bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
-                  OneSignal Live
+                <span className="rounded bg-teal-500/20 px-2 py-0.5 text-[10px] font-bold text-teal-300 border border-teal-500/30">
+                  Native VAPID
                 </span>
+                {subscribersCount !== null && (
+                  <span className="rounded bg-slate-800 px-2 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-700">
+                    {subscribersCount} Active Subscribers
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-400">
-                Send real-time breaking news notification to all subscribed devices.
+                Send real-time breaking news notification directly to all subscribed devices from your database.
               </p>
             </div>
           </div>

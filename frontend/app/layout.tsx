@@ -5,6 +5,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteJsonLd } from '@/components/SiteJsonLd';
 import { PwaSplash } from '@/components/PwaSplash';
+import { PushSubscriptionPrompt } from '@/components/PushSubscriptionPrompt';
 import { storyFallbackImageUrl } from '@/lib/story-image';
 import { absoluteUrl, publicSiteOrigin, siteDescription, siteName } from '@/lib/site';
 
@@ -190,6 +191,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ) : null}
         <SiteJsonLd />
         <PwaSplash />
+        <PushSubscriptionPrompt />
         <SiteHeader />
         <main className="min-w-0 max-w-[100vw] flex-1 overflow-x-clip">{children}</main>
         <SiteFooter />
