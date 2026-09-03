@@ -20,6 +20,7 @@ import {
 import { siteName } from '@/lib/site';
 import { CATEGORY_ORDER, categoryHref, categoryLabel, CategoryGlyph } from '@/lib/category-theme';
 import { BrandMark } from '@/components/BrandMark';
+import { NewsletterSubscribeBox } from '@/components/NewsletterSubscribeBox';
 
 const quickLinks = [
   { href: '/news', label: 'Global Wire', Icon: Rss },
@@ -68,48 +69,11 @@ export function SiteFooter() {
       />
 
       <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-[1440px]">
-        {/* Compact Intelligence Briefing Capsule */}
-        <div className="relative mb-10 overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-r from-slate-900/90 via-[#0c1424]/90 to-slate-900/90 p-5 shadow-2xl backdrop-blur-2xl sm:p-6 lg:p-7">
-          <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-cyan-500/20 blur-3xl" />
-          <div className="pointer-events-none absolute -left-12 -bottom-12 h-48 w-48 rounded-full bg-teal-500/15 blur-3xl" />
 
-          <div className="relative flex flex-col items-start justify-between gap-5 lg:flex-row lg:items-center lg:gap-8">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-teal-400/30 bg-teal-950/80 px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-teal-300">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live 24/7 Policy Wire
-              </div>
 
-              <h2 className="mt-2 font-display text-lg font-bold tracking-tight text-white sm:text-xl lg:text-2xl">
-                Real-time policy intelligence,{' '}
-                <span className="bg-gradient-to-r from-cyan-300 via-teal-200 to-emerald-300 bg-clip-text text-transparent">
-                  without the noise.
-                </span>
-              </h2>
-
-              <p className="mt-1 text-xs leading-relaxed text-slate-300/90 sm:text-sm">
-                Continuous verified updates spanning geopolitics, regulation, and live markets.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <Link
-                href="/news"
-                className="group inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 px-5 text-xs font-bold text-slate-950 shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all duration-200 hover:shadow-[0_0_25px_rgba(20,184,166,0.5)] hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <Zap className="h-3.5 w-3.5 fill-slate-950" />
-                <span>Open Live Wire</span>
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-              <Link
-                href="/trending-india"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-xs font-bold text-white backdrop-blur-md transition-all duration-200 hover:border-white/40 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <TrendingUp className="h-3.5 w-3.5 text-amber-300" />
-                <span>Trending Desk</span>
-              </Link>
-            </div>
-          </div>
+        {/* Global Newsletter Subscription Banner */}
+        <div className="mb-10">
+          <NewsletterSubscribeBox />
         </div>
 
         {/* Main 4-Column Grid */}

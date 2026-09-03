@@ -3,6 +3,7 @@ import { requireAdmin } from '../middleware/auth.middleware.js';
 import * as adminController from '../controllers/admin.controller.js';
 import * as socialController from '../controllers/social.controller.js';
 import * as pushController from '../controllers/push.controller.js';
+import * as newsletterController from '../controllers/newsletter.controller.js';
 import { env } from '../config/env.js';
 
 const router = Router();
@@ -99,6 +100,11 @@ router.get('/social/logs',                 socialController.getLogs);
 // ── Web Push Notifications ───────────────────────────────────────────────────
 router.post('/push/broadcast',             pushController.broadcastPush);
 router.get('/push/status',                 pushController.getPushStatus);
+
+// ── Email Newsletter ─────────────────────────────────────────────────────────
+router.get('/newsletter/subscribers',      newsletterController.listSubscribers);
+router.post('/newsletter/broadcast',       newsletterController.broadcast);
+router.get('/newsletter/stats',            newsletterController.getStats);
 
 // ── Worker triggers ───────────────────────────────────────────────────────────
 router.post('/ingest',                     adminController.triggerIngest);

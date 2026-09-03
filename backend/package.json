@@ -22,6 +22,7 @@
     "morgan": "^1.10.0",
     "mysql2": "^3.11.3",
     "node-cron": "^3.0.3",
+    "nodemailer": "^9.1.1",
     "rss-parser": "^3.13.0",
     "slugify": "^1.6.6",
     "web-push": "^3.6.7"

@@ -10,6 +10,7 @@ import adminRoutes from './routes/admin.routes.js';
 import cricketRoutes from './routes/cricket.routes.js';
 import footballRoutes from './routes/football.routes.js';
 import pushRoutes from './routes/push.routes.js';
+import newsletterRoutes from './routes/newsletter.routes.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -73,6 +74,8 @@ app.use('/api/cricket', cricketRoutes);
 app.use('/api/cricket-proxy', cricketRoutes);
 // Public native Web Push subscription endpoints
 app.use('/api/push', pushRoutes);
+// Public Email Newsletter subscription endpoints
+app.use('/api/newsletter', newsletterRoutes);
 // Tribuna live and completed football match endpoints
 app.use('/api/football', footballRoutes);
 

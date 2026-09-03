@@ -22,6 +22,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Share2,
+  Mail,
 } from 'lucide-react';
 import { BrandMark } from '@/components/BrandMark';
 import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
@@ -172,6 +173,12 @@ export function AdminSidebar({
       label: 'Social Media Hub',
       href: '/admin/social',
       icon: <Share2 size={20} />,
+      badge: null,
+    },
+    {
+      label: 'Email Newsletter',
+      href: '/admin/newsletter',
+      icon: <Mail size={20} />,
       badge: null,
     },
     {

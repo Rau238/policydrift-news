@@ -40,12 +40,14 @@ import {
   Plus,
   Share2,
   Bell,
+  Mail,
 } from 'lucide-react';
 import { AdminSidebar } from '../_components/AdminSidebar';
 import { DashboardCharts } from '../_components/DashboardCharts';
 import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
 import { SocialPublishModal } from '@/components/SocialPublishModal';
 import { PushBroadcastModal } from '@/components/PushBroadcastModal';
+import { NewsletterBroadcastModal } from '@/components/NewsletterBroadcastModal';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -291,6 +293,9 @@ function DashboardContent() {
 
   // Push Notification Broadcast modal state
   const [pushModalArticle, setPushModalArticle] = useState<Article | null>(null);
+
+  // Newsletter Broadcast modal state
+  const [newsletterModalOpen, setNewsletterModalOpen] = useState(false);
 
   // Custom Admin Confirmation Modal state
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
@@ -810,6 +815,15 @@ function DashboardContent() {
               >
                 <RefreshCw size={13} className={loading || refreshing ? 'animate-spin text-teal-400' : ''} />
                 Refresh
+              </button>
+
+              <button
+                onClick={() => setNewsletterModalOpen(true)}
+                title="Broadcast Email Newsletter Digest to Subscribers"
+                className="flex items-center gap-1.5 rounded-lg border border-teal-500/40 bg-teal-950/40 px-3.5 py-1.5 text-xs font-bold text-teal-200 shadow-md transition hover:border-teal-400 hover:bg-teal-900/60 active:scale-95"
+              >
+                <Mail size={13} className="text-teal-400" />
+                <span>Newsletter Digest</span>
               </button>
 
               <Link
@@ -1731,6 +1745,13 @@ function DashboardContent() {
         } : null}
         onClose={() => setPushModalArticle(null)}
         onSuccess={(res) => showFeedback('success', `Push notification broadcasted to ${res.recipients} subscriber(s)!`)}
+      />
+
+      {/* Newsletter Email Broadcast Modal */}
+      <NewsletterBroadcastModal
+        isOpen={newsletterModalOpen}
+        onClose={() => setNewsletterModalOpen(false)}
+        onSuccess={(msg) => showFeedback('success', msg)}
       />
 
       {/* Custom Theme Admin Confirmation Modal */}
