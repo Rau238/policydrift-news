@@ -19,9 +19,11 @@ import {
   Flame,
   Globe2,
   Menu,
+  Bell,
 } from 'lucide-react';
 import { AdminSidebar } from '../_components/AdminSidebar';
 import { SocialPublishModal } from '@/components/SocialPublishModal';
+import { PushBroadcastModal } from '@/components/PushBroadcastModal';
 import type { SocialArticleInput } from '@/lib/social-copy';
 import { categoryLabel } from '@/lib/category-theme';
 
@@ -71,6 +73,9 @@ export default function AdminSocialPage() {
   // Selected article for Social Publishing Modal
   const [selectedArticle, setSelectedArticle] = useState<SocialArticleInput | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Selected article for Push Broadcast Modal
+  const [pushArticle, setPushArticle] = useState<ArticleItem | null>(null);
 
   // Toast feedback
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -323,13 +328,24 @@ export default function AdminSocialPage() {
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => handleOpenPublishModal(art)}
-                      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-teal-950/40 transition hover:from-teal-500 hover:to-emerald-500 active:scale-95 self-end sm:self-center"
-                    >
-                      <Share2 size={13} />
-                      <span>Create & Publish Post</span>
-                    </button>
+                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                      <button
+                        onClick={() => setPushArticle(art)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-950/40 px-3.5 py-2 text-xs font-bold text-amber-200 shadow-md transition hover:border-amber-400 hover:bg-amber-900/60 active:scale-95"
+                        title="Broadcast Push Alert to Subscribers"
+                      >
+                        <Bell size={13} className="text-amber-400" />
+                        <span>Push Alert</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleOpenPublishModal(art)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-teal-950/40 transition hover:from-teal-500 hover:to-emerald-500 active:scale-95"
+                      >
+                        <Share2 size={13} />
+                        <span>Social Post</span>
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -386,6 +402,16 @@ export default function AdminSocialPage() {
           onPostSuccess={(msg) => {
             showToast('success', msg);
             fetchArticlesAndStatus();
+          }}
+        />
+
+        {/* Push Notification Broadcast Modal */}
+        <PushBroadcastModal
+          isOpen={Boolean(pushArticle)}
+          article={pushArticle}
+          onClose={() => setPushArticle(null)}
+          onSuccess={(res) => {
+            showToast('success', `Push alert broadcasted to ${res.recipients} subscriber(s)!`);
           }}
         />
 

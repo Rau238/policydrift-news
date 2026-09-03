@@ -39,11 +39,13 @@ import {
   Menu,
   Plus,
   Share2,
+  Bell,
 } from 'lucide-react';
 import { AdminSidebar } from '../_components/AdminSidebar';
 import { DashboardCharts } from '../_components/DashboardCharts';
 import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
 import { SocialPublishModal } from '@/components/SocialPublishModal';
+import { PushBroadcastModal } from '@/components/PushBroadcastModal';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -286,6 +288,9 @@ function DashboardContent() {
 
   // Social Publishing Studio modal state
   const [socialModalArticle, setSocialModalArticle] = useState<Article | null>(null);
+
+  // Push Notification Broadcast modal state
+  const [pushModalArticle, setPushModalArticle] = useState<Article | null>(null);
 
   // Custom Admin Confirmation Modal state
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
@@ -1278,6 +1283,15 @@ function DashboardContent() {
                                     <Share2 size={13} />
                                   </button>
 
+                                  {/* Send Web Push Notification */}
+                                  <button
+                                    onClick={() => setPushModalArticle(item)}
+                                    title="Broadcast Web Push Alert to Subscribers"
+                                    className="rounded p-1 text-amber-400 hover:bg-amber-950/50 hover:text-amber-300 transition"
+                                  >
+                                    <Bell size={13} />
+                                  </button>
+
                                   {/* View Details Modal */}
                                   <button
                                     onClick={() => setPreviewArticle(item)}
@@ -1702,6 +1716,21 @@ function DashboardContent() {
         } : null}
         onClose={() => setSocialModalArticle(null)}
         onPostSuccess={(msg) => showFeedback('success', msg)}
+      />
+
+      {/* Push Notification Broadcast Modal */}
+      <PushBroadcastModal
+        isOpen={Boolean(pushModalArticle)}
+        article={pushModalArticle ? {
+          id: pushModalArticle.id,
+          title: pushModalArticle.title,
+          slug: pushModalArticle.slug,
+          excerpt: pushModalArticle.excerpt,
+          image_url: pushModalArticle.image_url,
+          category: pushModalArticle.category,
+        } : null}
+        onClose={() => setPushModalArticle(null)}
+        onSuccess={(res) => showFeedback('success', `Push notification broadcasted to ${res.recipients} subscriber(s)!`)}
       />
 
       {/* Custom Theme Admin Confirmation Modal */}
