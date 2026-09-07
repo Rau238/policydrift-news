@@ -7,7 +7,7 @@ export const runtime = 'edge';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const title = searchParams.get('title') || 'NewsFree365 — Verified Global Intelligence';
+    const title = searchParams.get('title') || 'NewsFree365: Verified Global Intelligence';
     const category = searchParams.get('category') || 'NEWS';
     const ratio = searchParams.get('ratio') || '1.91:1';
     const bgImage = searchParams.get('image') || '';

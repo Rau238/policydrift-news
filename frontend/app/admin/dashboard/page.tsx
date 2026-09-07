@@ -131,7 +131,7 @@ const CATEGORIES = [
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtDate(iso: string | null | undefined) {
-  if (!iso) return '—';
+  if (!iso) return '-';
   try {
     const d = new Date(iso);
     return d.toLocaleDateString('en-US', {
@@ -142,7 +142,7 @@ function fmtDate(iso: string | null | undefined) {
       minute: '2-digit',
     });
   } catch {
-    return '—';
+    return '-';
   }
 }
 

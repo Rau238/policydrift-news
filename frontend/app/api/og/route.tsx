@@ -6,7 +6,7 @@ export const runtime = 'edge';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const title = searchParams.get('title')?.slice(0, 150) || 'NewsFree365 — Real-Time News & Global Policy';
+    const title = searchParams.get('title')?.slice(0, 150) || 'NewsFree365: Real-Time News & Global Policy';
     const category = searchParams.get('category')?.toUpperCase() || 'NEWS';
     const date = searchParams.get('date') || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 

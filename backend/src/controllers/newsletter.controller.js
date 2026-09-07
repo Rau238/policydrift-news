@@ -220,7 +220,7 @@ export async function checkAndRunAutomated10AmDigest() {
     }
 
     const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    const subject = `NewsFree365 Daily Intelligence Briefing — ${dateStr}`;
+    const subject = `NewsFree365 Daily Intelligence Briefing | ${dateStr}`;
     const headline = `Today's Verified News & Policy Briefing`;
     const intro = `Here is your automated morning intelligence digest curated from today's top verified stories across all desks.`;
 

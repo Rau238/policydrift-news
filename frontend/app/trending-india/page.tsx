@@ -10,12 +10,12 @@ const description =
   'See what people in India are searching for on Google, mapped to NewsFree365 desks and matched headlines, updated from our trends cache.';
 
 export const metadata: Metadata = {
-  title: { absolute: `Trending in India — Live Search Topics & News | ${siteName}` },
+  title: { absolute: `Trending in India | Live Search Topics & News | ${siteName}` },
   description,
   keywords: ['India trending topics', 'Google trends India', 'India news', 'viral stories India', siteName],
   alternates: { canonical: absoluteUrl('/trending-india') },
   openGraph: {
-    title: `Trending in India — Live Search Topics & News | ${siteName}`,
+    title: `Trending in India | Live Search Topics & News | ${siteName}`,
     description,
     url: absoluteUrl('/trending-india'),
     siteName,
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     images: [
       {
-        url: storyFallbackImageUrl({ title: 'Trending in India — Live Search Topics & News', category: 'TRENDING INDIA' }),
+        url: storyFallbackImageUrl({ title: 'Trending in India | Live Search Topics & News', category: 'TRENDING INDIA' }),
         width: 1200,
         height: 630,
         alt: `${siteName} Trending in India`,
@@ -33,11 +33,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `Trending in India — Live Search Topics & News | ${siteName}`,
+    title: `Trending in India | Live Search Topics & News | ${siteName}`,
     description,
     site: '@newsfree365',
     creator: '@newsfree365',
-    images: [storyFallbackImageUrl({ title: 'Trending in India — Live Search Topics & News', category: 'TRENDING INDIA' })],
+    images: [storyFallbackImageUrl({ title: 'Trending in India | Live Search Topics & News', category: 'TRENDING INDIA' })],
   },
   robots: {
     index: true,

@@ -27,7 +27,7 @@ export default function AboutPage() {
           NewsFree365 brings together headlines and reporting from verified RSS and syndication feeds across breaking news, world politics, India, business, banking, and real-time sports.
         </p>
         <p>
-          Our mission is to help readers scan what matters with clear labels, stable URLs, transparent sourcing, and plain-language summaries—without replacing the dedicated field reporters and editors who produce the primary reporting.
+          Our mission is to help readers scan what matters with clear labels, stable URLs, transparent sourcing, and plain-language summaries, without replacing the dedicated field reporters and editors who produce the primary reporting.
         </p>
       </section>
 

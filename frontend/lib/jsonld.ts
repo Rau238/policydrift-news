@@ -1,5 +1,6 @@
 import { absoluteUrl, publicSiteOrigin, siteDescription, siteName } from '@/lib/site';
 import { contactEmail, curatorName, curatorProfileUrl } from '@/lib/site-trust';
+import { decodeHtmlEntities } from '@/lib/sanitize';
 
 /**
  * Embed JSON-LD in `<script type="application/ld+json">` safely escaping XML/HTML parser triggers.
@@ -116,6 +117,8 @@ export function newsArticleJsonLd(params: {
     curatorPerson,
   } = params;
 
+  const cleanTitle = decodeHtmlEntities(title || '').replace(/—/g, ' - ').trim();
+  const cleanDescription = decodeHtmlEntities(description || '').replace(/—/g, ' - ').trim();
   const validImages = imageUrls.filter(Boolean);
   const primaryImage = validImages[0] || absoluteUrl('/api/og');
 
@@ -140,8 +143,8 @@ export function newsArticleJsonLd(params: {
       {
         '@type': 'NewsArticle',
         '@id': `${url}#article`,
-        headline: title,
-        description,
+        headline: cleanTitle,
+        description: cleanDescription,
         datePublished: toSchemaDate(datePublished),
         dateModified: toSchemaDate(dateModified),
         mainEntityOfPage: {
@@ -199,7 +202,7 @@ export function newsArticleJsonLd(params: {
           {
             '@type': 'ListItem',
             position: 4,
-            name: title,
+            name: cleanTitle,
             item: url,
           },
         ],

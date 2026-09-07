@@ -72,7 +72,7 @@ const HERO_COLOR_THEMES = [
 ] as const;
 
 export const metadata: Metadata = {
-  title: { absolute: `${siteName} — Real-Time News, Global Policy & Market Briefs` },
+  title: { absolute: `${siteName} | Real-Time News, Global Policy & Market Briefs` },
   description: siteDescription,
   keywords: [
     'news',
@@ -91,7 +91,7 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: absoluteUrl('/') },
   openGraph: {
-    title: `${siteName} — Real-Time News & Global Policy`,
+    title: `${siteName} | Real-Time News & Global Policy`,
     description: siteDescription,
     url: absoluteUrl('/'),
     siteName,
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     images: [
       {
-        url: storyFallbackImageUrl({ title: 'NewsFree365 — Real-Time News, Global Policy & Market Briefs', category: 'LIVE DESK' }),
+        url: storyFallbackImageUrl({ title: 'NewsFree365 | Real-Time News, Global Policy & Market Briefs', category: 'LIVE DESK' }),
         width: 1200,
         height: 630,
         alt: `${siteName} Cover`,
@@ -109,11 +109,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${siteName} — Real-Time News & Global Policy`,
+    title: `${siteName} | Real-Time News & Global Policy`,
     description: siteDescription,
     site: '@newsfree365',
     creator: '@newsfree365',
-    images: [storyFallbackImageUrl({ title: 'NewsFree365 — Real-Time News, Global Policy & Market Briefs', category: 'LIVE DESK' })],
+    images: [storyFallbackImageUrl({ title: 'NewsFree365 | Real-Time News, Global Policy & Market Briefs', category: 'LIVE DESK' })],
   },
   robots: {
     index: true,

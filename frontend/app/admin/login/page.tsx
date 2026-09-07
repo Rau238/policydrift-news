@@ -61,7 +61,7 @@ export default function AdminLoginPage() {
       router.push('/admin/dashboard');
       router.refresh();
     } catch {
-      setError('Network error — could not reach the server.');
+      setError('Network error - could not reach the server.');
     } finally {
       setLoading(false);
     }

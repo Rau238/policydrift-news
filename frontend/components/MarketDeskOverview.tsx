@@ -79,7 +79,7 @@ function AssetBadge({ q }: { q: MarketQuoteRow }) {
 }
 
 function formatDisplayPrice(price: number | null, isCrypto: boolean): string {
-  if (price == null) return '—';
+  if (price == null) return '--';
   if (isCrypto && price < 1) {
     return `$${price.toLocaleString(NUM_LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`;
   }

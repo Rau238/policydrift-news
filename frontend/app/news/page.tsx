@@ -56,10 +56,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     };
   }
 
-  const title = 'All News — Latest Syndicated Briefs';
+  const title = 'All News: Latest Syndicated Briefs';
   const description = `Combined real-time news stream from every ${siteName} desk: breaking, world, India, sports, business, politics, markets, and crypto.`;
   const canonical = absoluteUrl('/news');
-  const ogImage = resolveOgImageUrl(null, { title: 'All News — Latest Syndicated Briefs', category: 'NEWS DESK' });
+  const ogImage = resolveOgImageUrl(null, { title: 'All News: Latest Syndicated Briefs', category: 'NEWS DESK' });
 
   return {
     title,

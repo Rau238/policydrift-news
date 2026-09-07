@@ -19,7 +19,7 @@ type Conditions = {
 };
 
 function aqiMeta(aqi: number | null): { label: string; className: string } {
-  if (aqi == null || Number.isNaN(aqi)) return { label: '—', className: 'text-slate-400' };
+  if (aqi == null || Number.isNaN(aqi)) return { label: '--', className: 'text-slate-400' };
   if (aqi <= 50) return { label: 'Good', className: 'text-emerald-300' };
   if (aqi <= 100) return { label: 'Fair', className: 'text-lime-300' };
   if (aqi <= 150) return { label: 'Moderate', className: 'text-amber-300' };
@@ -338,8 +338,8 @@ export function LocalConditions() {
   const ready = mounted && Boolean(data);
   const aqiTone = aqiMeta(ready ? (data?.aqi ?? null) : null);
   const place = ready && data ? data.place : 'City';
-  const tempLabel = ready && data ? `${data.tempC}°` : '—°';
-  const aqiLabel = ready && data ? `AQI ${data.aqi ?? '—'}` : 'AQI —';
+  const tempLabel = ready && data ? `${data.tempC}°` : '--°';
+  const aqiLabel = ready && data ? `AQI ${data.aqi ?? '--'}` : 'AQI --';
   const kind = ready && data ? data.kind : 'unknown';
 
   return (

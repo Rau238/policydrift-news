@@ -70,7 +70,7 @@ export default function TermsPage() {
         <div className="rounded-xl border border-amber-500/20 bg-amber-950/30 p-4 text-xs text-amber-200/90 leading-relaxed space-y-2">
           <p className="font-bold text-amber-300 text-sm">IMPORTANT NOTICE:</p>
           <p>
-            Content published on NewsFree365—including economic key takeaways, market indices, regulatory summaries, and legal briefs—is provided exclusively for informational and educational purposes.
+            Content published on NewsFree365, including economic key takeaways, market indices, regulatory summaries, and legal briefs, is provided exclusively for informational and educational purposes.
           </p>
           <p>
             Nothing on this website constitutes financial investment advice, legal counsel, or tax guidance. Always consult licensed financial advisors, legal attorneys, or official government gazettes before making commercial or legal decisions.
