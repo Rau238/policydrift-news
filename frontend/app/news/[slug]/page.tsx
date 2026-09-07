@@ -11,6 +11,8 @@ import { absoluteUrl, siteName } from '@/lib/site';
 import { curatorImageSrc, curatorName, curatorProfileUrl } from '@/lib/site-trust';
 import { ArticleKeyTakeaways } from '@/components/ArticleKeyTakeaways';
 import { StoryOverviewBox } from '@/components/StoryOverviewBox';
+import { StoryTimeline } from '@/components/StoryTimeline';
+import { extractTimelineFromContent } from '@/lib/story-timeline';
 import { ParticleStoryImageStack } from '@/components/ParticleStoryImageStack';
 import { PublisherCreditCard } from '@/components/PublisherCreditCard';
 import { AnimatedBackButton } from '@/components/AnimatedBackButton';
@@ -21,6 +23,7 @@ import { PostCard } from '@/components/PostCard';
 import { LiveMarketsAside } from '@/components/LiveMarketsAside';
 import { SidebarPostList } from '@/components/SidebarPostList';
 import { TrendingAside } from '@/components/TrendingAside';
+import { RichStoryBody } from '@/components/RichStoryBody';
 import { CategoryDeskView } from '@/components/CategoryDeskView';
 import { CategoryDeskHero } from '@/components/CategoryDeskHero';
 import { LiveCricketTicker } from '@/components/LiveCricketTicker';
@@ -270,25 +273,26 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   });
 
   const excerptText = post.excerpt?.trim() ? decodeHtmlEntities(post.excerpt.trim()) : '';
+  const storyTimeline = extractTimelineFromContent(post.body || '');
   /** Deck under the headline only when we also have a longer unique body. */
   const showDeckUnderTitle = Boolean(excerptText) && showArticleBody;
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]">
-      <div className="border-b border-slate-800/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-        <div className="mx-auto max-w-7xl px-4 py-3.5 sm:px-6 lg:px-8 2xl:max-w-[1440px]">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="border-b border-slate-800/80 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white">
+        <div className="mx-auto max-w-7xl px-3 py-1.5 sm:px-6 sm:py-2 lg:px-8 2xl:max-w-[1440px]">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
             <AnimatedBackButton href="/news" label="All news" />
-            <nav className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-              <Link href="/" className="transition hover:text-teal-200">
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 overflow-hidden text-[10px] sm:text-[11px] font-medium tracking-wide text-slate-400">
+              <Link href="/" className="shrink-0 transition hover:text-teal-200">
                 Home
               </Link>
-              <span className="mx-1.5 text-slate-600">/</span>
-              <Link href="/news" className="transition hover:text-teal-200">
+              <span className="text-slate-600">/</span>
+              <Link href="/news" className="hidden xs:inline shrink-0 transition hover:text-teal-200">
                 News
               </Link>
-              <span className="mx-1.5 text-slate-600">/</span>
-              <Link href={categoryHref(post.category)} className="transition hover:text-teal-200">
+              <span className="hidden xs:inline text-slate-600">/</span>
+              <Link href={categoryHref(post.category)} className="truncate text-teal-300/95 font-semibold transition hover:text-teal-200">
                 {categoryLabel(post.category)}
               </Link>
             </nav>
@@ -296,8 +300,8 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6 sm:pb-20 sm:pt-8 lg:px-8 2xl:max-w-[1440px]">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-10">
+      <div className="mx-auto max-w-7xl px-3.5 pb-14 pt-4 sm:px-6 sm:pb-20 sm:pt-8 lg:px-8 2xl:max-w-[1440px]">
+        <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-10">
           <div className="min-w-0">
             <article className="relative w-full min-w-0" itemScope itemType="https://schema.org/NewsArticle">
               <script
@@ -305,24 +309,24 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                 dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
               />
 
-              <header className="mb-6 space-y-3">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <header className="mb-4 sm:mb-6 space-y-2.5 sm:space-y-3.5">
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs">
                   <Link
                     href={categoryHref(post.category)}
                     aria-label={`Browse all ${categoryLabel(post.category)} stories`}
-                    className={`inline-flex w-fit max-w-full items-center gap-1.5 rounded-full px-3.5 py-1 text-[12px] font-bold shadow-sm ring-1 transition hover:brightness-[0.98] ${categoryChipClass(post.category)}`}
+                    className={`inline-flex w-fit max-w-full items-center gap-1.5 rounded-full px-3 py-1 text-[11px] sm:text-[12px] font-bold shadow-xs ring-1 transition hover:brightness-[0.98] ${categoryChipClass(post.category)}`}
                   >
                     <CategoryGlyph name={post.category} className="h-3.5 w-3.5 shrink-0" />
                     <span className="min-w-0 text-left">{categoryLabel(post.category)}</span>
                   </Link>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-slate-500">
-                    <time className="tabular-nums" dateTime={post.published_at} title={post.published_at}>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-[12px] text-slate-500">
+                    <time className="tabular-nums font-medium" dateTime={post.published_at} title={post.published_at}>
                       {formatPublishedAt(post.published_at)}
                     </time>
                     <span className="text-slate-300" aria-hidden>
                       ·
                     </span>
-                    <span className="inline-flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1 font-medium">
                       <Eye className="h-3.5 w-3.5 opacity-70" strokeWidth={2.25} aria-hidden />
                       {post.view_count.toLocaleString()} views
                     </span>
@@ -332,7 +336,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                 <h1
                   id="article-headline"
                   itemProp="headline"
-                  className="text-balance font-display text-2xl font-bold leading-tight tracking-tight text-slate-950 sm:text-3xl lg:text-[2.25rem] lg:leading-[1.15]"
+                  className="text-balance font-display text-[1.4rem] xs:text-[1.55rem] font-bold leading-[1.24] tracking-tight text-slate-950 sm:text-3xl lg:text-[2.25rem] lg:leading-[1.16]"
                 >
                   {decodeHtmlEntities(post.title)}
                 </h1>
@@ -340,7 +344,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                   <p
                     id="article-excerpt"
                     itemProp="description"
-                    className="max-w-3xl text-base leading-relaxed text-slate-600 sm:text-lg"
+                    className="max-w-3xl text-[14.5px] leading-relaxed text-slate-600 sm:text-lg"
                   >
                     {excerptText}
                   </p>
@@ -355,9 +359,9 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                 />
               </header>
 
-              <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm shadow-slate-900/5">
+              <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs shadow-slate-900/5">
                 {/* Particle.news Style 3D Overlapping Image Stack / Hero Section */}
-                <div className="p-4 sm:p-6 lg:p-8 pb-0 sm:pb-0 lg:pb-0">
+                <div className="p-0 sm:p-6 lg:p-8 pb-0 sm:pb-0 lg:pb-0">
                   <ParticleStoryImageStack
                     mainImageSrc={heroSrc}
                     mainTitle={post.title}
@@ -367,25 +371,37 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                 </div>
 
                 {/* Unified Editorial Article Story Content with Generous Padding */}
-                <div className="p-6 sm:p-8 lg:p-10 border-b border-slate-100 space-y-6">
+                <div className="p-4 sm:p-8 lg:p-10 border-b border-slate-100 space-y-5 sm:space-y-6">
                   <StoryOverviewBox
-                    excerpt={excerptText}
+                    excerpt={showDeckUnderTitle ? null : excerptText}
                     takeawaysRaw={takeaways}
                   />
 
+                  {storyTimeline && storyTimeline.length > 0 && (
+                    <StoryTimeline
+                      timeline={storyTimeline}
+                      category={post.category}
+                      storyTitle={post.title}
+                    />
+                  )}
+
                   {showArticleBody ? (
-                    <div className="pt-6 border-t border-slate-100">
-                      <div
-                        className="article-prose article-detail-prose prose-policy w-full overflow-x-auto text-left feed-article-body [overflow-wrap:anywhere] [word-break:break-word] text-base leading-relaxed text-slate-800"
-                        dangerouslySetInnerHTML={{ __html: articleHtml }}
-                        suppressHydrationWarning
-                      />
+                    <div className="pt-5 sm:pt-6 border-t border-slate-100">
+                      {rawBody && (rawBody.includes('## ') || rawBody.includes('|') || rawBody.includes('> [!') || rawBody.includes('**')) ? (
+                        <RichStoryBody content={rawBody} theme="light" />
+                      ) : (
+                        <div
+                          className="article-prose article-detail-prose prose-policy w-full overflow-x-auto text-left feed-article-body [overflow-wrap:anywhere] [word-break:break-word] text-[15px] sm:text-base leading-relaxed text-slate-800"
+                          dangerouslySetInnerHTML={{ __html: articleHtml }}
+                          suppressHydrationWarning
+                        />
+                      )}
                     </div>
                   ) : null}
                 </div>
 
                 {/* News Publisher Credit & Original Source Attribution */}
-                <div className="p-6 sm:p-8 bg-slate-50/50 border-b border-slate-100">
+                <div className="p-4 sm:p-8 bg-slate-50/50 border-b border-slate-100">
                   <PublisherCreditCard
                     originalUrl={post.original_url}
                     sourceFeed={post.source_feed}
@@ -396,7 +412,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                 </div>
 
                 {/* Navigation and Desk Link */}
-                <div className="bg-white p-5 sm:p-6 lg:px-8">
+                <div className="bg-white p-4 sm:p-6 lg:px-8">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <Link
                       href={categoryHref(post.category)}
@@ -406,7 +422,9 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                       <span aria-hidden>→</span>
                     </Link>
                     <p className="text-[11px] text-slate-400">
-                      Syndicated feed content with full publisher credit.
+                      {!post.original_url || post.source_feed === 'PolicyDrift Editorial Desk'
+                        ? 'PolicyDrift Editorial Desk · Independent in-depth reporting.'
+                        : 'Syndicated feed content with full publisher credit.'}
                     </p>
                   </div>
                 </div>
@@ -422,33 +440,6 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                   relatedPosts={relatedPosts}
                 />
               </div>
-
-              {/* More Stories from this Desk Grid */}
-              {relatedPosts.length > 0 ? (
-                <section className="mt-8 rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm">
-                  <div className="mb-6 flex items-center justify-between">
-                    <div>
-                      <h2 className="font-display text-xl font-bold tracking-tight text-slate-950">
-                        More from {categoryLabel(post.category)}
-                      </h2>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Latest developments and reports from the desk
-                      </p>
-                    </div>
-                    <Link
-                      href={categoryHref(post.category)}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 hover:text-teal-800"
-                    >
-                      All stories →
-                    </Link>
-                  </div>
-                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {relatedPosts.slice(0, 3).map((p, i) => (
-                      <PostCard key={p.id} post={p} gridCell index={i} priority={false} />
-                    ))}
-                  </div>
-                </section>
-              ) : null}
             </article>
           </div>
 

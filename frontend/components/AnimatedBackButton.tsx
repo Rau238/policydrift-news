@@ -29,48 +29,42 @@ export function AnimatedBackButton({
     <Link
       href={href}
       onClick={handleClick}
-      className={`group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full border border-teal-500/30 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 px-4 py-2 text-xs sm:text-[13px] font-bold text-white shadow-md shadow-slate-950/40 backdrop-blur-xl transition-all duration-300 ease-out hover:border-teal-400 hover:shadow-lg hover:shadow-teal-500/30 hover:scale-[1.03] active:scale-95 ${className}`}
+      className={`group relative inline-flex items-center gap-1.5 overflow-hidden rounded-full border border-teal-500/25 bg-slate-900/90 px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-white shadow-xs backdrop-blur-md transition-all duration-200 ease-out hover:border-teal-400 hover:bg-slate-900 hover:shadow-sm hover:shadow-teal-500/20 active:scale-95 ${className}`}
     >
       {/* Animated Light Sweep Shimmer Effect */}
       <span
         aria-hidden
-        className="pointer-events-none absolute -inset-full bg-gradient-to-r from-transparent via-teal-400/20 to-transparent opacity-0 transition-all duration-700 ease-in-out group-hover:translate-x-full group-hover:opacity-100"
-      />
-
-      {/* Subtle Radial Glow on Hover */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-full bg-teal-500/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute -inset-full bg-gradient-to-r from-transparent via-teal-400/15 to-transparent opacity-0 transition-all duration-500 ease-in-out group-hover:translate-x-full group-hover:opacity-100"
       />
 
       {/* `<<` Double Chevron Icon with Staggered Kinetic Wave */}
-      <div className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-500/20 text-teal-300 ring-1 ring-teal-400/40 transition-all duration-300 group-hover:bg-teal-400 group-hover:text-slate-950 group-hover:ring-teal-300 group-hover:shadow-md group-hover:shadow-teal-400/50">
+      <div className="relative flex h-4 w-4 sm:h-4.5 sm:w-4.5 shrink-0 items-center justify-center rounded-full bg-teal-500/20 text-teal-300 ring-1 ring-teal-400/30 transition-all duration-200 group-hover:bg-teal-400 group-hover:text-slate-950">
         <svg
-          width="15"
-          height="15"
+          width="10"
+          height="10"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="overflow-visible"
+          className="overflow-visible sm:w-2.5 sm:h-2.5"
         >
-          {/* Lead Chevron (<) - Glides first */}
+          {/* Lead Chevron (<) */}
           <polyline
             points="11 17 6 12 11 7"
-            className="transition-transform duration-300 ease-out group-hover:-translate-x-1"
+            className="transition-transform duration-200 ease-out group-hover:-translate-x-0.5"
           />
-          {/* Follower Chevron (<) - Follows with elastic wave */}
+          {/* Follower Chevron (<) */}
           <polyline
             points="18 17 13 12 18 7"
-            className="opacity-75 transition-all duration-300 ease-out group-hover:-translate-x-1 group-hover:opacity-100"
+            className="opacity-75 transition-all duration-200 ease-out group-hover:-translate-x-0.5 group-hover:opacity-100"
           />
         </svg>
       </div>
 
-      {/* Button Text with Dynamic Letter-Spacing Transition */}
-      <span className="relative font-sans tracking-wide text-slate-100 transition-colors duration-300 group-hover:text-white">
+      {/* Button Text */}
+      <span className="relative font-sans tracking-tight text-slate-200 transition-colors duration-200 group-hover:text-white">
         {label}
       </span>
     </Link>

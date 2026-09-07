@@ -32,19 +32,21 @@ export function HeaderChrome() {
     <>
       <header className="sticky top-0 z-40 max-w-[100vw] overflow-x-clip border-b border-slate-800/80 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 shadow-lg shadow-slate-900/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 2xl:max-w-[1440px]">
-          <div className="flex h-14 items-center gap-3 sm:h-16">
-            <Link href="/" className="group flex min-w-0 shrink-0 items-center gap-2.5 sm:gap-3">
-              <BrandMark sizeClass="h-9 w-9 sm:h-10 sm:w-10" />
-              <span className="font-display text-lg font-bold tracking-tight text-white sm:text-xl">{siteName}</span>
+          <div className="flex h-14 items-center justify-between gap-2.5 sm:gap-3 sm:h-16">
+            <Link href="/" className="group flex min-w-0 shrink-0 items-center gap-2 sm:gap-2.5">
+              <BrandMark sizeClass="h-8 w-8 sm:h-9 sm:w-9" />
+              <span className="font-display text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-teal-300 transition-colors truncate">
+                {siteName}
+              </span>
             </Link>
 
-            <div className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:gap-3 md:gap-3.5">
+            <div className="flex min-w-0 items-center justify-end gap-1.5 sm:gap-2.5">
               <LocalConditions />
 
               <nav className="flex items-center gap-1.5 sm:gap-2" aria-label="Primary">
                 <Link
                   href="/sports/cricket"
-                  className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/80 px-2.5 py-1.5 text-xs font-semibold text-emerald-300 transition hover:border-emerald-500/40 hover:bg-emerald-950/40 hover:text-emerald-200"
+                  className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-950/40 px-3 text-xs font-bold text-emerald-300 transition hover:border-emerald-400 hover:bg-emerald-900/50 hover:text-emerald-200 shadow-xs"
                   title="Live Cricket Scores & Matches"
                 >
                   <span className="relative flex h-2 w-2">
@@ -56,21 +58,22 @@ export function HeaderChrome() {
 
                 <Link
                   href="/trending-india"
-                  className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-medium text-amber-200/95 transition hover:bg-amber-500/15 hover:text-amber-100 lg:px-3.5"
+                  className="inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/15 to-orange-500/15 px-2.5 sm:px-3 text-xs sm:text-sm font-bold text-amber-300 transition hover:border-amber-400/50 hover:from-amber-500/25 hover:to-orange-500/25 hover:text-amber-200 shadow-xs active:scale-95 shrink-0"
+                  title="Trending Topics & Real-time Velocity"
                 >
-                  <AnimatedTrendingIcon className="h-4 w-4" />
-                  Trending India
+                  <AnimatedTrendingIcon className="h-4 w-4 shrink-0" />
+                  <span className="whitespace-nowrap">Trending</span>
                 </Link>
 
                 {/* MacBook Spotlight Search Trigger Button */}
                 <button
                   type="button"
                   onClick={() => setSpotlightOpen(true)}
-                  className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/90 px-3 py-1.5 text-xs text-slate-300 transition hover:border-teal-500/50 hover:bg-slate-850 hover:text-white group"
+                  className="flex h-8 sm:h-9 items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/90 px-2.5 sm:px-3 text-xs font-semibold text-slate-300 transition hover:border-teal-500/50 hover:bg-slate-800 hover:text-white shadow-xs group active:scale-95 shrink-0"
                   title="Open Spotlight Search (⌘K / Ctrl+K)"
                   aria-label="Spotlight Search"
                 >
-                  <Search size={14} className="text-teal-400 group-hover:scale-110 transition-transform" />
+                  <Search size={14} className="text-teal-400 group-hover:scale-110 transition-transform shrink-0" />
                   <span className="hidden sm:inline text-slate-400 group-hover:text-slate-200">Search</span>
                   <span className="hidden sm:flex items-center gap-0.5 rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 border border-slate-700">
                     {isMac ? <Command size={10} /> : <span>Ctrl</span>}

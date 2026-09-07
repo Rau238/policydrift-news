@@ -41,6 +41,10 @@ import {
   Share2,
   Bell,
   Mail,
+  Edit3,
+  PenTool,
+  BookOpen,
+  RotateCcw,
 } from 'lucide-react';
 import { AdminSidebar } from '../_components/AdminSidebar';
 import { DashboardCharts } from '../_components/DashboardCharts';
@@ -81,6 +85,7 @@ interface StatsData {
   pending: number;
   draft: number;
   archived: number;
+  editorial?: number;
   rejected?: number;
   featured: number;
   breaking: number;
@@ -247,6 +252,7 @@ function DashboardContent() {
     pending: 0,
     draft: 0,
     archived: 0,
+    editorial: 0,
     featured: 0,
     breaking: 0,
     totalViews: 0,
@@ -524,12 +530,16 @@ function DashboardContent() {
     }
   }
 
-  async function handleDeleteArticle(id: number | string) {
+  async function handleDeleteArticle(id: number | string, articleStatus?: string) {
+    const isArchived = articleStatus === 'archived' || statusFilter === 'archived';
+
     setConfirmDialog({
       isOpen: true,
-      title: 'Archive Article',
-      message: 'Are you sure you want to archive this article? It will be removed from the public live feed.',
-      confirmText: 'Archive Article',
+      title: isArchived ? 'Permanently Delete Article' : 'Archive Article',
+      message: isArchived
+        ? 'Are you sure you want to permanently delete this article from the database? This action cannot be undone.'
+        : 'Are you sure you want to archive this article? It will be removed from the public live feed.',
+      confirmText: isArchived ? 'Delete Permanently' : 'Archive Article',
       cancelText: 'Cancel',
       intent: 'danger',
       onConfirm: async () => {
@@ -538,17 +548,20 @@ function DashboardContent() {
         setActionLoading(key);
 
         try {
-          const res = await fetch(`/api/admin/articles/${id}`, { method: 'DELETE' });
+          const url = isArchived
+            ? `/api/admin/articles/${id}?permanent=true`
+            : `/api/admin/articles/${id}`;
+          const res = await fetch(url, { method: 'DELETE' });
           const data = await res.json();
           if (res.ok && data.ok !== false) {
-            showFeedback('success', data.message || 'Article archived');
+            showFeedback('success', data.message || (isArchived ? 'Article permanently deleted' : 'Article archived'));
             setArticles((prev) => prev.filter((a) => Number(a.id) !== Number(id)));
             setTotal((t) => Math.max(0, t - 1));
             fetchStats();
             fetchArticles(true);
             if (previewArticle?.id === id) setPreviewArticle(null);
           } else {
-            showFeedback('error', data.error || 'Failed to archive article');
+            showFeedback('error', data.error || 'Failed to delete article');
             fetchArticles(true);
           }
         } catch {
@@ -828,6 +841,14 @@ function DashboardContent() {
               </button>
 
               <Link
+                href="/admin/create"
+                className="flex items-center gap-1.5 rounded-lg bg-teal-500 px-3.5 py-1.5 text-xs font-bold text-slate-950 shadow-md shadow-teal-500/20 transition hover:bg-teal-400 active:scale-95 shrink-0"
+              >
+                <Plus size={13} strokeWidth={2.5} />
+                <span>Write Story</span>
+              </Link>
+
+              <Link
                 href="/admin/sources?action=new"
                 className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/90 px-3.5 py-1.5 text-xs font-semibold text-slate-300 shadow-sm transition hover:border-teal-500 hover:text-white active:scale-95 shrink-0"
               >
@@ -987,6 +1008,7 @@ function DashboardContent() {
                       {[
                         { key: 'all', label: 'All Articles', count: stats.total },
                         { key: 'published', label: 'Published', count: stats.published },
+                        { key: 'editorial', label: 'Authored Stories', count: stats.editorial || 0 },
                         { key: 'pending', label: 'Review Queue', count: stats.pending },
                         { key: 'draft', label: 'Drafts', count: stats.draft },
                         { key: 'archived', label: 'Archived', count: stats.archived },
@@ -1164,17 +1186,28 @@ function DashboardContent() {
                               {/* Article Title & Source */}
                               <td className="px-4 py-3.5">
                                 <div className="space-y-1">
-                                  <button
-                                    onClick={() => setPreviewArticle(item)}
-                                    className="text-left font-semibold text-slate-100 hover:text-teal-300 transition-colors line-clamp-1"
-                                    title={item.title}
-                                  >
-                                    {item.title}
-                                  </button>
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <button
+                                      onClick={() => setPreviewArticle(item)}
+                                      className="text-left font-semibold text-slate-100 hover:text-teal-300 transition-colors line-clamp-1"
+                                      title={item.title}
+                                    >
+                                      {item.title}
+                                    </button>
+                                    {!item.source_id && (
+                                      <span className="inline-flex items-center gap-1 rounded bg-teal-500/20 px-1.5 py-0.5 text-[10px] font-bold text-teal-300 border border-teal-500/30 shrink-0">
+                                        <PenTool size={9} /> Editorial
+                                      </span>
+                                    )}
+                                  </div>
                                   <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                                    {item.source_name && (
+                                    {item.source_name ? (
                                       <span className="font-medium text-teal-400/90 truncate max-w-[120px]">
                                         {item.source_name}
+                                      </span>
+                                    ) : (
+                                      <span className="font-medium text-teal-300 truncate max-w-[140px]">
+                                        PolicyDrift Editorial Desk
                                       </span>
                                     )}
                                     <span>•</span>
@@ -1268,6 +1301,15 @@ function DashboardContent() {
                               {/* Action Buttons */}
                               <td className="px-4 py-3.5 text-right whitespace-nowrap">
                                 <div className="flex items-center justify-end gap-1.5">
+                                  {/* Edit Article in Studio */}
+                                  <Link
+                                    href={`/admin/create?edit=${item.id}`}
+                                    title="Edit Story Narrative, Markdown & Media"
+                                    className="rounded p-1 text-cyan-400 hover:bg-cyan-950/50 hover:text-cyan-300 transition"
+                                  >
+                                    <Edit3 size={13} />
+                                  </Link>
+
                                   {/* Publish / Unpublish Toggle */}
                                   {item.status === 'published' ? (
                                     <button
@@ -1318,10 +1360,14 @@ function DashboardContent() {
 
                                   {/* Archive / Delete */}
                                   <button
-                                    onClick={() => handleDeleteArticle(item.id)}
+                                    onClick={() => handleDeleteArticle(item.id, item.status)}
                                     disabled={isRowLoading}
-                                    title="Archive article"
-                                    className="rounded p-1 text-slate-500 hover:bg-rose-950/40 hover:text-rose-400 transition"
+                                    title={item.status === 'archived' ? 'Permanently delete article' : 'Archive article'}
+                                    className={`rounded p-1 transition ${
+                                      item.status === 'archived'
+                                        ? 'text-rose-400 hover:bg-rose-950/60 hover:text-rose-300'
+                                        : 'text-slate-500 hover:bg-rose-950/40 hover:text-rose-400'
+                                    }`}
                                   >
                                     <Trash2 size={13} />
                                   </button>
@@ -1481,28 +1527,105 @@ function DashboardContent() {
 
               <div className="h-4 w-px bg-slate-800 mx-0.5" />
 
-              {/* Archive Button */}
-              <button
-                onClick={() => {
-                  setConfirmDialog({
-                    isOpen: true,
-                    title: 'Archive Selected Articles',
-                    message: `Are you sure you want to archive ${selectedIds.length} selected articles? They will be removed from the active live feed.`,
-                    confirmText: `Archive ${selectedIds.length} Articles`,
-                    cancelText: 'Cancel',
-                    intent: 'danger',
-                    onConfirm: async () => {
-                      setConfirmDialog(null);
-                      executeBulkAction('archive');
-                    },
-                  });
-                }}
-                disabled={bulkExecuting}
-                title="Archive selected articles"
-                className="flex h-9 items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 text-rose-300 transition hover:bg-rose-500/20 active:scale-95 disabled:opacity-50 whitespace-nowrap"
-              >
-                <Archive size={14} />
-              </button>
+              {statusFilter === 'archived' ? (
+                <>
+                  {/* Restore to Drafts Button */}
+                  <button
+                    onClick={() => {
+                      setConfirmDialog({
+                        isOpen: true,
+                        title: 'Restore Selected Articles',
+                        message: `Restore ${selectedIds.length} selected articles back to Draft status?`,
+                        confirmText: `Restore ${selectedIds.length} Articles`,
+                        cancelText: 'Cancel',
+                        intent: 'primary',
+                        onConfirm: async () => {
+                          setConfirmDialog(null);
+                          executeBulkAction('unpublish');
+                        },
+                      });
+                    }}
+                    disabled={bulkExecuting}
+                    title="Restore selected articles to drafts"
+                    className="flex h-9 items-center gap-1.5 rounded-lg border border-teal-500/30 bg-teal-500/10 px-3 text-xs font-semibold text-teal-300 transition hover:bg-teal-500/20 active:scale-95 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    <RotateCcw size={13} />
+                    <span className="hidden sm:inline">Restore to Drafts</span>
+                  </button>
+
+                  {/* Permanently Delete Button */}
+                  <button
+                    onClick={() => {
+                      setConfirmDialog({
+                        isOpen: true,
+                        title: 'Permanently Delete Selected Articles',
+                        message: `Are you sure you want to permanently delete ${selectedIds.length} selected articles from the database? This action CANNOT be undone.`,
+                        confirmText: `Delete ${selectedIds.length} Permanently`,
+                        cancelText: 'Cancel',
+                        intent: 'danger',
+                        onConfirm: async () => {
+                          setConfirmDialog(null);
+                          executeBulkAction('delete');
+                        },
+                      });
+                    }}
+                    disabled={bulkExecuting}
+                    title="Permanently delete selected articles"
+                    className="flex h-9 items-center gap-1.5 rounded-lg border border-rose-500/50 bg-rose-600/20 px-3 text-xs font-bold text-rose-300 transition hover:bg-rose-600/30 active:scale-95 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    <Trash2 size={13} />
+                    <span>Delete Permanently</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Archive Button */}
+                  <button
+                    onClick={() => {
+                      setConfirmDialog({
+                        isOpen: true,
+                        title: 'Archive Selected Articles',
+                        message: `Are you sure you want to archive ${selectedIds.length} selected articles? They will be removed from the active live feed.`,
+                        confirmText: `Archive ${selectedIds.length} Articles`,
+                        cancelText: 'Cancel',
+                        intent: 'danger',
+                        onConfirm: async () => {
+                          setConfirmDialog(null);
+                          executeBulkAction('archive');
+                        },
+                      });
+                    }}
+                    disabled={bulkExecuting}
+                    title="Archive selected articles"
+                    className="flex h-9 items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 text-rose-300 transition hover:bg-rose-500/20 active:scale-95 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    <Archive size={14} />
+                  </button>
+
+                  {/* Direct Permanent Delete Button */}
+                  <button
+                    onClick={() => {
+                      setConfirmDialog({
+                        isOpen: true,
+                        title: 'Permanently Delete Selected Articles',
+                        message: `Are you sure you want to permanently delete ${selectedIds.length} selected articles from the database? This action CANNOT be undone.`,
+                        confirmText: `Delete ${selectedIds.length} Permanently`,
+                        cancelText: 'Cancel',
+                        intent: 'danger',
+                        onConfirm: async () => {
+                          setConfirmDialog(null);
+                          executeBulkAction('delete');
+                        },
+                      });
+                    }}
+                    disabled={bulkExecuting}
+                    title="Permanently delete selected articles"
+                    className="flex h-9 items-center justify-center rounded-lg border border-rose-600/50 bg-rose-950/40 px-3 text-rose-400 transition hover:bg-rose-900/60 active:scale-95 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </>
+              )}
 
               {/* Clear Selection */}
               <button
@@ -1686,6 +1809,14 @@ function DashboardContent() {
               </div>
 
               <div className="flex items-center gap-2">
+                <Link
+                  href={`/admin/create?edit=${previewArticle.id}`}
+                  className="flex items-center gap-1.5 rounded-lg border border-cyan-500/40 bg-cyan-950/60 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-900/60 hover:text-white transition"
+                >
+                  <Edit3 size={14} className="text-cyan-400" />
+                  <span>Edit Story</span>
+                </Link>
+
                 <button
                   onClick={() => {
                     const art = previewArticle;
@@ -1699,10 +1830,14 @@ function DashboardContent() {
                 </button>
 
                 <button
-                  onClick={() => handleDeleteArticle(previewArticle.id)}
-                  className="rounded-lg border border-rose-500/30 px-3 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-950/30"
+                  onClick={() => handleDeleteArticle(previewArticle.id, previewArticle.status)}
+                  className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+                    previewArticle.status === 'archived'
+                      ? 'border-rose-500/60 bg-rose-950/40 text-rose-300 hover:bg-rose-900/60'
+                      : 'border-rose-500/30 text-rose-400 hover:bg-rose-950/30'
+                  }`}
                 >
-                  Archive
+                  {previewArticle.status === 'archived' ? 'Delete Permanently' : 'Archive'}
                 </button>
                 <button
                   onClick={() => setPreviewArticle(null)}

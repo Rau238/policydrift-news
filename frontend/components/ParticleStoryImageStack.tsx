@@ -43,8 +43,8 @@ export function ParticleStoryImageStack({
       <div className="relative w-full">
         {hasMultiple ? (
           /* Signature Particle.news Overlapping 3D Image Fan Stack */
-          <div className="relative mx-auto w-full pt-4 pb-6 sm:pb-8">
-            <div className="relative h-[260px] w-full sm:h-[380px] md:h-[430px]">
+          <div className="relative mx-auto w-full pt-2 pb-4 sm:pt-4 sm:pb-8">
+            <div className="relative h-[230px] w-full sm:h-[380px] md:h-[430px]">
               {/* Back Layer Image 3 (Far right / lowest layer) */}
               {allImages[2] && (
                 <div
@@ -52,7 +52,7 @@ export function ParticleStoryImageStack({
                     setActiveImageIndex(2);
                     setLightboxOpen(true);
                   }}
-                  className="group absolute right-0 top-2 h-[78%] w-[58%] cursor-pointer overflow-hidden rounded-[20px] border border-white/40 shadow-xl shadow-slate-900/10 transition-all duration-300 hover:scale-[1.03] hover:z-20 sm:right-2 sm:top-3 sm:w-[50%]"
+                  className="group absolute right-0 top-1.5 h-[78%] w-[58%] cursor-pointer overflow-hidden rounded-xl sm:rounded-[20px] border border-white/40 shadow-lg sm:shadow-xl shadow-slate-900/10 transition-all duration-300 hover:scale-[1.03] hover:z-20 sm:right-2 sm:top-3 sm:w-[50%]"
                 >
                   <RemoteStoryImage
                     src={allImages[2].src}
@@ -71,7 +71,7 @@ export function ParticleStoryImageStack({
                     setActiveImageIndex(1);
                     setLightboxOpen(true);
                   }}
-                  className="group absolute right-4 bottom-0 h-[68%] w-[52%] cursor-pointer overflow-hidden rounded-[20px] border-2 border-white shadow-2xl shadow-slate-950/20 transition-all duration-300 hover:scale-[1.03] hover:z-20 sm:right-6 sm:bottom-0 sm:w-[46%]"
+                  className="group absolute right-2 bottom-0 h-[68%] w-[52%] cursor-pointer overflow-hidden rounded-xl sm:rounded-[20px] border-2 border-white shadow-xl sm:shadow-2xl shadow-slate-950/20 transition-all duration-300 hover:scale-[1.03] hover:z-20 sm:right-6 sm:bottom-0 sm:w-[46%]"
                 >
                   <RemoteStoryImage
                     src={allImages[1].src}
@@ -89,7 +89,7 @@ export function ParticleStoryImageStack({
                   setActiveImageIndex(0);
                   setLightboxOpen(true);
                 }}
-                className="group absolute left-0 top-0 z-10 h-[92%] w-[78%] cursor-pointer overflow-hidden rounded-[22px] border-2 border-white bg-slate-900 shadow-2xl shadow-slate-950/25 transition-all duration-300 hover:scale-[1.01] sm:w-[72%]"
+                className="group absolute left-0 top-0 z-10 h-[92%] w-[78%] cursor-pointer overflow-hidden rounded-xl sm:rounded-[22px] border sm:border-2 border-white bg-slate-900 shadow-xl sm:shadow-2xl shadow-slate-950/25 transition-all duration-300 hover:scale-[1.01] sm:w-[72%]"
               >
                 <RemoteStoryImage
                   src={allImages[0].src}
@@ -105,16 +105,16 @@ export function ParticleStoryImageStack({
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
-                className="absolute right-3 bottom-2 z-20 inline-flex items-center gap-1.5 rounded-full border border-white/80 bg-slate-900/80 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white shadow-lg backdrop-blur-md transition hover:bg-slate-900 hover:scale-105 active:scale-95 sm:right-4 sm:bottom-3 sm:text-xs"
+                className="absolute right-2 bottom-1.5 z-20 inline-flex items-center gap-1.5 rounded-full border border-white/80 bg-slate-900/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg backdrop-blur-md transition hover:bg-slate-900 hover:scale-105 active:scale-95 sm:right-4 sm:bottom-3 sm:px-3.5 sm:py-1.5 sm:text-xs"
               >
-                <LayoutGrid className="h-3.5 w-3.5 opacity-90" />
+                <LayoutGrid className="h-3 w-3 sm:h-3.5 sm:w-3.5 opacity-90" />
                 <span>View All ({allImages.length})</span>
               </button>
             </div>
           </div>
         ) : (
           /* Single Image Display */
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[22px] bg-slate-900 shadow-md">
+          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-t-2xl sm:rounded-2xl bg-slate-950 shadow-xs">
             <RemoteStoryImage
               src={allImages[0].src}
               alt={allImages[0].alt}

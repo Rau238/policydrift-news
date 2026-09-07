@@ -9,7 +9,7 @@ import type { CategoryRow, GoogleTrendsBundle, NewsSource, PostDetail, PostListI
  */
 function getBaseUrl(): string {
   const isServer = typeof window === 'undefined';
-  const url = (
+  let url = (
     isServer
       ? process.env.API_INTERNAL_URL ||
       process.env.API_URL ||
@@ -17,8 +17,12 @@ function getBaseUrl(): string {
       process.env.NEXT_PUBLIC_API_URL
       : process.env.NEXT_PUBLIC_API_URL
   )?.trim();
-  const fallbackPort = process.env.API_PORT?.trim() || '4050';
-  return (url || `http://127.0.0.1:${fallbackPort}`).replace(/\/$/, '');
+  const fallbackPort = process.env.API_PORT?.trim() || '4001';
+  let finalUrl = (url || `http://127.0.0.1:${fallbackPort}`).replace(/\/$/, '');
+  if (isServer && finalUrl.includes('localhost')) {
+    finalUrl = finalUrl.replace('//localhost', '//127.0.0.1');
+  }
+  return finalUrl;
 }
 
 async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
@@ -56,7 +60,7 @@ export async function getPosts(params: {
   sp.set('limit', String(limit));
   if (params.category && params.category !== 'all') sp.set('category', params.category);
   const q = sp.toString();
-  return safeFetchJson(`/api/posts?${q}`, { posts: [], total: 0, page, limit });
+  return safeFetchJson(`/api/posts?${q}`, { posts: [], total: 0, page, limit }, { next: { revalidate: 30 } });
 }
 
 export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
@@ -79,7 +83,7 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
 export async function getTrending(limit = 6): Promise<PostListItem[]> {
   try {
     const res = await fetch(`${getBaseUrl()}/api/posts/trending?limit=${limit}`, {
-      cache: 'no-store',
+      next: { revalidate: 30 },
     });
     if (!res.ok) {
       console.error(`[NewsFree365] getTrending ${res.status} via ${getBaseUrl()}`);
@@ -93,7 +97,7 @@ export async function getTrending(limit = 6): Promise<PostListItem[]> {
 }
 
 export async function getCategories(): Promise<CategoryRow[]> {
-  return safeFetchJson('/api/posts/categories', []);
+  return safeFetchJson('/api/posts/categories', [], { next: { revalidate: 60 } });
 }
 
 // ─── v2 public news feeds ─────────────────────────────────────────────────────
@@ -109,14 +113,14 @@ export async function getLatestNews(params: {
   sp.set('limit', String(params.limit ?? 20));
   if (params.category) sp.set('category', params.category);
   if (params.source) sp.set('source', String(params.source));
-  return safeFetchJson(`/api/news/latest?${sp}`, { posts: [], total: 0, page: 1, limit: 20 });
+  return safeFetchJson(`/api/news/latest?${sp}`, { posts: [], total: 0, page: 1, limit: 20 }, { next: { revalidate: 30 } });
 }
 
 export async function getTopNews(params: { limit?: number; days?: number } = {}): Promise<PostListItem[]> {
   const sp = new URLSearchParams();
   if (params.limit) sp.set('limit', String(params.limit));
   if (params.days) sp.set('days', String(params.days));
-  return safeFetchJson(`/api/news/top?${sp}`, [], { next: { revalidate: 60 } });
+  return safeFetchJson(`/api/news/top?${sp}`, [], { next: { revalidate: 30 } });
 }
 
 export async function getTrendingNews(params: { limit?: number; days?: number } = {}): Promise<PostListItem[]> {
@@ -124,7 +128,7 @@ export async function getTrendingNews(params: { limit?: number; days?: number } 
   if (params.limit) sp.set('limit', String(params.limit));
   if (params.days) sp.set('days', String(params.days));
   try {
-    const res = await fetch(`${getBaseUrl()}/api/news/trending?${sp}`, { cache: 'no-store' });
+    const res = await fetch(`${getBaseUrl()}/api/news/trending?${sp}`, { next: { revalidate: 30 } });
     if (!res.ok) return [];
     return res.json() as Promise<PostListItem[]>;
   } catch { return []; }

@@ -67,7 +67,42 @@ export function PublisherCreditCard({
   author,
   publishedAt,
 }: Props) {
+  const isOriginalEditorial =
+    !originalUrl ||
+    !originalUrl.trim() ||
+    !originalUrl.startsWith('http') ||
+    sourceFeed === 'PolicyDrift Editorial Desk' ||
+    author === 'PolicyDrift Editorial Desk';
+
   const { name: publisherName } = getPublisherName(originalUrl, sourceFeed);
+
+  if (isOriginalEditorial) {
+    return (
+      <div className="flex flex-col gap-4 rounded-xl border border-teal-200/80 bg-teal-50/40 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-600 text-white shadow-sm ring-1 ring-teal-700/20">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-bold text-slate-900 text-sm sm:text-base">
+                PolicyDrift Editorial Desk
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-teal-100 px-2.5 py-0.5 text-[11px] font-bold text-teal-800">
+                Original Reporting & Analysis
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 mt-0.5">
+              {author && author !== 'PolicyDrift Editorial Desk'
+                ? `Authored by ${author} · `
+                : ''}
+              Verified and published under PolicyDrift Editorial Standards
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-slate-200/90 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
@@ -77,7 +112,7 @@ export function PublisherCreditCard({
           <Newspaper className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="font-bold text-slate-900 text-sm sm:text-base">
               {publisherName}
             </span>
@@ -97,7 +132,7 @@ export function PublisherCreditCard({
           href={originalUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-xs font-bold text-white shadow-sm shadow-teal-900/10 transition hover:bg-accent-dark active:scale-95 sm:w-auto"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-700 px-4 py-2.5 text-xs font-bold text-white shadow-sm shadow-teal-900/10 transition hover:bg-teal-800 active:scale-95 sm:w-auto"
         >
           <span>Read Full Story on {publisherName}</span>
           <ExternalLink className="h-3.5 w-3.5" />

@@ -29,6 +29,7 @@ import {
 } from '../services/scheduler.service.js';
 import { ingestFromRss } from '../services/ingestion.service.js';
 import { pruneOldEvents } from '../models/events.model.js';
+import { pruneOldArticles } from '../models/post.model.js';
 import { RANKING } from '../config/ranking.js';
 import { checkAndRunAutomated10AmDigest } from '../controllers/newsletter.controller.js';
 
@@ -108,6 +109,18 @@ async function start() {
       console.log('[worker] cleanup: pruned %d old events', deleted);
     } catch (e) {
       console.error('[worker] cleanup error:', e.message);
+    }
+  });
+
+  // ── 6b. Article Retention cleanup (daily at 03:30 - keep last 10 days) ────
+  cron.schedule('30 3 * * *', async () => {
+    console.log('[worker] Starting daily 10-day article retention cleanup...');
+    try {
+      const days = parseInt(process.env.ARTICLE_RETENTION_DAYS || '10', 10);
+      const res = await pruneOldArticles(days);
+      console.log('[worker] Retention cleanup completed:', res);
+    } catch (e) {
+      console.error('[worker] retention cleanup error:', e.message);
     }
   });
 

@@ -15,6 +15,8 @@
     "ingest:prod": "dotenv -e .env.production -- cross-env NODE_ENV=production npm run ingest -w newsfree365-backend",
     "trends:prod": "dotenv -e .env.production -- cross-env NODE_ENV=production npm run trends -w newsfree365-backend",
     "feeds:check:prod": "dotenv -e .env.production -- cross-env NODE_ENV=production npm run feeds:check -w newsfree365-backend",
+    "db:prune": "dotenv -e .env.production -- node backend/src/scripts/prune-db.mjs",
+    "db:indexes": "dotenv -e .env.production -- node backend/src/scripts/add-perf-indexes.mjs",
     "dev": "concurrently -n api,web -c blue,magenta \"npm run dev:api\" \"npm run dev:web\"",
     "dev:api": "dotenv -e .env.development -- cross-env NODE_ENV=development npm run dev -w newsfree365-backend",
     "dev:web": "dotenv -e .env.development -- cross-env NODE_ENV=development node scripts/web-dev.mjs",

@@ -31,6 +31,18 @@ function clampLimit(v, def, max = 100) {
   return Number.isNaN(n) ? def : Math.min(max, Math.max(1, n));
 }
 
+const newsCache = new Map();
+
+function getCachedNews(key) {
+  const item = newsCache.get(key);
+  if (item && item.expires > Date.now()) return item.data;
+  return null;
+}
+
+function setCachedNews(key, data, ttlMs = 20000) {
+  newsCache.set(key, { expires: Date.now() + ttlMs, data });
+}
+
 // ─── GET /api/news/latest ─────────────────────────────────────────────────────
 
 export async function getLatest(req, res, next) {
@@ -40,8 +52,24 @@ export async function getLatest(req, res, next) {
     const category = req.query.category || null;
     const source   = req.query.source   ? parseInt(req.query.source, 10) : null;
 
+    const cacheKey = page <= 3 ? `latest:${category || 'all'}:${source || 'all'}:${page}:${limit}` : null;
+    if (cacheKey) {
+      const cached = getCachedNews(cacheKey);
+      if (cached) {
+        res.set('Cache-Control', 'public, max-age=20, s-maxage=60');
+        return res.json(cached);
+      }
+    }
+
     const data = await postModel.listLatest({ category, source, page, limit });
-    res.json({ ...data, posts: serializeMany(data.posts) });
+    const payload = { ...data, posts: serializeMany(data.posts) };
+
+    if (cacheKey) {
+      setCachedNews(cacheKey, payload, 20000);
+    }
+
+    res.set('Cache-Control', 'public, max-age=20, s-maxage=60');
+    res.json(payload);
   } catch (e) { next(e); }
 }
 
@@ -51,9 +79,19 @@ export async function getTop(req, res, next) {
   try {
     const limit = clampLimit(req.query.limit, 10, 50);
     const days  = Math.min(30, Math.max(1, parseInt(req.query.days || String(env.RANKING_TOP_DAYS || 7), 10)));
+    const cacheKey = `top:${limit}:${days}`;
+    const cached = getCachedNews(cacheKey);
+    if (cached) {
+      res.set('Cache-Control', 'public, max-age=30, s-maxage=60');
+      return res.json(cached);
+    }
+
     const posts = await postModel.listTop({ limit, days });
-    res.set('Cache-Control', 'public, max-age=60, s-maxage=60');
-    res.json(serializeMany(posts));
+    const payload = serializeMany(posts);
+    setCachedNews(cacheKey, payload, 30000);
+
+    res.set('Cache-Control', 'public, max-age=30, s-maxage=60');
+    res.json(payload);
   } catch (e) { next(e); }
 }
 
@@ -63,9 +101,19 @@ export async function getTrendingNews(req, res, next) {
   try {
     const limit = clampLimit(req.query.limit, 10, 50);
     const days  = Math.min(7, Math.max(1, parseInt(req.query.days || String(env.RANKING_TRENDING_DAYS || 2), 10)));
+    const cacheKey = `trending:${limit}:${days}`;
+    const cached = getCachedNews(cacheKey);
+    if (cached) {
+      res.set('Cache-Control', 'public, max-age=30, s-maxage=60');
+      return res.json(cached);
+    }
+
     const posts = await postModel.listTrendingRanked({ limit, days });
-    res.set('Cache-Control', 'public, max-age=60, s-maxage=60');
-    res.json(serializeMany(posts));
+    const payload = serializeMany(posts);
+    setCachedNews(cacheKey, payload, 30000);
+
+    res.set('Cache-Control', 'public, max-age=30, s-maxage=60');
+    res.json(payload);
   } catch (e) { next(e); }
 }
 
@@ -77,9 +125,19 @@ export async function getPopular(req, res, next) {
     const period = ['day', 'week', 'month'].includes(req.query.period)
       ? req.query.period
       : 'day';
+    const cacheKey = `popular:${limit}:${period}`;
+    const cached = getCachedNews(cacheKey);
+    if (cached) {
+      res.set('Cache-Control', 'public, max-age=60, s-maxage=300');
+      return res.json(cached);
+    }
+
     const posts = await postModel.listPopular({ limit, period });
-    res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
-    res.json(serializeMany(posts));
+    const payload = serializeMany(posts);
+    setCachedNews(cacheKey, payload, 60000);
+
+    res.set('Cache-Control', 'public, max-age=60, s-maxage=300');
+    res.json(payload);
   } catch (e) { next(e); }
 }
 

@@ -344,7 +344,7 @@ export function LocalConditions() {
 
   return (
     <div
-      className="inline-flex h-8 max-w-[14rem] items-center overflow-hidden rounded-full bg-white/[0.05] px-2 text-[10px] font-medium leading-none text-slate-200 ring-1 ring-white/10 sm:max-w-[20rem] sm:px-2.5 sm:text-xs"
+      className="inline-flex h-8 sm:h-9 shrink-0 items-center overflow-hidden rounded-xl border border-slate-800 bg-slate-900/90 px-2.5 sm:px-3 text-xs font-semibold leading-none text-slate-200 shadow-xs backdrop-blur-md transition hover:border-slate-700"
       title={
         ready
           ? `${place} · ${data!.tempC}°C · ${aqiLabel}${data!.aqi != null ? ` (${aqiTone.label})` : ''}`
@@ -357,18 +357,18 @@ export function LocalConditions() {
       }
       aria-busy={!ready}
     >
-      <span className="mr-1.5 inline-flex w-3.5 shrink-0 items-center justify-center" aria-hidden>
+      <span className="mr-1.5 inline-flex w-4 shrink-0 items-center justify-center text-amber-300" aria-hidden>
         {ready ? <WeatherIcon kind={kind} /> : <span className="h-3 w-3 rounded-full bg-white/10" />}
       </span>
-      <span className={`min-w-0 truncate font-semibold ${ready ? 'text-slate-100' : 'text-slate-500'}`}>
+      <span className={`hidden sm:inline-block min-w-0 max-w-[5.5rem] md:max-w-[7rem] truncate font-medium ${ready ? 'text-slate-200' : 'text-slate-500'}`}>
         {place}
       </span>
-      <span className="mx-1.5 h-3 w-px shrink-0 bg-white/15 sm:mx-2" aria-hidden />
-      <span className={`w-8 shrink-0 text-right tabular-nums sm:w-9 ${ready ? 'text-white' : 'text-slate-500'}`}>
+      <span className="hidden sm:inline-block mx-1.5 h-3.5 w-px shrink-0 bg-slate-700/80" aria-hidden />
+      <span className={`shrink-0 tabular-nums font-bold ${ready ? 'text-white' : 'text-slate-500'}`}>
         {tempLabel}
       </span>
-      <span className="mx-1.5 h-3 w-px shrink-0 bg-white/15 sm:mx-2" aria-hidden />
-      <span className={`w-[3.6rem] shrink-0 tabular-nums sm:w-[4rem] ${ready ? aqiTone.className : 'text-slate-500'}`}>
+      <span className="hidden md:inline-block mx-1.5 h-3.5 w-px shrink-0 bg-slate-700/80" aria-hidden />
+      <span className={`hidden md:inline-block text-[11px] font-medium tabular-nums ${ready ? aqiTone.className : 'text-slate-500'}`}>
         {aqiLabel}
       </span>
     </div>

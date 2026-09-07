@@ -98,15 +98,16 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
   };
 
   return (
-    <div className="relative my-4 flex flex-wrap items-center justify-between gap-3 border-y border-slate-200/80 bg-white/60 py-3 px-4 backdrop-blur-sm sm:rounded-xl sm:border sm:px-5">
-      {/* Like Button */}
-      <div className="flex items-center gap-2">
+    <div className="relative my-3 sm:my-4 flex items-center justify-between gap-2 overflow-x-auto rounded-2xl border border-slate-200/90 bg-white/80 p-1.5 sm:p-2 shadow-xs backdrop-blur-md">
+      {/* Left group: Like & Bookmark */}
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        {/* Like Button */}
         <button
           type="button"
           onClick={handleLike}
-          className={`group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 active:scale-95 ${
+          className={`group inline-flex h-9 items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-3.5 text-xs sm:text-sm font-semibold transition-all duration-200 active:scale-95 ${
             liked
-              ? 'bg-rose-50 text-rose-600 ring-1 ring-rose-300/80 shadow-sm shadow-rose-200/50'
+              ? 'bg-rose-50 text-rose-600 ring-1 ring-rose-300/80 shadow-xs shadow-rose-200/50'
               : 'bg-slate-100 text-slate-700 hover:bg-rose-50/70 hover:text-rose-600 hover:ring-1 hover:ring-rose-200'
           }`}
           aria-label={liked ? 'Unlike article' : 'Like article'}
@@ -117,15 +118,14 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
             }`}
             strokeWidth={2.25}
           />
-          <span className="tabular-nums font-bold">{likeCount.toLocaleString()}</span>
-          <span className="hidden sm:inline font-medium text-xs text-slate-500">Likes</span>
+          <span className="tabular-nums font-bold text-xs sm:text-sm">{likeCount.toLocaleString()}</span>
         </button>
 
         {/* Bookmark Button */}
         <button
           type="button"
           onClick={handleBookmark}
-          className={`inline-flex items-center gap-1.5 rounded-full p-2.5 text-sm font-medium transition active:scale-95 ${
+          className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-xs font-medium transition active:scale-95 ${
             bookmarked
               ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-300'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
@@ -140,22 +140,23 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
         </button>
       </div>
 
-      {/* Share Actions */}
-      <div className="relative flex items-center gap-2">
+      {/* Right group: Copy link & Share */}
+      <div className="relative flex items-center gap-1.5 sm:gap-2">
         <button
           type="button"
           onClick={handleCopyLink}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-teal-300 hover:bg-teal-50/50 hover:text-teal-900"
+          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200/90 bg-slate-50/70 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:border-teal-300 hover:bg-teal-50/60 hover:text-teal-900 active:scale-95"
         >
           {copied ? (
             <>
               <Check className="h-3.5 w-3.5 text-teal-600" strokeWidth={2.5} />
-              <span className="text-teal-700 font-bold">Link copied!</span>
+              <span className="text-teal-700 font-bold">Copied!</span>
             </>
           ) : (
             <>
               <Copy className="h-3.5 w-3.5 text-slate-500" strokeWidth={2} />
-              <span>Copy Link</span>
+              <span className="hidden xs:inline">Copy Link</span>
+              <span className="xs:hidden">Copy</span>
             </>
           )}
         </button>
@@ -163,7 +164,7 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
         <button
           type="button"
           onClick={handleShare}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200/90 bg-slate-50/70 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100 active:scale-95"
           aria-label="Share article"
         >
           <Share2 className="h-3.5 w-3.5 text-slate-500" strokeWidth={2} />
@@ -171,7 +172,7 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
         </button>
 
         {showShareMenu && (
-          <div className="absolute right-0 top-full z-30 mt-2 flex w-48 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-2 shadow-xl animate-in fade-in zoom-in-95">
+          <div className="absolute right-0 top-full z-30 mt-2 flex w-48 flex-col gap-1 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl animate-in fade-in zoom-in-95">
             <button
               type="button"
               onClick={() => {
@@ -180,7 +181,7 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
                 window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
                 setShowShareMenu(false);
               }}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-100"
+              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-100"
             >
               <Twitter className="h-4 w-4 text-sky-500" />
               Share on X (Twitter)
@@ -193,7 +194,7 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
                 window.open(`https://api.whatsapp.com/send?text=${text}%20${url}`, '_blank');
                 setShowShareMenu(false);
               }}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-100"
+              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-100"
             >
               <MessageSquare className="h-4 w-4 text-emerald-500" />
               Share on WhatsApp

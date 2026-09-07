@@ -35,44 +35,76 @@ function isLoopbackOrInvalidStored(url: string): boolean {
 
 export const CATEGORY_DEFAULT_PHOTOS: Record<string, string[]> = {
   Breaking: [
+    '/images/category-curated/Breaking%20News%20Desk.avif',
     'https://images.unsplash.com/photo-1508873696983-2df5293cb32b?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80',
   ],
   'World News': [
+    '/images/category-curated/Global%20Diplomacy%20%26%20World.jfif',
     'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
   ],
+  World: [
+    '/images/category-curated/Global%20Diplomacy%20%26%20World.jfif',
+    'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80',
+  ],
   India: [
+    '/images/category-curated/Breaking%20News%20Desk.avif',
+    '/images/category-curated/parliment%26governace.jpg',
     'https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80',
   ],
   Sports: [
+    '/images/category-curated/Stadium%20%26%20Sports%20Arena.webp',
     'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=1200&q=80',
   ],
   Business: [
+    '/images/category-curated/stock-market.webp',
     'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80',
   ],
   'Banking & Economics': [
+    '/images/category-curated/stock-market.webp',
     'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80',
+  ],
+  Economy: [
+    '/images/category-curated/stock-market.webp',
+    'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
   ],
   Politics: [
+    '/images/category-curated/parliment%26governace.jpg',
+    '/images/category-curated/Breaking%20News%20Desk.avif',
     'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&fit=crop&w=1200&q=80',
   ],
+  Technology: [
+    '/images/category-curated/ai.jfif',
+    'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+  ],
+  Tech: [
+    '/images/category-curated/ai.jfif',
+    'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+  ],
+  Science: [
+    '/images/category-curated/Science%20%26%20Deep%20Space.jpeg',
+    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+  ],
+  Health: [
+    '/images/category-curated/Medical%20%26%20Healthcare.jpg',
+    'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80',
+  ],
   'Stocks & Markets': [
+    '/images/category-curated/stock-market.webp',
     'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
   ],
   Crypto: [
+    '/images/category-curated/stock-market.webp',
     'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1622979135225-d2ba269bc1df?auto=format&fit=crop&w=1200&q=80',
   ],
   General: [
+    '/images/category-curated/Breaking%20News%20Desk.avif',
+    '/images/category-curated/Global%20Diplomacy%20%26%20World.jfif',
     'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80',
   ],
 };
@@ -110,7 +142,7 @@ export function resolvePostImageUrl(
     return pool[index];
   }
 
-  return 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80';
+  return '/images/category-curated/Breaking%20News%20Desk.avif';
 }
 
 /**
@@ -141,8 +173,9 @@ export type StoryImagePerspective = {
 // High-resolution editorial topic photo registry for instant contextual search
 const TOPIC_PHOTO_REGISTRY: Array<{ keywords: string[]; images: Array<{ url: string; caption: string }> }> = [
   {
-    keywords: ['ai', 'frontier', 'claude', 'anthropic', 'openai', 'gpt', 'llm', 'chip', 'semiconductor', 'nvidia', 'tech', 'robot'],
+    keywords: ['ai', 'frontier', 'claude', 'anthropic', 'openai', 'gpt', 'llm', 'chip', 'semiconductor', 'nvidia', 'tech', 'robot', 'technology'],
     images: [
+      { url: '/images/category-curated/ai.jfif', caption: 'Artificial Intelligence & Neural Computation' },
       { url: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=1200&q=80', caption: 'Artificial Intelligence & Neural Networks Research' },
       { url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80', caption: 'Frontier AI Computation & Datacenter Infrastructure' },
       { url: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80', caption: 'Next-Generation Machine Learning Models' },
@@ -150,64 +183,67 @@ const TOPIC_PHOTO_REGISTRY: Array<{ keywords: string[]; images: Array<{ url: str
     ],
   },
   {
-    keywords: ['football', 'haaland', 'soccer', 'premier league', 'goal', 'boot', 'champions', 'striker', 'arsenal', 'chelsea', 'city', 'liverpool'],
+    keywords: ['football', 'haaland', 'soccer', 'premier league', 'goal', 'boot', 'champions', 'striker', 'arsenal', 'chelsea', 'city', 'liverpool', 'cricket', 'olympics', 'sport', 'sports'],
     images: [
+      { url: '/images/category-curated/Stadium%20%26%20Sports%20Arena.webp', caption: 'Championship Sports Arena & Matchday Action' },
       { url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80', caption: 'Premier League Matchday Action & Stadium Atmosphere' },
       { url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80', caption: 'Championship Football & Goal Scoring Highlights' },
       { url: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=1200&q=80', caption: 'Golden Boot Contenders & High Stakes League Play' },
-      { url: 'https://images.unsplash.com/photo-1486286701208-1d58e9338013?auto=format&fit=crop&w=1200&q=80', caption: 'Professional Football Pitch & Stadium Lights' },
     ],
   },
   {
-    keywords: ['economy', 'economic', 'inflation', 'bank', 'labour', 'hiring', 'rates', 'jobs', 'gdp', 'market', 'firms', 'costs', 'recession'],
+    keywords: ['economy', 'economic', 'inflation', 'bank', 'labour', 'hiring', 'rates', 'jobs', 'gdp', 'market', 'firms', 'costs', 'recession', 'stocks', 'sensex', 'nifty', 'nasdaq'],
     images: [
+      { url: '/images/category-curated/stock-market.webp', caption: 'Global Financial & Capital Markets Trading' },
       { url: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80', caption: 'Global Financial Markets & Economic Indicators' },
       { url: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80', caption: 'Central Banking Policy & Monetary Analysis' },
       { url: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80', caption: 'Commercial Enterprise & Labour Market Trends' },
-      { url: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80', caption: 'Corporate Balance Sheets & Fiscal Policy' },
     ],
   },
   {
-    keywords: ['trump', 'biden', 'election', 'congress', 'senate', 'white house', 'tariffs', 'court', 'presidential', 'democrat', 'republican', 'vote'],
+    keywords: ['trump', 'biden', 'election', 'congress', 'senate', 'white house', 'tariffs', 'court', 'presidential', 'democrat', 'republican', 'vote', 'parliament', 'governance', 'policy', 'minister', 'modi'],
     images: [
+      { url: '/images/category-curated/parliment%26governace.jpg', caption: 'Parliament, Governance & Legislative Policy' },
+      { url: '/images/category-curated/Breaking%20News%20Desk.avif', caption: 'National Political Briefing Desk' },
       { url: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80', caption: 'Washington D.C. Capitol & Legislative Politics' },
       { url: 'https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&fit=crop&w=1200&q=80', caption: 'White House Executive Actions & International Policy' },
-      { url: 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=1200&q=80', caption: 'Electoral Campaigning & National Ballot Politics' },
     ],
   },
   {
-    keywords: ['india', 'delhi', 'mumbai', 'parliament', 'bjp', 'congress', 'rupee', 'isro', 'modi'],
+    keywords: ['india', 'delhi', 'mumbai', 'parliament', 'bjp', 'congress', 'rupee', 'isro', 'bharat'],
     images: [
+      { url: '/images/category-curated/parliment%26governace.jpg', caption: 'Sansad Bhavan & Indian National Governance' },
+      { url: '/images/category-curated/Breaking%20News%20Desk.avif', caption: 'India Breaking News Desk' },
       { url: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&w=1200&q=80', caption: 'New Delhi Sansad Bhavan & National Governance' },
       { url: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80', caption: 'Indian Economic Growth & Industrial Hubs' },
-      { url: 'https://images.unsplash.com/photo-1506461883276-594a12b11cf3?auto=format&fit=crop&w=1200&q=80', caption: 'Vibrant Indian National Developments' },
     ],
   },
   {
-    keywords: ['war', 'defense', 'military', 'ukraine', 'russia', 'israel', 'gaza', 'nato', 'missile', 'peace', 'tanks'],
+    keywords: ['war', 'defense', 'military', 'ukraine', 'russia', 'israel', 'gaza', 'nato', 'missile', 'peace', 'tanks', 'diplomacy', 'summit', 'un', 'global'],
     images: [
+      { url: '/images/category-curated/Global%20Diplomacy%20%26%20World.jfif', caption: 'Global Diplomacy, Geopolitics & World Summit' },
+      { url: '/images/category-curated/Breaking%20News%20Desk.avif', caption: 'Breaking Defense & Security Briefing' },
       { url: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32b?auto=format&fit=crop&w=1200&q=80', caption: 'International Security & Geopolitical Strategic Briefing' },
-      { url: 'https://images.unsplash.com/photo-1579273166152-d725a4e2b755?auto=format&fit=crop&w=1200&q=80', caption: 'Defense Deployments & Strategic Diplomacy' },
     ],
   },
   {
     keywords: ['crypto', 'bitcoin', 'btc', 'ethereum', 'eth', 'blockchain', 'solana', 'token', 'web3'],
     images: [
+      { url: '/images/category-curated/stock-market.webp', caption: 'Cryptocurrency Markets & Digital Ledger Assets' },
       { url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80', caption: 'Digital Asset Markets & Blockchain Technology' },
-      { url: 'https://images.unsplash.com/photo-1622979135225-d2ba269bc1df?auto=format&fit=crop&w=1200&q=80', caption: 'Cryptocurrency Trading & Decentralized Networks' },
     ],
   },
   {
-    keywords: ['oil', 'crude', 'iran', 'oman', 'opec', 'energy', 'petroleum', 'barrel', 'gas', 'tanker', 'refinery', 'drill', 'fuel'],
+    keywords: ['health', 'medical', 'hospital', 'doctor', 'vaccine', 'pharma', 'biotech', 'cancer', 'treatment', 'disease', 'who', 'medicine'],
     images: [
-      { url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=85', caption: 'Global Oil Markets, Tankers & Energy Infrastructure' },
-      { url: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1200&q=85', caption: 'Energy Industry & Petroleum Refining Facility' },
-      { url: 'https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&w=1200&q=85', caption: 'Maritime Shipping, Crude Cargo & Geopolitical Trade' },
+      { url: '/images/category-curated/Medical%20%26%20Healthcare.jpg', caption: 'Medical Research & Clinical Healthcare Innovations' },
+      { url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80', caption: 'Modern Clinical Medicine & Patient Care' },
     ],
   },
   {
-    keywords: ['space', 'nasa', 'spacex', 'moon', 'mars', 'rocket', 'satellite', 'astronomy', 'telescope'],
+    keywords: ['space', 'nasa', 'spacex', 'moon', 'mars', 'rocket', 'satellite', 'astronomy', 'telescope', 'science', 'physics'],
     images: [
+      { url: '/images/category-curated/Science%20%26%20Deep%20Space.jpeg', caption: 'Deep Space Observation & Astrophysical Science' },
       { url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80', caption: 'Orbital Space Exploration & Satellite Telemetry' },
       { url: 'https://images.unsplash.com/photo-1517976487522-8d76378e9067?auto=format&fit=crop&w=1200&q=80', caption: 'Rocket Propulsion & Deep Space Missions' },
     ],

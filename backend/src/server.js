@@ -7,6 +7,7 @@ import { logMysqlStorageOnStartup } from './db/storage-stats.js';
 import { ingestFromRss } from './services/ingestion.service.js';
 import { refreshTrendsCache } from './services/google-trends.service.js';
 import { checkAndRunAutomated10AmDigest } from './controllers/newsletter.controller.js';
+import { pruneOldArticles } from './models/post.model.js';
 
 async function start() {
   try {
@@ -65,7 +66,20 @@ async function start() {
         console.error('[cron] 10:00 AM newsletter error:', e);
       }
     });
-    console.log('Cron: Daily 10:00 AM Newsletter Auto-Digest scheduled.');
+    // Daily 10-day article retention cleanup (runs at 03:30 AM if worker is not active)
+    if (!env.WORKER_ENABLED) {
+      cron.schedule('30 3 * * *', async () => {
+        console.log('[cron] Starting daily 10-day article retention cleanup...');
+        try {
+          const days = parseInt(process.env.ARTICLE_RETENTION_DAYS || '10', 10);
+          const res = await pruneOldArticles(days);
+          console.log('[cron] Retention cleanup result:', res);
+        } catch (e) {
+          console.error('[cron] retention cleanup error:', e);
+        }
+      });
+      console.log('Cron: Daily 10-day article retention cleanup scheduled.');
+    }
   }
 }
 

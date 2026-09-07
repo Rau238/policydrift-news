@@ -4,6 +4,10 @@
  * Handles /api/admin/* endpoints.
  */
 
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import * as postModel from '../models/post.model.js';
 import * as sourceModel from '../models/source.model.js';
 import { serializePostDates } from '../utils/date.js';
@@ -15,6 +19,9 @@ import {
   expireBreakingNews,
   expireFeaturedArticles,
 } from '../services/scheduler.service.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ─── Dashboard Stats & Activity ───────────────────────────────────────────────
 
@@ -69,6 +76,7 @@ export async function listArticles(req, res, next) {
     const sort = req.query.sort || 'created_at_desc';
     const is_featured = req.query.featured === 'true' ? true : req.query.featured === 'false' ? false : null;
     const is_breaking = req.query.breaking === 'true' ? true : req.query.breaking === 'false' ? false : null;
+    const origin = req.query.origin || null;
 
     const data = await postModel.adminListPosts({
       page,
@@ -79,6 +87,7 @@ export async function listArticles(req, res, next) {
       sort,
       is_featured,
       is_breaking,
+      origin,
     });
 
     res.json({
@@ -90,9 +99,134 @@ export async function listArticles(req, res, next) {
   }
 }
 
+function slugify(text) {
+  return String(text || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 280);
+}
+
+export async function createArticle(req, res, next) {
+  try {
+    const {
+      title,
+      excerpt,
+      key_takeaways,
+      takeaways: altTakeaways,
+      body,
+      image_url,
+      category,
+      author,
+      tags,
+      status = 'published',
+      is_featured = false,
+      featured_hours = 24,
+      is_breaking = false,
+      breaking_hours = 4,
+      editorial_priority = 'normal',
+      timeline = [],
+      slug: customSlug,
+    } = req.body || {};
+
+    if (!title || !String(title).trim()) {
+      return res.status(400).json({ error: 'Article title is required.' });
+    }
+
+    const cleanTitle = String(title).trim();
+    let baseSlug = (customSlug ? slugify(customSlug) : slugify(cleanTitle)) || `story-${Date.now()}`;
+    let finalSlug = baseSlug;
+    let count = 1;
+
+    // Check slug collision
+    while (await postModel.slugExists(finalSlug)) {
+      finalSlug = `${baseSlug}-${count++}`;
+    }
+
+    // Format Key Takeaways if array
+    const rawTakeaways = key_takeaways || altTakeaways;
+    let takeawaysStr = '';
+    if (Array.isArray(rawTakeaways)) {
+      takeawaysStr = rawTakeaways.map((t) => (typeof t === 'string' ? t.trim() : '')).filter(Boolean).join('\n');
+    } else if (typeof rawTakeaways === 'string') {
+      takeawaysStr = rawTakeaways.trim();
+    }
+
+    // Embed structured timeline if provided
+    let finalBody = body || '';
+    if (Array.isArray(timeline) && timeline.length > 0) {
+      const validTimeline = timeline.filter((t) => t && (t.title || t.time || t.description));
+      if (validTimeline.length > 0) {
+        const timelineJson = JSON.stringify(validTimeline);
+        const timelineComment = `<!-- STORY_TIMELINE:${timelineJson} -->`;
+        if (!finalBody.includes('<!-- STORY_TIMELINE:')) {
+          finalBody = `${finalBody}\n\n${timelineComment}`;
+        }
+      }
+    }
+
+    // Auto calculate reading time
+    const totalWords = `${cleanTitle} ${excerpt || ''} ${finalBody}`.trim().split(/\s+/).length;
+    const readingTime = Math.max(1, Math.ceil(totalWords / 200));
+
+    const urlHash = crypto.createHash('sha256').update(finalSlug + ':' + Date.now()).digest('hex');
+    const contentHash = crypto.createHash('sha256').update(cleanTitle + ':' + finalBody.slice(0, 500)).digest('hex');
+
+    const breakingUntil = is_breaking ? new Date(Date.now() + Number(breaking_hours || 4) * 3600 * 1000) : null;
+    const featuredUntil = is_featured ? new Date(Date.now() + Number(featured_hours || 24) * 3600 * 1000) : null;
+
+    const newId = await postModel.createPost({
+      slug: finalSlug,
+      title: cleanTitle,
+      excerpt: excerpt ? String(excerpt).trim() : null,
+      key_takeaways: takeawaysStr || null,
+      body: finalBody,
+      original_url: '',
+      url_hash: urlHash,
+      content_hash: contentHash,
+      image_url: image_url ? String(image_url).trim() : null,
+      category: category || 'General',
+      published_at: status === 'published' ? new Date() : null,
+      source_feed: 'PolicyDrift Editorial Desk',
+      source_id: null,
+      status: ['published', 'draft', 'pending'].includes(status) ? status : 'published',
+      auto_published: 0,
+      reading_time_minutes: readingTime,
+      author: author ? String(author).trim() : 'PolicyDrift Editorial Desk',
+      tags: tags || null,
+      is_featured: is_featured ? 1 : 0,
+      featured_until: featuredUntil,
+      is_breaking: is_breaking ? 1 : 0,
+      breaking_until: breakingUntil,
+      editorial_priority: ['normal', 'high', 'pinned'].includes(editorial_priority) ? editorial_priority : 'normal',
+    });
+
+    const createdPost = await postModel.findById(newId);
+
+    res.status(201).json({
+      ok: true,
+      id: newId,
+      slug: finalSlug,
+      message: 'Article created successfully!',
+      article: serializePostDates(createdPost),
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
 export async function getArticle(req, res, next) {
   try {
-    const post = await postModel.findBySlug(req.params.id);
+    const rawId = req.params.id;
+    let post = null;
+    if (/^\d+$/.test(String(rawId))) {
+      post = await postModel.findById(parseInt(rawId, 10));
+    }
+    if (!post) {
+      post = await postModel.findBySlug(String(rawId));
+    }
     if (!post) return res.status(404).json({ error: 'Article not found' });
     res.json(serializePostDates(post));
   } catch (e) {
@@ -104,8 +238,46 @@ export async function updateArticle(req, res, next) {
   try {
     const id = parseInt(req.params.id, 10);
     if (!id) return res.status(400).json({ error: 'Invalid article ID' });
-    const n = await postModel.updatePost(id, req.body || {});
-    res.json({ ok: true, message: 'Article updated successfully', affected: n });
+
+    const payload = { ...req.body };
+
+    // Format Key Takeaways if array
+    if (Array.isArray(payload.key_takeaways)) {
+      payload.key_takeaways = payload.key_takeaways
+        .map((t) => (typeof t === 'string' ? t.trim() : ''))
+        .filter(Boolean)
+        .join('\n');
+    }
+
+    // Format tags if array
+    if (Array.isArray(payload.tags)) {
+      payload.tags = JSON.stringify(payload.tags.map((t) => String(t).trim()).filter(Boolean));
+    }
+
+    // Embed structured timeline if provided
+    if (Array.isArray(payload.timeline)) {
+      const validTimeline = payload.timeline.filter((t) => t && (t.title || t.time || t.description));
+      let currentBody = (payload.body || '').replace(/<!--\s*STORY_TIMELINE:[\s\S]*?-->/g, '').trim();
+      if (validTimeline.length > 0) {
+        currentBody = `${currentBody}\n\n<!-- STORY_TIMELINE:${JSON.stringify(validTimeline)} -->`;
+      }
+      payload.body = currentBody;
+      delete payload.timeline;
+    }
+
+    if (payload.title && !payload.slug) {
+      // Keep existing slug unless explicitly provided
+    }
+
+    const n = await postModel.updatePost(id, payload);
+    const updatedPost = await postModel.findById(id);
+
+    res.json({
+      ok: true,
+      message: 'Article updated successfully',
+      affected: n,
+      article: serializePostDates(updatedPost),
+    });
   } catch (e) {
     next(e);
   }
@@ -115,11 +287,21 @@ export async function deleteArticle(req, res, next) {
   try {
     const id = parseInt(req.params.id, 10);
     if (!id) return res.status(400).json({ error: 'Invalid article ID' });
+
+    const isPermanent = req.query.permanent === 'true' || req.query.force === 'true';
+    const post = await postModel.findById(id);
+
+    // If already archived or explicitly requested as permanent delete -> delete row completely
+    if (isPermanent || post?.status === 'archived') {
+      const affected = await postModel.bulkDeletePosts([id]);
+      return res.json({ ok: true, message: 'Article permanently deleted from database', affected });
+    }
+
     const [result] = await (await import('../db/pool.js')).pool.query(
       'UPDATE posts SET status = ? WHERE id = ?',
       ['archived', id],
     );
-    res.json({ ok: true, message: 'Article archived successfully', affected: result.affectedRows });
+    res.json({ ok: true, message: 'Article moved to Archive', affected: result.affectedRows });
   } catch (e) {
     next(e);
   }
@@ -580,3 +762,77 @@ export async function triggerScheduler(req, res, next) {
     next(e);
   }
 }
+
+// ─── Image & Media Upload ───────────────────────────────────────────────────
+
+export async function uploadImages(req, res, next) {
+  try {
+    const { images, files } = req.body || {};
+    const items = Array.isArray(images) ? images : Array.isArray(files) ? files : [];
+
+    if (!items.length) {
+      return res.status(400).json({ ok: false, error: 'No image data provided. Send an array of base64 images.' });
+    }
+
+    const uploadDir = path.resolve(__dirname, '../../../frontend/public/uploads/articles');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    const uploaded = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      let base64Data = '';
+      let ext = 'jpg';
+      let originalName = (item && item.name) || `image-${i + 1}`;
+
+      if (typeof item === 'string') {
+        base64Data = item;
+      } else if (item && typeof item === 'object') {
+        base64Data = item.data || item.base64 || item.url || '';
+        if (item.type) {
+          const matchType = String(item.type).match(/image\/(png|jpeg|jpg|webp|gif|svg\+xml|svg)/i);
+          if (matchType) {
+            ext = matchType[1] === 'jpeg' ? 'jpg' : matchType[1] === 'svg+xml' ? 'svg' : matchType[1];
+          }
+        }
+      }
+
+      if (!base64Data) continue;
+
+      const matches = base64Data.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+      let rawBase64 = base64Data;
+      if (matches) {
+        const mimeExt = matches[1].toLowerCase();
+        ext = mimeExt === 'jpeg' ? 'jpg' : mimeExt === 'svg+xml' ? 'svg' : mimeExt;
+        rawBase64 = matches[2];
+      }
+
+      const buffer = Buffer.from(rawBase64, 'base64');
+      const safeFilename = `art-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${ext}`;
+      const filePath = path.join(uploadDir, safeFilename);
+
+      fs.writeFileSync(filePath, buffer);
+
+      const publicUrl = `/uploads/articles/${safeFilename}`;
+      uploaded.push({
+        url: publicUrl,
+        filename: safeFilename,
+        name: originalName,
+        size: buffer.length,
+        type: `image/${ext}`,
+      });
+    }
+
+    res.status(201).json({
+      ok: true,
+      message: `Successfully uploaded ${uploaded.length} image(s)`,
+      files: uploaded,
+      urls: uploaded.map((u) => u.url),
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+

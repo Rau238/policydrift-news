@@ -98,6 +98,9 @@ export function AdminSidebar({
     if (itemHref === '/admin/sources') {
       return pathname.startsWith('/admin/sources');
     }
+    if (itemHref === '/admin/create') {
+      return pathname.startsWith('/admin/create');
+    }
     if (itemHref === '/admin/social') {
       return pathname.startsWith('/admin/social');
     }
@@ -158,6 +161,13 @@ export function AdminSidebar({
       href: '/admin/dashboard',
       icon: <LayoutDashboard size={20} />,
       badge: null,
+    },
+    {
+      label: 'Write Story',
+      href: '/admin/create',
+      icon: <Plus size={20} />,
+      badge: 'Studio',
+      badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-500/30',
     },
     {
       label: 'Articles',

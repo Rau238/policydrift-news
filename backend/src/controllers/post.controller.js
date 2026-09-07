@@ -3,17 +3,47 @@ import { ingestFromRss } from '../services/ingestion.service.js';
 import { serializePostDates } from '../utils/date.js';
 import { withStoryImageFallback } from '../utils/story-image.js';
 
+const feedCache = new Map();
+
+function getFeedCache(key) {
+  const item = feedCache.get(key);
+  if (item && item.expires > Date.now()) return item.data;
+  return null;
+}
+
+function setFeedCache(key, data, ttlMs = 15000) {
+  feedCache.set(key, { expires: Date.now() + ttlMs, data });
+}
+
 export async function listPosts(req, res, next) {
   try {
     const page = Math.max(1, parseInt(req.query.page || '1', 10));
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit || '12', 10)));
     const category = req.query.category || 'all';
-    const search = req.query.search || req.query.q || '';
+    const search = (req.query.search || req.query.q || '').trim();
+
+    // Cache unsearched top page requests for 15s
+    const cacheKey = !search && page <= 3 ? `list:${category}:${page}:${limit}` : null;
+    if (cacheKey) {
+      const cached = getFeedCache(cacheKey);
+      if (cached) {
+        res.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
+        return res.json(cached);
+      }
+    }
+
     const data = await postModel.listPosts({ category, search, page, limit });
-    res.json({
+    const payload = {
       ...data,
       posts: data.posts.map((p) => serializePostDates(withStoryImageFallback(p))),
-    });
+    };
+
+    if (cacheKey) {
+      setFeedCache(cacheKey, payload, 15000);
+    }
+
+    res.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
+    res.json(payload);
   } catch (e) {
     next(e);
   }

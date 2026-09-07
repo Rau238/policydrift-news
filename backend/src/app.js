@@ -31,8 +31,9 @@ app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-// Static serving for generated social cards
+// Static serving for generated social cards and uploaded article media
 app.use('/social-cards', express.static(path.resolve(__dirname, '../../frontend/public/social-cards')));
+app.use('/uploads', express.static(path.resolve(__dirname, '../../frontend/public/uploads')));
 
 app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'newsfree365-api' });

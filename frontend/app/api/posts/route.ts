@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         continue;
       }
       return NextResponse.json(data, {
-        headers: { 'Cache-Control': 'no-store, max-age=0' },
+        headers: { 'Cache-Control': 'public, max-age=15, stale-while-revalidate=60' },
       });
     } catch (e) {
       lastErr = e instanceof Error ? e.message : 'fetch failed';

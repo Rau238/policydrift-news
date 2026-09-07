@@ -28,6 +28,17 @@ export async function incrementViews(id) {
   await pool.query('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [id]);
 }
 
+// In-memory short TTL cache for count and category queries to avoid repeated heavy full scans
+const countCache = new Map();
+function getCachedCount(key) {
+  const item = countCache.get(key);
+  if (item && item.expires > Date.now()) return item.val;
+  return null;
+}
+function setCachedCount(key, val, ttlMs = 45000) {
+  countCache.set(key, { expires: Date.now() + ttlMs, val });
+}
+
 export async function listPosts({ category, search, page = 1, limit = 12 }) {
   const offset = (page - 1) * limit;
   const params = [];
@@ -45,22 +56,39 @@ export async function listPosts({ category, search, page = 1, limit = 12 }) {
     `SELECT ${listFields} FROM posts WHERE ${where} ORDER BY published_at DESC LIMIT ? OFFSET ?`,
     [...params, limit, offset],
   );
-  const [countRows] = await pool.query(
-    `SELECT COUNT(*) AS total FROM posts WHERE ${where}`,
-    params,
-  );
+
+  const cacheKey = `cnt:${where}:${params.join(':')}`;
+  let total = getCachedCount(cacheKey);
+  if (total === null) {
+    const [countRows] = await pool.query(
+      `SELECT COUNT(*) AS total FROM posts WHERE ${where}`,
+      params,
+    );
+    total = Number(countRows[0]?.total ?? 0);
+    setCachedCount(cacheKey, total, 60000);
+  }
+
   return {
     posts: rows,
-    total: countRows[0]?.total ?? 0,
+    total,
     page,
     limit,
   };
 }
 
+let categoriesCache = null;
+let categoriesCacheExpires = 0;
+
 export async function listCategories() {
+  const now = Date.now();
+  if (categoriesCache && categoriesCacheExpires > now) {
+    return categoriesCache;
+  }
   const [rows] = await pool.query(
     `SELECT category, COUNT(*) AS count FROM posts WHERE status = 'published' GROUP BY category ORDER BY count DESC`,
   );
+  categoriesCache = rows;
+  categoriesCacheExpires = now + 60000;
   return rows;
 }
 
@@ -99,18 +127,30 @@ export async function listLatest({ category = null, source = null, page = 1, lim
     `SELECT ${listFields} FROM posts WHERE ${where} ORDER BY published_at DESC LIMIT ? OFFSET ?`,
     [...params, limit, offset],
   );
-  const [ct] = await pool.query(`SELECT COUNT(*) AS total FROM posts WHERE ${where}`, params);
-  return { posts: rows, total: ct[0]?.total ?? 0, page, limit };
+
+  const cacheKey = `cnt_latest:${where}:${params.join(':')}`;
+  let total = getCachedCount(cacheKey);
+  if (total === null) {
+    const [ct] = await pool.query(`SELECT COUNT(*) AS total FROM posts WHERE ${where}`, params);
+    total = Number(ct[0]?.total ?? 0);
+    setCachedCount(cacheKey, total, 60000);
+  }
+
+  return { posts: rows, total, page, limit };
 }
 
-/** Top — balanced engagement + freshness + source + velocity + editorial. */
+/** Top — balanced engagement + freshness + source + velocity + editorial (Optimized Subquery Join). */
 export async function listTop({ limit = 10, days = 7 }) {
   const [rows] = await pool.query(
     `SELECT p.${listFields.replace(/,\s*/g, ', p.')},
-            COALESCE(pm.top_score, 0)      AS top_score,
-            COALESCE(pm.trending_score, 0) AS trending_score
-     FROM posts p
-     LEFT JOIN post_metrics pm ON pm.post_id = p.id
+            pm.top_score, pm.trending_score
+     FROM (
+       SELECT post_id, top_score, trending_score
+       FROM post_metrics
+       ORDER BY top_score DESC
+       LIMIT 100
+     ) pm
+     JOIN posts p ON p.id = pm.post_id
      WHERE p.status = 'published'
        AND p.published_at <= NOW()
        AND p.published_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
@@ -121,15 +161,18 @@ export async function listTop({ limit = 10, days = 7 }) {
   return rows;
 }
 
-/** Trending — velocity-first ranking (what is blowing up RIGHT NOW). */
+/** Trending — velocity-first ranking (Optimized Subquery Join). */
 export async function listTrendingRanked({ limit = 10, days = 2 }) {
   const [rows] = await pool.query(
     `SELECT p.${listFields.replace(/,\s*/g, ', p.')},
-            COALESCE(pm.trending_score, 0) AS trending_score,
-            COALESCE(pm.velocity_score, 0) AS velocity_score,
-            COALESCE(pm.views_1h, 0)       AS views_1h
-     FROM posts p
-     LEFT JOIN post_metrics pm ON pm.post_id = p.id
+            pm.trending_score, pm.velocity_score, pm.views_1h
+     FROM (
+       SELECT post_id, trending_score, velocity_score, views_1h
+       FROM post_metrics
+       ORDER BY trending_score DESC
+       LIMIT 100
+     ) pm
+     JOIN posts p ON p.id = pm.post_id
      WHERE p.status = 'published'
        AND p.published_at <= NOW()
        AND p.published_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
@@ -140,21 +183,25 @@ export async function listTrendingRanked({ limit = 10, days = 2 }) {
   return rows;
 }
 
-/** Popular — raw engagement within a time window. */
+/** Popular — raw engagement within a time window (Optimized Subquery Join). */
 export async function listPopular({ limit = 10, period = 'day' }) {
-  const periodMap = { day: '24h', week: '7d', month: '30d' };
   const col = ({ day: 'views_24h', week: 'views_7d', month: 'views_30d' })[period] || 'views_24h';
   const intervalMap = { day: '2 DAY', week: '10 DAY', month: '35 DAY' };
   const interval = intervalMap[period] || '2 DAY';
   const [rows] = await pool.query(
     `SELECT p.${listFields.replace(/,\s*/g, ', p.')},
-            COALESCE(pm.${col}, 0) AS period_views
-     FROM posts p
-     LEFT JOIN post_metrics pm ON pm.post_id = p.id
+            pm.\`${col}\` AS period_views
+     FROM (
+       SELECT post_id, \`${col}\`
+       FROM post_metrics
+       ORDER BY \`${col}\` DESC
+       LIMIT 100
+     ) pm
+     JOIN posts p ON p.id = pm.post_id
      WHERE p.status = 'published'
        AND p.published_at <= NOW()
        AND p.published_at >= DATE_SUB(NOW(), INTERVAL ${interval})
-     ORDER BY pm.${col} DESC, p.view_count DESC
+     ORDER BY pm.\`${col}\` DESC, p.view_count DESC
      LIMIT ?`,
     [limit],
   );
@@ -215,9 +262,11 @@ export async function bulkUpdatePosts(ids, fields) {
 /** Bulk delete articles (admin). */
 export async function bulkDeletePosts(ids) {
   if (!Array.isArray(ids) || !ids.length) return 0;
-  await pool.query('DELETE FROM post_metrics WHERE post_id IN (?)', [ids]);
-  await pool.query('DELETE FROM post_events WHERE post_id IN (?)', [ids]);
-  const [r] = await pool.query('DELETE FROM posts WHERE id IN (?)', [ids]);
+  const cleanIds = ids.map((i) => parseInt(i, 10)).filter((n) => Number.isInteger(n) && n > 0);
+  if (!cleanIds.length) return 0;
+  await pool.query('DELETE FROM post_metrics WHERE post_id IN (?)', [cleanIds]);
+  await pool.query('DELETE FROM post_events WHERE post_id IN (?)', [cleanIds]);
+  const [r] = await pool.query('DELETE FROM posts WHERE id IN (?)', [cleanIds]);
   return r.affectedRows;
 }
 
@@ -246,6 +295,7 @@ export async function adminListPosts({
   search = null,
   is_featured = null,
   is_breaking = null,
+  origin = null,
   sort = 'created_at_desc',
 }) {
   const offset = (page - 1) * limit;
@@ -253,8 +303,17 @@ export async function adminListPosts({
   const params = [];
 
   if (status && status !== 'all') {
-    conds.push('p.status = ?');
-    params.push(status);
+    if (status === 'editorial' || status === 'our_stories') {
+      conds.push('p.source_id IS NULL');
+    } else {
+      conds.push('p.status = ?');
+      params.push(status);
+    }
+  }
+  if (origin === 'editorial' || origin === 'our_stories') {
+    conds.push('p.source_id IS NULL');
+  } else if (origin === 'syndicated') {
+    conds.push('p.source_id IS NOT NULL');
   }
   if (category && category !== 'all') {
     conds.push('p.category = ?');
@@ -320,6 +379,7 @@ export async function getAdminStats() {
     `SELECT 
        SUM(CASE WHEN is_featured = 1 THEN 1 ELSE 0 END) AS featured_count,
        SUM(CASE WHEN is_breaking = 1 THEN 1 ELSE 0 END) AS breaking_count,
+       SUM(CASE WHEN source_id IS NULL THEN 1 ELSE 0 END) AS editorial_count,
        SUM(COALESCE(view_count, 0)) AS total_views,
        COUNT(*) AS total_posts
      FROM posts`,
@@ -380,6 +440,7 @@ export async function getAdminStats() {
     pending: Number(statusMap['pending']) || 0,
     draft: Number(statusMap['draft']) || 0,
     archived: Number(statusMap['archived']) || 0,
+    editorial: Number(f.editorial_count) || 0,
     rejected: Number(statusMap['rejected']) || 0,
     featured: Number(f.featured_count) || 0,
     breaking: Number(f.breaking_count) || 0,
@@ -435,32 +496,72 @@ export async function createPost(row) {
     status = 'published',
     auto_published = 0,
     reading_time_minutes = 0,
+    author = null,
+    tags = null,
+    is_featured = 0,
+    is_breaking = 0,
+    breaking_until = null,
+    featured_until = null,
+    editorial_priority = 'normal',
+    scheduled_at = null,
   } = row;
+
+  // Ensure tags are stored as valid JSON string or null
+  const formattedTags = tags ? (typeof tags === 'string' ? tags : JSON.stringify(tags)) : null;
+
   const [result] = await pool.query(
     `INSERT INTO posts
        (slug, title, excerpt, key_takeaways, body, original_url, url_hash, content_hash,
-        image_url, category, published_at, source_feed, source_id, status, auto_published, reading_time_minutes)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        image_url, category, published_at, source_feed, source_id, status, auto_published, reading_time_minutes,
+        author, tags, is_featured, is_breaking, breaking_until, featured_until, editorial_priority, scheduled_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       slug,
       title,
       excerpt ?? null,
       key_takeaways ?? null,
       body ?? '',
-      original_url,
+      original_url || '',
       url_hash,
       content_hash ?? null,
       image_url || null,
-      category,
-      published_at,
+      category || 'General',
+      published_at || new Date(),
       source_feed || null,
       source_id ?? null,
-      status,
+      status || 'published',
       auto_published ? 1 : 0,
       reading_time_minutes ?? 0,
+      author || null,
+      formattedTags,
+      is_featured ? 1 : 0,
+      is_breaking ? 1 : 0,
+      breaking_until || null,
+      featured_until || null,
+      editorial_priority || 'normal',
+      scheduled_at || null,
     ],
   );
-  return result.insertId;
+
+  const insertId = result.insertId;
+
+  // Initialize corresponding metrics record so ranking and feeds pick it up immediately
+  try {
+    await pool.query(
+      `INSERT INTO post_metrics (post_id, top_score, trending_score, freshness_score, updated_at)
+       VALUES (?, 0.5, 0.5, 1.0, NOW())
+       ON DUPLICATE KEY UPDATE freshness_score = 1.0`,
+      [insertId],
+    );
+  } catch (err) {
+    console.warn('[postModel] Failed to init metrics for post', insertId, err.message);
+  }
+
+  // Invalidate in-memory caches
+  countCache.clear();
+  categoriesCache = null;
+
+  return insertId;
 }
 
 export async function slugExists(slug) {
@@ -543,3 +644,72 @@ export async function listSlugsForSitemap() {
   );
   return rows;
 }
+
+/**
+ * 10-day retention cleanup: Prunes automated scraped RSS articles older than retentionDays in non-blocking batches.
+ * CRITICAL RULE: User/Admin-authored stories (source_id IS NULL or editorial_priority = 'pinned' or is_featured = 1)
+ * are PERMANENTLY EXEMPT and NEVER deleted on any time period.
+ */
+export async function pruneOldArticles(retentionDays = 10) {
+  const days = Math.max(1, parseInt(retentionDays, 10) || 10);
+  // Strictly target automated scraped RSS feeds (source_id IS NOT NULL), never touching authored/editorial stories
+  const [countRes] = await pool.query(
+    `SELECT COUNT(*) AS count FROM posts 
+     WHERE published_at < DATE_SUB(NOW(), INTERVAL ? DAY)
+       AND source_id IS NOT NULL
+       AND is_featured = 0
+       AND (editorial_priority IS NULL OR editorial_priority != 'pinned')`,
+    [days]
+  );
+  const totalOld = countRes[0]?.count || 0;
+  if (totalOld === 0) {
+    return { deletedPosts: 0, deletedMetrics: 0, deletedEvents: 0 };
+  }
+
+  let totalDeleted = 0;
+  const batchSize = 2000;
+
+  while (true) {
+    const [idRows] = await pool.query(
+      `SELECT id FROM posts 
+       WHERE published_at < DATE_SUB(NOW(), INTERVAL ? DAY)
+         AND source_id IS NOT NULL
+         AND is_featured = 0
+         AND (editorial_priority IS NULL OR editorial_priority != 'pinned')
+       LIMIT ?`,
+      [days, batchSize]
+    );
+    if (!idRows.length) break;
+    const ids = idRows.map((r) => r.id);
+
+    await pool.query(`DELETE FROM post_metrics WHERE post_id IN (?)`, [ids]);
+    await pool.query(`DELETE FROM post_events WHERE post_id IN (?)`, [ids]);
+    const [delRes] = await pool.query(`DELETE FROM posts WHERE id IN (?)`, [ids]);
+
+    totalDeleted += delRes.affectedRows || ids.length;
+    await new Promise((r) => setTimeout(r, 40));
+  }
+
+  const [metricCleanup] = await pool.query(`
+    DELETE pm FROM post_metrics pm
+    LEFT JOIN posts p ON pm.post_id = p.id
+    WHERE p.id IS NULL
+  `);
+
+  const [eventCleanup] = await pool.query(`
+    DELETE pe FROM post_events pe
+    LEFT JOIN posts p ON pe.post_id = p.id
+    WHERE p.id IS NULL
+  `);
+
+  // Clear memory count caches
+  countCache.clear();
+  categoriesCache = null;
+
+  return {
+    deletedPosts: totalDeleted,
+    deletedMetrics: metricCleanup.affectedRows || 0,
+    deletedEvents: eventCleanup.affectedRows || 0,
+  };
+}
+

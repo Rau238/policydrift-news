@@ -185,45 +185,45 @@ export default async function HomePage() {
         />
 
         {/* Hero Content Section */}
-        <section className="relative mx-auto flex max-w-7xl min-h-0 flex-col px-4 pb-14 pt-8 sm:px-6 sm:pb-16 sm:pt-9 lg:px-8 lg:pb-20 lg:pt-10 2xl:max-w-[1440px]">
+        <section className="relative mx-auto flex max-w-7xl min-h-0 flex-col px-4 pb-8 pt-6 sm:px-6 sm:pb-16 sm:pt-9 lg:px-8 lg:pb-20 lg:pt-10 2xl:max-w-[1440px]">
           <div className="grid items-center gap-6 max-lg:gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">
             <div className="lg:col-span-5 xl:col-span-5">
-              <div className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-xs font-semibold backdrop-blur-md ${theme.badgeBorder}`}>
+              <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-0.5 sm:px-3.5 sm:py-1 text-[11px] sm:text-xs font-semibold backdrop-blur-md ${theme.badgeBorder}`}>
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                 Live Editorial Feed
               </div>
 
-              <h1 className="mt-3 font-display text-[1.85rem] font-extrabold leading-[1.12] tracking-tight text-white max-lg:text-[1.6875rem] sm:text-4xl lg:text-[2.5rem] lg:leading-[1.08]">
+              <h1 className="mt-2.5 sm:mt-3 font-display text-[1.65rem] font-extrabold leading-[1.14] tracking-tight text-white sm:text-4xl lg:text-[2.5rem] lg:leading-[1.08]">
                 World and policy news,{' '}
                 <span className={`bg-gradient-to-r ${theme.accentGradient} bg-clip-text text-transparent`}>
                   clearly told.
                 </span>
               </h1>
-              <p className="mt-2.5 font-display text-base font-normal leading-relaxed text-slate-300/90 sm:text-[1.0625rem]">
+              <p className="mt-2 sm:mt-2.5 font-display text-sm sm:text-base font-normal leading-relaxed text-slate-300/90">
                 Real-time policy intelligence across 8 global desks. Zero noise.
               </p>
-              <div className="mt-5 flex flex-wrap items-center gap-3 max-lg:mt-4 max-lg:gap-2.5">
+              <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2 sm:gap-2.5">
                 <Link
                   href="/news"
-                  className={`group inline-flex h-11 items-center justify-center gap-2.5 rounded-xl border px-5 text-sm font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${theme.btnBg}`}
+                  className={`group inline-flex h-9 sm:h-10 items-center justify-center gap-2 rounded-xl border px-3.5 sm:px-4 text-xs sm:text-sm font-bold text-white shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${theme.btnBg}`}
                 >
-                  <LayoutGrid className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:rotate-6" strokeWidth={2.25} aria-hidden />
+                  <LayoutGrid className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 transition-transform duration-200 group-hover:rotate-6" strokeWidth={2.25} aria-hidden />
                   <span>All news</span>
-                  <ArrowRight className="h-4 w-4 shrink-0 opacity-90 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2.25} aria-hidden />
+                  <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 opacity-90 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={2.25} aria-hidden />
                 </Link>
                 <Link
                   href={categoryHref('India')}
-                  className="group inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-md shadow-sm transition-all duration-200 hover:border-white/40 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98]"
+                  className="group inline-flex h-9 sm:h-10 items-center justify-center gap-1.5 sm:gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 sm:px-4 text-xs sm:text-sm font-bold text-white backdrop-blur-md shadow-xs transition-all duration-200 hover:border-white/40 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <CategoryGlyph name="India" className="h-4 w-4 shrink-0 text-amber-300 transition-transform duration-200 group-hover:scale-110" />
+                  <CategoryGlyph name="India" className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 text-amber-300 transition-transform duration-200 group-hover:scale-110" />
                   <span>{categoryLabel('India')}</span>
                 </Link>
                 <Link
                   href="/trending-india"
-                  className="group inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-amber-400/50 bg-amber-500/25 px-5 text-sm font-bold text-white backdrop-blur-md shadow-md transition-all duration-200 hover:border-amber-300/80 hover:bg-amber-500/40 hover:scale-[1.02] active:scale-[0.98]"
+                  className="group inline-flex h-9 sm:h-10 items-center justify-center gap-1.5 sm:gap-2 rounded-xl border border-amber-400/40 bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-3.5 sm:px-4 text-xs sm:text-sm font-bold text-amber-200 backdrop-blur-md shadow-xs transition-all duration-200 hover:border-amber-300/80 hover:from-amber-500/30 hover:to-orange-500/30 hover:text-amber-100 hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <AnimatedTrendingIcon className="h-4 w-4 text-amber-300 transition-transform duration-200 group-hover:scale-110" />
-                  <span>Trending in India</span>
+                  <AnimatedTrendingIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-300 transition-transform duration-200 group-hover:scale-110 shrink-0" />
+                  <span>Trending</span>
                 </Link>
               </div>
             </div>
@@ -232,7 +232,7 @@ export default async function HomePage() {
               {lead ? (
                 <Link
                   href={`/news/${lead.slug}`}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl shadow-2xl transition-all duration-300 sm:h-[13.5rem] sm:flex-row lg:h-[14rem]"
+                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/15 shadow-2xl transition-all duration-300 sm:h-[13.5rem] sm:flex-row lg:h-[14rem]"
                   style={{
                     backgroundColor: getCardBgHex(lead.category, 0, lead.id),
                   }}

@@ -65,7 +65,7 @@ module.exports = {
     {
       name: 'newsfree365-web',
       cwd: path.join(root, 'frontend'),
-      script: 'node_modules/next/dist/bin/next',
+      script: path.join(root, 'node_modules', 'next', 'dist', 'bin', 'next'),
       args: `start -p ${webPort}`,
       interpreter: 'node',
       instances: 1,
