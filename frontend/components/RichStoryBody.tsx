@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import he from 'he';
 import { Info, AlertTriangle, Lightbulb, CheckCircle2, Quote, ExternalLink } from 'lucide-react';
 
 interface RichStoryBodyProps {
@@ -91,17 +92,25 @@ export function RichStoryBody({ content, className = '', theme = 'light' }: Rich
 
   const isDark = theme === 'dark';
 
-  // Strip timeline comment marker if present
-  const cleanContent = content.replace(/<!--\s*STORY_TIMELINE:[\s\S]*?-->/g, '').trim();
+  // Strip timeline comment marker if present, decode HTML entities, and strip accidental wrapper tags
+  const cleanContent = he.decode(
+    content
+      .replace(/<!--\s*STORY_TIMELINE:[\s\S]*?-->/g, '')
+      .replace(/^<p[^>]*>/i, '')
+      .replace(/<\/p>$/i, '')
+  ).trim();
   if (!cleanContent) return null;
 
   // Split narrative by double linebreaks or multi-line blocks
   const blocks = cleanContent.split(/\n{2,}/);
 
   return (
-    <div className={`rich-story-narrative space-y-4 ${className}`}>
+    <div className={`rich-story-narrative w-full max-w-none space-y-4 ${className}`}>
       {blocks.map((block, i) => {
-        const trimmed = block.trim();
+        let trimmed = block.trim();
+        if (trimmed.startsWith('<p>') && trimmed.endsWith('</p>')) {
+          trimmed = trimmed.slice(3, -4).trim();
+        }
         if (!trimmed) return null;
 
         // 1. Heading 2 (## Heading)

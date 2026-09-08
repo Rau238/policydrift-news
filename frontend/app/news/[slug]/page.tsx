@@ -4,8 +4,16 @@ import { notFound } from 'next/navigation';
 import { getPostBySlug, getCategories, getPosts, getTrending } from '@/lib/api';
 import { formatPublishedAt } from '@/lib/format';
 import { newsArticleJsonLd, serializeJsonLd } from '@/lib/jsonld';
-import { buildNewsArticleBodyForSchema, isBodyRedundantWithExcerpt, prepareArticleBodyForDisplay } from '@/lib/article-body';
-import { decodeHtmlEntities } from '@/lib/sanitize';
+import {
+  buildNewsArticleBodyForSchema,
+  cleanDisplayExcerpt,
+  isBodyRedundantWithExcerpt,
+  isMarkdownStory,
+  parseGoogleNewsItems,
+  prepareArticleBodyForDisplay,
+} from '@/lib/article-body';
+import { decodeHtmlEntities, stripHtmlToPlain } from '@/lib/sanitize';
+import { MediaCoveragePerspectives } from '@/components/MediaCoveragePerspectives';
 import { resolveOgImageUrl, resolvePostImageUrl, extractArticleImages } from '@/lib/story-image';
 import { absoluteUrl, siteName } from '@/lib/site';
 import { curatorImageSrc, curatorName, curatorProfileUrl } from '@/lib/site-trust';
@@ -103,7 +111,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPostBySlug(params.slug);
   if (!post) return { title: 'Not found' };
   const url = absoluteUrl(`/news/${post.slug}`);
-  const desc = clipMetaDescription(post.excerpt?.trim() || post.title);
+  const desc = clipMetaDescription(cleanDisplayExcerpt(post.excerpt, post.title));
   const desk = categoryLabel(post.category);
   const ogImage = resolveOgImageUrl(post.image_url, {
     title: post.title,
@@ -220,6 +228,8 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   const trendingPosts = trendingAll.filter((p) => p.id !== post.id).slice(0, 6);
 
   const rawBody = post.body ?? '';
+  const googleNewsItems = parseGoogleNewsItems(rawBody);
+  const isGoogleNews = googleNewsItems.length > 0;
   const { html: articleHtml, hasContent: hasArticleBody } = prepareArticleBodyForDisplay(
     rawBody,
     post.original_url ?? '',
@@ -228,7 +238,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   const bodyDuplicatesExcerpt =
     hasArticleBody && isBodyRedundantWithExcerpt(articleHtml, post.excerpt);
   /** Show the body block only when it adds substance beyond the deck under the headline. */
-  const showArticleBody = hasArticleBody && !bodyDuplicatesExcerpt;
+  const showArticleBody = (hasArticleBody && !bodyDuplicatesExcerpt) || isGoogleNews;
   const url = absoluteUrl(`/news/${post.slug}`);
   const storyImages = extractArticleImages(
     post.image_url,
@@ -238,7 +248,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   );
   const heroSrc = storyImages[0]?.src || resolvePostImageUrl(post.image_url);
   const relatedImages = storyImages.slice(1);
-  const desc = clipMetaDescription(post.excerpt?.trim() || post.title);
+  const desc = clipMetaDescription(cleanDisplayExcerpt(post.excerpt, post.title));
   const takeaways = post.key_takeaways?.trim() ?? '';
   /** Matches visible article text: headline, excerpt, curator, takeaways, full syndicated body (uncapped). */
   const articleBodyForSchema = buildNewsArticleBodyForSchema({
@@ -272,10 +282,33 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
     },
   });
 
-  const excerptText = post.excerpt?.trim() ? decodeHtmlEntities(post.excerpt.trim()) : '';
+  const normalizedTitle = decodeHtmlEntities(post.title).trim();
+  let displayDescription = post.excerpt ? cleanDisplayExcerpt(post.excerpt) : '';
+
+  // Clean trailing desk suffixes often present in feeds (e.g. "| World News", "| India")
+  if (displayDescription) {
+    displayDescription = displayDescription
+      .replace(/\s*\|\s*(World News|World|India|Politics|Business|Sports|Technology|Tech|Science|Health|General|Economy|Entertainment)[^.]*$/i, '')
+      .trim();
+  }
+
+  // If missing or identical to the title, attempt to extract the opening summary sentence from rawBody
+  if (!displayDescription || displayDescription.toLowerCase() === normalizedTitle.toLowerCase()) {
+    if (rawBody && !isGoogleNews) {
+      const plain = stripHtmlToPlain(rawBody);
+      if (plain && plain.toLowerCase() !== normalizedTitle.toLowerCase()) {
+        displayDescription = cleanDisplayExcerpt(plain, null, 280);
+      }
+    }
+  }
+
+  // Final check: if displayDescription equals title, don't show an exact duplicate
+  if (displayDescription.toLowerCase() === normalizedTitle.toLowerCase()) {
+    displayDescription = '';
+  }
+
+  const excerptText = displayDescription || cleanDisplayExcerpt(post.excerpt, post.title);
   const storyTimeline = extractTimelineFromContent(post.body || '');
-  /** Deck under the headline only when we also have a longer unique body. */
-  const showDeckUnderTitle = Boolean(excerptText) && showArticleBody;
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]">
@@ -302,25 +335,25 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
 
       <div className="mx-auto max-w-7xl px-3.5 pb-14 pt-4 sm:px-6 sm:pb-20 sm:pt-8 lg:px-8 2xl:max-w-[1440px]">
         <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-10">
-          <div className="min-w-0">
+          <div className="min-w-0 w-full">
             <article className="relative w-full min-w-0" itemScope itemType="https://schema.org/NewsArticle">
               <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
               />
 
-              <header className="mb-4 sm:mb-6 space-y-2.5 sm:space-y-3.5">
+              <header className="mb-6 sm:mb-8 w-full space-y-3.5 sm:space-y-4">
                 <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs">
                   <Link
                     href={categoryHref(post.category)}
                     aria-label={`Browse all ${categoryLabel(post.category)} stories`}
-                    className={`inline-flex w-fit max-w-full items-center gap-1.5 rounded-full px-3 py-1 text-[11px] sm:text-[12px] font-bold shadow-xs ring-1 transition hover:brightness-[0.98] ${categoryChipClass(post.category)}`}
+                    className={`inline-flex w-fit max-w-full items-center gap-1.5 rounded-full px-3.5 py-1 text-[11px] sm:text-[12px] font-bold shadow-xs ring-1 transition hover:brightness-[0.98] ${categoryChipClass(post.category)}`}
                   >
                     <CategoryGlyph name={post.category} className="h-3.5 w-3.5 shrink-0" />
                     <span className="min-w-0 text-left">{categoryLabel(post.category)}</span>
                   </Link>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-[12px] text-slate-500">
-                    <time className="tabular-nums font-medium" dateTime={post.published_at} title={post.published_at}>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-[12px] text-slate-500 font-medium">
+                    <time className="tabular-nums" dateTime={post.published_at} title={post.published_at}>
                       {formatPublishedAt(post.published_at)}
                     </time>
                     <span className="text-slate-300" aria-hidden>
@@ -336,32 +369,35 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                 <h1
                   id="article-headline"
                   itemProp="headline"
-                  className="text-balance font-display text-[1.4rem] xs:text-[1.55rem] font-bold leading-[1.24] tracking-tight text-slate-950 sm:text-3xl lg:text-[2.25rem] lg:leading-[1.16]"
+                  className="w-full font-display text-2xl xs:text-3xl font-bold leading-[1.24] tracking-tight text-slate-950 sm:text-4xl lg:text-[2.65rem] lg:leading-[1.18] [overflow-wrap:anywhere]"
                 >
                   {decodeHtmlEntities(post.title)}
                 </h1>
-                {showDeckUnderTitle ? (
+
+                {displayDescription ? (
                   <p
                     id="article-excerpt"
                     itemProp="description"
-                    className="max-w-3xl text-[14.5px] leading-relaxed text-slate-600 sm:text-lg"
+                    className="w-full text-base sm:text-lg lg:text-[1.2rem] leading-relaxed sm:leading-[1.65] font-normal text-slate-600 sm:text-slate-700 [overflow-wrap:anywhere]"
                   >
-                    {excerptText}
+                    {displayDescription}
                   </p>
                 ) : null}
 
                 {/* Top Engagement Bar (Likes, Bookmarks, Share) */}
-                <ArticleEngagementBar
-                  postId={post.id}
-                  slug={post.slug}
-                  title={post.title}
-                  initialLikes={post.like_count}
-                />
+                <div className="pt-1 sm:pt-2">
+                  <ArticleEngagementBar
+                    postId={post.id}
+                    slug={post.slug}
+                    title={post.title}
+                    initialLikes={post.like_count}
+                  />
+                </div>
               </header>
 
               <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs shadow-slate-900/5">
-                {/* Particle.news Style 3D Overlapping Image Stack / Hero Section */}
-                <div className="p-0 sm:p-6 lg:p-8 pb-0 sm:pb-0 lg:pb-0">
+                {/* Story Hero Image */}
+                <div className="p-3 sm:p-5 pb-0 sm:pb-0 flex justify-center">
                   <ParticleStoryImageStack
                     mainImageSrc={heroSrc}
                     mainTitle={post.title}
@@ -373,7 +409,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                 {/* Unified Editorial Article Story Content with Generous Padding */}
                 <div className="p-4 sm:p-8 lg:p-10 border-b border-slate-100 space-y-5 sm:space-y-6">
                   <StoryOverviewBox
-                    excerpt={showDeckUnderTitle ? null : excerptText}
+                    excerpt={displayDescription ? null : excerptText}
                     takeawaysRaw={takeaways}
                   />
 
@@ -385,13 +421,21 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                     />
                   )}
 
-                  {showArticleBody ? (
+                  {isGoogleNews ? (
                     <div className="pt-5 sm:pt-6 border-t border-slate-100">
-                      {rawBody && (rawBody.includes('## ') || rawBody.includes('|') || rawBody.includes('> [!') || rawBody.includes('**')) ? (
+                      <MediaCoveragePerspectives
+                        items={googleNewsItems}
+                        primaryUrl={post.original_url}
+                        storyTitle={post.title}
+                      />
+                    </div>
+                  ) : showArticleBody ? (
+                    <div className="pt-5 sm:pt-6 border-t border-slate-100">
+                      {isMarkdownStory(rawBody) ? (
                         <RichStoryBody content={rawBody} theme="light" />
                       ) : (
                         <div
-                          className="article-prose article-detail-prose prose-policy w-full overflow-x-auto text-left feed-article-body [overflow-wrap:anywhere] [word-break:break-word] text-[15px] sm:text-base leading-relaxed text-slate-800"
+                          className="article-prose article-detail-prose prose-policy w-full max-w-none overflow-x-auto text-left feed-article-body [overflow-wrap:anywhere] [word-break:break-word] text-[15px] sm:text-base leading-relaxed text-slate-800"
                           dangerouslySetInnerHTML={{ __html: articleHtml }}
                           suppressHydrationWarning
                         />

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { categoryLabel, CategoryGlyph } from '@/lib/category-theme';
 import { formatRelativeTime, decodeHtmlEntities } from '@/lib/format';
+import { cleanDisplayExcerpt } from '@/lib/article-body';
 import { storyFallbackImageUrl } from '@/lib/story-image';
 
 interface Post {
@@ -288,7 +289,7 @@ export function SearchClient({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {posts.map((post) => {
             const titleDecoded = decodeHtmlEntities(post.title);
-            const excerptDecoded = decodeHtmlEntities(post.excerpt || '');
+            const excerptDecoded = cleanDisplayExcerpt(post.excerpt, post.title);
             const imgSrc =
               post.image_url ||
               storyFallbackImageUrl({ title: post.title, category: post.category });

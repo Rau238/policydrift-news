@@ -10,6 +10,7 @@ import { categoryLabel, CategoryGlyph } from '@/lib/category-theme';
 import { formatPublishedAt, formatTimeAgoUpper } from '@/lib/format';
 import { resolvePostImageUrl } from '@/lib/story-image';
 import { decodeHtmlEntities } from '@/lib/sanitize';
+import { cleanDisplayExcerpt } from '@/lib/article-body';
 import { MarketDeskOverview } from '@/components/MarketDeskOverview';
 
 type Props = {
@@ -181,7 +182,7 @@ export function CategoryDeskView({
 
                     {leadPost.excerpt && (
                       <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-600 sm:text-sm">
-                        {decodeHtmlEntities(leadPost.excerpt)}
+                        {cleanDisplayExcerpt(leadPost.excerpt, leadPost.title)}
                       </p>
                     )}
                   </div>

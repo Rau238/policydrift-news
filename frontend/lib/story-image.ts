@@ -35,87 +35,68 @@ function isLoopbackOrInvalidStored(url: string): boolean {
 
 export const CATEGORY_DEFAULT_PHOTOS: Record<string, string[]> = {
   Breaking: [
-    '/images/category-curated/Breaking%20News%20Desk.avif',
     'https://images.unsplash.com/photo-1508873696983-2df5293cb32b?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1200&q=80',
   ],
   'World News': [
-    '/images/category-curated/Global%20Diplomacy%20%26%20World.jfif',
     'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
   ],
   World: [
-    '/images/category-curated/Global%20Diplomacy%20%26%20World.jfif',
     'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80',
   ],
   India: [
-    '/images/category-curated/Breaking%20News%20Desk.avif',
-    '/images/category-curated/parliment%26governace.jpg',
     'https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80',
   ],
   Sports: [
-    '/images/category-curated/Stadium%20%26%20Sports%20Arena.webp',
     'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80',
   ],
   Business: [
-    '/images/category-curated/stock-market.webp',
     'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80',
   ],
   'Banking & Economics': [
-    '/images/category-curated/stock-market.webp',
     'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
   ],
   Economy: [
-    '/images/category-curated/stock-market.webp',
     'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
   ],
   Politics: [
-    '/images/category-curated/parliment%26governace.jpg',
-    '/images/category-curated/Breaking%20News%20Desk.avif',
     'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&fit=crop&w=1200&q=80',
   ],
   Technology: [
-    '/images/category-curated/ai.jfif',
     'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
   ],
   Tech: [
-    '/images/category-curated/ai.jfif',
     'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
   ],
   Science: [
-    '/images/category-curated/Science%20%26%20Deep%20Space.jpeg',
     'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
   ],
   Health: [
-    '/images/category-curated/Medical%20%26%20Healthcare.jpg',
     'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80',
   ],
   'Stocks & Markets': [
-    '/images/category-curated/stock-market.webp',
     'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80',
   ],
   Crypto: [
-    '/images/category-curated/stock-market.webp',
     'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
   ],
   General: [
-    '/images/category-curated/Breaking%20News%20Desk.avif',
-    '/images/category-curated/Global%20Diplomacy%20%26%20World.jfif',
     'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80',
   ],
 };
 
 /**
- * For `<img src>` (Server or Client). Uses topic/category editorial photography fallback so cards always look rich.
+ * For `<img src>` (Server or Client). When no remote image is present, returns fallback path so cards render the desk logo-cloud placeholder.
  */
 export function resolvePostImageUrl(
   stored: string | null | undefined,
-  title?: string,
-  category?: string,
+  _title?: string,
+  _category?: string,
 ): string {
   const u = stored?.trim();
   if (
@@ -124,32 +105,13 @@ export function resolvePostImageUrl(
     u !== 'undefined' &&
     !isLoopbackOrInvalidStored(u) &&
     !u.endsWith(STORY_FALLBACK_PATH) &&
-    !u.endsWith('story-fallback.svg')
+    !u.endsWith('story-fallback.svg') &&
+    !u.includes('/images/category-curated/')
   ) {
     return u;
   }
 
-  // 1. Topic search by title keywords if title is provided
-  if (title) {
-    const titleLower = title.toLowerCase();
-    for (const entry of TOPIC_PHOTO_REGISTRY) {
-      if (entry.keywords.some((kw) => kw.length > 2 && new RegExp(`\\b${kw}\\b`, 'i').test(titleLower))) {
-        if (entry.images[0]?.url) {
-          return entry.images[0].url;
-        }
-      }
-    }
-  }
-
-  // 2. Category photo fallback
-  if (category && CATEGORY_DEFAULT_PHOTOS[category]?.length) {
-    const pool = CATEGORY_DEFAULT_PHOTOS[category];
-    // Deterministic pick based on title length or hash
-    const index = title ? Math.abs(title.length) % pool.length : 0;
-    return pool[index];
-  }
-
-  return '/images/category-curated/Breaking%20News%20Desk.avif';
+  return STORY_FALLBACK_PATH;
 }
 
 /**
@@ -182,7 +144,6 @@ const TOPIC_PHOTO_REGISTRY: Array<{ keywords: string[]; images: Array<{ url: str
   {
     keywords: ['ai', 'frontier', 'claude', 'anthropic', 'openai', 'gpt', 'llm', 'chip', 'semiconductor', 'nvidia', 'tech', 'robot', 'technology'],
     images: [
-      { url: '/images/category-curated/ai.jfif', caption: 'Artificial Intelligence & Neural Computation' },
       { url: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=1200&q=80', caption: 'Artificial Intelligence & Neural Networks Research' },
       { url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80', caption: 'Frontier AI Computation & Datacenter Infrastructure' },
       { url: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80', caption: 'Next-Generation Machine Learning Models' },
@@ -192,7 +153,6 @@ const TOPIC_PHOTO_REGISTRY: Array<{ keywords: string[]; images: Array<{ url: str
   {
     keywords: ['football', 'haaland', 'soccer', 'premier league', 'goal', 'boot', 'champions', 'striker', 'arsenal', 'chelsea', 'city', 'liverpool', 'cricket', 'olympics', 'sport', 'sports'],
     images: [
-      { url: '/images/category-curated/Stadium%20%26%20Sports%20Arena.webp', caption: 'Championship Sports Arena & Matchday Action' },
       { url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80', caption: 'Premier League Matchday Action & Stadium Atmosphere' },
       { url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80', caption: 'Championship Football & Goal Scoring Highlights' },
       { url: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=1200&q=80', caption: 'Golden Boot Contenders & High Stakes League Play' },
@@ -201,7 +161,6 @@ const TOPIC_PHOTO_REGISTRY: Array<{ keywords: string[]; images: Array<{ url: str
   {
     keywords: ['economy', 'economic', 'inflation', 'bank', 'labour', 'hiring', 'rates', 'jobs', 'gdp', 'market', 'firms', 'costs', 'recession', 'stocks', 'sensex', 'nifty', 'nasdaq'],
     images: [
-      { url: '/images/category-curated/stock-market.webp', caption: 'Global Financial & Capital Markets Trading' },
       { url: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80', caption: 'Global Financial Markets & Economic Indicators' },
       { url: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80', caption: 'Central Banking Policy & Monetary Analysis' },
       { url: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80', caption: 'Commercial Enterprise & Labour Market Trends' },
@@ -210,8 +169,6 @@ const TOPIC_PHOTO_REGISTRY: Array<{ keywords: string[]; images: Array<{ url: str
   {
     keywords: ['trump', 'biden', 'election', 'congress', 'senate', 'white house', 'tariffs', 'court', 'presidential', 'democrat', 'republican', 'vote', 'parliament', 'governance', 'policy', 'minister', 'modi'],
     images: [
-      { url: '/images/category-curated/parliment%26governace.jpg', caption: 'Parliament, Governance & Legislative Policy' },
-      { url: '/images/category-curated/Breaking%20News%20Desk.avif', caption: 'National Political Briefing Desk' },
       { url: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80', caption: 'Washington D.C. Capitol & Legislative Politics' },
       { url: 'https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&fit=crop&w=1200&q=80', caption: 'White House Executive Actions & International Policy' },
     ],
@@ -219,8 +176,6 @@ const TOPIC_PHOTO_REGISTRY: Array<{ keywords: string[]; images: Array<{ url: str
   {
     keywords: ['india', 'delhi', 'mumbai', 'parliament', 'bjp', 'congress', 'rupee', 'isro', 'bharat'],
     images: [
-      { url: '/images/category-curated/parliment%26governace.jpg', caption: 'Sansad Bhavan & Indian National Governance' },
-      { url: '/images/category-curated/Breaking%20News%20Desk.avif', caption: 'India Breaking News Desk' },
       { url: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&w=1200&q=80', caption: 'New Delhi Sansad Bhavan & National Governance' },
       { url: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80', caption: 'Indian Economic Growth & Industrial Hubs' },
     ],
@@ -228,29 +183,24 @@ const TOPIC_PHOTO_REGISTRY: Array<{ keywords: string[]; images: Array<{ url: str
   {
     keywords: ['war', 'defense', 'military', 'ukraine', 'russia', 'israel', 'gaza', 'nato', 'missile', 'peace', 'tanks', 'diplomacy', 'summit', 'un', 'global'],
     images: [
-      { url: '/images/category-curated/Global%20Diplomacy%20%26%20World.jfif', caption: 'Global Diplomacy, Geopolitics & World Summit' },
-      { url: '/images/category-curated/Breaking%20News%20Desk.avif', caption: 'Breaking Defense & Security Briefing' },
       { url: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32b?auto=format&fit=crop&w=1200&q=80', caption: 'International Security & Geopolitical Strategic Briefing' },
     ],
   },
   {
     keywords: ['crypto', 'bitcoin', 'btc', 'ethereum', 'eth', 'blockchain', 'solana', 'token', 'web3'],
     images: [
-      { url: '/images/category-curated/stock-market.webp', caption: 'Cryptocurrency Markets & Digital Ledger Assets' },
       { url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80', caption: 'Digital Asset Markets & Blockchain Technology' },
     ],
   },
   {
     keywords: ['health', 'medical', 'hospital', 'doctor', 'vaccine', 'pharma', 'biotech', 'cancer', 'treatment', 'disease', 'who', 'medicine'],
     images: [
-      { url: '/images/category-curated/Medical%20%26%20Healthcare.jpg', caption: 'Medical Research & Clinical Healthcare Innovations' },
       { url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80', caption: 'Modern Clinical Medicine & Patient Care' },
     ],
   },
   {
     keywords: ['space', 'nasa', 'spacex', 'moon', 'mars', 'rocket', 'satellite', 'astronomy', 'telescope', 'science', 'physics'],
     images: [
-      { url: '/images/category-curated/Science%20%26%20Deep%20Space.jpeg', caption: 'Deep Space Observation & Astrophysical Science' },
       { url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80', caption: 'Orbital Space Exploration & Satellite Telemetry' },
       { url: 'https://images.unsplash.com/photo-1517976487522-8d76378e9067?auto=format&fit=crop&w=1200&q=80', caption: 'Rocket Propulsion & Deep Space Missions' },
     ],

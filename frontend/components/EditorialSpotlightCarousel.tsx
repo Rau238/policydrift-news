@@ -9,6 +9,7 @@ import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import { categoryLabel, CategoryGlyph } from '@/lib/category-theme';
 import { formatPublishedAt } from '@/lib/format';
 import { decodeHtmlEntities } from '@/lib/sanitize';
+import { cleanDisplayExcerpt } from '@/lib/article-body';
 import { siteName } from '@/lib/site';
 import {
   Sparkles,
@@ -430,7 +431,7 @@ export function EditorialSpotlightCarousel({
                   {/* Curated Excerpt */}
                   {currentPost.excerpt && (
                     <p className="text-xs sm:text-[13px] leading-relaxed text-slate-200/85 line-clamp-2 font-normal">
-                      {decodeHtmlEntities(currentPost.excerpt)}
+                      {cleanDisplayExcerpt(currentPost.excerpt, currentPost.title)}
                     </p>
                   )}
                 </div>

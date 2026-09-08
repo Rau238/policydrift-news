@@ -36,11 +36,55 @@ export function normalizeOpenAIContent(content) {
 }
 
 /**
+ * Parses Google News aggregated RSS item elements:
+ * `<ol><li><a href="...">Title</a>&nbsp;&nbsp;<font color="#6f6f6f">Source</font></li>...</ol>`
+ */
+export function parseGoogleNewsItems(html) {
+  if (!html || typeof html !== 'string') return [];
+  const isGNews =
+    /<ol[^>]*>[\s\S]*?<li/i.test(html) ||
+    /news\.google\.com\/rss\/articles/i.test(html) ||
+    /<font color=["']?#6f6f6f["']?/i.test(html);
+  if (!isGNews) return [];
+
+  const items = [];
+  const liRegex = /<li[^>]*>([\s\S]*?)<\/li>/gi;
+  let match;
+  while ((match = liRegex.exec(html)) !== null) {
+    const liContent = match[1];
+    const aMatch = /<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/i.exec(liContent);
+    if (!aMatch) continue;
+
+    const url = aMatch[1].trim();
+    const title = aMatch[2].replace(/<[^>]+>/g, '').trim();
+
+    let source = '';
+    const fontMatch = /<font[^>]*>([\s\S]*?)<\/font>/i.exec(liContent);
+    if (fontMatch) {
+      source = fontMatch[1].replace(/<[^>]+>/g, '').trim();
+    } else {
+      const remaining = liContent.slice(aMatch.index + aMatch[0].length);
+      source = remaining.replace(/&nbsp;/g, ' ').replace(/<[^>]+>/g, '').trim();
+    }
+    if (title) {
+      items.push({ title, url, source });
+    }
+  }
+  return items;
+}
+
+/**
  * Store feed body as HTML: pass through publisher HTML, or wrap plain text in <p> blocks.
  */
 export function feedBodyToArticleHtml(raw) {
-  const t = toCleanString(raw);
+  let t = toCleanString(raw);
   if (!t) return '';
+
+  // Clean zero-width chars and fix glued sentences from syndicated feeds
+  t = t.replace(/[\u200B-\u200D\u2060\uFEFF]/g, '');
+  t = t.replace(/([a-z0-9”"'\)])\.([A-Z“"'])/g, '$1. $2');
+  t = t.replace(/([?!])([A-Z“"'])/g, '$1 $2');
+
   if (/<[a-z][\s\S]*>/i.test(t)) return t;
   const paras = t
     .split(/\n\s*\n/)
@@ -59,13 +103,58 @@ export function feedBodyToArticleHtml(raw) {
 /** Plain-text teaser from feed HTML (listings, meta description, JSON-LD). */
 export function excerptFromFeedContent(htmlOrText, title, maxLen = 220) {
   const raw = toCleanString(htmlOrText);
+
+  // If this is Google News syndicated feed content, extract the primary item title
+  if (/<ol[^>]*>[\s\S]*?<li/i.test(raw) || /news\.google\.com\/rss\/articles/i.test(raw)) {
+    const items = parseGoogleNewsItems(raw);
+    if (items.length > 0 && items[0].title) {
+      const firstTitle = items[0].title;
+      if (firstTitle.length <= maxLen) return firstTitle;
+      const cut = firstTitle.lastIndexOf(' ', maxLen - 2);
+      return (cut > 40 ? firstTitle.slice(0, cut) : firstTitle.slice(0, maxLen - 1)) + '…';
+    }
+  }
+
   let plain = raw
     .replace(/<[^>]+>/g, ' ')
     .replace(/&(?:#\d+|#x[\da-fA-F]+|\w+);/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+
+  // If plain text had mashed publishers, cut at the first publisher
+  const publisherSeparators = [
+    'India Today',
+    'NDTV',
+    'The Times of India',
+    'The Hindu',
+    'Hindustan Times',
+    'The Indian Express',
+    'News18',
+    'Business Standard',
+    'Moneycontrol',
+    'Mint',
+    'Reuters',
+    'Associated Press',
+    'AP News',
+    'CNN',
+    'BBC News',
+    'BBC',
+    'The Guardian',
+    'The Washington Post',
+    'wired.com',
+    'Nature',
+  ];
+  for (const pub of publisherSeparators) {
+    const pubIdx = plain.indexOf(` ${pub} `);
+    if (pubIdx > 25) {
+      plain = plain.slice(0, pubIdx).trim();
+      break;
+    }
+  }
+
   if (!plain) plain = toCleanString(title);
   if (plain.length <= maxLen) return plain;
   const cut = plain.lastIndexOf(' ', maxLen - 2);
   return (cut > 40 ? plain.slice(0, cut) : plain.slice(0, maxLen - 1)) + '…';
 }
+

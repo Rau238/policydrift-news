@@ -35,6 +35,7 @@ const baseArticleSanitizeOptions: Omit<sanitizeHtml.IOptions, 'transformTags'> =
     'abbr',
     'mark',
     'small',
+    'aside',
   ]),
   allowedAttributes: {
     ...sanitizeHtml.defaults.allowedAttributes,
@@ -45,6 +46,11 @@ const baseArticleSanitizeOptions: Omit<sanitizeHtml.IOptions, 'transformTags'> =
     source: ['srcset', 'sizes', 'type', 'media'],
     picture: [],
     abbr: ['title'],
+    aside: ['class'],
+    p: ['class'],
+    h3: ['class'],
+    div: ['class'],
+    span: ['class'],
   },
   allowedSchemes: ['http', 'https', 'mailto'],
 };
@@ -90,7 +96,8 @@ export function decodeHtmlEntities(text: string): string {
  * Ensures every `<img>` has non-empty `alt` and `title` (RSS feeds often omit them).
  */
 export function sanitizeArticleHtml(html: string, opts?: { articleTitle?: string }): string {
-  const decoded = he.decode(html || '');
+  let decoded = he.decode(html || '');
+  decoded = decoded.replace(/(?:[a-zA-Z0-9-]+\.[a-zA-Z]{2,}[^\s"'>]*["'])?\s*(?:rel=["'][^"']*["']|target=["'][^"']*["']|href=["'][^"']*["'])+\s*>/gi, '');
   return sanitizeHtml(decoded, buildArticleSanitizeOptions(opts?.articleTitle));
 }
 

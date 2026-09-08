@@ -1,6 +1,7 @@
 'use client';
 
 import { decodeHtmlEntities } from '@/lib/sanitize';
+import { cleanDisplayExcerpt } from '@/lib/article-body';
 import { Sparkles } from 'lucide-react';
 
 type Props = {
@@ -8,29 +9,8 @@ type Props = {
   takeawaysRaw?: string | null;
 };
 
-/**
- * Cleans boilerplate from RSS excerpts (e.g. "Continue reading...", "•", duplicated phrases)
- */
-function cleanExcerpt(raw: string): string {
-  let text = decodeHtmlEntities(raw || '').trim();
-
-  // Remove boilerplate phrases
-  text = text
-    .replace(/\bcontinue\s+reading(\.{3}|…)?/gi, '')
-    .replace(/\bread\s+more(\.{3}|…)?/gi, '')
-    .replace(/\bthe\s+best\s+of\s+[^–-]+–\s*in\s+pictures/gi, '')
-    .replace(/•/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  // Remove trailing cutoffs like "Using ‘equestrian…"
-  text = text.replace(/\s+[\w‘'"][^.!?]{0,30}(…|\.{3})$/g, '.');
-
-  return text;
-}
-
 export function StoryOverviewBox({ excerpt, takeawaysRaw }: Props) {
-  const cleanedExcerpt = cleanExcerpt(excerpt || '');
+  const cleanedExcerpt = cleanDisplayExcerpt(excerpt);
 
   // Parse dedicated key takeaways if available
   const takeawaysList = takeawaysRaw?.trim()

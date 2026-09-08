@@ -510,13 +510,22 @@ body:has(.admin-portal) {
 }
 
 .article-prose.article-detail-prose {
-  max-width: 40rem;
+  max-width: 100%;
+  width: 100%;
   text-align: left;
 }
 
 .article-detail-prose.prose-policy h2,
 .article-detail-prose.prose-policy h3 {
   text-align: left;
+}
+
+.article-detail-prose.prose-policy .article-related-callout {
+  @apply my-6 rounded-xl border-l-4 border-teal-500 bg-teal-50/70 p-4 text-sm font-medium leading-relaxed text-slate-800 shadow-sm;
+}
+
+.article-detail-prose.prose-policy .article-section-subhead {
+  @apply mt-8 mb-2 font-display text-lg font-bold tracking-tight text-slate-900 sm:text-xl;
 }
 
 .article-detail-prose.prose-policy h2:first-of-type {

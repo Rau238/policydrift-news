@@ -7,6 +7,7 @@ import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import { getCardBgHex, categoryLabel } from '@/lib/category-theme';
 import { resolvePostImageUrl } from '@/lib/story-image';
 import { decodeHtmlEntities } from '@/lib/sanitize';
+import { cleanDisplayExcerpt } from '@/lib/article-body';
 
 type Props = {
   post: PostListItem;
@@ -21,7 +22,7 @@ export function PostCard({ post, priority, compact, gridCell, index }: Props) {
   const href = `/news/${post.slug}`;
   const thumbLabel = decodeHtmlEntities(post.title).trim() || 'News story';
   const title = decodeHtmlEntities(post.title);
-  const excerpt = post.excerpt ? decodeHtmlEntities(post.excerpt) : null;
+  const excerpt = post.excerpt ? cleanDisplayExcerpt(post.excerpt, post.title) : null;
   const timeAgo = formatTimeAgoUpper(post.published_at);
   const fullDate = formatPublishedAt(post.published_at);
   const cardBgHex = getCardBgHex(post.category, index, post.id);
