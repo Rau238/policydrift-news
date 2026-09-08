@@ -8,6 +8,7 @@ router.get('/latest',   newsController.getLatest);
 router.get('/top',      newsController.getTop);
 router.get('/trending', newsController.getTrendingNews);
 router.get('/popular',  newsController.getPopular);
+router.get('/editorial', newsController.getEditorial);
 
 // Single article (with view dedup)
 router.get('/:slug',    newsController.getNewsBySlug);

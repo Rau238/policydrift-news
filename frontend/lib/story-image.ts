@@ -118,7 +118,14 @@ export function resolvePostImageUrl(
   category?: string,
 ): string {
   const u = stored?.trim();
-  if (u && u !== 'null' && u !== 'undefined' && !isLoopbackOrInvalidStored(u) && u !== STORY_FALLBACK_PATH) {
+  if (
+    u &&
+    u !== 'null' &&
+    u !== 'undefined' &&
+    !isLoopbackOrInvalidStored(u) &&
+    !u.endsWith(STORY_FALLBACK_PATH) &&
+    !u.endsWith('story-fallback.svg')
+  ) {
     return u;
   }
 

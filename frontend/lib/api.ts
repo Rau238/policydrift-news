@@ -144,6 +144,12 @@ export async function getPopularNews(params: {
   return safeFetchJson(`/api/news/popular?${sp}`, [], { next: { revalidate: 300 } });
 }
 
+export async function getEditorialNews(params: { limit?: number } = {}): Promise<PostListItem[]> {
+  const sp = new URLSearchParams();
+  if (params.limit) sp.set('limit', String(params.limit));
+  return safeFetchJson(`/api/news/editorial?${sp}`, [], { next: { revalidate: 30 } });
+}
+
 function adminFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return fetchJson<T>(`/api/admin${path}`, {
     credentials: 'include',

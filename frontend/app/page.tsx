@@ -3,10 +3,13 @@ import { PostCard } from '@/components/PostCard';
 import { BreakingGrid } from '@/components/BreakingGrid';
 import { TrendingAside } from '@/components/TrendingAside';
 import { LiveMarketsAside } from '@/components/LiveMarketsAside';
-import { getPosts, getTrending, getTopNews, getTrendingNews, getPopularNews } from '@/lib/api';
+import { getPosts, getTrending, getTopNews, getTrendingNews, getPopularNews, getEditorialNews } from '@/lib/api';
 import { TopStoriesSection } from '@/components/TopStoriesSection';
+import { EditorialSpotlightCarousel } from '@/components/EditorialSpotlightCarousel';
 import { TrendingSection } from '@/components/TrendingSection';
 import { PopularSection } from '@/components/PopularSection';
+import { StoryTray } from '@/components/stories/StoryTray';
+import { buildStoryGroups } from '@/lib/stories-data';
 import { resolvePostImageUrl, storyFallbackImageUrl } from '@/lib/story-image';
 import { absoluteUrl, siteDescription, siteName } from '@/lib/site';
 import Link from 'next/link';
@@ -129,14 +132,20 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [breakingRaw, latestRaw, trendingRaw, topStoriesRaw, trendingRankedRaw, popularRaw] = await Promise.all([
+  const [breakingRaw, latestRaw, trendingRaw, topStoriesRaw, trendingRankedRaw, popularRaw, editorialRaw] = await Promise.all([
     getPosts({ page: 1, limit: 14, category: 'Breaking' }),
-    getPosts({ page: 1, limit: 30 }),
+    getPosts({ page: 1, limit: 40 }),
     getTrending(10),
-    getTopNews({ limit: 10 }),
-    getTrendingNews({ limit: 12 }),
-    getPopularNews({ limit: 10, period: 'day' }),
+    getTopNews({ limit: 15, days: 2 }),
+    getTrendingNews({ limit: 15 }),
+    getPopularNews({ limit: 30, period: 'day' }),
+    getEditorialNews({ limit: 15 }),
   ]);
+
+  // Editorial Desk stories published by us
+  const editorialPosts = (editorialRaw && editorialRaw.length > 0)
+    ? editorialRaw
+    : (topStoriesRaw || []).slice(0, 5);
 
   // Strict cross-section deduplication
   const seenIds = new Set<number>();
@@ -167,6 +176,17 @@ export default async function HomePage() {
   // 7. Sidebar Trending
   const trending = (trendingRaw || []).filter((p) => p.id !== lead?.id).slice(0, 6);
 
+  // 8. Instagram-Style Visual Stories
+  const allStoryPosts = [
+    ...(editorialRaw || []),        // Admin pinned & curated stories (highest rank)
+    ...(popularRaw || []),          // Top daily views (updated daily)
+    ...(topStoriesRaw || []),        // Ranked top stories
+    ...(trendingRankedRaw || []),    // Trending news
+    ...(breakingRaw?.posts || []),   // Breaking live desk
+    ...(latestRaw?.posts || []),     // Fresh desk updates
+  ];
+  const storyGroups = buildStoryGroups(allStoryPosts);
+
   const theme = HERO_COLOR_THEMES[Math.floor(Math.random() * HERO_COLOR_THEMES.length)];
 
   return (
@@ -183,6 +203,7 @@ export default async function HomePage() {
           }}
           aria-hidden
         />
+
 
         {/* Hero Content Section */}
         <section className="relative mx-auto flex max-w-7xl min-h-0 flex-col px-4 pb-8 pt-6 sm:px-6 sm:pb-16 sm:pt-9 lg:px-8 lg:pb-20 lg:pt-10 2xl:max-w-[1440px]">
@@ -302,7 +323,12 @@ export default async function HomePage() {
         {/* 2. Main Content Body on Pure Crisp Paper Background */}
         <main className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12 2xl:max-w-[1440px]">
           <div className="grid min-w-0 gap-8 max-lg:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,min(380px,100%))] lg:items-start">
-            <div className="min-w-0 space-y-12 max-lg:space-y-10 lg:space-y-20">
+            <div className="min-w-0 space-y-8 max-lg:space-y-8 lg:space-y-12">
+              {/* Visual Stories Rail - Exactly Above Breaking Desk */}
+              {storyGroups.length > 0 ? (
+                <StoryTray groups={storyGroups} title="Visual Stories" />
+              ) : null}
+
               {breakingPosts.length > 0 ? (
                 <section className="relative overflow-hidden rounded-2xl">
                   <div className="relative">
@@ -330,6 +356,10 @@ export default async function HomePage() {
                     <BreakingGrid posts={breakingPosts} />
                   </div>
                 </section>
+              ) : null}
+
+              {editorialPosts.length > 0 ? (
+                <EditorialSpotlightCarousel posts={editorialPosts} />
               ) : null}
 
               {topStories.length > 0 ? (

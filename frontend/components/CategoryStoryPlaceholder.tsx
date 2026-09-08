@@ -1,4 +1,4 @@
-import { CategoryGlyph, categoryLabel } from '@/lib/category-theme';
+import { CategoryGlyph, categoryLabel, getCardBgHex } from '@/lib/category-theme';
 import { deskOutlineSrc } from '@/lib/desk-assets';
 
 const CURATED_CATEGORY_IMAGE_MAP: Record<string, string> = {
@@ -20,26 +20,24 @@ const CURATED_CATEGORY_IMAGE_MAP: Record<string, string> = {
   General: '/images/category-curated/Breaking%20News%20Desk.avif',
 };
 
-/** Dark card-image washes when a story has no photo (per desk). */
+/** Vibrant atmospheric washes per desk to enrich photo tone without blacking it out. */
 const PLACEHOLDER_WASH: Record<string, string> = {
-  Breaking: 'from-rose-950/90 via-slate-950/80 to-rose-900/60',
-  'World News': 'from-sky-950/90 via-slate-950/80 to-cyan-900/60',
-  India: 'from-amber-950/90 via-slate-950/80 to-orange-900/60',
-  Sports: 'from-lime-950/90 via-slate-950/80 to-emerald-900/60',
-  Business: 'from-violet-950/90 via-slate-950/80 to-fuchsia-900/60',
-  'Banking & Economics': 'from-cyan-950/90 via-slate-950/80 to-teal-900/60',
-  Politics: 'from-indigo-950/90 via-slate-950/80 to-violet-900/60',
-  'Stocks & Markets': 'from-emerald-950/90 via-slate-950/80 to-teal-900/60',
-  Crypto: 'from-orange-950/90 via-slate-950/80 to-amber-900/60',
-  General: 'from-slate-900/90 via-slate-950/80 to-teal-950/60',
+  Breaking: 'from-rose-950/70 via-rose-900/20 to-transparent',
+  'World News': 'from-sky-950/70 via-blue-900/20 to-transparent',
+  India: 'from-amber-950/70 via-orange-900/20 to-transparent',
+  Sports: 'from-emerald-950/70 via-teal-900/20 to-transparent',
+  Business: 'from-violet-950/70 via-purple-900/20 to-transparent',
+  'Banking & Economics': 'from-teal-950/70 via-cyan-900/20 to-transparent',
+  Politics: 'from-indigo-950/70 via-blue-900/20 to-transparent',
+  'Stocks & Markets': 'from-emerald-950/70 via-emerald-900/20 to-transparent',
+  Crypto: 'from-orange-950/70 via-amber-900/20 to-transparent',
+  General: 'from-slate-950/70 via-slate-900/20 to-transparent',
 };
 
 type Props = {
   category: string;
   className?: string;
-  /** Smaller thumbs (sidebar / trending) */
   compact?: boolean;
-  /** Hide the category caption under the icon (cards already show a chip) */
   hideCaption?: boolean;
 };
 
@@ -48,10 +46,12 @@ export function CategoryStoryPlaceholder({ category, className = '', compact, hi
   const curatedImg = CURATED_CATEGORY_IMAGE_MAP[category] ?? CURATED_CATEGORY_IMAGE_MAP.General;
   const iconSrc = deskOutlineSrc(category);
   const label = categoryLabel(category);
+  const baseBgHex = getCardBgHex(category);
 
   return (
     <div
-      className={`relative flex h-full w-full items-center justify-center overflow-hidden bg-slate-950 ${className}`}
+      style={{ backgroundColor: baseBgHex }}
+      className={`relative flex h-full w-full items-center justify-center overflow-hidden rounded-[inherit] ${className}`}
       role="img"
       aria-label={`${label} story`}
     >
@@ -62,39 +62,40 @@ export function CategoryStoryPlaceholder({ category, className = '', compact, hi
           src={curatedImg}
           alt=""
           aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60 filter brightness-90 saturate-[1.15] transition-transform duration-700 ease-out hover:scale-105"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-90 filter brightness-100 contrast-105 transition-transform duration-700 ease-out hover:scale-105"
         />
       ) : null}
 
       {/* Atmospheric Vignette & Desk Wash */}
-      <div className={`pointer-events-none absolute inset-0 bg-gradient-to-t ${wash} backdrop-blur-[1px]`} aria-hidden />
+      <div className={`pointer-events-none absolute inset-0 bg-gradient-to-t ${wash}`} aria-hidden />
 
-      {/* Desk Outline or Glyph Badge */}
-      <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 p-2 text-center">
-        {iconSrc ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            src={iconSrc}
-            alt=""
-            aria-hidden
-            draggable={false}
-            className={`pointer-events-none object-contain opacity-80 brightness-0 invert drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] ${
-              compact ? 'h-6 w-6' : 'h-10 w-10 sm:h-12 sm:w-12'
-            }`}
-          />
-        ) : (
-          <CategoryGlyph
-            name={category}
-            className={`text-white/80 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] ${compact ? 'h-6 w-6' : 'h-10 w-10 sm:h-12 sm:w-12'}`}
-          />
-        )}
+      {/* Desk Outline or Glyph Badge: only display in center if no curated photo or in large card view */}
+      {(!curatedImg || !compact) ? (
+        <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 p-2 text-center">
+          {iconSrc ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={iconSrc}
+              alt=""
+              aria-hidden
+              draggable={false}
+              className={`pointer-events-none object-contain opacity-85 brightness-0 invert ${compact ? 'h-6 w-6' : 'h-10 w-10 sm:h-12 sm:w-12'
+                }`}
+            />
+          ) : (
+            <CategoryGlyph
+              name={category}
+              className={`text-white/85 ${compact ? 'h-6 w-6' : 'h-10 w-10 sm:h-12 sm:w-12'}`}
+            />
+          )}
 
-        {!compact && !hideCaption ? (
-          <span className="pointer-events-none rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white/90 backdrop-blur-md ring-1 ring-white/20">
-            {label}
-          </span>
-        ) : null}
-      </div>
+          {!compact && !hideCaption ? (
+            <span className="pointer-events-none rounded-full bg-slate-900/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white border border-white/20">
+              {label}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -23,6 +23,7 @@ import {
   PanelLeftOpen,
   Share2,
   Mail,
+  Sparkles,
 } from 'lucide-react';
 import { BrandMark } from '@/components/BrandMark';
 import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
@@ -86,14 +87,17 @@ export function AdminSidebar({
     if (itemHref === '/admin/dashboard') {
       return pathname === '/admin/dashboard' && (!status || status === '');
     }
-    if (itemHref === '/admin/dashboard?status=all') {
-      return (
-        pathname === '/admin/dashboard' &&
-        (status === 'all' || (!!status && status !== 'pending'))
-      );
+    if (itemHref === '/admin/dashboard?status=visual_stories') {
+      return pathname === '/admin/dashboard' && status === 'visual_stories';
     }
     if (itemHref === '/admin/dashboard?status=pending') {
       return pathname === '/admin/dashboard' && status === 'pending';
+    }
+    if (itemHref === '/admin/dashboard?status=all') {
+      return (
+        pathname === '/admin/dashboard' &&
+        (status === 'all' || (!!status && status !== 'pending' && status !== 'visual_stories'))
+      );
     }
     if (itemHref === '/admin/sources') {
       return pathname.startsWith('/admin/sources');
@@ -174,6 +178,13 @@ export function AdminSidebar({
       href: '/admin/dashboard?status=all',
       icon: <Newspaper size={20} />,
       badge: null,
+    },
+    {
+      label: 'Visual Stories',
+      href: '/admin/dashboard?status=visual_stories',
+      icon: <Sparkles size={20} />,
+      badge: 'Fast Takes',
+      badgeColor: 'bg-gradient-to-r from-rose-500 to-amber-500 text-white border-0 shadow-xs font-bold',
     },
     {
       label: 'Review Queue',

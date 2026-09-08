@@ -8,13 +8,16 @@ export type PostListItem = {
   view_count: number;
   published_at: string;
   created_at: string;
-  // v2 fields (optional — may be absent from legacy /api/posts responses)
+  // v2 fields (optional: may be absent from legacy /api/posts responses)
   is_featured?: number;
   is_breaking?: number;
   like_count?: number;
   share_count?: number;
   reading_time_minutes?: number;
   source_id?: number | null;
+  author?: string | null;
+  source_feed?: string | null;
+  editorial_priority?: 'normal' | 'high' | 'pinned';
   // ranking scores (from /api/news/top|trending|popular)
   top_score?: number;
   trending_score?: number;

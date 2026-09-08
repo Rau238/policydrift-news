@@ -1,4 +1,5 @@
 import { LeadStorySkeleton, PostCardSkeleton, Skeleton } from '@/components/ui/Skeleton';
+import { Sparkles, Star } from 'lucide-react';
 
 export default function RootLoading() {
   return (
@@ -44,10 +45,10 @@ export default function RootLoading() {
         {/* Main Content Layout Skeleton */}
         <main className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12 2xl:max-w-[1440px]">
           <div className="grid min-w-0 gap-8 max-lg:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,min(380px,100%))] lg:items-start">
-            {/* Left Column: Breaking Desk & Latest Feed */}
-            <div className="min-w-0 space-y-12 max-lg:space-y-10 lg:space-y-20">
-              {/* Breaking Desk Skeleton */}
-              <section className="space-y-6">
+            {/* Left Column: Breaking Desk, Spotlight, Top Stories, Trending, and Latest */}
+            <div className="min-w-0 space-y-10 sm:space-y-12 lg:space-y-14">
+              {/* 1. Breaking Desk Skeleton */}
+              <section className="space-y-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-5">
                   <div className="space-y-2">
                     <Skeleton className="h-5 w-24 rounded-full bg-rose-400/40" />
@@ -57,14 +58,149 @@ export default function RootLoading() {
                   <Skeleton className="hidden h-10 w-36 rounded-xl bg-slate-800/60 sm:block" />
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {Array.from({ length: 6 }).map((_, i) => (
+                  {Array.from({ length: 3 }).map((_, i) => (
                     <PostCardSkeleton key={i} />
                   ))}
                 </div>
               </section>
 
-              {/* Latest Across Desks Skeleton */}
-              <section className="space-y-6">
+              {/* 2. Editorial Spotlight Carousel Skeleton (Exact Height & Geometry) */}
+              <section className="relative my-6 select-none">
+                <div className="mb-3.5 sm:mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-amber-200/80 bg-amber-50 shadow-xs">
+                      <Sparkles className="h-4 w-4 text-amber-600" strokeWidth={2.25} aria-hidden />
+                    </span>
+                    <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
+                      Editorial Desk Spotlight
+                    </h2>
+                  </div>
+                  <p className="mt-1 text-xs sm:text-sm font-medium text-slate-600 max-w-2xl">
+                    Original policy intelligence, landmark investigative reports and deep-dive analysis published by our editors.
+                  </p>
+                </div>
+
+                {/* Main Card Skeleton */}
+                <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-800/80 bg-gradient-to-br from-[#1a0c03] via-[#2a1306] to-[#0d0502] shadow-xl h-[430px] sm:h-[380px] md:h-[305px] lg:h-[315px]">
+                  <div className="grid grid-cols-1 md:grid-cols-12 h-full w-full">
+                    <div className="h-[180px] sm:h-[185px] md:h-full md:col-span-5 bg-slate-900/90 animate-pulse" />
+                    <div className="relative flex flex-col justify-between p-4 sm:p-5 md:p-5 lg:p-6 md:col-span-7 h-[250px] sm:h-[195px] md:h-full">
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <Skeleton className="h-5 w-28 rounded-full bg-amber-500/20" />
+                          <Skeleton className="h-5 w-20 rounded-full bg-white/10" />
+                          <Skeleton className="h-5 w-16 rounded-full bg-white/10" />
+                        </div>
+                        <Skeleton className="h-6 sm:h-7 w-4/5 rounded-md bg-white/20" />
+                        <Skeleton className="h-4 w-full rounded-md bg-white/10" />
+                        <Skeleton className="h-4 w-3/4 rounded-md bg-white/10" />
+                      </div>
+                      <div className="flex items-center justify-between pt-2.5 sm:pt-3 border-t border-white/15">
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg bg-white/10" />
+                          <div className="space-y-1">
+                            <Skeleton className="h-3 w-24 rounded bg-white/20" />
+                            <Skeleton className="h-2.5 w-16 rounded bg-white/10" />
+                          </div>
+                        </div>
+                        <Skeleton className="h-8 w-24 rounded-lg bg-amber-500/40" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Indicator Dots Skeleton */}
+                <div className="mt-2.5 flex items-center justify-center gap-1.5">
+                  <div className="h-1.5 w-6 rounded-full bg-amber-400/70" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-slate-300" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-slate-300" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-slate-300" />
+                </div>
+
+                {/* Thumbnails Rail Skeleton */}
+                <div className="mt-2.5 flex items-stretch gap-2 overflow-hidden">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex h-[58px] sm:h-[62px] w-[210px] sm:w-[230px] shrink-0 items-center gap-2.5 rounded-xl border border-slate-200/90 bg-white/90 p-1.5"
+                    >
+                      <Skeleton className="h-10 w-10 sm:h-11 sm:w-11 shrink-0 rounded-lg bg-slate-200" />
+                      <div className="flex-1 space-y-1.5 min-w-0">
+                        <Skeleton className="h-2 w-14 rounded bg-slate-200" />
+                        <Skeleton className="h-3 w-full rounded bg-slate-200" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* 3. Top Stories Section Skeleton */}
+              <section className="space-y-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-amber-200/80 bg-amber-50">
+                      <Star className="h-4 w-4 text-amber-500" strokeWidth={2.25} aria-hidden />
+                    </span>
+                    <h2 className="font-display text-xl font-bold tracking-tight text-ink sm:text-2xl">
+                      Top Stories
+                    </h2>
+                  </div>
+                  <Skeleton className="h-8 w-36 rounded-lg bg-slate-200" />
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <PostCardSkeleton key={i} />
+                  ))}
+                </div>
+              </section>
+
+              {/* 4. Trending & Popular 2-Column Grid Skeleton */}
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+                <div className="rounded-2xl border border-slate-200/90 bg-white shadow-sm overflow-hidden">
+                  <div className="border-b border-slate-200/80 px-5 py-4 sm:px-6 sm:py-5 flex items-center gap-3">
+                    <Skeleton className="h-10 w-10 rounded-full bg-rose-100" />
+                    <div className="space-y-1.5">
+                      <Skeleton className="h-4.5 w-32 rounded bg-slate-200" />
+                      <Skeleton className="h-3 w-24 rounded bg-slate-100" />
+                    </div>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="flex items-center gap-3 py-1.5 border-b border-slate-100 last:border-0">
+                        <Skeleton className="h-8 w-8 rounded-lg bg-slate-200 shrink-0" />
+                        <div className="flex-1 space-y-1.5">
+                          <Skeleton className="h-3.5 w-full rounded bg-slate-200" />
+                          <Skeleton className="h-2.5 w-1/2 rounded bg-slate-100" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200/90 bg-white shadow-sm overflow-hidden">
+                  <div className="border-b border-slate-200/80 px-5 py-4 sm:px-6 sm:py-5 flex items-center gap-3">
+                    <Skeleton className="h-10 w-10 rounded-full bg-indigo-100" />
+                    <div className="space-y-1.5">
+                      <Skeleton className="h-4.5 w-32 rounded bg-slate-200" />
+                      <Skeleton className="h-3 w-24 rounded bg-slate-100" />
+                    </div>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="flex items-center gap-3 py-1.5 border-b border-slate-100 last:border-0">
+                        <Skeleton className="h-8 w-8 rounded-lg bg-slate-200 shrink-0" />
+                        <div className="flex-1 space-y-1.5">
+                          <Skeleton className="h-3.5 w-full rounded bg-slate-200" />
+                          <Skeleton className="h-2.5 w-1/2 rounded bg-slate-100" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* 5. Latest Across Desks Skeleton */}
+              <section className="space-y-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-5">
                   <div className="space-y-2">
                     <Skeleton className="h-5 w-24 rounded-full bg-slate-200" />
@@ -127,3 +263,4 @@ export default function RootLoading() {
     </div>
   );
 }
+

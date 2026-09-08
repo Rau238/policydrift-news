@@ -97,7 +97,7 @@ export function RemoteStoryImage({
 
   if (useFallback) {
     return (
-      <span ref={wrapRef} style={{ backgroundColor: bgHex }} className="relative block h-full w-full overflow-hidden">
+      <span ref={wrapRef} style={{ backgroundColor: bgHex }} className="relative block h-full w-full overflow-hidden rounded-[inherit]">
         {inView ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
@@ -114,7 +114,7 @@ export function RemoteStoryImage({
   }
 
   return (
-    <span ref={wrapRef} style={{ backgroundColor: bgHex }} className="relative block h-full w-full overflow-hidden">
+    <span ref={wrapRef} style={{ backgroundColor: bgHex }} className="relative block h-full w-full overflow-hidden rounded-[inherit]">
       {/* Branded NewsFree365 Logo with Vibrant Card Shade while loading */}
       <span
         style={{
@@ -127,9 +127,9 @@ export function RemoteStoryImage({
       >
         <span className="absolute inset-0 animate-pulse bg-gradient-to-r from-white/5 via-white/15 to-white/5" />
         <span className="relative flex flex-col items-center justify-center gap-2">
-          <BrandMark sizeClass={compact ? 'h-8 w-8' : 'h-12 w-12'} className="animate-pulse shadow-black/40 ring-white/30" />
+          <BrandMark sizeClass={compact ? 'h-8 w-8' : 'h-12 w-12'} className="animate-pulse ring-1 ring-white/20" />
           {!compact ? (
-            <span className="text-[10px] font-bold tracking-widest text-white/90 uppercase drop-shadow-sm">
+            <span className="text-[10px] font-bold tracking-widest text-white/90 uppercase">
               NewsFree365
             </span>
           ) : null}

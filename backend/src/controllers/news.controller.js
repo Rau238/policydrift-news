@@ -141,6 +141,27 @@ export async function getPopular(req, res, next) {
   } catch (e) { next(e); }
 }
 
+// ─── GET /api/news/editorial ──────────────────────────────────────────────────
+
+export async function getEditorial(req, res, next) {
+  try {
+    const limit = clampLimit(req.query.limit, 8, 30);
+    const cacheKey = `editorial:${limit}`;
+    const cached = getCachedNews(cacheKey);
+    if (cached) {
+      res.set('Cache-Control', 'public, max-age=30, s-maxage=60');
+      return res.json(cached);
+    }
+
+    const posts = await postModel.listEditorial({ limit });
+    const payload = serializeMany(posts);
+    setCachedNews(cacheKey, payload, 30000);
+
+    res.set('Cache-Control', 'public, max-age=30, s-maxage=60');
+    res.json(payload);
+  } catch (e) { next(e); }
+}
+
 // ─── GET /api/news/:slug ──────────────────────────────────────────────────────
 
 export async function getNewsBySlug(req, res, next) {

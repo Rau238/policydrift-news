@@ -190,97 +190,103 @@ function BreakingAsideSkeleton() {
 export function NewsArticleSkeleton() {
   return (
     <div
-      className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50"
+      className="min-h-screen bg-[#f7f8fa]"
       aria-busy="true"
       aria-label="Loading article"
     >
-      <div className="border-b border-slate-800/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 lg:px-8 2xl:max-w-[1440px]">
-          <Skeleton className="h-4 w-20 rounded bg-white/10" />
-          <Skeleton className="h-3 w-40 rounded bg-white/10" />
+      {/* Top Bar matching 1:1 */}
+      <div className="border-b border-slate-800/80 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white">
+        <div className="mx-auto max-w-7xl px-3 py-1.5 sm:px-6 sm:py-2 lg:px-8 2xl:max-w-[1440px]">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-4 w-4 rounded-full bg-white/20" />
+              <Skeleton className="h-4 w-16 rounded bg-white/20" />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Skeleton className="h-3 w-10 rounded bg-white/10" />
+              <span className="text-slate-600 text-xs">/</span>
+              <Skeleton className="h-3 w-12 rounded bg-white/10" />
+              <span className="text-slate-600 text-xs">/</span>
+              <Skeleton className="h-3 w-20 rounded bg-teal-400/20" />
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 pb-14 pt-6 sm:px-6 sm:pb-16 sm:pt-8 lg:px-8 lg:pb-20 lg:pt-10 2xl:max-w-[1440px]">
-
-
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_min(360px,100%)] lg:items-start lg:gap-12">
+      {/* Main Container matching 1:1 */}
+      <div className="mx-auto max-w-7xl px-3.5 pb-14 pt-4 sm:px-6 sm:pb-20 sm:pt-8 lg:px-8 2xl:max-w-[1440px]">
+        <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-10">
           <div className="min-w-0">
-            <article className="relative w-full max-w-3xl">
-              <div className="flex flex-wrap items-center gap-3">
-                <Skeleton className="h-8 w-28 rounded-full" />
-                <Skeleton className="h-3 w-36" />
-              </div>
-              <Skeleton className="mt-4 h-10 w-full max-w-xl sm:h-12" />
-              <Skeleton className="mt-3 h-5 w-full max-w-lg" />
-              <Skeleton className="mt-2 h-5 w-full max-md" />
-
-              <div className="mt-7 overflow-hidden rounded-2xl border border-slate-200/90 bg-slate-100 shadow-lg">
-                <Skeleton className="aspect-[16/9] w-full rounded-none sm:aspect-[2/1]" />
-              </div>
-
-              <div className="mt-5 flex gap-3 rounded-2xl border border-slate-200/90 bg-white px-4 py-3.5 shadow-sm">
-                <Skeleton className="h-11 w-11 shrink-0 rounded-full" />
-                <div className="min-w-0 flex-1 space-y-2 py-0.5">
-                  <Skeleton className="h-2.5 w-20" />
-                  <Skeleton className="h-4 w-44 max-w-full" />
-                  <Skeleton className="h-3 w-full max-w-sm" />
+            <article className="relative w-full min-w-0">
+              {/* Header */}
+              <header className="mb-4 sm:mb-6 space-y-2.5 sm:space-y-3.5">
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+                  <Skeleton className="h-6 w-24 rounded-full bg-slate-200" />
+                  <Skeleton className="h-4 w-28 rounded bg-slate-200" />
+                  <span className="text-slate-300">·</span>
+                  <Skeleton className="h-4 w-20 rounded bg-slate-200" />
                 </div>
-              </div>
 
-              <div className="mt-8 overflow-hidden rounded-2xl border border-teal-200/70">
-                <div className="border-b border-teal-100 bg-teal-50/80 px-4 py-3">
-                  <Skeleton className="h-5 w-36" />
+                <div className="space-y-2">
+                  <Skeleton className="h-8 sm:h-10 lg:h-11 w-full max-w-2xl rounded-lg bg-slate-300/80" />
+                  <Skeleton className="h-8 sm:h-10 lg:h-11 w-4/5 max-w-xl rounded-lg bg-slate-300/80" />
                 </div>
-                <div className="space-y-3 px-4 py-4">
-                  <Skeleton className="h-4 w-full max-w-lg" />
-                  <Skeleton className="h-4 w-full max-w-md" />
-                  <Skeleton className="h-4 w-full max-w-xl" />
-                </div>
-              </div>
 
-              <div className="mt-9 space-y-4">
-                <Skeleton className="h-5 w-full" />
-                <Skeleton className="h-5 w-full" />
-                <Skeleton className="h-5 w-full max-w-[95%]" />
-                <Skeleton className="h-5 w-full max-w-[88%]" />
-                <Skeleton className="h-5 w-full" />
-                <Skeleton className="h-5 w-full max-w-[92%]" />
-                <Skeleton className="h-5 w-40" />
-              </div>
+                <Skeleton className="mt-2 h-5 w-full max-w-2xl rounded bg-slate-200/80" />
 
-              <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-4">
-                  <Skeleton className="h-3 w-full max-w-md" />
+                {/* Engagement Bar Skeleton */}
+                <div className="flex items-center justify-between rounded-xl border border-slate-200/80 bg-white p-2.5 shadow-xs">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-8 w-16 rounded-lg bg-slate-100" />
+                    <Skeleton className="h-8 w-16 rounded-lg bg-slate-100" />
+                  </div>
+                  <Skeleton className="h-8 w-24 rounded-lg bg-slate-100" />
                 </div>
-                <div className="flex flex-wrap gap-3 px-5 py-4">
-                  <Skeleton className="h-11 w-48 rounded-xl" />
-                  <Skeleton className="h-4 w-32 self-center" />
+              </header>
+
+              {/* Unified Article Card matching real page */}
+              <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
+                {/* Hero Image Stack */}
+                <div className="p-0 sm:p-6 lg:p-8 pb-0 sm:pb-0 lg:pb-0">
+                  <Skeleton className="aspect-[16/9] w-full rounded-none sm:rounded-xl bg-slate-200" />
+                </div>
+
+                {/* Story Content Box */}
+                <div className="p-4 sm:p-8 lg:p-10 border-b border-slate-100 space-y-5 sm:space-y-6">
+                  <div className="rounded-xl border border-teal-200/70 bg-teal-50/50 p-4 sm:p-5 space-y-2.5">
+                    <Skeleton className="h-4 w-32 rounded bg-teal-300/40" />
+                    <Skeleton className="h-3.5 w-full rounded bg-teal-200/30" />
+                    <Skeleton className="h-3.5 w-4/5 rounded bg-teal-200/30" />
+                  </div>
+
+                  <div className="space-y-3 pt-4">
+                    <Skeleton className="h-4 w-full rounded bg-slate-200" />
+                    <Skeleton className="h-4 w-[96%] rounded bg-slate-200" />
+                    <Skeleton className="h-4 w-[92%] rounded bg-slate-200" />
+                    <Skeleton className="h-4 w-[98%] rounded bg-slate-200" />
+                    <Skeleton className="h-4 w-[85%] rounded bg-slate-200" />
+                  </div>
+                </div>
+
+                {/* Publisher Credit Bar */}
+                <div className="p-4 sm:p-8 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-10 w-10 rounded-full bg-slate-200" />
+                    <div className="space-y-1">
+                      <Skeleton className="h-3.5 w-28 rounded bg-slate-200" />
+                      <Skeleton className="h-3 w-40 rounded bg-slate-200" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-8 w-24 rounded-lg bg-slate-200" />
                 </div>
               </div>
             </article>
-
-            <section className="mt-12 w-full max-w-3xl rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6">
-              <div className="flex flex-wrap items-end justify-between gap-4">
-                <div className="space-y-2">
-                  <Skeleton className="h-7 w-48" />
-                  <Skeleton className="h-3 w-40" />
-                </div>
-                <Skeleton className="h-4 w-28" />
-              </div>
-              <ul className="mt-5 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <li key={i} className="min-w-0">
-                    <PostCardSkeleton compact />
-                  </li>
-                ))}
-              </ul>
-            </section>
           </div>
 
-          <aside className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-24">
+          {/* Aside Column matching 1:1 */}
+          <aside className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-20">
+            <TrendingAsideSkeleton />
             <MarketsAsideSkeleton />
-            <BreakingAsideSkeleton />
           </aside>
         </div>
       </div>

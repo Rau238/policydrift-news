@@ -89,6 +89,7 @@ interface StatsData {
   rejected?: number;
   featured: number;
   breaking: number;
+  visual_stories?: number;
   totalViews: number;
   todayPosts: number;
   totalSources: number;
@@ -255,6 +256,7 @@ function DashboardContent() {
     editorial: 0,
     featured: 0,
     breaking: 0,
+    visual_stories: 0,
     totalViews: 0,
     todayPosts: 0,
     totalSources: 0,
@@ -875,7 +877,7 @@ function DashboardContent() {
           ) : (
             <>
               {/* Stat Cards Row */}
-              <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+              <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
                 <MetricCard
                   title="Total Articles"
                   value={fmtNum(stats.total)}
@@ -893,6 +895,15 @@ function DashboardContent() {
                   accentColor="bg-emerald-500/10 border border-emerald-500/20"
                   onClick={() => handleStatusChange('published')}
                   active={statusFilter === 'published'}
+                />
+                <MetricCard
+                  title="Visual Stories"
+                  value={fmtNum(stats.visual_stories ?? stats.featured)}
+                  subtext="Fast Takes carousel"
+                  icon={<Sparkles size={20} className="text-fuchsia-400" />}
+                  accentColor="bg-fuchsia-500/10 border border-fuchsia-500/20"
+                  onClick={() => handleStatusChange('visual_stories')}
+                  active={statusFilter === 'visual_stories'}
                 />
                 <MetricCard
                   title="Review Queue"
@@ -926,6 +937,36 @@ function DashboardContent() {
                   accentColor="bg-rose-500/10 border border-rose-500/20"
                 />
               </section>
+
+              {/* Visual Stories Curation Banner */}
+              {statusFilter === 'visual_stories' && (
+                <div className="rounded-xl border border-fuchsia-500/30 bg-gradient-to-r from-fuchsia-950/40 via-purple-950/20 to-slate-900/60 p-4 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
+                      <Sparkles size={18} className="animate-pulse" />
+                    </span>
+                    <div>
+                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                        Visual Stories Desk Curation
+                        <span className="rounded-full bg-gradient-to-r from-rose-500 to-amber-500 px-2 py-0.5 text-[9px] font-extrabold uppercase text-white">
+                          Fast Takes
+                        </span>
+                      </h4>
+                      <p className="text-xs text-slate-300 mt-0.5 max-w-2xl">
+                        Articles pinned with the <Sparkles size={11} className="inline text-fuchsia-300" /> button (or priority set to <strong>Pinned</strong>) immediately appear as the #1 slide and cover photo for that category circle in the top Visual Stories tray. When no articles are pinned, categories automatically display the top-viewed and latest stories.
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/"
+                    target="_blank"
+                    className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-200 transition"
+                  >
+                    <span>View Live Stories</span>
+                    <ExternalLink size={13} />
+                  </Link>
+                </div>
+              )}
 
               {/* Table Container */}
               <section className="relative rounded-xl border border-slate-800/80 bg-[#0c1220]/90 shadow-xl backdrop-blur-md min-h-[500px]">
@@ -1008,6 +1049,7 @@ function DashboardContent() {
                       {[
                         { key: 'all', label: 'All Articles', count: stats.total },
                         { key: 'published', label: 'Published', count: stats.published },
+                        { key: 'visual_stories', label: 'Visual Stories', count: stats.visual_stories ?? stats.featured },
                         { key: 'editorial', label: 'Authored Stories', count: stats.editorial || 0 },
                         { key: 'pending', label: 'Review Queue', count: stats.pending },
                         { key: 'draft', label: 'Drafts', count: stats.draft },
@@ -1236,9 +1278,31 @@ function DashboardContent() {
                                 </div>
                               </td>
 
-                              {/* Featured & Breaking Pills */}
+                              {/* Featured, Breaking & Story Pills */}
                               <td className="px-3 py-3.5 whitespace-nowrap">
                                 <div className="flex items-center gap-1">
+                                  {/* Visual Story Pin Toggle */}
+                                  <button
+                                    onClick={() =>
+                                      handlePriorityChange(
+                                        item.id,
+                                        item.editorial_priority === 'pinned' ? 'normal' : 'pinned'
+                                      )
+                                    }
+                                    disabled={isRowLoading}
+                                    title={
+                                      item.editorial_priority === 'pinned'
+                                        ? 'Pinned to Visual Stories. Click to unpin.'
+                                        : 'Pin to Visual Stories (Top Slide in Category)'
+                                    }
+                                    className={`rounded p-1 transition ${item.editorial_priority === 'pinned'
+                                        ? 'bg-fuchsia-500/25 text-fuchsia-300 border border-fuchsia-500/40 shadow-xs'
+                                        : 'text-slate-600 hover:text-slate-300'
+                                      }`}
+                                  >
+                                    <Sparkles size={13} className={item.editorial_priority === 'pinned' ? 'fill-fuchsia-400 text-fuchsia-300 animate-pulse' : ''} />
+                                  </button>
+
                                   {/* Featured Toggle */}
                                   <button
                                     onClick={() =>
@@ -1477,6 +1541,16 @@ function DashboardContent() {
               >
                 <Zap size={13} className="fill-rose-400/30 text-rose-400" />
                 <span>Breaking (2h)</span>
+              </button>
+
+              {/* Pin to Visual Stories */}
+              <button
+                onClick={() => executeBulkAction('priority', { priority: 'pinned' })}
+                disabled={bulkExecuting}
+                className="flex h-9 items-center gap-1.5 rounded-lg border border-fuchsia-500/30 bg-fuchsia-500/10 px-3 text-xs font-semibold text-fuchsia-300 transition hover:bg-fuchsia-500/20 active:scale-95 disabled:opacity-50 whitespace-nowrap"
+              >
+                <Sparkles size={13} className="fill-fuchsia-400/30 text-fuchsia-400" />
+                <span>Pin to Stories</span>
               </button>
 
               <div className="h-4 w-px bg-slate-800 mx-0.5" />

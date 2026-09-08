@@ -128,7 +128,7 @@ export const metadata: Metadata = {
     ...(yandexVerify ? { 'yandex-verification': yandexVerify } : {}),
     ...(pinterestVerify ? { 'p:domain_verify': pinterestVerify } : {}),
     ...(facebookVerify ? { 'facebook-domain-verification': facebookVerify } : {}),
-    ...(loadAdsenseScript ? { 'google-adsense-account': adsenseClient } : {}),
+    'google-adsense-account': 'ca-pub-1508845535613236',
   },
 };
 
@@ -182,13 +182,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </>
         ) : null}
 
-        {loadAdsenseScript ? (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}`}
-            crossOrigin="anonymous"
-          />
-        ) : null}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1508845535613236"
+          crossOrigin="anonymous"
+        />
         <SiteJsonLd />
         <PwaSplash />
         <PushSubscriptionPrompt />

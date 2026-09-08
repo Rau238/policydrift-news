@@ -2,7 +2,7 @@ import { pool } from '../db/pool.js';
 
 const listFields =
   'id, slug, title, excerpt, image_url, category, view_count, published_at, created_at, ' +
-  'is_featured, is_breaking, like_count, share_count, reading_time_minutes, source_id';
+  'is_featured, is_breaking, editorial_priority, like_count, share_count, reading_time_minutes, source_id';
 
 export async function findByUrlHash(urlHash) {
   const [rows] = await pool.query('SELECT id FROM posts WHERE url_hash = ? LIMIT 1', [urlHash]);
@@ -183,7 +183,23 @@ export async function listTrendingRanked({ limit = 10, days = 2 }) {
   return rows;
 }
 
-/** Popular — raw engagement within a time window (Optimized Subquery Join). */
+/** Editorial: Stories published directly by our editorial desks (source_id IS NULL or authored/pinned/featured). */
+export async function listEditorial({ limit = 8 } = {}) {
+  const [rows] = await pool.query(
+    `SELECT p.id, p.slug, p.title, p.excerpt, p.image_url, p.category, p.status, p.published_at, p.created_at,
+            p.view_count, p.is_featured, p.is_breaking, p.editorial_priority, p.author, p.source_id,
+            p.like_count, p.share_count, p.reading_time_minutes, p.original_url
+     FROM posts p
+     WHERE p.status = 'published'
+       AND (p.source_id IS NULL OR p.author LIKE '%Editorial%' OR p.author LIKE '%PolicyDrift%' OR p.author LIKE '%Desk%' OR p.editorial_priority = 'pinned' OR p.is_featured = 1)
+     ORDER BY (p.editorial_priority = 'pinned') DESC, (p.source_id IS NULL) DESC, p.published_at DESC
+     LIMIT ?`,
+    [limit],
+  );
+  return rows;
+}
+
+/** Popular: raw engagement within a time window (Optimized Subquery Join). */
 export async function listPopular({ limit = 10, period = 'day' }) {
   const col = ({ day: 'views_24h', week: 'views_7d', month: 'views_30d' })[period] || 'views_24h';
   const intervalMap = { day: '2 DAY', week: '10 DAY', month: '35 DAY' };
@@ -232,6 +248,7 @@ export async function updatePost(id, fields) {
   if (!sets.length) return 0;
   vals.push(id);
   const [r] = await pool.query(`UPDATE posts SET ${sets.join(', ')} WHERE id = ?`, vals);
+  invalidateAdminStatsCache();
   return r.affectedRows;
 }
 
@@ -256,6 +273,7 @@ export async function bulkUpdatePosts(ids, fields) {
     `UPDATE posts SET ${sets.join(', ')} WHERE id IN (?)`,
     [...vals, ids],
   );
+  invalidateAdminStatsCache();
   return r.affectedRows;
 }
 
@@ -267,6 +285,7 @@ export async function bulkDeletePosts(ids) {
   await pool.query('DELETE FROM post_metrics WHERE post_id IN (?)', [cleanIds]);
   await pool.query('DELETE FROM post_events WHERE post_id IN (?)', [cleanIds]);
   const [r] = await pool.query('DELETE FROM posts WHERE id IN (?)', [cleanIds]);
+  invalidateAdminStatsCache();
   return r.affectedRows;
 }
 
@@ -283,6 +302,7 @@ export async function publishAllPendingArticles({ category = null } = {}) {
     `UPDATE posts SET status = 'published', published_at = NOW() WHERE ${where}`,
     params,
   );
+  invalidateAdminStatsCache();
   return r.affectedRows;
 }
 
@@ -305,6 +325,8 @@ export async function adminListPosts({
   if (status && status !== 'all') {
     if (status === 'editorial' || status === 'our_stories') {
       conds.push('p.source_id IS NULL');
+    } else if (status === 'visual_stories' || status === 'stories') {
+      conds.push('(p.editorial_priority = "pinned" OR p.is_featured = 1)');
     } else {
       conds.push('p.status = ?');
       params.push(status);
@@ -370,85 +392,97 @@ export async function adminListPosts({
   };
 }
 
-/** Aggregate statistics for admin dashboard */
-export async function getAdminStats() {
-  const [statusRows] = await pool.query(
-    `SELECT status, COUNT(*) AS count FROM posts GROUP BY status`,
-  );
-  const [featureRows] = await pool.query(
-    `SELECT 
-       SUM(CASE WHEN is_featured = 1 THEN 1 ELSE 0 END) AS featured_count,
-       SUM(CASE WHEN is_breaking = 1 THEN 1 ELSE 0 END) AS breaking_count,
-       SUM(CASE WHEN source_id IS NULL THEN 1 ELSE 0 END) AS editorial_count,
-       SUM(COALESCE(view_count, 0)) AS total_views,
-       COUNT(*) AS total_posts
-     FROM posts`,
-  );
-  const [todayRows] = await pool.query(
-    `SELECT COUNT(*) AS today_posts FROM posts WHERE created_at >= CURDATE()`,
-  );
-  const [sourceRows] = await pool.query(
-    `SELECT 
-       COUNT(*) AS total_sources,
-       SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) AS active_sources,
-       SUM(COALESCE(articles_imported, 0)) AS total_imported
-     FROM news_sources`,
-  );
-  const [categoryRows] = await pool.query(
-    `SELECT category, COUNT(*) AS count, SUM(COALESCE(view_count, 0)) AS views 
-     FROM posts 
-     WHERE status = 'published'
-     GROUP BY category 
-     ORDER BY count DESC 
-     LIMIT 10`,
-  );
-  const [recentPublishTrend] = await pool.query(
-    `SELECT DATE(created_at) AS post_date, COUNT(*) AS count, SUM(COALESCE(view_count, 0)) AS views
-     FROM posts
-     WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 14 DAY)
-     GROUP BY DATE(created_at)
-     ORDER BY post_date ASC`,
-  );
-  const [topSourceVolume] = await pool.query(
-    `SELECT ns.name, COUNT(p.id) AS count, ns.category, ns.is_active
-     FROM news_sources ns
-     LEFT JOIN posts p ON p.source_id = ns.id
-     GROUP BY ns.id, ns.name, ns.category, ns.is_active
-     ORDER BY count DESC
-     LIMIT 8`,
-  );
-  const [topArticles] = await pool.query(
-    `SELECT id, title, slug, category, view_count, created_at, published_at, is_featured, is_breaking
-     FROM posts
-     WHERE status = 'published'
-     ORDER BY view_count DESC, created_at DESC
-     LIMIT 5`,
-  );
+// In-memory cache for high-frequency admin stats polling
+let adminStatsCache = null;
+let adminStatsCacheExpiry = 0;
 
-  const statusMap = {};
-  for (const r of statusRows) {
-    statusMap[r.status] = r.count;
+export function invalidateAdminStatsCache() {
+  adminStatsCache = null;
+  adminStatsCacheExpiry = 0;
+}
+
+/** Aggregate statistics for admin dashboard with parallel queries and caching */
+export async function getAdminStats() {
+  const now = Date.now();
+  if (adminStatsCache && now < adminStatsCacheExpiry) {
+    return adminStatsCache;
   }
 
-  const f = featureRows[0] || {};
-  const s = sourceRows[0] || {};
-  const t = todayRows[0] || {};
+  const [
+    [statusRows],
+    [[featureCounts]],
+    [[editorialCountRow]],
+    [[visualStoriesRow]],
+    [[viewsRow]],
+    [[todayRow]],
+    [[sourceCounts]],
+    [categoryRows],
+    [recentPublishTrend],
+    [topSourceVolume],
+    [topArticles],
+  ] = await Promise.all([
+    pool.query(`SELECT status, COUNT(*) AS count FROM posts GROUP BY status`),
+    pool.query(`SELECT 
+        SUM(CASE WHEN is_featured = 1 THEN 1 ELSE 0 END) AS featured_count,
+        SUM(CASE WHEN is_breaking = 1 THEN 1 ELSE 0 END) AS breaking_count
+      FROM posts 
+      WHERE is_featured = 1 OR is_breaking = 1`),
+    pool.query(`SELECT COUNT(*) AS editorial_count FROM posts WHERE source_id IS NULL`),
+    pool.query(`SELECT COUNT(*) AS visual_stories_count FROM posts WHERE is_featured = 1 OR editorial_priority = 'pinned'`),
+    pool.query(`SELECT SUM(view_count) AS total_views FROM posts`),
+    pool.query(`SELECT COUNT(*) AS today_posts FROM posts WHERE created_at >= CURDATE()`),
+    pool.query(`SELECT 
+        COUNT(*) AS total_sources,
+        SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) AS active_sources,
+        SUM(COALESCE(articles_imported, 0)) AS total_imported
+      FROM news_sources`),
+    pool.query(`SELECT category, COUNT(*) AS count, SUM(COALESCE(view_count, 0)) AS views 
+      FROM posts 
+      WHERE status = 'published'
+      GROUP BY category 
+      ORDER BY count DESC 
+      LIMIT 10`),
+    pool.query(`SELECT DATE(created_at) AS post_date, COUNT(*) AS count, SUM(COALESCE(view_count, 0)) AS views
+      FROM posts
+      WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 14 DAY)
+      GROUP BY DATE(created_at)
+      ORDER BY post_date ASC`),
+    pool.query(`SELECT ns.name, COUNT(p.id) AS count, ns.category, ns.is_active
+      FROM news_sources ns
+      LEFT JOIN posts p ON p.source_id = ns.id
+      GROUP BY ns.id, ns.name, ns.category, ns.is_active
+      ORDER BY count DESC
+      LIMIT 8`),
+    pool.query(`SELECT id, title, slug, category, view_count, created_at, published_at, is_featured, is_breaking
+      FROM posts
+      WHERE status = 'published'
+      ORDER BY view_count DESC
+      LIMIT 5`),
+  ]);
 
-  return {
-    total: Number(f.total_posts) || 0,
-    published: Number(statusMap['published']) || 0,
-    pending: Number(statusMap['pending']) || 0,
-    draft: Number(statusMap['draft']) || 0,
-    archived: Number(statusMap['archived']) || 0,
-    editorial: Number(f.editorial_count) || 0,
-    rejected: Number(statusMap['rejected']) || 0,
-    featured: Number(f.featured_count) || 0,
-    breaking: Number(f.breaking_count) || 0,
-    totalViews: Number(f.total_views) || 0,
-    todayPosts: Number(t.today_posts) || 0,
-    totalSources: Number(s.total_sources) || 0,
-    activeSources: Number(s.active_sources) || 0,
-    totalImported: Number(s.total_imported) || 0,
+  const statusMap = {};
+  let totalPosts = 0;
+  for (const r of statusRows) {
+    statusMap[r.status] = Number(r.count) || 0;
+    totalPosts += Number(r.count) || 0;
+  }
+
+  const result = {
+    total: totalPosts,
+    published: statusMap['published'] || 0,
+    pending: statusMap['pending'] || 0,
+    draft: statusMap['draft'] || 0,
+    archived: statusMap['archived'] || 0,
+    editorial: Number(editorialCountRow?.editorial_count) || 0,
+    rejected: statusMap['rejected'] || 0,
+    featured: Number(featureCounts?.featured_count) || 0,
+    breaking: Number(featureCounts?.breaking_count) || 0,
+    visual_stories: Number(visualStoriesRow?.visual_stories_count) || 0,
+    totalViews: Number(viewsRow?.total_views) || 0,
+    todayPosts: Number(todayRow?.today_posts) || 0,
+    totalSources: Number(sourceCounts?.total_sources) || 0,
+    activeSources: Number(sourceCounts?.active_sources) || 0,
+    totalImported: Number(sourceCounts?.total_imported) || 0,
     categoryDistribution: categoryRows.map((r) => ({
       category: r.category || 'General',
       count: Number(r.count) || 0,
@@ -476,6 +510,12 @@ export async function getAdminStats() {
       isBreaking: Boolean(r.is_breaking),
     })),
   };
+
+  // Cache for 15 seconds to prevent spam hammering during dashboard views
+  adminStatsCache = result;
+  adminStatsCacheExpiry = now + 15000;
+
+  return result;
 }
 
 export async function createPost(row) {
@@ -560,6 +600,7 @@ export async function createPost(row) {
   // Invalidate in-memory caches
   countCache.clear();
   categoriesCache = null;
+  invalidateAdminStatsCache();
 
   return insertId;
 }

@@ -25,6 +25,8 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  // Isolate dev and prod build outputs so dev never collides with or corrupts production builds
+  distDir: process.env.NEXT_DIST_DIR || (process.env.NODE_ENV === 'development' ? '.next-dev' : '.next'),
   async headers() {
     return [
       {
