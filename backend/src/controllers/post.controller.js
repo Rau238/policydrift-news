@@ -22,8 +22,14 @@ export async function listPosts(req, res, next) {
     const category = req.query.category || 'all';
     const search = (req.query.search || req.query.q || '').trim();
 
-    // Cache unsearched top page requests for 15s
-    const cacheKey = !search && page <= 3 ? `list:${category}:${page}:${limit}` : null;
+    const searchKey = search ? search.toLowerCase().slice(0, 60) : '';
+    // Cache search queries (30s) and unsearched top pages (15s)
+    const cacheKey = searchKey
+      ? `search:${searchKey}:${category}:${page}:${limit}`
+      : page <= 3
+      ? `list:${category}:${page}:${limit}`
+      : null;
+
     if (cacheKey) {
       const cached = getFeedCache(cacheKey);
       if (cached) {
@@ -39,7 +45,7 @@ export async function listPosts(req, res, next) {
     };
 
     if (cacheKey) {
-      setFeedCache(cacheKey, payload, 15000);
+      setFeedCache(cacheKey, payload, searchKey ? 30000 : 15000);
     }
 
     res.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');

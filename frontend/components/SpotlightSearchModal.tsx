@@ -26,6 +26,9 @@ interface Post {
   reading_time_minutes?: number;
 }
 
+// In-memory client cache for instant repeat keystrokes
+const spotlightClientCache = new Map<string, Post[]>();
+
 export function SpotlightSearchModal({
   isOpen,
   onClose,
@@ -35,6 +38,7 @@ export function SpotlightSearchModal({
 }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
@@ -51,6 +55,7 @@ export function SpotlightSearchModal({
       setQuery('');
       setResults([]);
       setSelectedIndex(0);
+      abortRef.current?.abort();
     }
   }, [isOpen]);
 
@@ -65,16 +70,24 @@ export function SpotlightSearchModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Debounced live search
+  // Ultra-fast Debounced live search with client-side cache & cancellation
   useEffect(() => {
     if (!isOpen) return;
 
-    if (!query.trim()) {
-      // When empty, fetch latest top stories for instant preview
+    const trimmed = query.trim();
+    if (!trimmed) {
+      // When empty, check cache for top stories or fetch
+      const cachedDefault = spotlightClientCache.get('__default__');
+      if (cachedDefault) {
+        setResults(cachedDefault);
+        setLoading(false);
+        return;
+      }
       fetch('/api/posts?limit=6')
         .then((res) => res.json())
         .then((data) => {
           if (data && Array.isArray(data.posts)) {
+            spotlightClientCache.set('__default__', data.posts);
             setResults(data.posts);
           }
         })
@@ -82,30 +95,53 @@ export function SpotlightSearchModal({
       return;
     }
 
+    const cacheKey = trimmed.toLowerCase();
+    // Instant cache hit: 0ms response!
+    if (spotlightClientCache.has(cacheKey)) {
+      setResults(spotlightClientCache.get(cacheKey)!);
+      setSelectedIndex(0);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     const timer = setTimeout(async () => {
       try {
         const params = new URLSearchParams();
-        params.set('search', query.trim());
+        params.set('search', trimmed);
         params.set('limit', '8');
 
-        const res = await fetch(`/api/posts?${params.toString()}`);
+        const res = await fetch(`/api/posts?${params.toString()}`, {
+          signal: controller.signal,
+        });
         const data = await res.json();
         if (data && Array.isArray(data.posts)) {
+          spotlightClientCache.set(cacheKey, data.posts);
           setResults(data.posts);
           setSelectedIndex(0);
         } else {
           setResults([]);
         }
-      } catch (err) {
-        console.error('Spotlight search error:', err);
-        setResults([]);
+      } catch (err: any) {
+        if (err?.name !== 'AbortError') {
+          console.error('Spotlight search error:', err);
+          setResults([]);
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
-    }, 120);
+    }, 80);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [query, isOpen]);
 
   function handleSelectPost(post: Post) {

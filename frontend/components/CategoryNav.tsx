@@ -157,7 +157,6 @@ const PRIMARY_NAV_KEYS = [
 export function CategoryNav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
-  const [calendarRegionFilter, setCalendarRegionFilter] = useState<'all' | 'india' | 'global'>('all');
   const [mobileTop, setMobileTop] = useState<number>(106);
   const [moreMobileTop, setMoreMobileTop] = useState<number>(106);
 
@@ -267,10 +266,7 @@ export function CategoryNav() {
     }, 220);
   }
 
-  const filteredCalendarCards = CALENDAR_SUBMENU_CARDS.filter((card) => {
-    if (calendarRegionFilter === 'all') return true;
-    return card.region === 'both' || card.region === calendarRegionFilter;
-  });
+  const filteredCalendarCards = CALENDAR_SUBMENU_CARDS;
 
   return (
     <nav
@@ -316,8 +312,8 @@ export function CategoryNav() {
                     setMenuOpen((prev) => !prev);
                   }}
                   className={`inline-flex items-center gap-1.5 rounded-full font-semibold ring-1 transition-all duration-200 active:scale-[0.98] px-2.5 py-1 text-[11px] leading-tight max-md:shadow-sm max-md:shadow-black/20 sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs cursor-pointer ${menuOpen
-                      ? 'bg-cyan-500/25 text-cyan-100 ring-2 ring-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.35)]'
-                      : 'bg-gradient-to-r from-cyan-500/15 via-teal-500/15 to-blue-500/15 text-cyan-200 ring-cyan-400/35 hover:bg-cyan-500/25 hover:ring-cyan-400/55 hover:text-white'
+                    ? 'bg-cyan-500/25 text-cyan-100 ring-2 ring-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.35)]'
+                    : 'bg-gradient-to-r from-cyan-500/15 via-teal-500/15 to-blue-500/15 text-cyan-200 ring-cyan-400/35 hover:bg-cyan-500/25 hover:ring-cyan-400/55 hover:text-white'
                     }`}
                   aria-expanded={menuOpen}
                   aria-haspopup="menu"
@@ -440,14 +436,6 @@ export function CategoryNav() {
                           </div>
 
                           <div className="flex items-center gap-2 shrink-0">
-                            <Link
-                              href="/calendar"
-                              onClick={() => setMenuOpen(false)}
-                              className="inline-flex items-center gap-1 rounded-lg border border-cyan-500/30 bg-cyan-950/40 px-2.5 py-1 text-[11px] font-bold text-cyan-300 hover:border-cyan-400 hover:bg-cyan-900/50 hover:text-white transition"
-                            >
-                              <span>Open Full Hub</span>
-                              <ExternalLink size={11} />
-                            </Link>
                             <button
                               type="button"
                               onClick={() => setMenuOpen(false)}
@@ -457,48 +445,6 @@ export function CategoryNav() {
                               <X size={14} />
                             </button>
                           </div>
-                        </div>
-
-                        {/* Quick Region / Desk Filter Pills */}
-                        <div className="mb-3 flex items-center gap-1.5 overflow-x-auto pb-1 pd-scrollbar-none">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 shrink-0 mr-1">
-                            Filter:
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => setCalendarRegionFilter('all')}
-                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold transition shrink-0 ${
-                              calendarRegionFilter === 'all'
-                                ? 'bg-cyan-500 text-slate-950 shadow-[0_0_10px_rgba(6,182,212,0.4)]'
-                                : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-                            }`}
-                          >
-                            All 3 Desks
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setCalendarRegionFilter('india')}
-                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold transition shrink-0 ${
-                              calendarRegionFilter === 'india'
-                                ? 'bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.4)]'
-                                : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-                            }`}
-                          >
-                            <CountryFlag iso="in" size={15} />
-                            <span>India Focus</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setCalendarRegionFilter('global')}
-                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold transition shrink-0 ${
-                              calendarRegionFilter === 'global'
-                                ? 'bg-violet-400 text-slate-950 shadow-[0_0_10px_rgba(167,139,250,0.4)]'
-                                : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-                            }`}
-                          >
-                            <Globe size={12} className="text-violet-400" />
-                            <span>Global Focus</span>
-                          </button>
                         </div>
 
                         {/* Interactive Category Cards Grid (3-column layout) */}
@@ -582,8 +528,8 @@ export function CategoryNav() {
             setMoreMenuOpen((prev) => !prev);
           }}
           className={`inline-flex items-center gap-1.5 rounded-full font-semibold ring-1 transition-all duration-200 active:scale-[0.98] px-2.5 py-1 text-[11px] leading-tight max-md:shadow-sm max-md:shadow-black/20 sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs cursor-pointer ${moreMenuOpen
-              ? 'bg-purple-500/25 text-purple-100 ring-2 ring-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)]'
-              : 'bg-purple-500/15 text-purple-200 ring-purple-400/30 hover:bg-purple-500/25 hover:ring-purple-400/50 hover:text-white'
+            ? 'bg-purple-500/25 text-purple-100 ring-2 ring-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)]'
+            : 'bg-purple-500/15 text-purple-200 ring-purple-400/30 hover:bg-purple-500/25 hover:ring-purple-400/50 hover:text-white'
             }`}
           aria-expanded={moreMenuOpen}
           aria-haspopup="menu"

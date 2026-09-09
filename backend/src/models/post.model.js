@@ -64,25 +64,44 @@ export async function listPosts({ category, search, page = 1, limit = 12, status
     where += ' AND category = ?';
     params.push(category);
   }
-  if (search && String(search).trim()) {
-    where += ' AND (title LIKE ? OR excerpt LIKE ?)';
-    const q = `%${String(search).trim()}%`;
-    params.push(q, q);
+  const trimmedSearch = String(search || '').trim();
+  if (trimmedSearch) {
+    // Sanitize and extract search words
+    const words = trimmedSearch
+      .replace(/[+\-><()~*"@]/g, ' ')
+      .split(/\s+/)
+      .filter((w) => w.length >= 2);
+
+    if (words.length > 0) {
+      // Use high-performance FULLTEXT index with boolean prefix matching
+      const ftQuery = words.map((w) => `+${w}*`).join(' ');
+      where += ' AND MATCH(title) AGAINST(? IN BOOLEAN MODE)';
+      params.push(ftQuery);
+    } else {
+      where += ' AND title LIKE ?';
+      params.push(`%${trimmedSearch}%`);
+    }
   }
+
   const [rows] = await pool.query(
     `SELECT ${listFields} FROM posts WHERE ${where} ORDER BY published_at DESC LIMIT ? OFFSET ?`,
     [...params, limit, offset],
   );
 
-  const cacheKey = `cnt:${where}:${params.join(':')}`;
-  let total = getCachedCount(cacheKey);
-  if (total === null) {
-    const [countRows] = await pool.query(
-      `SELECT COUNT(*) AS total FROM posts WHERE ${where}`,
-      params,
-    );
-    total = Number(countRows[0]?.total ?? 0);
-    setCachedCount(cacheKey, total, 60000);
+  let total;
+  if (trimmedSearch && page === 1 && rows.length < limit) {
+    total = rows.length;
+  } else {
+    const cacheKey = `cnt:${where}:${params.join(':')}`;
+    total = getCachedCount(cacheKey);
+    if (total === null) {
+      const [countRows] = await pool.query(
+        `SELECT COUNT(*) AS total FROM posts WHERE ${where}`,
+        params,
+      );
+      total = Number(countRows[0]?.total ?? 0);
+      setCachedCount(cacheKey, total, 60000);
+    }
   }
 
   return {

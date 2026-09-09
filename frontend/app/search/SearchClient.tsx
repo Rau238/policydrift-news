@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
+import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -51,16 +51,24 @@ const POPULAR_TOPICS = [
 
 const DESKS = [
   { id: 'all', label: 'All Desks' },
-  { id: 'politics', label: 'Politics' },
+  { id: 'breaking', label: 'Breaking' },
+  { id: 'india', label: 'India' },
+  { id: 'world', label: 'World' },
   { id: 'business', label: 'Markets & Business' },
   { id: 'Banking & Economics', label: 'Banking & Economics' },
   { id: 'technology', label: 'Technology' },
+  { id: 'crypto', label: 'Crypto' },
   { id: 'sports', label: 'Sports & Cricket' },
-  { id: 'world', label: 'World' },
+  { id: 'auto', label: 'Auto & EV' },
+  { id: 'startups', label: 'Startups & VC' },
+  { id: 'politics', label: 'Politics' },
   { id: 'entertainment', label: 'Entertainment' },
   { id: 'science', label: 'Science' },
-  { id: 'crypto', label: 'Crypto' },
+  { id: 'health', label: 'Health' },
 ];
+
+// In-memory client cache for sub-millisecond repeat queries
+const clientSearchCache = new Map<string, { posts: Post[]; total: number }>();
 
 function SearchCard({ post }: { post: Post }) {
   const [imgFailed, setImgFailed] = useState(false);
@@ -154,85 +162,116 @@ export function SearchClient({
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(Boolean(initialQuery));
 
+  const abortRef = useRef<AbortController | null>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const executeSearch = useCallback(
-    async (q: string, cat: string) => {
+    async (q: string, cat: string, signal?: AbortSignal) => {
+      const trimmed = q.trim();
+      const cacheKey = `${trimmed.toLowerCase()}:${cat}`;
+
+      // Instant 0ms cache retrieval
+      if (clientSearchCache.has(cacheKey)) {
+        const cached = clientSearchCache.get(cacheKey)!;
+        setPosts(cached.posts);
+        setTotal(cached.total);
+        setLoading(false);
+        setHasSearched(Boolean(trimmed || cat !== 'all'));
+        return;
+      }
+
       setLoading(true);
       setHasSearched(true);
       try {
         const params = new URLSearchParams();
-        if (q.trim()) params.set('search', q.trim());
+        if (trimmed) params.set('search', trimmed);
         if (cat && cat !== 'all') params.set('category', cat);
         params.set('limit', '24');
 
-        const res = await fetch(`/api/posts?${params.toString()}`);
+        const res = await fetch(`/api/posts?${params.toString()}`, { signal });
         const data = await res.json();
         if (data && Array.isArray(data.posts)) {
+          clientSearchCache.set(cacheKey, {
+            posts: data.posts,
+            total: data.total || data.posts.length,
+          });
           setPosts(data.posts);
           setTotal(data.total || data.posts.length);
         } else {
           setPosts([]);
           setTotal(0);
         }
-      } catch (err) {
-        console.error('Search failed:', err);
-        setPosts([]);
-        setTotal(0);
+      } catch (err: any) {
+        if (err?.name !== 'AbortError') {
+          console.error('Search failed:', err);
+          setPosts([]);
+          setTotal(0);
+        }
       } finally {
-        setLoading(false);
+        if (!signal?.aborted) {
+          setLoading(false);
+        }
       }
     },
     []
   );
 
-  // Search on initial load or URL change
+  // Synchronize search live as user types (debounced at 160ms)
   useEffect(() => {
-    executeSearch(initialQuery, initialCategory);
-  }, [initialQuery, initialCategory, executeSearch]);
+    // Abort previous in-flight request
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    // Keep URL bar synchronized seamlessly without page reload
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams();
+      if (query.trim()) urlParams.set('q', query.trim());
+      if (category && category !== 'all') urlParams.set('category', category);
+      const newUrl = urlParams.toString() ? `/search?${urlParams.toString()}` : '/search';
+      window.history.replaceState(null, '', newUrl);
+    }
+
+    const trimmed = query.trim();
+    const cacheKey = `${trimmed.toLowerCase()}:${category}`;
+
+    // If cached, serve instantly (0ms) without waiting for timer!
+    if (clientSearchCache.has(cacheKey)) {
+      executeSearch(query, category, controller.signal);
+      return;
+    }
+
+    setLoading(true);
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      executeSearch(query, category, controller.signal);
+    }, 160);
+
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      controller.abort();
+    };
+  }, [query, category, executeSearch]);
 
   function handleFormSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (query.trim()) params.set('q', query.trim());
-    if (category && category !== 'all') params.set('category', category);
-
-    startTransition(() => {
-      router.push(`/search?${params.toString()}`);
-    });
-    executeSearch(query, category);
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    executeSearch(query, category, controller.signal);
   }
 
   function handleCategoryChange(newCat: string) {
     setCategory(newCat);
-    const params = new URLSearchParams();
-    if (query.trim()) params.set('q', query.trim());
-    if (newCat && newCat !== 'all') params.set('category', newCat);
-
-    startTransition(() => {
-      router.push(`/search?${params.toString()}`);
-    });
-    executeSearch(query, newCat);
   }
 
   function handleTopicClick(topic: string) {
     setQuery(topic);
-    const params = new URLSearchParams();
-    params.set('q', topic);
-    if (category && category !== 'all') params.set('category', category);
-
-    startTransition(() => {
-      router.push(`/search?${params.toString()}`);
-    });
-    executeSearch(topic, category);
   }
 
   function clearQuery() {
     setQuery('');
-    const params = new URLSearchParams();
-    if (category && category !== 'all') params.set('category', category);
-    startTransition(() => {
-      router.push(`/search?${params.toString()}`);
-    });
-    executeSearch('', category);
   }
 
   return (
@@ -273,8 +312,12 @@ export function SearchClient({
           onSubmit={handleFormSubmit}
           className="relative flex items-center rounded-2xl border border-slate-700/80 bg-[#070c18] p-2 shadow-2xl focus-within:border-teal-400 focus-within:shadow-[0_0_30px_rgba(20,184,166,0.25)] transition-all duration-300"
         >
-          <div className="pl-4 pr-3 text-teal-400">
-            <Search size={22} />
+          <div className="pl-4 pr-3 text-teal-400 flex items-center justify-center">
+            {loading ? (
+              <Loader2 size={20} className="animate-spin text-teal-300" />
+            ) : (
+              <Search size={22} />
+            )}
           </div>
 
           <input
@@ -289,15 +332,16 @@ export function SearchClient({
             <button
               type="button"
               onClick={clearQuery}
-              className="p-2 text-slate-400 hover:text-white transition rounded-xl hover:bg-slate-800 mr-2"
+              className="p-2 text-slate-400 hover:text-white transition rounded-xl hover:bg-slate-800 mr-2 cursor-pointer"
               title="Clear search"
             >
               <X size={18} />
             </button>
           )}
 
-          <div className="hidden lg:flex items-center gap-1 text-[11px] font-mono text-slate-500 bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-700/60 mr-3 shrink-0">
-            <span>Press ↵ Enter</span>
+          <div className="hidden sm:flex items-center gap-1.5 rounded-lg border border-teal-500/30 bg-teal-950/40 px-2.5 py-1.5 text-[11px] font-bold text-teal-300 mr-3 shrink-0">
+            <span className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse" />
+            <span>Instant Results</span>
           </div>
 
           <button
