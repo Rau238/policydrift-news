@@ -68,7 +68,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title,
       description,
-      alternates: { canonical },
+      alternates: {
+        canonical,
+        types: {
+          'application/rss+xml': absoluteUrl(`/feed/${params.slug}.xml`),
+        },
+      },
       openGraph: {
         title: `${label} | ${siteName}`,
         description,

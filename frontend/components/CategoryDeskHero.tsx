@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Rss } from 'lucide-react';
 import { categoryLabel, categoryNavPillClass, CategoryGlyph } from '@/lib/categories';
+import { deskSlugFromCategory } from '@/lib/category-routes';
 
 /** Soft color wash behind each desk hero (over slate base). */
 const HERO_WASH: Record<string, string> = {
@@ -12,7 +13,13 @@ const HERO_WASH: Record<string, string> = {
   'Banking & Economics': 'from-cyan-950/80 via-slate-950 to-teal-950/40',
   Politics: 'from-indigo-950/85 via-slate-950 to-violet-950/30',
   'Stocks & Markets': 'from-emerald-950/80 via-slate-950 to-teal-950/40',
+  Technology: 'from-cyan-950/85 via-slate-950 to-blue-950/35',
   Crypto: 'from-orange-950/85 via-slate-950 to-amber-950/35',
+  Entertainment: 'from-pink-950/85 via-slate-950 to-rose-950/30',
+  Science: 'from-teal-950/85 via-slate-950 to-sky-950/30',
+  Health: 'from-rose-950/85 via-slate-950 to-red-950/30',
+  Auto: 'from-amber-950/85 via-slate-950 to-orange-950/30',
+  Startups: 'from-purple-950/85 via-slate-950 to-fuchsia-950/30',
   General: 'from-slate-900 via-slate-950 to-slate-950',
 };
 
@@ -25,7 +32,13 @@ const ACCENT_ORB: Record<string, string> = {
   'Banking & Economics': 'bg-cyan-400/20',
   Politics: 'bg-indigo-400/20',
   'Stocks & Markets': 'bg-emerald-400/20',
+  Technology: 'bg-cyan-400/20',
   Crypto: 'bg-orange-400/20',
+  Entertainment: 'bg-pink-400/20',
+  Science: 'bg-teal-400/20',
+  Health: 'bg-rose-400/20',
+  Auto: 'bg-amber-400/20',
+  Startups: 'bg-purple-400/20',
   General: 'bg-teal-400/15',
 };
 
@@ -170,6 +183,35 @@ function OutlineCrypto() {
   );
 }
 
+function OutlineAuto() {
+  return (
+    <svg viewBox="0 0 480 320" className="h-full w-full" aria-hidden>
+      {/* Sleek sports car & EV silhouette */}
+      <path
+        d="M60 220 C100 220, 110 180, 150 170 L200 130 C240 100, 310 100, 360 135 L410 170 C430 175, 450 190, 460 220 L440 220 C430 195, 395 195, 385 220 L155 220 C145 195, 110 195, 100 220 Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        opacity="0.35"
+      />
+      <circle cx="127" cy="220" r="28" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.35" />
+      <circle cx="127" cy="220" r="14" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.2" />
+      <circle cx="412" cy="220" r="28" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.35" />
+      <circle cx="412" cy="220" r="14" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.2" />
+      <path
+        d="M210 135 L345 135 C355 135, 380 155, 395 170 L170 170 Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        opacity="0.25"
+      />
+      <line x1="30" y1="160" x2="110" y2="160" stroke="currentColor" strokeWidth="1" strokeDasharray="6 6" opacity="0.2" />
+      <line x1="10" y1="180" x2="80" y2="180" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" opacity="0.25" />
+      <line x1="20" y1="200" x2="60" y2="200" stroke="currentColor" strokeWidth="1" opacity="0.18" />
+    </svg>
+  );
+}
+
 function OutlineDefault() {
   return (
     <svg viewBox="0 0 480 360" className="h-full w-full" aria-hidden>
@@ -199,6 +241,8 @@ function CategoryOutline({ category }: { category: string }) {
       return <OutlineMarkets />;
     case 'Crypto':
       return <OutlineCrypto />;
+    case 'Auto':
+      return <OutlineAuto />;
     default:
       return <OutlineDefault />;
   }
@@ -212,6 +256,7 @@ type Props = {
 
 export function CategoryDeskHero({ category, intro, storyCount }: Props) {
   const label = categoryLabel(category);
+  const feedSlug = deskSlugFromCategory(category) || category.toLowerCase().replace(/\s+/g, '-');
   const wash = HERO_WASH[category] ?? HERO_WASH.General;
   const orb = ACCENT_ORB[category] ?? ACCENT_ORB.General;
 
@@ -266,6 +311,16 @@ export function CategoryDeskHero({ category, intro, storyCount }: Props) {
               {storyCount.toLocaleString()} stories
             </span>
           ) : null}
+          <a
+            href={`/feed/${feedSlug}.xml`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-950/40 px-3 py-1 text-xs font-bold text-orange-300 hover:border-orange-400 hover:bg-orange-900/50 hover:text-white transition shadow-xs"
+            title={`Subscribe to ${label} RSS Feed`}
+          >
+            <Rss className="h-3.5 w-3.5 text-orange-400" />
+            <span>RSS Feed</span>
+          </a>
         </div>
 
         <h1 className="mt-3 max-w-[16ch] font-display text-3xl font-bold tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.55)] sm:mt-4 sm:max-w-none sm:text-4xl md:text-5xl">

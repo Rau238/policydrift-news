@@ -16,36 +16,56 @@ function escapeXml(s: string): string {
     .replace(/'/g, '&apos;');
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { category: string } }
+) {
   const origin = absoluteUrl('/').replace(/\/$/, '');
-  const url = new URL(req.url);
-  const rawCat = (url.searchParams.get('category') || url.searchParams.get('cat') || '').trim();
+  const rawParam = (params.category || '').trim();
+
+  // Strip .xml suffix if provided (e.g. "business.xml" -> "business")
+  const slugOrName = rawParam.replace(/\.xml$/i, '').trim();
+
+  // Handle master feed requests hitting this dynamic route
+  const isMasterFeed =
+    slugOrName === 'all' ||
+    slugOrName === 'feed' ||
+    slugOrName === 'rss' ||
+    slugOrName === 'index' ||
+    !slugOrName;
 
   let categoryFilter: string | undefined = undefined;
   let channelTitle = `${siteName} - RSS Feed`;
   let channelDescription = siteDescription;
   let channelLink = origin;
-  let selfFeedUrl = `${origin}/feed.xml`;
+  let selfFeedUrl = `${origin}/feed/${rawParam}`;
 
-  if (rawCat && rawCat.toLowerCase() !== 'all') {
-    const resolved = categoryFromSlug(rawCat);
-    if (resolved) {
-      categoryFilter = resolved;
+  if (!isMasterFeed) {
+    // Attempt resolving from slug first (e.g. "stocks-markets" -> "Stocks & Markets")
+    const resolvedCat = categoryFromSlug(slugOrName);
+    if (resolvedCat) {
+      categoryFilter = resolvedCat;
     } else {
-      const match = Object.keys(CATEGORY_TO_SLUG).find(
-        (k) => k.toLowerCase() === rawCat.toLowerCase()
+      // Check if it directly matches a category key case-insensitively
+      const directMatch = Object.keys(CATEGORY_TO_SLUG).find(
+        (k) => k.toLowerCase() === slugOrName.toLowerCase()
       );
-      categoryFilter = match || rawCat;
+      if (directMatch) {
+        categoryFilter = directMatch;
+      } else {
+        // Use as-is
+        categoryFilter = slugOrName;
+      }
     }
 
     const label = categoryLabel(categoryFilter);
-    const deskSlug = deskSlugFromCategory(categoryFilter) || rawCat;
+    const deskSlug = deskSlugFromCategory(categoryFilter) || slugOrName;
     channelTitle = `${label} News & Updates | ${siteName}`;
     channelDescription =
       CATEGORY_INTRO[categoryFilter] ||
-      `Latest ${label} news, policy developments, and market stories from ${siteName}.`;
+      `Latest ${label} news, analysis, and breaking headlines from ${siteName}.`;
     channelLink = `${origin}/news/${deskSlug}`;
-    selfFeedUrl = `${origin}/feed.xml?category=${encodeURIComponent(rawCat)}`;
+    selfFeedUrl = `${origin}/feed/${deskSlug}.xml`;
   }
 
   const { posts } = await getPosts({

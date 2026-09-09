@@ -145,10 +145,10 @@ export async function ingestFromRss({ sourceId = null, category = null } = {}) {
     let fetchedOk = false;
 
     // Trust Score Evaluation:
-    // If trust_score >= 90, directly publish.
-    // If trust_score < 90, send article to the Editorial Review Queue ('pending').
-    const sourceTrust = Number(entries[0]?.trustScore) || 70;
-    const isDirectPublish = sourceTrust >= 90;
+    // If trust_score >= 75 (curated/verified), directly publish.
+    // If trust_score < 75, send article to the Editorial Review Queue ('pending').
+    const sourceTrust = Number(entries[0]?.trustScore) || 75;
+    const isDirectPublish = sourceTrust >= 75;
     const status = isDirectPublish ? 'published' : 'pending';
     const autoPublished = isDirectPublish ? 1 : 0;
 

@@ -23,7 +23,8 @@ import { BrandMark } from '@/components/BrandMark';
 import { NewsletterSubscribeBox } from '@/components/NewsletterSubscribeBox';
 
 const quickLinks = [
-  { href: '/news', label: 'Global Wire', Icon: Rss },
+  { href: '/news', label: 'Global Wire', Icon: Globe },
+  { href: '/rss', label: 'RSS Feeds', Icon: Rss },
   { href: '/trending-india', label: 'Trending Desk', Icon: TrendingUp },
   { href: '/about', label: 'Newsroom Mission', Icon: Building2 },
   { href: '/contact', label: 'Editorial Contact', Icon: Mail },

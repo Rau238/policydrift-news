@@ -160,8 +160,11 @@ export const RSS_FEEDS_BY_CATEGORY = {
   ],
   Auto: [
     'https://timesofindia.indiatimes.com/rssfeeds/74317216.cms',
-    'https://economictimes.indiatimes.com/industry/auto/rssfeeds/13354394.cms',
     'https://news.google.com/rss/search?q=electric+vehicles+OR+automotive+news&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://electrek.co/feed/',
+    'https://www.autocarindia.com/rss/news',
+    'https://insideevs.com/rss/articles/all/',
+    'https://www.motorbeam.com/feed/',
   ],
   Startups: [
     'https://techcrunch.com/category/startups/feed/',
@@ -292,6 +295,11 @@ export function generateFeedName(url, category) {
     if (host.includes('france24.com')) return 'France 24 - English';
     if (host.includes('nhk.or.jp')) return 'NHK World Japan';
     if (host.includes('npr.org')) return 'NPR News';
+    if (host.includes('electrek.co')) return 'Electrek - EV & Mobility';
+    if (host.includes('autocarindia.com')) return 'Autocar India';
+    if (host.includes('insideevs.com')) return 'InsideEVs - Electric Vehicles';
+    if (host.includes('motorbeam.com')) return 'MotorBeam';
+    if (host.includes('techcrunch.com')) return 'TechCrunch - Startups';
     if (host.includes('google.com')) {
       const q = u.searchParams.get('q') || '';
       if (q) return `Google News (${q.replace(/\+OR\+/g, '/').replace(/\+/g, ' ')})`;
@@ -316,12 +324,8 @@ export function getCuratedFeedEntries() {
       if (!url || seen.has(url)) continue;
       seen.add(url);
       const name = generateFeedName(url, category);
-      let trustScore = 75;
-      if (url.includes('bbci.co.uk') || url.includes('nytimes.com') || url.includes('theguardian.com') || url.includes('ft.com') || url.includes('bloomberg.com')) {
-        trustScore = 90;
-      } else if (url.includes('reuters') || url.includes('livemint') || url.includes('economictimes') || url.includes('thehindu')) {
-        trustScore = 85;
-      }
+      // All curated feeds defined in RSS_FEEDS_BY_CATEGORY are editorially verified sources
+      const trustScore = 90;
       out.push({
         name,
         rss_url: url,

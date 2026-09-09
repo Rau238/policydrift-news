@@ -117,7 +117,7 @@ export async function checkFeed(feed) {
   const feedId = feed.id || null;
   const feedCategory = toCleanString(feed.category || 'General');
   const trustScore = Number(feed.trust_score || feed.trustScore) || 75;
-  const isDirectPublish = trustScore >= 90;
+  const isDirectPublish = trustScore >= 75;
   const status = isDirectPublish ? 'published' : 'pending';
   const autoPublished = isDirectPublish ? 1 : 0;
 
