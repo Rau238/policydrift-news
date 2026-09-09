@@ -93,7 +93,8 @@ export default function AdminNewsletterPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setMobileSidebarOpen(true)}
-                className="rounded-lg border border-slate-800 bg-slate-900 p-2 text-slate-400 hover:text-white lg:hidden"
+                className="flex md:hidden h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-300 hover:text-white shrink-0"
+                title="Open Navigation Menu"
               >
                 <Menu size={18} />
               </button>

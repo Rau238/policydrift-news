@@ -40,8 +40,8 @@ export function CalendarSkeleton({ variant = 'macro' }: CalendarSkeletonProps) {
       };
 
   return (
-    <main
-      className="min-h-screen bg-slate-950 text-slate-100 animate-pulse select-none"
+    <div
+      className="min-h-screen w-full bg-slate-950 text-slate-100 select-none overflow-x-hidden"
       aria-busy="true"
       aria-label="Loading calendar desk data"
     >
@@ -272,6 +272,6 @@ export function CalendarSkeleton({ variant = 'macro' }: CalendarSkeletonProps) {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

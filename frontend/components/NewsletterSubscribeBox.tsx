@@ -91,63 +91,62 @@ export function NewsletterSubscribeBox({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80 backdrop-blur-xl px-4 py-3.5 sm:px-6 sm:py-4 md:px-7 md:py-4.5 shadow-xl ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/90 sm:bg-slate-950/80 backdrop-blur-xl px-5 py-6 sm:px-8 sm:py-7 md:px-10 md:py-8 shadow-2xl text-center flex flex-col items-center justify-center ${className}`}
     >
       {/* Top subtle highlight hairline */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal-400/40 via-50% to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal-400/50 via-50% to-transparent"
         aria-hidden
       />
-      {/* Subtle corner ambient glow */}
-      <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-teal-500/10 blur-2xl" />
+      {/* Subtle ambient glows for full rich background */}
+      <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-44 w-96 rounded-full bg-teal-500/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-16 right-10 h-32 w-32 rounded-full bg-emerald-500/10 blur-2xl" />
 
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-6">
-        {/* Left: Headline & Description */}
-        <div className="flex-1 min-w-0">
-
-
-          <h3 className="text-base sm:text-lg font-bold text-white tracking-tight leading-snug">
+      <div className="relative z-10 w-full max-w-2xl mx-auto flex flex-col items-center text-center">
+        {/* Headline & Description Centered */}
+        <div className="w-full mb-5 sm:mb-6">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white tracking-tight leading-snug">
             Stay Ahead With The <span className="text-teal-400">NewsFree365 Briefing</span>
           </h3>
 
-          <p className="text-xs text-slate-400 mt-0.5 leading-relaxed line-clamp-1 sm:line-clamp-none">
+          <p className="text-xs sm:text-sm text-slate-300 mt-1.5 leading-relaxed max-w-lg mx-auto">
             Curated daily intelligence & policy updates. No spam, 1-click unsubscribe anytime.
           </p>
         </div>
 
-        {/* Right: Input Form & Micro Trust Row */}
-        <div className="w-full md:w-auto md:min-w-[380px] lg:min-w-[420px] shrink-0">
-          <form onSubmit={handleSubmit} className="space-y-1.5">
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        {/* Centered Input Form & Micro Trust Row */}
+        <div className="w-full max-w-xl mx-auto">
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full">
+              <div className="relative w-full flex-1">
+                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address..."
-                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 pl-8 pr-3 py-2 text-xs sm:text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-1 focus:ring-teal-400/40"
+                  className="w-full rounded-xl border border-white/15 bg-slate-950/90 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-400 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/30"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-teal-950/40 transition active:scale-95 disabled:opacity-60 shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-lg shadow-teal-950/50 transition active:scale-95 disabled:opacity-60 shrink-0"
               >
                 {loading ? (
-                  <Loader2 size={14} className="animate-spin text-white" />
+                  <Loader2 size={15} className="animate-spin text-white" />
                 ) : (
-                  <Send size={14} className="text-white" />
+                  <Send size={15} className="text-white" />
                 )}
                 <span>{loading ? 'Subscribing...' : 'Get Free Briefing'}</span>
               </button>
             </div>
 
-            <div className="flex items-center justify-between sm:justify-start sm:gap-3 text-[10px] text-slate-400 px-0.5">
+            <div className="flex items-center justify-center flex-wrap gap-x-4 gap-y-1 text-[11px] sm:text-xs text-slate-400 pt-1">
               <span className="inline-flex items-center gap-1 whitespace-nowrap">
-                <ShieldCheck size={11} className="text-teal-400 shrink-0" /> Free Forever
+                <ShieldCheck size={13} className="text-teal-400 shrink-0" /> Free Forever
               </span>
               <span className="text-slate-600 hidden sm:inline" aria-hidden>·</span>
               <span className="whitespace-nowrap">Daily Morning Delivery</span>
@@ -158,17 +157,17 @@ export function NewsletterSubscribeBox({
 
           {status && (
             <div
-              className={`mt-2 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${status.ok
-                  ? 'border border-emerald-500/40 bg-emerald-950/40 text-emerald-200'
-                  : 'border border-rose-500/40 bg-red-950/40 text-rose-200'
+              className={`mt-3 flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs text-center ${status.ok
+                  ? 'border border-emerald-500/40 bg-emerald-950/60 text-emerald-200'
+                  : 'border border-rose-500/40 bg-red-950/60 text-rose-200'
                 }`}
             >
               {status.ok ? (
-                <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
+                <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
               ) : (
-                <AlertCircle size={13} className="text-rose-400 shrink-0" />
+                <AlertCircle size={14} className="text-rose-400 shrink-0" />
               )}
-              <span className="text-[11px] font-medium">{status.message}</span>
+              <span className="text-xs font-medium">{status.message}</span>
             </div>
           )}
         </div>

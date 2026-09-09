@@ -509,20 +509,20 @@ export function AdminSidebar({
   return (
     <>
       {/* Desktop Fixed Collapsible Sidebar */}
-      <div className="hidden md:flex h-screen flex-shrink-0">
+      <div className="hidden md:flex h-full min-h-[100dvh] flex-shrink-0">
         {renderSidebar(false)}
       </div>
 
       {/* Mobile Drawer with Backdrop */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
+        <div className="fixed inset-0 z-[100] flex md:hidden">
           {/* Backdrop Overlay */}
           <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
             onClick={onCloseMobile}
           />
           {/* Slide-out Sidebar */}
-          <div className="relative z-10 flex h-full shadow-2xl animate-in slide-in-from-left duration-200">
+          <div className="relative z-10 flex h-full max-h-[100dvh] shadow-2xl animate-in slide-in-from-left duration-200">
             {renderSidebar(true)}
           </div>
         </div>

@@ -29,6 +29,7 @@ import {
   ChevronRight,
   Table,
   LayoutGrid,
+  Menu,
 } from 'lucide-react';
 import { AdminSidebar } from '../_components/AdminSidebar';
 import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
@@ -449,16 +450,30 @@ export default function AdminCalendarPage() {
     }
   };
 
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#070b14] text-slate-100">
       {/* Admin Sidebar */}
-      <AdminSidebar />
+      <AdminSidebar
+        mobileOpen={mobileNavOpen}
+        onCloseMobile={() => setMobileNavOpen(false)}
+      />
 
       {/* Main Content Viewport */}
       <main className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         {/* Top Sticky Header */}
         <header className="flex-shrink-0 border-b border-slate-800/80 bg-[#090d16] px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setMobileNavOpen(true)}
+              className="flex md:hidden h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/90 text-slate-300 hover:text-white shrink-0"
+              title="Open Navigation Menu"
+            >
+              <Menu size={18} />
+            </button>
+
             <div className="h-10 w-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
               <CalendarDays size={20} />
             </div>

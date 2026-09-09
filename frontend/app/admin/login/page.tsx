@@ -76,14 +76,18 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#070b14] px-4 font-sans text-slate-100 antialiased">
-      {/* Background Radial Glow */}
+    <div className="relative flex min-h-full w-full flex-1 flex-col items-center justify-center overflow-y-auto bg-[#070b14] px-4 py-8 font-sans text-slate-100 antialiased">
+      {/* Background Radial Glow & Gradient */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(13,148,136,0.12),transparent_60%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-950/30 via-[#070b14] to-[#070b14]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(13,148,136,0.15),transparent_65%)]"
         aria-hidden
       />
 
-      <div className="relative w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md my-auto">
         {/* Top return link */}
         <div className="mb-4">
           <AnimatedBackButton href="/" label="Return to Public Site" useHistory={false} />

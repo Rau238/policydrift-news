@@ -67,6 +67,7 @@ import {
   X,
   Smartphone,
   Monitor,
+  Menu,
 } from 'lucide-react';
 import { CATEGORY_ORDER, categoryLabel, categoryChipClass, CategoryGlyph } from '@/lib/categories';
 import { AdminSidebar } from '../_components/AdminSidebar';
@@ -695,16 +696,30 @@ function AdminCreateArticleContent() {
       }));
   }, [galleryImages, imageUrl]);
 
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#070b14] text-slate-100 font-sans antialiased">
       {/* Admin Sidebar Navigation */}
-      <AdminSidebar />
+      <AdminSidebar
+        mobileOpen={mobileNavOpen}
+        onCloseMobile={() => setMobileNavOpen(false)}
+      />
 
       {/* Main Studio Area */}
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         {/* Top Header Bar */}
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-800/80 bg-[#0c1220]/95 px-4 sm:px-6 backdrop-blur-md z-10">
           <div className="flex items-center gap-3 min-w-0">
+            {/* Mobile Hamburger Menu */}
+            <button
+              onClick={() => setMobileNavOpen(true)}
+              className="flex md:hidden h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/90 text-slate-300 hover:text-white shrink-0"
+              title="Open Navigation Menu"
+            >
+              <Menu size={18} />
+            </button>
+
             <Link
               href="/admin/dashboard"
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/90 text-slate-400 transition hover:border-slate-700 hover:text-white shrink-0"

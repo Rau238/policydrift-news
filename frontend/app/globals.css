@@ -34,10 +34,16 @@ body:has(.admin-portal) {
   background: #070b14 !important;
 }
 
+/* Calendar Desk Pages & Loading Skeletons: seamless dark theme background isolation */
+body:has([aria-label*='calendar' i]),
+body:has([aria-label*='Loading calendar' i]) {
+  background: #020617 !important;
+}
+
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MODERN ATTRACTIVE CUSTOM SCROLLBAR
-   Replaces clunky browser default scrollbars with sleek, floating pill design
+   VIBRANT, COLORFUL & ATTRACTIVE CLIENT-SIDE CUSTOM SCROLLBAR
+   Premium multi-hue gradient pill (teal -> emerald -> cyan) with glowing aura
    ───────────────────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 8px;
@@ -46,43 +52,56 @@ body:has(.admin-portal) {
 
 ::-webkit-scrollbar-track {
   background: transparent;
+  margin: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(148, 163, 184, 0.45);
+  background: linear-gradient(180deg, #0d9488 0%, #10b981 50%, #06b6d4 100%);
   border-radius: 9999px;
   border: 2px solid transparent;
-  background-clip: content-box;
-  transition: background-color 0.2s ease;
+  background-clip: padding-box;
+  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.4);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(100, 116, 139, 0.75);
+  background: linear-gradient(180deg, #14b8a6 0%, #34d399 50%, #22d3ee 100%);
+  box-shadow: 0 0 14px rgba(45, 212, 191, 0.75), inset 0 0 6px rgba(255, 255, 255, 0.6);
 }
 
-/* Dark mode and dark containers */
+/* Dark theme & desk sections */
 .dark ::-webkit-scrollbar-thumb,
 [data-theme='dark'] ::-webkit-scrollbar-thumb,
-.admin-portal ::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.22);
+.admin-portal ::-webkit-scrollbar-thumb,
+body:has(.admin-portal) ::-webkit-scrollbar-thumb,
+body:has([aria-label*='calendar' i]) ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #14b8a6 0%, #10b981 50%, #38bdf8 100%);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover,
 [data-theme='dark'] ::-webkit-scrollbar-thumb:hover,
-.admin-portal ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.45);
+.admin-portal ::-webkit-scrollbar-thumb:hover,
+body:has(.admin-portal) ::-webkit-scrollbar-thumb:hover,
+body:has([aria-label*='calendar' i]) ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2dd4bf 0%, #4ade80 50%, #67e8f9 100%);
+  box-shadow: 0 0 16px rgba(45, 212, 191, 0.85);
 }
 
-/* Standard Firefox thin scrollbars */
+/* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+  scrollbar-color: #0d9488 transparent;
 }
 
 .dark *,
 [data-theme='dark'] *,
-.admin-portal * {
-  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+.admin-portal *,
+body:has(.admin-portal) *,
+body:has([aria-label*='calendar' i]) * {
+  scrollbar-color: #14b8a6 transparent;
 }
 
 /** Hide scrollbar but keep overflow scroll where desired */
@@ -100,18 +119,23 @@ body:has(.admin-portal) {
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
   }
   .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
+    margin: 2px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(148, 163, 184, 0.35);
+    background: linear-gradient(180deg, #0d9488 0%, #10b981 100%);
     border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    transition: all 0.2s ease;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(100, 116, 139, 0.65);
+    background: linear-gradient(180deg, #14b8a6 0%, #34d399 100%);
+    box-shadow: 0 0 10px rgba(45, 212, 191, 0.7);
   }
 }
 
