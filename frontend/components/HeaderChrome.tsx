@@ -30,7 +30,7 @@ export function HeaderChrome() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 max-w-[100vw] overflow-x-clip border-b border-slate-800/80 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 shadow-lg shadow-slate-900/30">
+      <header className="sticky top-0 z-40 max-w-[100vw] overflow-visible border-b border-slate-800/80 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 shadow-lg shadow-slate-900/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 2xl:max-w-[1440px]">
           <div className="flex h-14 items-center justify-between gap-2.5 sm:gap-3 sm:h-16">
             <Link href="/" className="group flex min-w-0 shrink-0 items-center gap-2 sm:gap-2.5">

@@ -1,15 +1,20 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+  Atom,
   Bitcoin,
   Briefcase,
   Building2,
+  Car,
+  Clapperboard,
   Coins,
   Flame,
   Globe2,
+  HeartPulse,
   Landmark,
   LineChart,
   MapPin,
   Newspaper,
+  Rocket,
   Scale,
   TrendingUp,
   Trophy,
@@ -30,6 +35,11 @@ export const CATEGORY_ORDER = [
   'Stocks & Markets',
   'Technology',
   'Crypto',
+  'Entertainment',
+  'Science',
+  'Health',
+  'Auto',
+  'Startups',
   'General',
 ] as const;
 
@@ -163,6 +173,61 @@ export const CATEGORY_THEME: Record<string, Theme> = {
     cardStripe: 'from-orange-500/80 via-amber-400/40 to-yellow-500/25',
     articleHeroRing: 'ring-orange-300/75',
   },
+  Entertainment: {
+    label: 'Entertainment',
+    Icon: Clapperboard,
+    chip: 'bg-pink-50 text-pink-950 ring-1 ring-pink-200/90',
+    navPill:
+      'bg-pink-500/15 text-pink-100 ring-pink-400/30 hover:bg-pink-500/25 hover:ring-pink-400/50',
+    cardRing: 'hover:ring-pink-400/55',
+    placeholder: 'from-pink-200/80 via-pink-50 to-rose-50',
+    cardStripe: 'from-pink-500/80 via-rose-400/35 to-purple-500/20',
+    articleHeroRing: 'ring-pink-300/75',
+  },
+  Science: {
+    label: 'Science',
+    Icon: Atom,
+    chip: 'bg-teal-50 text-teal-950 ring-1 ring-teal-200/90',
+    navPill:
+      'bg-teal-500/15 text-teal-100 ring-teal-400/30 hover:bg-teal-500/25 hover:ring-teal-400/50',
+    cardRing: 'hover:ring-teal-400/55',
+    placeholder: 'from-teal-200/80 via-teal-50 to-cyan-50',
+    cardStripe: 'from-teal-500/80 via-cyan-400/35 to-sky-500/20',
+    articleHeroRing: 'ring-teal-300/75',
+  },
+  Health: {
+    label: 'Health',
+    Icon: HeartPulse,
+    chip: 'bg-rose-50 text-rose-950 ring-1 ring-rose-200/90',
+    navPill:
+      'bg-rose-500/15 text-rose-100 ring-rose-400/30 hover:bg-rose-500/25 hover:ring-rose-400/50',
+    cardRing: 'hover:ring-rose-400/55',
+    placeholder: 'from-rose-200/80 via-red-50 to-rose-50',
+    cardStripe: 'from-rose-500/80 via-red-400/35 to-orange-500/20',
+    articleHeroRing: 'ring-rose-300/75',
+  },
+  Auto: {
+    label: 'Auto',
+    Icon: Car,
+    chip: 'bg-amber-50 text-amber-950 ring-1 ring-amber-200/90',
+    navPill:
+      'bg-amber-500/15 text-amber-100 ring-amber-400/30 hover:bg-amber-500/25 hover:ring-amber-400/50',
+    cardRing: 'hover:ring-amber-400/55',
+    placeholder: 'from-amber-200/80 via-yellow-50 to-orange-50',
+    cardStripe: 'from-amber-500/80 via-orange-400/35 to-red-500/20',
+    articleHeroRing: 'ring-amber-300/75',
+  },
+  Startups: {
+    label: 'Startups',
+    Icon: Rocket,
+    chip: 'bg-purple-50 text-purple-950 ring-1 ring-purple-200/90',
+    navPill:
+      'bg-purple-500/15 text-purple-100 ring-purple-400/30 hover:bg-purple-500/25 hover:ring-purple-400/50',
+    cardRing: 'hover:ring-purple-400/55',
+    placeholder: 'from-purple-200/80 via-violet-50 to-fuchsia-50',
+    cardStripe: 'from-purple-500/80 via-violet-400/35 to-pink-500/20',
+    articleHeroRing: 'ring-purple-300/75',
+  },
   General: {
     label: 'News',
     Icon: Newspaper,
@@ -203,6 +268,11 @@ const CATEGORY_VERTICAL_ACCENT: Record<string, string> = {
   Politics: 'border-l-indigo-400',
   'Stocks & Markets': 'border-l-emerald-400',
   Crypto: 'border-l-orange-400',
+  Entertainment: 'border-l-pink-400',
+  Science: 'border-l-teal-400',
+  Health: 'border-l-rose-400',
+  Auto: 'border-l-amber-400',
+  Startups: 'border-l-purple-400',
   General: 'border-l-slate-400',
 };
 
@@ -284,6 +354,11 @@ export const CATEGORY_CARD_BG: Record<string, string> = {
   Politics: 'bg-[#18233c]',
   'Stocks & Markets': 'bg-[#047857]',
   Crypto: 'bg-[#c2410c]',
+  Entertainment: 'bg-[#831843]',
+  Science: 'bg-[#0e7490]',
+  Health: 'bg-[#991b1b]',
+  Auto: 'bg-[#b45309]',
+  Startups: 'bg-[#4c1d95]',
   General: 'bg-[#2563eb]',
 };
 
@@ -336,6 +411,11 @@ export const CATEGORY_CARD_HEX: Record<string, string> = {
   Politics: '#18233c',
   'Stocks & Markets': '#047857',
   Crypto: '#c2410c',
+  Entertainment: '#831843',
+  Science: '#0e7490',
+  Health: '#991b1b',
+  Auto: '#b45309',
+  Startups: '#4c1d95',
   General: '#2563eb',
 };
 

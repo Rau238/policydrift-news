@@ -7,7 +7,7 @@ import type { CategoryRow, GoogleTrendsBundle, NewsSource, PostDetail, PostListI
  * and safeFetchJson then returns empty news.
  * Browser: NEXT_PUBLIC_API_URL (public origin or same host with reverse proxy).
  */
-function getBaseUrl(): string {
+export function getBaseUrl(): string {
   const isServer = typeof window === 'undefined';
   let url = (
     isServer

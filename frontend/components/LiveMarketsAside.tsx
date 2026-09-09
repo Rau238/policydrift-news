@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import Link from 'next/link';
 import {
   Activity,
   ArrowRightLeft,
+  Calendar,
   ChevronRight,
   Coins,
   Droplet,
@@ -1115,6 +1117,23 @@ export function LiveMarketsAside() {
             </div>
           </div>
         ) : null}
+
+        {/* Economic & Market Calendar Shortcut */}
+        <div className="border-t border-slate-100 bg-gradient-to-r from-blue-900/10 via-slate-900/5 to-teal-900/10 px-3 py-2.5">
+          <Link
+            href="/calendar"
+            className="flex items-center justify-between gap-2 group text-xs font-bold text-slate-800 hover:text-teal-700 transition"
+          >
+            <span className="flex items-center gap-1.5 text-blue-900">
+              <Calendar className="h-3.5 w-3.5 text-blue-600" />
+              <span>Economic & Results Calendar</span>
+            </span>
+            <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-teal-700 group-hover:translate-x-0.5 transition-transform">
+              <span>View</span>
+              <ChevronRight className="h-3 w-3" />
+            </span>
+          </Link>
+        </div>
 
         {/* Footer info subline */}
         <p className="border-t border-slate-100 bg-slate-50/80 px-3 py-2 text-center text-[10px] font-medium text-slate-500">

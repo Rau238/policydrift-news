@@ -274,6 +274,28 @@ export function isMarkdownStory(body: string | null | undefined): boolean {
   );
 }
 
+export const PAYWALL_OR_AD_PATTERNS = [
+  /subscribe to unlock/i,
+  /try unlimited access/i,
+  /complete digital access to/i,
+  /standard digital|premium digital/i,
+  /cancel anytime during your trial/i,
+  /only rs\.?\s*\d+|only \$\s*\d+/i,
+  /already a subscriber\? sign in/i,
+  /sign in to continue reading/i,
+  /to continue reading,? (please )?subscribe/i,
+  /barrier-page/i,
+  /explore more offers/i,
+  /this article is for subscribers only/i,
+  /exclusive to subscribers/i,
+  /you have reached your (free )?article limit/i,
+];
+
+export function isPaywallOrAdBarrier(htmlOrText: string | null | undefined): boolean {
+  if (!htmlOrText) return false;
+  return PAYWALL_OR_AD_PATTERNS.some((re) => re.test(htmlOrText));
+}
+
 /**
  * Align display with backend `body`: resolve feed-relative URLs, format & beautify, sanitize, then plain fallback if needed.
  */
@@ -284,14 +306,30 @@ export function prepareArticleBodyForDisplay(
   articleTitle?: string | null,
 ): PreparedArticleBody {
   const raw = rawBody == null ? '' : String(rawBody);
+
+  // If the body is a paywall, subscription barrier, or ad trap, never display it
+  if (isPaywallOrAdBarrier(raw)) {
+    return {
+      html: '',
+      hasContent: false,
+    };
+  }
+
   const formatted = formatAndBeautifyArticleBody(raw);
   const resolved = resolveFeedResourceUrls(formatted, originalUrl);
   const titleForImages = decodeHtmlEntities(articleTitle?.trim() || '').trim() || undefined;
   let html = sanitizeArticleHtml(resolved, { articleTitle: titleForImages });
 
+  if (isPaywallOrAdBarrier(html)) {
+    return {
+      html: '',
+      hasContent: false,
+    };
+  }
+
   if (isVisiblyEmptyHtml(html)) {
     const plain = stripHtmlToPlain(raw);
-    if (plain.length > 0) {
+    if (plain.length > 0 && !isPaywallOrAdBarrier(plain)) {
       html = sanitizeArticleHtml(plainFallbackToSafeHtml(plain), { articleTitle: titleForImages });
     }
   }

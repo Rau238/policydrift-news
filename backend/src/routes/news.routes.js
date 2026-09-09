@@ -3,6 +3,9 @@ import * as newsController from '../controllers/news.controller.js';
 
 const router = Router();
 
+// List articles with pagination, category, extraction status
+router.get('/',         newsController.listNews);
+
 // Public feeds (distinct ranking per endpoint)
 router.get('/latest',   newsController.getLatest);
 router.get('/top',      newsController.getTop);

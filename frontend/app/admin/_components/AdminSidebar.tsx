@@ -24,6 +24,7 @@ import {
   Share2,
   Mail,
   Sparkles,
+  CalendarDays,
 } from 'lucide-react';
 import { BrandMark } from '@/components/BrandMark';
 import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
@@ -110,6 +111,9 @@ export function AdminSidebar({
     }
     if (itemHref === '/admin/newsletter') {
       return pathname.startsWith('/admin/newsletter');
+    }
+    if (itemHref === '/admin/calendar') {
+      return pathname.startsWith('/admin/calendar');
     }
     if (itemHref === '/admin/activity') {
       return pathname.startsWith('/admin/activity');
@@ -204,6 +208,13 @@ export function AdminSidebar({
       href: '/admin/newsletter',
       icon: <Mail size={20} />,
       badge: null,
+    },
+    {
+      label: 'Calendar Desk',
+      href: '/admin/calendar',
+      icon: <CalendarDays size={20} />,
+      badge: 'Live',
+      badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30',
     },
     {
       label: 'RSS Sources',

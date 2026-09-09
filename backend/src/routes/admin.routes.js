@@ -95,6 +95,15 @@ router.delete('/sources/:id',              adminController.deleteSource);
 router.post('/sources/:id/test',           adminController.testSource);
 router.post('/sources/:id/fetch',          adminController.fetchSource);
 
+// ── Calendar Management ───────────────────────────────────────────────────────
+router.get('/calendar',                    adminController.listCalendarEvents);
+router.post('/calendar',                   adminController.createCalendarEvent);
+router.post('/calendar/sync',              adminController.syncCalendarData);
+router.get('/calendar/:id',                adminController.getCalendarEvent);
+router.put('/calendar/:id',                adminController.updateCalendarEvent);
+router.delete('/calendar/:id',             adminController.deleteCalendarEvent);
+router.post('/calendar/:id/toggle',        adminController.toggleCalendarEvent);
+
 // ── Social Media Automation & Publishing ─────────────────────────────────────
 router.post('/social/publish',             socialController.publishPost);
 router.get('/social/status',               socialController.getStatus);

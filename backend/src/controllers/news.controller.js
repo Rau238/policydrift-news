@@ -162,12 +162,45 @@ export async function getEditorial(req, res, next) {
   } catch (e) { next(e); }
 }
 
-// ─── GET /api/news/:slug ──────────────────────────────────────────────────────
+// ─── GET /api/news ────────────────────────────────────────────────────────────
+
+export async function listNews(req, res, next) {
+  try {
+    const page     = Math.max(1, parseInt(req.query.page  || '1', 10));
+    const limit    = clampLimit(req.query.limit, 20, 100);
+    const category = req.query.category || null;
+    const search   = req.query.search || null;
+    const status   = req.query.status || 'published';
+    const extraction_status = req.query.extraction_status || null;
+
+    const result = await postModel.listPosts({
+      category,
+      search,
+      page,
+      limit,
+      status,
+      extraction_status,
+    });
+
+    res.json({
+      ...result,
+      posts: serializeMany(result.posts),
+    });
+  } catch (e) { next(e); }
+}
+
+// ─── GET /api/news/:slug (or :id) ─────────────────────────────────────────────
 
 export async function getNewsBySlug(req, res, next) {
   try {
     const { slug } = req.params;
-    const post = await postModel.findPublishedBySlug(slug);
+    let post = null;
+    if (/^\d+$/.test(slug)) {
+      post = await postModel.findById(parseInt(slug, 10));
+    }
+    if (!post) {
+      post = await postModel.findPublishedBySlug(slug);
+    }
     if (!post) return res.status(404).json({ error: 'Not found' });
 
     // Record view event with IP dedup

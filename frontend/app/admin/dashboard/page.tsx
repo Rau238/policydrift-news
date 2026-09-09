@@ -74,6 +74,11 @@ interface Article {
   editorial_priority?: 'normal' | 'high' | 'pinned';
   source_id?: number | null;
   source_name?: string | null;
+  source_feed?: string | null;
+  guid?: string | null;
+  content_available?: number | boolean;
+  extraction_status?: 'full' | 'rss_only' | 'failed' | null;
+  discovered_at?: string | null;
   original_url?: string | null;
   trending_score?: number;
   top_score?: number;
@@ -194,6 +199,34 @@ function StatusBadge({ status }: { status: Article['status'] }) {
     >
       <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
       {status}
+    </span>
+  );
+}
+
+function ArticleExtractionBadge({
+  status,
+  available,
+}: {
+  status?: string | null;
+  available?: number | boolean;
+}) {
+  if (status === 'full' || available === 1 || available === true) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-500/30 shrink-0">
+        <CheckCircle2 size={10} /> Full Article
+      </span>
+    );
+  }
+  if (status === 'failed') {
+    return (
+      <span className="inline-flex items-center gap-1 rounded bg-rose-500/15 px-1.5 py-0.5 text-[10px] font-bold text-rose-300 border border-rose-500/30 shrink-0">
+        <AlertCircle size={10} /> Extraction Failed
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30 shrink-0">
+      <Radio size={10} /> RSS Only
     </span>
   );
 }
@@ -1236,13 +1269,29 @@ function DashboardContent() {
                                     >
                                       {item.title}
                                     </button>
+                                    <ArticleExtractionBadge
+                                      status={item.extraction_status}
+                                      available={item.content_available}
+                                    />
+                                    {item.original_url && (
+                                      <a
+                                        href={item.original_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-slate-400 hover:text-teal-300 transition-colors shrink-0"
+                                        title="Open original article source URL"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <ExternalLink size={12} />
+                                      </a>
+                                    )}
                                     {!item.source_id && (
                                       <span className="inline-flex items-center gap-1 rounded bg-teal-500/20 px-1.5 py-0.5 text-[10px] font-bold text-teal-300 border border-teal-500/30 shrink-0">
                                         <PenTool size={9} /> Editorial
                                       </span>
                                     )}
                                   </div>
-                                  <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                                  <div className="flex items-center gap-2 text-[11px] text-slate-400 flex-wrap">
                                     {item.source_name ? (
                                       <span className="font-medium text-teal-400/90 truncate max-w-[120px]">
                                         {item.source_name}

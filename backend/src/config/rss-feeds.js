@@ -138,6 +138,36 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://cryptonews.com/news/feed/',
     'https://bitcoinmagazine.com/feed',
   ],
+  Entertainment: [
+    'https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml',
+    'https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml',
+    'https://timesofindia.indiatimes.com/rssfeeds/1081479906.cms',
+    'https://indianexpress.com/section/entertainment/feed/',
+    'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNREpxYW5RU0JXVnVMVWRDR2dKSlRpZ0FQAQ?hl=en-IN&gl=IN&ceid=IN:en',
+  ],
+  Science: [
+    'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml',
+    'https://rss.nytimes.com/services/xml/rss/nyt/Science.xml',
+    'https://rss.nytimes.com/services/xml/rss/nyt/Space.xml',
+    'https://indianexpress.com/section/technology/science/feed/',
+    'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNR1ptZHpJU0JXVnVMVWRDR2dKSlRpZ0FQAQ?hl=en-IN&gl=IN&ceid=IN:en',
+  ],
+  Health: [
+    'https://feeds.bbci.co.uk/news/health/rss.xml',
+    'https://rss.nytimes.com/services/xml/rss/nyt/Health.xml',
+    'https://indianexpress.com/section/lifestyle/health/feed/',
+    'https://news.google.com/rss/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNR3QwTlRFU0JXVnVMVWRDS0FBUAE?hl=en-IN&gl=IN&ceid=IN:en',
+  ],
+  Auto: [
+    'https://timesofindia.indiatimes.com/rssfeeds/74317216.cms',
+    'https://economictimes.indiatimes.com/industry/auto/rssfeeds/13354394.cms',
+    'https://news.google.com/rss/search?q=electric+vehicles+OR+automotive+news&hl=en-IN&gl=IN&ceid=IN:en',
+  ],
+  Startups: [
+    'https://techcrunch.com/category/startups/feed/',
+    'https://economictimes.indiatimes.com/small-biz/startups/rssfeeds/11993050.cms',
+    'https://news.google.com/rss/search?q=Indian+startups+funding+venture+capital&hl=en-IN&gl=IN&ceid=IN:en',
+  ],
 };
 
 /**

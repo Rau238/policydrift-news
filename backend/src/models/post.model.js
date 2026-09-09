@@ -2,7 +2,16 @@ import { pool } from '../db/pool.js';
 
 const listFields =
   'id, slug, title, excerpt, image_url, category, view_count, published_at, created_at, ' +
-  'is_featured, is_breaking, editorial_priority, like_count, share_count, reading_time_minutes, source_id';
+  'is_featured, is_breaking, editorial_priority, like_count, share_count, reading_time_minutes, source_id, ' +
+  'guid, content_available, extraction_status, original_url, source_feed';
+
+export async function findByGuid(guid) {
+  if (!guid || typeof guid !== 'string' || !guid.trim()) return null;
+  const [rows] = await pool.query('SELECT id, slug, title, url_hash, guid FROM posts WHERE guid = ? LIMIT 1', [
+    guid.trim().slice(0, 500),
+  ]);
+  return rows[0] || null;
+}
 
 export async function findByUrlHash(urlHash) {
   const [rows] = await pool.query('SELECT id FROM posts WHERE url_hash = ? LIMIT 1', [urlHash]);
@@ -39,10 +48,18 @@ function setCachedCount(key, val, ttlMs = 45000) {
   countCache.set(key, { expires: Date.now() + ttlMs, val });
 }
 
-export async function listPosts({ category, search, page = 1, limit = 12 }) {
+export async function listPosts({ category, search, page = 1, limit = 12, status = 'published', extraction_status = null }) {
   const offset = (page - 1) * limit;
   const params = [];
-  let where = "status = 'published'";
+  let where = '1=1';
+  if (status && status !== 'all') {
+    where += ' AND status = ?';
+    params.push(status);
+  }
+  if (extraction_status && extraction_status !== 'all') {
+    where += ' AND extraction_status = ?';
+    params.push(extraction_status);
+  }
   if (category && category !== 'all') {
     where += ' AND category = ?';
     params.push(category);
@@ -544,17 +561,24 @@ export async function createPost(row) {
     featured_until = null,
     editorial_priority = 'normal',
     scheduled_at = null,
+    guid = null,
+    content_available = 0,
+    extraction_status = 'rss_only',
+    discovered_at = null,
   } = row;
 
   // Ensure tags are stored as valid JSON string or null
   const formattedTags = tags ? (typeof tags === 'string' ? tags : JSON.stringify(tags)) : null;
+  const cleanGuid = guid ? String(guid).trim().slice(0, 500) : null;
+  const cleanImageUrl = image_url && String(image_url).trim().length <= 500 && !String(image_url).trim().startsWith('data:') ? String(image_url).trim() : null;
 
   const [result] = await pool.query(
     `INSERT INTO posts
        (slug, title, excerpt, key_takeaways, body, original_url, url_hash, content_hash,
         image_url, category, published_at, source_feed, source_id, status, auto_published, reading_time_minutes,
-        author, tags, is_featured, is_breaking, breaking_until, featured_until, editorial_priority, scheduled_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        author, tags, is_featured, is_breaking, breaking_until, featured_until, editorial_priority, scheduled_at,
+        guid, content_available, extraction_status, discovered_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       slug,
       title,
@@ -564,7 +588,7 @@ export async function createPost(row) {
       original_url || '',
       url_hash,
       content_hash ?? null,
-      image_url || null,
+      cleanImageUrl,
       category || 'General',
       published_at || new Date(),
       source_feed || null,
@@ -580,6 +604,10 @@ export async function createPost(row) {
       featured_until || null,
       editorial_priority || 'normal',
       scheduled_at || null,
+      cleanGuid,
+      content_available ? 1 : 0,
+      extraction_status || 'rss_only',
+      discovered_at || new Date(),
     ],
   );
 
@@ -687,70 +715,12 @@ export async function listSlugsForSitemap() {
 }
 
 /**
- * 10-day retention cleanup: Prunes automated scraped RSS articles older than retentionDays in non-blocking batches.
- * CRITICAL RULE: User/Admin-authored stories (source_id IS NULL or editorial_priority = 'pinned' or is_featured = 1)
- * are PERMANENTLY EXEMPT and NEVER deleted on any time period.
+ * Article Retention Pruning: Permanently disabled per requirement.
+ * All articles remain permanently live in the database and are NEVER deleted by age/days.
  */
-export async function pruneOldArticles(retentionDays = 10) {
-  const days = Math.max(1, parseInt(retentionDays, 10) || 10);
-  // Strictly target automated scraped RSS feeds (source_id IS NOT NULL), never touching authored/editorial stories
-  const [countRes] = await pool.query(
-    `SELECT COUNT(*) AS count FROM posts 
-     WHERE published_at < DATE_SUB(NOW(), INTERVAL ? DAY)
-       AND source_id IS NOT NULL
-       AND is_featured = 0
-       AND (editorial_priority IS NULL OR editorial_priority != 'pinned')`,
-    [days]
-  );
-  const totalOld = countRes[0]?.count || 0;
-  if (totalOld === 0) {
-    return { deletedPosts: 0, deletedMetrics: 0, deletedEvents: 0 };
-  }
-
-  let totalDeleted = 0;
-  const batchSize = 2000;
-
-  while (true) {
-    const [idRows] = await pool.query(
-      `SELECT id FROM posts 
-       WHERE published_at < DATE_SUB(NOW(), INTERVAL ? DAY)
-         AND source_id IS NOT NULL
-         AND is_featured = 0
-         AND (editorial_priority IS NULL OR editorial_priority != 'pinned')
-       LIMIT ?`,
-      [days, batchSize]
-    );
-    if (!idRows.length) break;
-    const ids = idRows.map((r) => r.id);
-
-    await pool.query(`DELETE FROM post_metrics WHERE post_id IN (?)`, [ids]);
-    await pool.query(`DELETE FROM post_events WHERE post_id IN (?)`, [ids]);
-    const [delRes] = await pool.query(`DELETE FROM posts WHERE id IN (?)`, [ids]);
-
-    totalDeleted += delRes.affectedRows || ids.length;
-    await new Promise((r) => setTimeout(r, 40));
-  }
-
-  const [metricCleanup] = await pool.query(`
-    DELETE pm FROM post_metrics pm
-    LEFT JOIN posts p ON pm.post_id = p.id
-    WHERE p.id IS NULL
-  `);
-
-  const [eventCleanup] = await pool.query(`
-    DELETE pe FROM post_events pe
-    LEFT JOIN posts p ON pe.post_id = p.id
-    WHERE p.id IS NULL
-  `);
-
-  // Clear memory count caches
-  countCache.clear();
-  categoriesCache = null;
-
-  return {
-    deletedPosts: totalDeleted,
-    deletedMetrics: metricCleanup.affectedRows || 0,
-    deletedEvents: eventCleanup.affectedRows || 0,
-  };
+export async function pruneOldArticles() {
+  console.log('[post.model] Automatic article retention deletion is disabled. All articles remain live.');
+  return { deletedPosts: 0, deletedMetrics: 0, deletedEvents: 0, disabled: true };
 }
+
 

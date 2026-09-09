@@ -9,6 +9,7 @@ import { resolveStoryImageUrl } from '../utils/story-image.js';
 import { getFeedEntries, RSS_FEEDS_BY_CATEGORY } from '../config/rss-feeds.js';
 import { submitNewUrlsToIndexNow } from './indexnow.service.js';
 import { buildKeyTakeawaysForCategory } from '../utils/key-takeaways.js';
+import { eventBus } from './events.service.js';
 
 const slugCache = new Set();
 
@@ -176,11 +177,18 @@ export async function ingestFromRss({ sourceId = null, category = null } = {}) {
       const cHash    = contentHash(title);
 
       try {
-        // ── Dedup check 1: URL hash ───────────────────────────────────────
+        // ── Dedup check 1: GUID ───────────────────────────────────────────
+        const rawGuid = toCleanString(item.guid || item.id);
+        if (rawGuid) {
+          const dupGuid = await postModel.findByGuid(rawGuid);
+          if (dupGuid) { skipped++; continue; }
+        }
+
+        // ── Dedup check 2: URL hash ───────────────────────────────────────
         const dupUrl = await postModel.findByUrlHash(urlHash);
         if (dupUrl) { skipped++; continue; }
 
-        // ── Dedup check 2: Normalised title (content hash) ────────────────
+        // ── Dedup check 3: Normalised title (content hash) ────────────────
         const dupContent = await postModel.findByContentHash(cHash);
         if (dupContent) { skipped++; continue; }
 
@@ -194,7 +202,8 @@ export async function ingestFromRss({ sourceId = null, category = null } = {}) {
             ? item.pubDate
             : new Date();
 
-        await postModel.createPost({
+        const newPostId = await postModel.createPost({
+          guid: rawGuid || null,
           slug,
           title,
           excerpt,
@@ -211,16 +220,34 @@ export async function ingestFromRss({ sourceId = null, category = null } = {}) {
           status,
           auto_published: autoPublished,
           reading_time_minutes: estimateReadingTime(body),
+          content_available: 0,
+          extraction_status: 'rss_only',
         });
 
         created++;
         sourceCreated++;
 
+        eventBus.emitNewArticle({
+          articleId: newPostId,
+          source: (sourceId !== 'none' && entries[0]?.name) || 'RSS Feed',
+          title,
+          url: link,
+          publishedAt,
+          category,
+          slug,
+          contentAvailable: false,
+          extractionStatus: 'rss_only',
+        });
+
         if (status === 'published' && siteOrigin?.startsWith('https://')) {
           indexNowUrls.push(`${siteOrigin}/news/${encodeURIComponent(slug)}`);
         }
       } catch (e) {
-        errors.push(`${link}: ${e.message}`);
+        if (e.code === 'ER_DUP_ENTRY' || e.message?.includes('Duplicate entry')) {
+          skipped++;
+        } else {
+          errors.push(`${link}: ${e.message}`);
+        }
       }
     }
 

@@ -18,6 +18,32 @@ export function toCleanString(val) {
   return String(val).trim();
 }
 
+/**
+ * Normalizes article URLs for deterministic deduplication:
+ * - Trims whitespace
+ * - Strips common tracking query params (utm_*, fbclid, gclid, ref)
+ * - Removes URL fragment
+ * - Removes trailing slash if path is longer than '/'
+ */
+export function normalizeArticleUrl(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== 'string') return '';
+  try {
+    const parsed = new URL(rawUrl.trim());
+    parsed.hash = '';
+    const trackingParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid', 'ref'];
+    for (const p of trackingParams) {
+      parsed.searchParams.delete(p);
+    }
+    let clean = parsed.toString();
+    if (parsed.pathname !== '/' && clean.endsWith('/')) {
+      clean = clean.slice(0, -1);
+    }
+    return clean;
+  } catch {
+    return rawUrl.trim();
+  }
+}
+
 /** OpenAI chat message `content` can be a string or an array of parts (newer APIs). */
 export function normalizeOpenAIContent(content) {
   if (content == null) return '';

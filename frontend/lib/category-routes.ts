@@ -13,6 +13,11 @@ export const CATEGORY_TO_SLUG: Record<string, string> = {
   'Stocks & Markets': 'stocks-markets',
   Technology: 'technology',
   Crypto: 'crypto',
+  Entertainment: 'entertainment',
+  Science: 'science',
+  Health: 'health',
+  Auto: 'auto',
+  Startups: 'startups',
   General: 'general',
 };
 
@@ -26,6 +31,11 @@ const SLUG_TO_CATEGORY: Record<string, string> = {
   tech: 'Technology',
   technology: 'Technology',
   banking: 'Banking & Economics',
+  movies: 'Entertainment',
+  cinema: 'Entertainment',
+  space: 'Science',
+  cars: 'Auto',
+  startup: 'Startups',
 };
 
 /** Category slugs shown in primary nav (exclude General hub). */
@@ -40,6 +50,11 @@ export const NAV_CATEGORY_SLUGS = [
   'stocks-markets',
   'technology',
   'crypto',
+  'entertainment',
+  'science',
+  'health',
+  'auto',
+  'startups',
 ] as const;
 
 export function deskSlugFromCategory(name: string): string | null {
@@ -89,6 +104,16 @@ export const CATEGORY_INTRO: Record<string, string> = {
   Technology:
     'Emerging tech, artificial intelligence breakthroughs, cybersecurity, gadget news, and digital innovation.',
   Crypto: 'Digital assets, regulation, and on-chain trends worth watching.',
+  Entertainment:
+    'Cinema, OTT releases, box office tracking, celebrity spotlights, music, and pop culture updates.',
+  Science:
+    'Space exploration, astronomy discoveries, climate science, environmental research, and groundbreaking studies.',
+  Health:
+    'Healthcare breakthroughs, wellness insights, medical research, nutrition, and public health directives.',
+  Auto:
+    'Automotive innovations, electric vehicles (EV), auto sector earnings, launches, and future mobility.',
+  Startups:
+    'Venture capital, early-stage rounds, unicorn milestones, startup ecosystems, and entrepreneur profiles.',
   General: 'Stories that cross beats or sit outside a single topic.',
 };
 

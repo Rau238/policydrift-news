@@ -28,8 +28,9 @@ import {
   expireFeaturedArticles,
 } from '../services/scheduler.service.js';
 import { ingestFromRss } from '../services/ingestion.service.js';
+import { checkAllFeeds } from '../services/rss-monitor.service.js';
+import { syncLiveCalendarData } from '../services/calendar-sync.service.js';
 import { pruneOldEvents } from '../models/events.model.js';
-import { pruneOldArticles } from '../models/post.model.js';
 import { RANKING } from '../config/ranking.js';
 import { checkAndRunAutomated10AmDigest } from '../controllers/newsletter.controller.js';
 
@@ -89,18 +90,30 @@ async function start() {
     }
   });
 
-  // ── 5. RSS ingest ────────────────────────────────────────────────────────
-  const n = env.RSS_CRON_INTERVAL_MINUTES;
-  cron.schedule(`*/${n} * * * *`, async () => {
-    console.log('[worker] RSS ingest starting…');
-    try {
-      const r = await ingestFromRss();
-      console.log('[worker] ingest done:', r);
-    } catch (e) {
-      console.error('[worker] ingest error:', e.message);
+  // ── 5. RSS Monitoring & Ingest (configurable interval, default 60s) ───────
+  const pollIntervalMs = Math.max(10000, env.RSS_POLL_INTERVAL || 60000);
+  let isRssRunning = false;
+  const runRssMonitor = async () => {
+    if (isRssRunning) {
+      console.log('[worker] RSS monitoring pass skipped (previous run still active)');
+      return;
     }
-  });
-  console.log(`[worker] RSS ingest scheduled every ${n} min`);
+    isRssRunning = true;
+    console.log('[worker] RSS monitoring pass starting…');
+    try {
+      const r = await checkAllFeeds();
+      console.log(`[worker] RSS monitoring done: ${r.created} created, ${r.skipped} skipped, ${r.errors?.length || 0} errors`);
+    } catch (e) {
+      console.error('[worker] RSS monitoring error:', e.message);
+    } finally {
+      isRssRunning = false;
+    }
+  };
+
+  // Run on startup after short warm-up delay
+  setTimeout(runRssMonitor, 6000);
+  setInterval(runRssMonitor, pollIntervalMs);
+  console.log(`[worker] RSS monitoring scheduled every ${pollIntervalMs / 1000}s (${pollIntervalMs}ms)`);
 
   // ── 6. Event cleanup (daily at 03:00) ───────────────────────────────────
   cron.schedule('0 3 * * *', async () => {
@@ -109,18 +122,6 @@ async function start() {
       console.log('[worker] cleanup: pruned %d old events', deleted);
     } catch (e) {
       console.error('[worker] cleanup error:', e.message);
-    }
-  });
-
-  // ── 6b. Article Retention cleanup (daily at 03:30 - keep last 10 days) ────
-  cron.schedule('30 3 * * *', async () => {
-    console.log('[worker] Starting daily 10-day article retention cleanup...');
-    try {
-      const days = parseInt(process.env.ARTICLE_RETENTION_DAYS || '10', 10);
-      const res = await pruneOldArticles(days);
-      console.log('[worker] Retention cleanup completed:', res);
-    } catch (e) {
-      console.error('[worker] retention cleanup error:', e.message);
     }
   });
 
@@ -134,6 +135,28 @@ async function start() {
       console.error('[worker] 10:00 AM newsletter error:', e.message);
     }
   });
+
+  // ── 8. Financial & Economic Calendar Real-time Sync (Every 30 mins) ─────
+  cron.schedule('*/30 * * * *', async () => {
+    console.log('[worker] Running periodic live calendar synchronization…');
+    try {
+      const r = await syncLiveCalendarData();
+      console.log('[worker] Calendar sync done:', r);
+    } catch (e) {
+      console.error('[worker] Calendar sync error:', e.message);
+    }
+  });
+
+  // Warm-up calendar sync on startup
+  setTimeout(async () => {
+    try {
+      console.log('[worker] Initializing calendar sync on startup…');
+      await syncLiveCalendarData();
+      console.log('[worker] Initial calendar sync ready.');
+    } catch (e) {
+      console.warn('[worker] Initial calendar sync notice:', e.message);
+    }
+  }, 12000);
 
   console.log('[worker] All crons registered. Running.');
 }

@@ -14,10 +14,12 @@ import { pool } from '../db/pool.js';
 const SELECT_COLS = `
   id, name, source_type,
   COALESCE(rss_url, IF(source_type='rss', url, NULL)) AS rss_url,
-  api_url, url, logo, description,
+  COALESCE(rss_url, url) AS url,
+  api_url, logo, description,
   country, language, category,
   trust_score, is_active AS enabled,
   fetch_interval_minutes,
+  COALESCE(last_checked_at, last_fetched_at) AS last_checked_at,
   last_fetched_at, last_success_at, last_error,
   articles_imported, reliability_score,
   created_at, updated_at
@@ -108,6 +110,7 @@ export async function recordFetchSuccess(id, addedCount = 0) {
   await pool.query(
     `UPDATE news_sources
      SET last_fetched_at  = NOW(),
+         last_checked_at  = NOW(),
          last_success_at  = NOW(),
          last_error       = NULL,
          articles_imported = articles_imported + ?
@@ -120,6 +123,7 @@ export async function recordFetchError(id, errorMessage) {
   await pool.query(
     `UPDATE news_sources
      SET last_fetched_at = NOW(),
+         last_checked_at = NOW(),
          last_error      = ?
      WHERE id = ?`,
     [String(errorMessage).slice(0, 2000), id],

@@ -7,6 +7,7 @@ import type { GoogleTrendsBundle, GoogleTrendsTopic } from '@/lib/types';
 import { categoryLabel } from '@/lib/category-theme';
 import { decodeHtmlEntities } from '@/lib/sanitize';
 import { AnimatedTrendingIcon } from '@/components/AnimatedTrendingIcon';
+import { CountryFlag } from '@/components/CountryFlag';
 
 type TabId = '24h' | '7d' | '30d';
 
@@ -174,7 +175,17 @@ export function TrendingIndiaPage({ data }: { data: GoogleTrendsBundle }) {
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatCard icon={<AnimatedTrendingIcon className="h-4 w-4" />} label="Topics" value={total} />
             <StatCard icon={<Newspaper className="h-4 w-4" />} label="Matched" value={matchedStories} />
-            <StatCard icon={<MapPin className="h-4 w-4" />} label="Geo" value={data.geo || 'IN'} isText />
+            <StatCard
+              icon={<MapPin className="h-4 w-4" />}
+              label="Geo"
+              value={
+                <span className="inline-flex items-center gap-1.5">
+                  <CountryFlag iso="in" size={16} />
+                  <span>India</span>
+                </span>
+              }
+              isText
+            />
             <StatCard
               icon={<Clock3 className="h-4 w-4" />}
               label="Updated"
@@ -268,7 +279,7 @@ function StatCard({
 }: {
   icon: ReactNode;
   label: string;
-  value: string | number;
+  value: ReactNode;
   isText?: boolean;
 }) {
   return (
@@ -277,13 +288,13 @@ function StatCard({
         <span className="opacity-90">{icon}</span>
         {label}
       </div>
-      <p
+      <div
         className={`mt-1.5 font-display font-bold tracking-tight text-white ${
-          isText ? 'truncate text-sm sm:text-base' : 'text-2xl tabular-nums sm:text-3xl'
+          isText ? 'truncate text-sm sm:text-base flex items-center' : 'text-2xl tabular-nums sm:text-3xl'
         }`}
       >
         {typeof value === 'number' ? value.toLocaleString() : value}
-      </p>
+      </div>
     </div>
   );
 }

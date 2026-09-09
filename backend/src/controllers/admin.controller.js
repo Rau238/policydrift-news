@@ -10,6 +10,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import * as postModel from '../models/post.model.js';
 import * as sourceModel from '../models/source.model.js';
+import * as calendarModel from '../models/calendar.model.js';
+import * as calendarSyncService from '../services/calendar-sync.service.js';
 import { serializePostDates } from '../utils/date.js';
 import { ingestFromRss } from '../services/ingestion.service.js';
 import { runRankingPass } from '../services/ranking.service.js';
@@ -835,4 +837,148 @@ export async function uploadImages(req, res, next) {
     next(e);
   }
 }
+
+// ─── Calendar Management ──────────────────────────────────────────────────────
+
+export async function listCalendarEvents(req, res, next) {
+  try {
+    const {
+      type = 'all',
+      country = 'all',
+      impact = 'all',
+      timeframe = 'all',
+      search = '',
+      status = 'all',
+      page = 1,
+      limit = 100,
+    } = req.query;
+
+    const includeInactive = status === 'all' || status === 'inactive';
+    const offset = (Math.max(1, parseInt(page, 10)) - 1) * parseInt(limit, 10);
+
+    const result = await calendarModel.listCalendarEvents({
+      type,
+      country,
+      impact,
+      timeframe,
+      search,
+      includeInactive,
+      limit: parseInt(limit, 10),
+      offset,
+    });
+
+    let events = result.events;
+    if (status === 'active') {
+      events = events.filter((e) => e.isActive);
+    } else if (status === 'inactive') {
+      events = events.filter((e) => !e.isActive);
+    }
+
+    res.json({
+      ok: true,
+      events,
+      total: result.total,
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function getCalendarEvent(req, res, next) {
+  try {
+    const { id } = req.params;
+    const event = await calendarModel.getCalendarEventById(id);
+    if (!event) {
+      return res.status(404).json({ ok: false, error: 'Calendar event not found' });
+    }
+    res.json({ ok: true, event });
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function createCalendarEvent(req, res, next) {
+  try {
+    const { title, date, type } = req.body;
+    if (!title || !date || !type) {
+      return res.status(400).json({ ok: false, error: 'Title, date and event type are required.' });
+    }
+
+    const created = await calendarModel.createCalendarEvent({
+      ...req.body,
+      isCustom: 1,
+    });
+    res.status(201).json({
+      ok: true,
+      message: 'Calendar event created successfully',
+      event: created,
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function updateCalendarEvent(req, res, next) {
+  try {
+    const { id } = req.params;
+    const updated = await calendarModel.updateCalendarEvent(id, req.body);
+    if (!updated) {
+      return res.status(404).json({ ok: false, error: 'Calendar event not found' });
+    }
+    res.json({
+      ok: true,
+      message: 'Calendar event updated successfully',
+      event: updated,
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function deleteCalendarEvent(req, res, next) {
+  try {
+    const { id } = req.params;
+    const deleted = await calendarModel.deleteCalendarEvent(id);
+    if (!deleted) {
+      return res.status(404).json({ ok: false, error: 'Calendar event not found' });
+    }
+    res.json({ ok: true, message: 'Calendar event deleted successfully' });
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function toggleCalendarEvent(req, res, next) {
+  try {
+    const { id } = req.params;
+    const event = await calendarModel.toggleCalendarEventActive(id);
+    if (!event) {
+      return res.status(404).json({ ok: false, error: 'Calendar event not found' });
+    }
+    res.json({
+      ok: true,
+      message: `Event "${event.title}" is now ${event.isActive ? 'active' : 'disabled'}`,
+      event,
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function syncCalendarData(req, res, next) {
+  try {
+    const forceSeed = Boolean(req.body?.forceSeed);
+    const result = await calendarSyncService.syncLiveCalendarData({ forceSeed });
+    res.json({
+      ok: true,
+      message: `Calendar sync completed: ${result.totalEvents} total events available (${result.inserted} added, ${result.updated} updated).`,
+      ...result,
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
 

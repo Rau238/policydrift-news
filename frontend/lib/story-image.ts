@@ -90,6 +90,25 @@ export const CATEGORY_DEFAULT_PHOTOS: Record<string, string[]> = {
   ],
 };
 
+export function isBarrierOrAdImage(url: string | null | undefined): boolean {
+  if (!url || typeof url !== 'string') return true;
+  const s = url.toLowerCase();
+  return (
+    s.includes('barrier') ||
+    s.includes('next-barrier-page') ||
+    s.includes('paywall') ||
+    s.includes('advertisement') ||
+    s.includes('ad-slot') ||
+    s.includes('subscription') ||
+    s.includes('sponsor') ||
+    s.includes('1x1') ||
+    s.includes('pixel') ||
+    s.includes('tracker') ||
+    s.includes('badge') ||
+    s.includes('icon')
+  );
+}
+
 /**
  * For `<img src>` (Server or Client). When no remote image is present, returns fallback path so cards render the desk logo-cloud placeholder.
  */
@@ -104,6 +123,7 @@ export function resolvePostImageUrl(
     u !== 'null' &&
     u !== 'undefined' &&
     !isLoopbackOrInvalidStored(u) &&
+    !isBarrierOrAdImage(u) &&
     !u.endsWith(STORY_FALLBACK_PATH) &&
     !u.endsWith('story-fallback.svg') &&
     !u.includes('/images/category-curated/')
@@ -224,7 +244,7 @@ export function extractArticleImages(
 
   // 1. Primary Hero image of THIS article
   const primarySrc = resolvePostImageUrl(mainImageUrl);
-  if (primarySrc && primarySrc !== STORY_FALLBACK_PATH) {
+  if (primarySrc && primarySrc !== STORY_FALLBACK_PATH && !isBarrierOrAdImage(primarySrc)) {
     images.push({
       src: primarySrc,
       alt: title,
@@ -242,11 +262,7 @@ export function extractArticleImages(
       if (
         src &&
         !seen.has(src) &&
-        !src.includes('1x1') &&
-        !src.includes('pixel') &&
-        !src.includes('tracker') &&
-        !src.includes('badge') &&
-        !src.includes('icon') &&
+        !isBarrierOrAdImage(src) &&
         src.startsWith('http')
       ) {
         const altMatch = match[0].match(/alt=["']([^"']*)["']/i);

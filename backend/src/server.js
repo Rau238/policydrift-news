@@ -7,7 +7,6 @@ import { logMysqlStorageOnStartup } from './db/storage-stats.js';
 import { ingestFromRss } from './services/ingestion.service.js';
 import { refreshTrendsCache } from './services/google-trends.service.js';
 import { checkAndRunAutomated10AmDigest } from './controllers/newsletter.controller.js';
-import { pruneOldArticles } from './models/post.model.js';
 
 async function start() {
   try {
@@ -24,22 +23,30 @@ async function start() {
   });
 
   const feedCount = getFeedEntries(env).length;
-  if (env.CRON_ENABLED && feedCount > 0 && !env.WORKER_ENABLED) {
+  if (env.CRON_ENABLED && !env.WORKER_ENABLED) {
     // When WORKER_ENABLED=true a dedicated newsfree365-worker PM2 process
-    // runs the ingest cron — skip it here to avoid double-ingestion.
-    const n = env.RSS_CRON_INTERVAL_MINUTES;
-    cron.schedule(`*/${n} * * * *`, async () => {
-      console.log('[cron] RSS ingest starting…');
+    // runs the monitoring service — skip it here to avoid double-monitoring.
+    const pollIntervalMs = Math.max(10000, env.RSS_POLL_INTERVAL || 60000);
+    let isRssRunning = false;
+    const runRssMonitor = async () => {
+      if (isRssRunning) return;
+      isRssRunning = true;
+      console.log('[cron] RSS monitoring pass starting…');
       try {
-        const r = await ingestFromRss();
-        console.log('[cron] ingest done:', r);
+        const { checkAllFeeds } = await import('./services/rss-monitor.service.js');
+        const r = await checkAllFeeds();
+        console.log(`[cron] RSS monitoring done: ${r.created} created, ${r.skipped} skipped, ${r.errors?.length || 0} errors`);
       } catch (e) {
-        console.error('[cron] ingest error:', e);
+        console.error('[cron] RSS monitoring error:', e);
+      } finally {
+        isRssRunning = false;
       }
-    });
-    console.log(`Cron: RSS ingest every ${n} minute(s) (${feedCount} feed(s))`);
+    };
+    setTimeout(runRssMonitor, 6000);
+    setInterval(runRssMonitor, pollIntervalMs);
+    console.log(`Cron: RSS monitoring scheduled every ${pollIntervalMs / 1000}s (${pollIntervalMs}ms)`);
   } else if (env.WORKER_ENABLED) {
-    console.log('Cron: RSS ingest delegated to newsfree365-worker process.');
+    console.log('Cron: RSS monitoring delegated to newsfree365-worker process.');
   }
 
   if (env.CRON_ENABLED && env.TRENDS_ENABLED && env.TRENDS_CRON) {
@@ -66,20 +73,6 @@ async function start() {
         console.error('[cron] 10:00 AM newsletter error:', e);
       }
     });
-    // Daily 10-day article retention cleanup (runs at 03:30 AM if worker is not active)
-    if (!env.WORKER_ENABLED) {
-      cron.schedule('30 3 * * *', async () => {
-        console.log('[cron] Starting daily 10-day article retention cleanup...');
-        try {
-          const days = parseInt(process.env.ARTICLE_RETENTION_DAYS || '10', 10);
-          const res = await pruneOldArticles(days);
-          console.log('[cron] Retention cleanup result:', res);
-        } catch (e) {
-          console.error('[cron] retention cleanup error:', e);
-        }
-      });
-      console.log('Cron: Daily 10-day article retention cleanup scheduled.');
-    }
   }
 }
 

@@ -15,7 +15,7 @@ function configuredFallbackUrl() {
 /** @param {string | null | undefined} stored */
 export function resolveStoryImageUrl(stored) {
   const u = stored && String(stored).trim();
-  if (u) return u;
+  if (u && !u.startsWith('data:') && u.length <= 500) return u;
   return configuredFallbackUrl();
 }
 

@@ -11,6 +11,8 @@ import cricketRoutes from './routes/cricket.routes.js';
 import footballRoutes from './routes/football.routes.js';
 import pushRoutes from './routes/push.routes.js';
 import newsletterRoutes from './routes/newsletter.routes.js';
+import rssRoutes from './routes/rss.routes.js';
+import calendarRoutes from './routes/calendar.routes.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -68,6 +70,8 @@ app.use('/api', postRoutes);
 app.use('/api/meta', metaRoutes);
 // v2 public news endpoints (latest / top / trending / popular / :slug)
 app.use('/api/news', newsRoutes);
+// RSS feed management and monitoring
+app.use('/api/rss', rssRoutes);
 // v2 admin endpoints (protected by requireAdmin middleware)
 app.use('/api/admin', adminRoutes);
 // Cricbuzz live and completed cricket score endpoints
@@ -79,6 +83,8 @@ app.use('/api/push', pushRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 // Tribuna live and completed football match endpoints
 app.use('/api/football', footballRoutes);
+// Economic, Market Holidays and Earnings Calendar endpoints
+app.use('/api/calendar', calendarRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);
