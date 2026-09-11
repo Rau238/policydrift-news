@@ -69,7 +69,7 @@ export async function GET(_req: Request, { params }: RouteProps) {
       // Check total chunks to avoid generating ghost sitemaps
       try {
         const info = await getSitemapIndexInfo();
-        if (info.totalChunks && chunk > info.totalChunks) {
+        if (info.totalChunks && chunk > info.totalChunks + 1) {
           return new Response('Sitemap chunk not found', { status: 404 });
         }
       } catch (e) {
@@ -78,9 +78,14 @@ export async function GET(_req: Request, { params }: RouteProps) {
 
       const chunkData = await getSitemapArticleChunk(chunk, 50000);
       if (!chunkData || !chunkData.articles || chunkData.articles.length === 0) {
-        if (chunk > 1) {
-          return new Response('Sitemap chunk empty', { status: 404 });
-        }
+        const emptyXml = buildUrlSetXml([]);
+        return new Response(emptyXml, {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Cache-Control': 'public, max-age=300, s-maxage=600',
+          },
+        });
       }
 
       const articleUrls: SitemapUrlEntry[] = (chunkData.articles || []).map((art) => ({
