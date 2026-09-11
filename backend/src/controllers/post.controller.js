@@ -190,3 +190,25 @@ export async function getSitemapData(req, res, next) {
     next(e);
   }
 }
+
+export async function getGoogleNewsSitemapData(req, res, next) {
+  try {
+    const limit = Math.min(1000, Math.max(1, parseInt(req.query.limit || '1000', 10)));
+    const rows = await postModel.listRecentPostsForGoogleNews(limit);
+    const articles = rows.map((r) => ({
+      id: r.id,
+      slug: r.slug,
+      title: r.title,
+      published_at: r.published_at ? new Date(r.published_at).toISOString() : new Date().toISOString(),
+      updated_at: r.updated_at ? new Date(r.updated_at).toISOString() : undefined,
+    }));
+
+    res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+    res.json({
+      count: articles.length,
+      articles,
+    });
+  } catch (e) {
+    next(e);
+  }
+}

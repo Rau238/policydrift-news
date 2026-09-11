@@ -4,6 +4,7 @@ import * as adminController from '../controllers/admin.controller.js';
 import * as socialController from '../controllers/social.controller.js';
 import * as pushController from '../controllers/push.controller.js';
 import * as newsletterController from '../controllers/newsletter.controller.js';
+import * as quizController from '../controllers/quiz.controller.js';
 import { env } from '../config/env.js';
 
 const router = Router();
@@ -104,10 +105,24 @@ router.put('/calendar/:id',                adminController.updateCalendarEvent);
 router.delete('/calendar/:id',             adminController.deleteCalendarEvent);
 router.post('/calendar/:id/toggle',        adminController.toggleCalendarEvent);
 
+// ── Daily News Quiz Management ────────────────────────────────────────────────
+router.get('/quiz',                        quizController.listQuizAdmin);
+router.post('/quiz',                       quizController.createQuizAdmin);
+router.post('/quiz/seed-defaults',         quizController.seedDefaultsAdmin);
+router.get('/quiz/:id',                    quizController.getQuizByIdAdmin);
+router.put('/quiz/:id',                    quizController.updateQuizAdmin);
+router.patch('/quiz/:id',                  quizController.updateQuizAdmin);
+router.delete('/quiz/:id',                 quizController.deleteQuizAdmin);
+router.post('/quiz/:id/toggle',            quizController.toggleQuizAdmin);
+
 // ── Social Media Automation & Publishing ─────────────────────────────────────
 router.post('/social/publish',             socialController.publishPost);
 router.get('/social/status',               socialController.getStatus);
 router.get('/social/logs',                 socialController.getLogs);
+router.delete('/social/logs/:id',          socialController.deleteLog);
+router.delete('/social/logs',              socialController.clearLogs);
+router.post('/social/test-connection',     socialController.testConnection);
+router.post('/social/credentials',         socialController.updateCredentials);
 
 // ── Web Push Notifications ───────────────────────────────────────────────────
 router.post('/push/broadcast',             pushController.broadcastPush);

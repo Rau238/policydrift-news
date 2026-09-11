@@ -118,6 +118,18 @@ body:has([aria-label*='calendar' i]) * {
     height: 0;
   }
 
+  /* Disable scrollbar appearance completely within Graphic Studio suite */
+  .studio-canvas-editor,
+  .studio-canvas-editor * {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+  }
+  .studio-canvas-editor *::-webkit-scrollbar {
+    display: none !important;
+    width: 0px !important;
+    height: 0px !important;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;

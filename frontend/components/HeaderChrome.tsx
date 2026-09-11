@@ -8,7 +8,7 @@ import { AnimatedTrendingIcon } from '@/components/AnimatedTrendingIcon';
 import { BrandMark } from '@/components/BrandMark';
 import { LocalConditions } from '@/components/LocalConditions';
 import { SpotlightSearchModal } from '@/components/SpotlightSearchModal';
-import { Search, Command } from 'lucide-react';
+import { Search, Command, Award } from 'lucide-react';
 
 export function HeaderChrome() {
   const [spotlightOpen, setSpotlightOpen] = useState(false);
@@ -45,15 +45,16 @@ export function HeaderChrome() {
 
               <nav className="flex items-center gap-1.5 sm:gap-2" aria-label="Primary">
                 <Link
-                  href="/sports/cricket"
-                  className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-950/40 px-3 text-xs font-bold text-emerald-300 transition hover:border-emerald-400 hover:bg-emerald-900/50 hover:text-emerald-200 shadow-xs"
-                  title="Live Cricket Scores & Matches"
+                  href="/quiz"
+                  className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-yellow-500/15 px-3 text-xs font-bold text-amber-300 transition hover:border-amber-400/60 hover:from-amber-500/25 hover:to-orange-500/25 hover:text-amber-200 shadow-xs active:scale-95 shrink-0"
+                  title="Play Daily 5-Question News Quiz"
                 >
+                  <Award className="h-4 w-4 text-amber-400 shrink-0" />
+                  <span className="whitespace-nowrap">Daily Quiz</span>
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                   </span>
-                  Cricket
                 </Link>
 
                 <Link

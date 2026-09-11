@@ -26,6 +26,7 @@ import { PublisherCreditCard } from '@/components/PublisherCreditCard';
 import { AnimatedBackButton } from '@/components/AnimatedBackButton';
 import { ArticleEngagementBar } from '@/components/ArticleEngagementBar';
 import { MultiSourceCoverage } from '@/components/MultiSourceCoverage';
+import { CommunityJoinBanner } from '@/components/CommunityJoinBanner';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
 import { PostCard } from '@/components/PostCard';
 import { LiveMarketsAside } from '@/components/LiveMarketsAside';
@@ -169,6 +170,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     robots: {
       index: true,
       follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
       googleBot: {
         index: true,
         follow: true,
@@ -478,6 +482,9 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                   </div>
                 </div>
               </div>
+
+              {/* VIP WhatsApp & Telegram Instant Community Channel Hub */}
+              <CommunityJoinBanner variant="full" className="mt-8" />
 
               {/* Multi-Source Perspectives & Related Web Coverage */}
               <div className="mt-8">

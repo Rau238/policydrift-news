@@ -248,6 +248,17 @@ export async function getSitemapArticleChunk(
   return res.json() as Promise<SitemapChunkResult>;
 }
 
+export async function getGoogleNewsSitemapArticles(): Promise<{
+  count: number;
+  articles: { id: number; slug: string; title: string; published_at: string; updated_at?: string }[];
+}> {
+  const res = await fetch(`${getBaseUrl()}/api/meta/sitemap/news`, {
+    next: { revalidate: 300 }, // 5 min revalidation
+  });
+  if (!res.ok) throw new Error(`${res.status} google news sitemap`);
+  return res.json();
+}
+
 export async function getSitemapRows(): Promise<{ slug: string; lastmod: string }[]> {
   const res = await fetch(`${getBaseUrl()}/api/meta/slugs`, { next: { revalidate: 3600 } });
   if (!res.ok) throw new Error(`${res.status} sitemap`);

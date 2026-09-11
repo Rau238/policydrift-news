@@ -14,12 +14,13 @@ export interface SocialArticleInput {
 }
 
 export interface SocialPlatformCopy {
-  platform: 'linkedin' | 'instagram' | 'facebook' | 'twitter';
+  platform: 'linkedin' | 'instagram' | 'facebook' | 'twitter' | 'telegram' | 'whatsapp';
   platformName: string;
   charLimit: number;
   caption: string;
   hashtags: string[];
   suggestedAspectRatio: '1:1' | '9:16' | '1.91:1' | '16:9';
+  directShareUrl?: string;
 }
 
 const CATEGORY_HASHTAGS: Record<string, string[]> = {
@@ -49,6 +50,7 @@ function cleanText(text?: string | null): string {
   if (!text) return '';
   return text
     .replace(/<[^>]+>/g, '')
+    .replace(/\s*-\s*[a-zA-Z0-9.-]+\.[a-z]{2,}(\/.*)?$/i, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -268,6 +270,99 @@ export function generateTwitterCopy(article: SocialArticleInput): SocialPlatform
 }
 
 /**
+ * Generate tailored copy for Telegram (HTML markup & Channels)
+ */
+export function generateTelegramCopy(article: SocialArticleInput): SocialPlatformCopy {
+  const articleUrl = productionShareUrl(`/news/${article.slug}`);
+  const title = cleanText(article.title);
+  const excerpt = cleanText(article.excerpt);
+  const tags = getHashtagsForCategory(article.category).slice(0, 3);
+  const catName = categoryLabel(article.category).toUpperCase();
+  const { emoji, badge } = getCategoryHook(article.category, title);
+
+  let keyPoints = '';
+  if (article.key_takeaways) {
+    try {
+      const parsed = JSON.parse(article.key_takeaways);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        keyPoints = parsed.slice(0, 3).map((p) => `▫️ ${p}`).join('\n');
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  if (!keyPoints && excerpt) {
+    keyPoints = `▫️ ${excerpt}`;
+  }
+
+  const caption = `${emoji} ${badge} • ${catName}
+
+${title}
+
+${keyPoints ? `📌 Key Highlights:\n${keyPoints}\n\n` : ''}🔗 Read full verified coverage:
+${articleUrl}
+
+${tags.join(' ')}`;
+
+  return {
+    platform: 'telegram',
+    platformName: 'Telegram',
+    charLimit: 4096,
+    caption: caption.trim(),
+    hashtags: tags,
+    suggestedAspectRatio: '1.91:1',
+    directShareUrl: `https://t.me/share/url?url=${encodeURIComponent(articleUrl)}&text=${encodeURIComponent(`${emoji} ${title}`)}`,
+  };
+}
+
+/**
+ * Generate tailored copy for WhatsApp (Channels / Communities / Groups)
+ */
+export function generateWhatsAppCopy(article: SocialArticleInput): SocialPlatformCopy {
+  const articleUrl = productionShareUrl(`/news/${article.slug}`);
+  const title = cleanText(article.title);
+  const excerpt = cleanText(article.excerpt);
+  const catName = categoryLabel(article.category).toUpperCase();
+  const { emoji, badge } = getCategoryHook(article.category, title);
+
+  let keyPoints = '';
+  if (article.key_takeaways) {
+    try {
+      const parsed = JSON.parse(article.key_takeaways);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        keyPoints = parsed.slice(0, 3).map((p) => `• ${p}`).join('\n');
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  if (!keyPoints && excerpt) {
+    keyPoints = `• ${excerpt}`;
+  }
+
+  const caption = `${emoji} *${badge}* | _${catName}_
+
+*${title}*
+
+${keyPoints ? `📌 *Key Takeaways:*\n${keyPoints}\n\n` : ''}📖 *Read full verified analysis:*
+👉 ${articleUrl}
+
+🟢 _Follow NewsFree365 for 24/7 fact-checked updates_`;
+
+  return {
+    platform: 'whatsapp',
+    platformName: 'WhatsApp',
+    charLimit: 4096,
+    caption: caption.trim(),
+    hashtags: [],
+    suggestedAspectRatio: '1.91:1',
+    directShareUrl: `https://api.whatsapp.com/send?text=${encodeURIComponent(caption.trim())}`,
+  };
+}
+
+/**
  * Generate all platform bundles for a given article
  */
 export function generateAllSocialBundles(article: SocialArticleInput): Record<string, SocialPlatformCopy> {
@@ -276,5 +371,8 @@ export function generateAllSocialBundles(article: SocialArticleInput): Record<st
     instagram: generateInstagramCopy(article),
     facebook: generateFacebookCopy(article),
     twitter: generateTwitterCopy(article),
+    telegram: generateTelegramCopy(article),
+    whatsapp: generateWhatsAppCopy(article),
   };
 }
+

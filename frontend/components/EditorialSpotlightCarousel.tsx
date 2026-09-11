@@ -18,6 +18,10 @@ import {
   ArrowRight,
   ShieldCheck,
   Eye,
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+  Play,
 } from 'lucide-react';
 
 interface EditorialSpotlightCarouselProps {
@@ -26,144 +30,93 @@ interface EditorialSpotlightCarouselProps {
   subtitle?: string;
 }
 
-const AUTOPLAY_INTERVAL = 6500; // 6.5s auto-rotation
+const AUTOPLAY_INTERVAL = 6000; // 6s per slide
 
 interface SlideTheme {
   cardGradient: string;
   border: string;
   glow1: string;
   glow2: string;
-  accentTextGradient: string;
   badgeBg: string;
   btnBg: string;
   progressBar: string;
-  dotActive: string;
-  categoryTagBorder: string;
+  activeBorder: string;
 }
 
 function getSlideTheme(cat?: string): SlideTheme {
   const norm = (cat || '').toLowerCase().trim();
   if (norm.includes('india')) {
     return {
-      cardGradient: 'from-[#1a0c03] via-[#2a1306] to-[#0d0502]',
-      border: 'border-amber-500/35',
+      cardGradient: 'from-[#1c0d03] via-[#2d1405] to-[#0e0502]',
+      border: 'border-amber-500/40',
       glow1: 'bg-amber-500/25',
       glow2: 'bg-orange-500/20',
-      accentTextGradient: 'from-amber-300 via-yellow-100 to-orange-300',
       badgeBg: 'border-amber-400/40 bg-amber-500/20 text-amber-200',
       btnBg: 'from-amber-400 via-amber-500 to-orange-500 text-slate-950 shadow-amber-500/30 hover:from-amber-300 hover:to-orange-400',
-      progressBar: 'from-amber-400 via-orange-400 to-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.7)]',
-      dotActive: 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.7)]',
-      categoryTagBorder: 'border-amber-400/50 bg-amber-500/20 text-amber-200',
+      progressBar: 'from-amber-400 via-orange-400 to-amber-300',
+      activeBorder: 'border-amber-500 ring-amber-500/30',
     };
   }
   if (norm.includes('politic') || norm.includes('legal') || norm.includes('governance')) {
     return {
-      cardGradient: 'from-[#090c25] via-[#121743] to-[#050718]',
-      border: 'border-indigo-400/35',
+      cardGradient: 'from-[#0a0e2a] via-[#141a4a] to-[#06081c]',
+      border: 'border-indigo-400/40',
       glow1: 'bg-indigo-500/25',
       glow2: 'bg-purple-500/20',
-      accentTextGradient: 'from-indigo-300 via-sky-100 to-purple-300',
       badgeBg: 'border-indigo-400/40 bg-indigo-500/20 text-indigo-200',
       btnBg: 'from-indigo-500 via-indigo-600 to-purple-600 text-white shadow-indigo-500/30 hover:from-indigo-400 hover:to-purple-500',
-      progressBar: 'from-indigo-400 via-purple-400 to-sky-300 shadow-[0_0_10px_rgba(129,140,248,0.7)]',
-      dotActive: 'bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.7)]',
-      categoryTagBorder: 'border-indigo-400/50 bg-indigo-500/20 text-indigo-200',
+      progressBar: 'from-indigo-400 via-purple-400 to-sky-300',
+      activeBorder: 'border-indigo-500 ring-indigo-500/30',
     };
   }
   if (norm.includes('bank') || norm.includes('econom') || norm.includes('market') || norm.includes('stock')) {
     return {
-      cardGradient: 'from-[#031511] via-[#072a23] to-[#010c0a]',
-      border: 'border-emerald-400/35',
+      cardGradient: 'from-[#031813] via-[#083027] to-[#020e0b]',
+      border: 'border-emerald-400/40',
       glow1: 'bg-emerald-500/25',
       glow2: 'bg-teal-500/20',
-      accentTextGradient: 'from-emerald-300 via-teal-100 to-cyan-300',
       badgeBg: 'border-emerald-400/40 bg-emerald-500/20 text-emerald-200',
       btnBg: 'from-emerald-400 via-teal-500 to-cyan-600 text-slate-950 shadow-emerald-500/30 hover:from-emerald-300 hover:to-teal-400',
-      progressBar: 'from-emerald-400 via-teal-400 to-cyan-300 shadow-[0_0_10px_rgba(52,211,153,0.7)]',
-      dotActive: 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]',
-      categoryTagBorder: 'border-emerald-400/50 bg-emerald-500/20 text-emerald-200',
+      progressBar: 'from-emerald-400 via-teal-400 to-cyan-300',
+      activeBorder: 'border-emerald-500 ring-emerald-500/30',
     };
   }
   if (norm.includes('business')) {
     return {
-      cardGradient: 'from-[#130622] via-[#220b3c] to-[#0b0214]',
-      border: 'border-purple-400/35',
+      cardGradient: 'from-[#160727] via-[#260d42] to-[#0c0216]',
+      border: 'border-purple-400/40',
       glow1: 'bg-purple-500/25',
       glow2: 'bg-fuchsia-500/20',
-      accentTextGradient: 'from-purple-300 via-fuchsia-100 to-pink-300',
       badgeBg: 'border-purple-400/40 bg-purple-500/20 text-purple-200',
       btnBg: 'from-purple-500 via-purple-600 to-indigo-600 text-white shadow-purple-500/30 hover:from-purple-400 hover:to-indigo-500',
-      progressBar: 'from-purple-400 via-fuchsia-400 to-indigo-300 shadow-[0_0_10px_rgba(192,132,252,0.7)]',
-      dotActive: 'bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.7)]',
-      categoryTagBorder: 'border-purple-400/50 bg-purple-500/20 text-purple-200',
-    };
-  }
-  if (norm.includes('break') || norm.includes('live')) {
-    return {
-      cardGradient: 'from-[#1c050d] via-[#320a18] to-[#100207]',
-      border: 'border-rose-400/35',
-      glow1: 'bg-rose-500/25',
-      glow2: 'bg-red-500/20',
-      accentTextGradient: 'from-rose-300 via-pink-100 to-red-300',
-      badgeBg: 'border-rose-400/40 bg-rose-500/20 text-rose-200',
-      btnBg: 'from-rose-500 via-rose-600 to-red-600 text-white shadow-rose-500/30 hover:from-rose-400 hover:to-red-500',
-      progressBar: 'from-rose-400 via-pink-400 to-red-300 shadow-[0_0_10px_rgba(251,113,133,0.7)]',
-      dotActive: 'bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.7)]',
-      categoryTagBorder: 'border-rose-400/50 bg-rose-500/20 text-rose-200',
+      progressBar: 'from-purple-400 via-fuchsia-400 to-indigo-300',
+      activeBorder: 'border-purple-500 ring-purple-500/30',
     };
   }
   if (norm.includes('world')) {
     return {
-      cardGradient: 'from-[#05112c] via-[#0c2150] to-[#03091a]',
-      border: 'border-blue-400/35',
+      cardGradient: 'from-[#061430] via-[#0e2759] to-[#030a1c]',
+      border: 'border-blue-400/40',
       glow1: 'bg-blue-500/25',
       glow2: 'bg-sky-500/20',
-      accentTextGradient: 'from-sky-300 via-blue-100 to-cyan-300',
       badgeBg: 'border-blue-400/40 bg-blue-500/20 text-blue-200',
       btnBg: 'from-blue-500 via-sky-500 to-cyan-600 text-white shadow-blue-500/30 hover:from-blue-400 hover:to-sky-400',
-      progressBar: 'from-blue-400 via-sky-400 to-cyan-300 shadow-[0_0_10px_rgba(96,165,250,0.7)]',
-      dotActive: 'bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.7)]',
-      categoryTagBorder: 'border-blue-400/50 bg-blue-500/20 text-blue-200',
+      progressBar: 'from-blue-400 via-sky-400 to-cyan-300',
+      activeBorder: 'border-blue-500 ring-blue-500/30',
     };
   }
   // Default: Royal Nordic Sapphire & Teal
   return {
-    cardGradient: 'from-[#061325] via-[#0d2442] to-[#040c19]',
-    border: 'border-teal-400/35',
+    cardGradient: 'from-[#07162b] via-[#0f2a4b] to-[#040e1c]',
+    border: 'border-teal-400/40',
     glow1: 'bg-teal-500/25',
     glow2: 'bg-cyan-500/20',
-    accentTextGradient: 'from-teal-300 via-cyan-100 to-sky-300',
     badgeBg: 'border-teal-400/40 bg-teal-500/20 text-teal-200',
     btnBg: 'from-teal-500 via-cyan-600 to-blue-600 text-white shadow-teal-500/30 hover:from-teal-400 hover:to-cyan-500',
-    progressBar: 'from-teal-400 via-cyan-400 to-blue-300 shadow-[0_0_10px_rgba(45,212,191,0.7)]',
-    dotActive: 'bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.7)]',
-    categoryTagBorder: 'border-teal-400/50 bg-teal-500/20 text-teal-200',
+    progressBar: 'from-teal-400 via-cyan-400 to-blue-300',
+    activeBorder: 'border-teal-500 ring-teal-500/30',
   };
 }
-
-const slideVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? '100%' : '-100%',
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-    transition: {
-      x: { type: 'spring', stiffness: 280, damping: 30 },
-      opacity: { duration: 0.25 },
-    },
-  },
-  exit: (direction: number) => ({
-    x: direction > 0 ? '-100%' : '100%',
-    opacity: 0,
-    transition: {
-      x: { type: 'spring', stiffness: 280, damping: 30 },
-      opacity: { duration: 0.25 },
-    },
-  }),
-};
 
 export function EditorialSpotlightCarousel({
   posts,
@@ -201,11 +154,11 @@ export function EditorialSpotlightCarousel({
     goToSlide((currentIndex - 1 + total) % total, -1);
   }, [currentIndex, total, goToSlide]);
 
-  // Autoplay ticker with smooth progress animation
+  // Autoplay timer with fluid progress
   useEffect(() => {
     if (total <= 1 || isPaused) return;
 
-    const stepMs = 40;
+    const stepMs = 30;
     const progressStep = (stepMs / AUTOPLAY_INTERVAL) * 100;
 
     const interval = setInterval(() => {
@@ -221,7 +174,7 @@ export function EditorialSpotlightCarousel({
     return () => clearInterval(interval);
   }, [total, isPaused, handleNext]);
 
-  // Keep active thumbnail scrolled into view horizontally within container only (never scroll window on mount/refresh)
+  // Keep active thumbnail centered in view
   useEffect(() => {
     if (isFirstMountRef.current) {
       isFirstMountRef.current = false;
@@ -294,20 +247,55 @@ export function EditorialSpotlightCarousel({
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Clean, Elegant Header Bar */}
-      <div className="mb-3.5 sm:mb-4">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-amber-200/80 bg-amber-50 shadow-xs">
-            <Sparkles className="h-4 w-4 text-amber-600" strokeWidth={2.25} aria-hidden />
-          </span>
-          <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
-            {title}
-          </h2>
+      {/* Header Bar with Interactive Navigation Controls */}
+      <div className="mb-3.5 sm:mb-4 flex items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-amber-200/80 bg-amber-50 shadow-xs">
+              <Sparkles className="h-4 w-4 text-amber-600 animate-pulse" strokeWidth={2.25} aria-hidden />
+            </span>
+            <h2 className="font-display text-xl sm:text-2xl font-black tracking-tight text-slate-950">
+              {title}
+            </h2>
+          </div>
+          {subtitle && (
+            <p className="mt-1 text-xs sm:text-sm font-medium text-slate-600 max-w-2xl">
+              {subtitle}
+            </p>
+          )}
         </div>
-        {subtitle && (
-          <p className="mt-1 text-xs sm:text-sm font-medium text-slate-600 max-w-2xl">
-            {subtitle}
-          </p>
+
+        {/* Carousel Arrow Navigation Buttons */}
+        {total > 1 && (
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={handlePrev}
+              aria-label="Previous Slide"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-xs hover:border-teal-500 hover:bg-teal-50 hover:text-teal-900 transition-all active:scale-95 cursor-pointer"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsPaused((prev) => !prev)}
+              aria-label={isPaused ? 'Resume Auto-slide' : 'Pause Auto-slide'}
+              title={isPaused ? 'Resume Auto-slide' : 'Pause Auto-slide'}
+              className="hidden sm:flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-xs hover:bg-slate-100 transition-all active:scale-95 cursor-pointer"
+            >
+              {isPaused ? <Play className="h-3 w-3 text-emerald-600" /> : <Pause className="h-3 w-3 text-slate-500" />}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleNext}
+              aria-label="Next Slide"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-xs hover:border-teal-500 hover:bg-teal-50 hover:text-teal-900 transition-all active:scale-95 cursor-pointer"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         )}
       </div>
 
@@ -328,25 +316,25 @@ export function EditorialSpotlightCarousel({
           aria-hidden
         />
 
-        {/* Floating Slide Counter Badge (Sleek, subtle glass) */}
+        {/* Floating Slide Counter Badge */}
         {total > 1 && (
-          <div className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-20 flex items-center gap-1 rounded-full border border-white/15 bg-black/55 px-2.5 py-0.5 text-[11px] font-medium text-white shadow-md backdrop-blur-md">
+          <div className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-20 flex items-center gap-1 rounded-full border border-white/15 bg-black/60 px-2.5 py-0.5 text-[11px] font-medium text-white shadow-md backdrop-blur-md">
             <span className="font-mono text-amber-300 font-bold">{String(currentIndex + 1).padStart(2, '0')}</span>
             <span className="text-white/35">/</span>
             <span className="font-mono text-slate-300">{String(total).padStart(2, '0')}</span>
           </div>
         )}
 
-        {/* Stable Slide Transition Container */}
+        {/* Smooth Animated Slide Container */}
         <div className="relative h-full w-full overflow-hidden">
-          <AnimatePresence initial={false} custom={direction}>
+          <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={currentPost.id || currentIndex}
               custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.02 }}
+              transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
               className="absolute inset-0 grid grid-cols-1 md:grid-cols-12 h-full w-full"
             >
               {/* Cover Media Section (5 cols on desktop) */}
@@ -368,13 +356,13 @@ export function EditorialSpotlightCarousel({
                     category={currentPost.category}
                   />
 
-                  {/* Gradient overlays for cinematic depth and smooth seamless blend into card background */}
+                  {/* Gradient overlays for cinematic depth and smooth seamless blend */}
                   <div
                     className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent md:hidden"
                     aria-hidden
                   />
                   <div
-                    className="pointer-events-none absolute inset-0 hidden md:block bg-gradient-to-r from-transparent via-black/20 to-black/85"
+                    className="pointer-events-none absolute inset-0 hidden md:block bg-gradient-to-r from-transparent via-black/25 to-black/85"
                     aria-hidden
                   />
                   <div
@@ -479,9 +467,9 @@ export function EditorialSpotlightCarousel({
 
         {/* Dynamic Glowing Progress Bar along Bottom of Card */}
         {total > 1 && (
-          <div className="absolute inset-x-0 bottom-0 h-[2px] bg-white/15 overflow-hidden z-20">
+          <div className="absolute inset-x-0 bottom-0 h-[3px] bg-white/10 overflow-hidden z-20">
             <div
-              className={`h-full bg-gradient-to-r ${currentTheme.progressBar} transition-all duration-75 ease-linear`}
+              className={`h-full bg-gradient-to-r ${currentTheme.progressBar} transition-all duration-75 ease-linear shadow-sm`}
               style={{ width: `${progress}%` }}
               aria-hidden
             />
@@ -489,7 +477,7 @@ export function EditorialSpotlightCarousel({
         )}
       </div>
 
-      {/* Interactive Story Selector Strip with Compact Sleek Layout */}
+      {/* Interactive Story Selector Strip with Animated Active Indicators */}
       {total > 1 && (
         <div
           ref={thumbnailRailRef}
@@ -503,14 +491,14 @@ export function EditorialSpotlightCarousel({
                 key={post.id || idx}
                 type="button"
                 onClick={() => goToSlide(idx, idx > currentIndex ? 1 : -1)}
-                className={`group relative flex h-[58px] sm:h-[62px] w-[210px] sm:w-[230px] shrink-0 items-center gap-2.5 rounded-xl border p-1.5 text-left transition-all duration-200 snap-start focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-pointer ${
+                className={`group relative flex h-[62px] sm:h-[66px] w-[210px] sm:w-[235px] shrink-0 items-center gap-2.5 rounded-2xl border p-2 text-left transition-all duration-200 snap-start focus:outline-none cursor-pointer ${
                   isSelected
-                    ? `border-amber-500 bg-white shadow-sm ring-1 ring-amber-500/25 -translate-y-0.5`
-                    : 'border-slate-200/90 bg-white/90 hover:border-slate-300 hover:bg-white hover:shadow-xs'
+                    ? `border-amber-500 bg-white shadow-md ring-2 ring-amber-400/30 -translate-y-0.5`
+                    : 'border-slate-200/90 bg-white/95 hover:border-slate-300 hover:bg-white hover:shadow-xs'
                 }`}
               >
                 {/* Mini Thumbnail */}
-                <div className="relative h-10 w-10 sm:h-11 sm:w-11 shrink-0 overflow-hidden rounded-lg bg-slate-900 shadow-xs">
+                <div className="relative h-11 w-11 sm:h-12 sm:w-12 shrink-0 overflow-hidden rounded-xl bg-slate-900 shadow-xs">
                   <RemoteStoryImage
                     src={resolvePostImageUrl(post.image_url, post.title, post.category)}
                     alt=""
@@ -518,22 +506,22 @@ export function EditorialSpotlightCarousel({
                     category={post.category}
                   />
                   {isSelected && (
-                    <div className="absolute inset-0 bg-amber-500/20 ring-1 ring-inset ring-amber-500 rounded-lg" />
+                    <div className="absolute inset-0 bg-amber-500/15 ring-1 ring-inset ring-amber-500 rounded-xl" />
                   )}
                   {/* Number Badge */}
-                  <span className="absolute bottom-0.5 right-0.5 rounded bg-black/75 px-1 text-[8px] font-mono font-bold text-white backdrop-blur-xs">
+                  <span className="absolute bottom-0.5 right-0.5 rounded-md bg-black/80 px-1 text-[8px] font-mono font-black text-white backdrop-blur-xs">
                     {String(idx + 1).padStart(2, '0')}
                   </span>
                 </div>
 
                 {/* Details */}
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-amber-700 truncate">
+                  <div className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-amber-700 truncate">
                     <CategoryGlyph name={post.category} className="h-2 w-2" />
                     <span>{categoryLabel(post.category)}</span>
                   </div>
                   <div
-                    className={`mt-0.5 text-[11px] sm:text-xs line-clamp-2 leading-tight ${
+                    className={`mt-0.5 text-[11.5px] line-clamp-2 leading-tight ${
                       isSelected ? 'text-slate-950 font-bold' : 'text-slate-700 font-medium'
                     }`}
                   >
@@ -541,9 +529,14 @@ export function EditorialSpotlightCarousel({
                   </div>
                 </div>
 
-                {/* Active Indicator Line on Top of Mini Card */}
+                {/* Active Progress Bar on Top of Selected Card */}
                 {isSelected && (
-                  <div className={`absolute -top-[1px] inset-x-2.5 h-[2px] rounded-full bg-gradient-to-r ${itemTheme.progressBar}`} />
+                  <div className="absolute -top-[1.5px] inset-x-3 h-[2.5px] rounded-full overflow-hidden bg-amber-200/60">
+                    <div
+                      className={`h-full bg-gradient-to-r ${itemTheme.progressBar} transition-all duration-75 ease-linear`}
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
                 )}
               </button>
             );
@@ -553,4 +546,3 @@ export function EditorialSpotlightCarousel({
     </section>
   );
 }
-

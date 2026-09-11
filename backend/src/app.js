@@ -13,6 +13,8 @@ import pushRoutes from './routes/push.routes.js';
 import newsletterRoutes from './routes/newsletter.routes.js';
 import rssRoutes from './routes/rss.routes.js';
 import calendarRoutes from './routes/calendar.routes.js';
+import pollRoutes from './routes/poll.routes.js';
+import quizRoutes from './routes/quiz.routes.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -85,6 +87,10 @@ app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/football', footballRoutes);
 // Economic, Market Holidays and Earnings Calendar endpoints
 app.use('/api/calendar', calendarRoutes);
+// Interactive News Poll of the Day endpoints
+app.use('/api/polls', pollRoutes);
+// Interactive Daily News Intelligence Quiz endpoints
+app.use('/api/quiz', quizRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);

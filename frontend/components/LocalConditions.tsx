@@ -344,6 +344,7 @@ export function LocalConditions() {
 
   return (
     <div
+      suppressHydrationWarning
       className="inline-flex h-8 sm:h-9 shrink-0 items-center overflow-hidden rounded-xl border border-slate-800 bg-slate-900/90 px-2.5 sm:px-3 text-xs font-semibold leading-none text-slate-200 shadow-xs backdrop-blur-md transition hover:border-slate-700"
       title={
         ready

@@ -18,6 +18,7 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://www.cbsnews.com/latest/rss/main',
     'https://feeds.skynews.com/feeds/rss/home.xml',
     'https://time.com/feed/',
+    'https://www.axios.com/feeds/feed.rss',
     'https://news.google.com/rss/search?q=Reuters+when:1d&hl=en-US&gl=US&ceid=US:en',
     'https://news.google.com/rss/search?q=AP+News+OR+Associated+Press+when:1d&hl=en-US&gl=US&ceid=US:en',
     'https://news.google.com/rss/search?q=CNN+when:1d&hl=en-US&gl=US&ceid=US:en',
@@ -29,6 +30,10 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
     'https://rss.dw.com/xml/rss-en-all',
     'https://www.france24.com/en/rss',
+    'https://www.euronews.com/rss?level=theme&name=news',
+    'https://news.un.org/feed/subscribe/en/news/all/rss.xml',
+    'https://scmp.com/rss/91/feed',
+    'https://www.japantimes.co.jp/feed/',
     'https://www3.nhk.or.jp/rss/news/cat0.xml',
     'https://feeds.washingtonpost.com/rss/world',
     'https://www.cbsnews.com/latest/rss/world',
@@ -43,27 +48,46 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://feeds.feedburner.com/ndtvnews-top-stories',
     'https://feeds.feedburner.com/ndtvnews-india-news',
     'https://feeds.feedburner.com/ndtvnews-latest',
+    'https://feeds.feedburner.com/ndtvprofit-latest',
+    'https://feeds.feedburner.com/gadgets360-latest',
     'https://www.thehindu.com/feeder/default.rss',
+    'https://www.thehindu.com/news/national/feeder/default.rss',
+    'https://www.thehindubusinessline.com/feeder/default.rss',
     'https://indianexpress.com/feed/',
     'https://indianexpress.com/section/india/feed/',
     'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml',
     'https://economictimes.indiatimes.com/rssfeedstopstories.cms',
     'https://www.livemint.com/rss/news',
+    'https://www.businesstoday.in/rss/topstories.jsp',
     'https://www.indiatvnews.com/rssnews/topstory-india.xml',
     'https://www.indiatoday.in/rss/1206514',
+    'https://news.google.com/rss/search?q=ISRO+OR+DRDO+OR+India+Space+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://news.google.com/rss/search?q=Supreme+Court+of+India+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://news.google.com/rss/search?q=Indian+Economy+OR+NITI+Aayog+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://news.google.com/rss/search?q=Deccan+Herald+OR+Tribune+India+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://news.google.com/rss/search?q=Firstpost+OR+Zee+News+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://news.google.com/rss/search?q=Financial+Express+India+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
     'https://news.google.com/rss/topics/CAAqJQgKIh9DQkFTRVFvSUwyMHZNRE55YXpBU0JXVnVMVWRDS0FBUAE?hl=en-IN&gl=IN&ceid=IN:en',
   ],
   Sports: [
     'https://feeds.bbci.co.uk/sport/rss.xml',
     'https://feeds.bbci.co.uk/sport/cricket/rss.xml',
     'https://feeds.bbci.co.uk/sport/football/rss.xml',
+    'https://feeds.feedburner.com/ndtvsports-cricket',
     'https://sports.yahoo.com/rss/',
     'https://www.espncricinfo.com/rss/content/story/feeds/0.xml',
+    'https://www.espncricinfo.com/rss/content/story/feeds/6.xml',
     'https://sportstar.thehindu.com/cricket/feeder/default.rss',
     'https://www.crictracker.com/feed/',
     'https://feeds.foxnews.com/foxnews/sports',
     'https://www.cbssports.com/rss/headlines/',
     'https://www.skysports.com/rss/12040',
+    'https://www.skysports.com/rss/12433',
+    'https://www.autosport.com/rss/f1/news/',
+    'https://news.google.com/rss/search?q=Formula+1+OR+F1+Grand+Prix+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=Tennis+Grand+Slam+OR+ATP+Tour+OR+WTA+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=Cricket+World+Cup+OR+IPL+OR+Team+India+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://news.google.com/rss/search?q=Premier+League+OR+Champions+League+when:1d&hl=en-US&gl=US&ceid=US:en',
   ],
   Business: [
     'https://feeds.bbci.co.uk/news/business/rss.xml',
@@ -73,11 +97,14 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://www.ft.com/rss/home',
     'https://feeds.marketwatch.com/marketwatch/topstories',
     'https://www.forbes.com/innovation/feed/',
-    'https://www.moneycontrol.com/rss/MCtopnews.xml',
+    'https://news.google.com/rss/search?q=Moneycontrol+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
     'https://www.moneycontrol.com/rss/business.xml',
     'https://www.business-standard.com/rss/latest.rss',
     'https://www.livemint.com/rss/news',
     'https://economictimes.indiatimes.com/rssfeedstopstories.cms',
+    'https://www.businesstoday.in/rss/markets.jsp',
+    'https://finance.yahoo.com/news/rssindex',
+    'https://fortune.com/feed/',
   ],
   'Banking & Economics': [
     'https://news.google.com/rss/search?q=banking+OR+NBFC+India&hl=en-IN&gl=IN&ceid=IN:en',
@@ -114,18 +141,33 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://feeds.marketwatch.com/marketwatch/topstories',
     'https://feeds.bloomberg.com/markets/news.rss',
     'https://www.ft.com/rss/markets',
+    'https://www.benzinga.com/feed',
+    'https://seekingalpha.com/feed.xml',
+    'https://news.google.com/rss/search?q=Gold+price+OR+Crude+Oil+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://news.google.com/rss/search?q=Sensex+OR+Nifty+OR+Stock+Market+India+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
   ],
   Technology: [
     'https://techcrunch.com/feed/',
     'https://www.theverge.com/rss/index.xml',
     'https://feeds.arstechnica.com/arstechnica/index',
     'https://www.wired.com/feed/rss',
-    'https://gadgets360.com/rss/feeds',
+    'https://feeds.feedburner.com/gadgets360-latest',
     'https://timesofindia.indiatimes.com/rssfeeds/66949542.cms',
     'https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms',
     'https://feeds.bbci.co.uk/news/technology/rss.xml',
     'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml',
-    'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0JXVnVMVWRDR2dKSlRpZ0FQAQ?hl=en-IN&gl=IN&ceid=IN:en',
+    'https://www.technologyreview.com/feed/',
+    'https://9to5mac.com/feed/',
+    'https://9to5google.com/feed/',
+    'https://www.androidauthority.com/feed/',
+    'https://www.techradar.com/rss',
+    'https://mashable.com/feeds/rss/all',
+    'https://www.engadget.com/rss.xml',
+    'https://www.polygon.com/rss/index.xml',
+    'https://www.pcgamer.com/rss/',
+    'https://news.google.com/rss/search?q=LLM+OR+Generative+AI+OR+Claude+Anthropic+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=Artificial+Intelligence+OR+OpenAI+OR+Anthropic+OR+NVIDIA+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=Technology+OR+Gadgets+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
   ],
   Crypto: [
     'https://cointelegraph.com/rss',
@@ -143,32 +185,47 @@ export const RSS_FEEDS_BY_CATEGORY = {
     'https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml',
     'https://timesofindia.indiatimes.com/rssfeeds/1081479906.cms',
     'https://indianexpress.com/section/entertainment/feed/',
-    'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNREpxYW5RU0JXVnVMVWRDR2dKSlRpZ0FQAQ?hl=en-IN&gl=IN&ceid=IN:en',
+    'https://variety.com/feed/',
+    'https://deadline.com/feed/',
+    'https://www.hollywoodreporter.com/feed/',
+    'https://www.ign.com/rss/articles/feed',
+    'https://screenrant.com/feed/',
+    'https://news.google.com/rss/search?q=Bollywood+box+office+OR+Indian+Cinema+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://news.google.com/rss/search?q=Entertainment+OR+Cinema+OR+Movies+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
   ],
   Science: [
     'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml',
     'https://rss.nytimes.com/services/xml/rss/nyt/Science.xml',
     'https://rss.nytimes.com/services/xml/rss/nyt/Space.xml',
     'https://indianexpress.com/section/technology/science/feed/',
-    'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNR1ptZHpJU0JXVnVMVWRDR2dKSlRpZ0FQAQ?hl=en-IN&gl=IN&ceid=IN:en',
+    'https://www.sciencedaily.com/rss/top/science.xml',
+    'https://news.google.com/rss/search?q=NASA+OR+Space+OR+Astronomy+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=Science+OR+Space+OR+Discovery+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
   ],
   Health: [
     'https://feeds.bbci.co.uk/news/health/rss.xml',
     'https://rss.nytimes.com/services/xml/rss/nyt/Health.xml',
     'https://indianexpress.com/section/lifestyle/health/feed/',
-    'https://news.google.com/rss/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNR3QwTlRFU0JXVnVMVWRDS0FBUAE?hl=en-IN&gl=IN&ceid=IN:en',
+    'https://www.sciencedaily.com/rss/health_medicine.xml',
+    'https://news.google.com/rss/search?q=Health+OR+Medical+Research+OR+Medicine+when:1d&hl=en-US&gl=US&ceid=US:en',
+    'https://news.google.com/rss/search?q=Health+OR+Medical+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
   ],
   Auto: [
     'https://timesofindia.indiatimes.com/rssfeeds/74317216.cms',
     'https://news.google.com/rss/search?q=electric+vehicles+OR+automotive+news&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://news.google.com/rss/search?q=Solar+energy+OR+Renewable+Energy+OR+Green+Hydrogen+when:1d&hl=en-IN&gl=IN&ceid=IN:en',
+    'https://cleantechnica.com/feed/',
     'https://electrek.co/feed/',
     'https://www.autocarindia.com/rss/news',
     'https://insideevs.com/rss/articles/all/',
-    'https://www.motorbeam.com/feed/',
+    'https://motorbeam.com/feed/',
   ],
   Startups: [
     'https://techcrunch.com/category/startups/feed/',
     'https://economictimes.indiatimes.com/small-biz/startups/rssfeeds/11993050.cms',
+    'https://inc42.com/feed/',
+    'https://yourstory.com/feed',
+    'https://www.techinasia.com/feed',
     'https://news.google.com/rss/search?q=Indian+startups+funding+venture+capital&hl=en-IN&gl=IN&ceid=IN:en',
   ],
 };
@@ -227,7 +284,11 @@ export function generateFeedName(url, category) {
       if (path.includes('1221656')) return 'Times of India - India News';
       return 'Times of India - Top Stories';
     }
-    if (host.includes('thehindu.com')) return 'The Hindu - National';
+    if (host.includes('thehindubusinessline.com')) return 'The Hindu BusinessLine';
+    if (host.includes('thehindu.com')) {
+      if (path.includes('national')) return 'The Hindu - National';
+      return 'The Hindu - Headlines';
+    }
     if (host.includes('indianexpress.com')) {
       if (path.includes('banking-and-finance')) return 'Indian Express - Banking & Finance';
       if (path.includes('section/india')) return 'Indian Express - India';
@@ -242,6 +303,10 @@ export function generateFeedName(url, category) {
       if (path.includes('markets')) return 'Livemint - Markets';
       if (path.includes('money')) return 'Livemint - Banking & Money';
       return 'Livemint - Top Stories';
+    }
+    if (host.includes('businesstoday.in')) {
+      if (path.includes('markets')) return 'Business Today - Markets';
+      return 'Business Today - Top Stories';
     }
     if (host.includes('moneycontrol.com')) {
       if (path.includes('business')) return 'Moneycontrol - Business';
@@ -274,11 +339,41 @@ export function generateFeedName(url, category) {
       if (path.includes('realtimeheadlines')) return 'MarketWatch - Realtime Headlines';
       return 'MarketWatch - Top Stories';
     }
+    if (host.includes('finance.yahoo.com')) return 'Yahoo Finance - News';
+    if (host.includes('fortune.com')) return 'Fortune - Business';
+    if (host.includes('benzinga.com')) return 'Benzinga - Markets';
+    if (host.includes('seekingalpha.com')) return 'Seeking Alpha - Markets';
+    if (host.includes('thediplomat.com')) return 'The Diplomat';
+    if (host.includes('cleantechnica.com')) return 'CleanTechnica';
+    if (host.includes('mashable.com')) return 'Mashable - Tech';
+    if (host.includes('engadget.com')) return 'Engadget';
+    if (host.includes('polygon.com')) return 'Polygon - Gaming';
+    if (host.includes('pcgamer.com')) return 'PC Gamer';
     if (host.includes('techcrunch.com')) return 'TechCrunch';
     if (host.includes('theverge.com')) return 'The Verge';
     if (host.includes('arstechnica.com')) return 'Ars Technica';
     if (host.includes('wired.com')) return 'Wired Tech';
     if (host.includes('gadgets360.com')) return 'Gadgets 360';
+    if (host.includes('technologyreview.com')) return 'MIT Technology Review';
+    if (host.includes('9to5mac.com')) return '9to5Mac - Apple News';
+    if (host.includes('9to5google.com')) return '9to5Google - Android News';
+    if (host.includes('androidauthority.com')) return 'Android Authority';
+    if (host.includes('techradar.com')) return 'TechRadar - Latest';
+    if (host.includes('inc42.com')) return 'Inc42 - Startups';
+    if (host.includes('yourstory.com')) return 'YourStory - Tech & Startups';
+    if (host.includes('techinasia.com')) return 'Tech in Asia';
+    if (host.includes('space.com')) return 'Space.com - Space News';
+    if (host.includes('sciencedaily.com')) {
+      if (path.includes('health')) return 'ScienceDaily - Health & Medicine';
+      return 'ScienceDaily - Science';
+    }
+    if (host.includes('newscientist.com')) return 'New Scientist';
+    if (host.includes('medicalnewstoday.com')) return 'Medical News Today';
+    if (host.includes('variety.com')) return 'Variety - Entertainment';
+    if (host.includes('deadline.com')) return 'Deadline - Hollywood';
+    if (host.includes('hollywoodreporter.com')) return 'The Hollywood Reporter';
+    if (host.includes('ign.com')) return 'IGN - Entertainment';
+    if (host.includes('screenrant.com')) return 'Screen Rant';
     if (host.includes('cointelegraph.com')) return 'CoinTelegraph - Crypto';
     if (host.includes('coindesk.com')) return 'CoinDesk - Web3 & Crypto';
     if (host.includes('decrypt.co')) return 'Decrypt - Crypto News';
@@ -289,7 +384,16 @@ export function generateFeedName(url, category) {
     if (host.includes('espncricinfo.com')) return 'ESPN Cricinfo - Cricket';
     if (host.includes('crictracker.com')) return 'CricTracker - Cricket';
     if (host.includes('cbssports.com')) return 'CBS Sports - Headlines';
-    if (host.includes('skysports.com')) return 'Sky Sports - Latest';
+    if (host.includes('skysports.com')) {
+      if (path.includes('12433')) return 'Sky Sports - Formula 1';
+      return 'Sky Sports - Football & News';
+    }
+    if (host.includes('autosport.com')) return 'Autosport - Formula 1';
+    if (host.includes('axios.com')) return 'Axios - News';
+    if (host.includes('euronews.com')) return 'Euronews';
+    if (host.includes('un.org')) return 'UN News';
+    if (host.includes('scmp.com')) return 'South China Morning Post';
+    if (host.includes('japantimes.co.jp')) return 'The Japan Times';
     if (host.includes('aljazeera.com')) return 'Al Jazeera - English';
     if (host.includes('dw.com')) return 'Deutsche Welle - News';
     if (host.includes('france24.com')) return 'France 24 - English';
@@ -299,7 +403,6 @@ export function generateFeedName(url, category) {
     if (host.includes('autocarindia.com')) return 'Autocar India';
     if (host.includes('insideevs.com')) return 'InsideEVs - Electric Vehicles';
     if (host.includes('motorbeam.com')) return 'MotorBeam';
-    if (host.includes('techcrunch.com')) return 'TechCrunch - Startups';
     if (host.includes('google.com')) {
       const q = u.searchParams.get('q') || '';
       if (q) return `Google News (${q.replace(/\+OR\+/g, '/').replace(/\+/g, ' ')})`;

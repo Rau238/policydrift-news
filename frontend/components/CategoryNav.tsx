@@ -27,6 +27,8 @@ import {
   Car,
   Vote,
   Globe,
+  Award,
+  Trophy,
 } from 'lucide-react';
 import { CountryFlag } from '@/components/CountryFlag';
 
@@ -84,6 +86,14 @@ const CALENDAR_SUBMENU_CARDS: CalendarSubmenuCard[] = [
 ];
 
 const EXTENDED_MORE_DESKS = [
+  {
+    name: 'Cricket',
+    label: 'Cricket & Live Matches',
+    desc: 'Live ball-by-ball scorecards, tournament fixtures & telemetry',
+    icon: Trophy,
+    color: 'text-emerald-400 bg-emerald-950/80 border-emerald-700/50',
+    href: '/sports/cricket',
+  },
   {
     name: 'Entertainment',
     label: 'Entertainment & Cinema',

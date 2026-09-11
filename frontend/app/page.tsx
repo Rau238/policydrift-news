@@ -6,8 +6,11 @@ import { LiveMarketsAside } from '@/components/LiveMarketsAside';
 import { getPosts, getTrending, getTopNews, getTrendingNews, getPopularNews, getEditorialNews } from '@/lib/api';
 import { TopStoriesSection } from '@/components/TopStoriesSection';
 import { EditorialSpotlightCarousel } from '@/components/EditorialSpotlightCarousel';
+import { FastTakesCarousel } from '@/components/FastTakesCarousel';
 import { TrendingSection } from '@/components/TrendingSection';
 import { PopularSection } from '@/components/PopularSection';
+import { CommunityJoinBanner } from '@/components/CommunityJoinBanner';
+import { PollOfTheDayWidget } from '@/components/PollOfTheDayWidget';
 import { StoryTray } from '@/components/stories/StoryTray';
 import { buildStoryGroups } from '@/lib/stories-data';
 import { resolvePostImageUrl, storyFallbackImageUrl } from '@/lib/story-image';
@@ -133,47 +136,66 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const [breakingRaw, latestRaw, trendingRaw, topStoriesRaw, trendingRankedRaw, popularRaw, editorialRaw] = await Promise.all([
-    getPosts({ page: 1, limit: 14, category: 'Breaking' }),
-    getPosts({ page: 1, limit: 40 }),
+    getPosts({ page: 1, limit: 50, category: 'Breaking' }),
+    getPosts({ page: 1, limit: 60 }),
     getTrending(10),
-    getTopNews({ limit: 15, days: 2 }),
-    getTrendingNews({ limit: 15 }),
-    getPopularNews({ limit: 30, period: 'day' }),
-    getEditorialNews({ limit: 15 }),
+    getTopNews({ limit: 30, days: 3 }),
+    getTrendingNews({ limit: 30 }),
+    getPopularNews({ limit: 40, period: 'day' }),
+    getEditorialNews({ limit: 20 }),
   ]);
 
-  // Editorial Desk stories published by us
-  const editorialPosts = (editorialRaw && editorialRaw.length > 0)
-    ? editorialRaw
-    : (topStoriesRaw || []).slice(0, 5);
-
-  // Strict cross-section deduplication
+  // Strict cross-section deduplication across the entire page
   const seenIds = new Set<number>();
 
-  // 1. Featured Lead Hero Story
+  // 1. Featured Lead Hero Story (1 story)
   const lead = latestRaw.posts[0];
   if (lead) seenIds.add(lead.id);
 
-  // 2. Breaking News Live Desk
-  const breakingPosts = breakingRaw.posts.filter((p) => !seenIds.has(p.id)).slice(0, 6);
+  // 2. Breaking News Live Desk (up to 4 unique stories)
+  const breakingPosts = breakingRaw.posts.filter((p) => !seenIds.has(p.id)).slice(0, 4);
   breakingPosts.forEach((p) => seenIds.add(p.id));
 
-  // 3. Top Stories Section
-  const topStories = (topStoriesRaw || []).filter((p) => !seenIds.has(p.id)).slice(0, 6);
+  // 3. Editorial Spotlight Carousel (up to 5 unique stories)
+  let editorialPosts = (editorialRaw || []).filter((p) => !seenIds.has(p.id)).slice(0, 5);
+  if (editorialPosts.length < 3) {
+    const fallbackEditorial = (popularRaw || []).filter((p) => !seenIds.has(p.id)).slice(0, 5 - editorialPosts.length);
+    editorialPosts = [...editorialPosts, ...fallbackEditorial];
+  }
+  editorialPosts.forEach((p) => seenIds.add(p.id));
+
+  // 4. 60-Second Fast Takes Briefing Carousel (5 unique fresh stories - NEVER repeating topStories)
+  const fastTakesPool = [
+    ...(trendingRankedRaw || []),
+    ...(popularRaw || []),
+    ...(topStoriesRaw || []),
+    ...(latestRaw.posts || []),
+  ];
+  const fastTakesPosts = fastTakesPool.filter((p) => !seenIds.has(p.id)).slice(0, 5);
+  fastTakesPosts.forEach((p) => seenIds.add(p.id));
+
+  // 5. Top Stories Section (6 unique stories - NEVER repeating fastTakes or editorial)
+  const topStoriesPool = [
+    ...(topStoriesRaw || []),
+    ...(popularRaw || []),
+    ...(latestRaw.posts || []),
+  ];
+  const topStories = topStoriesPool.filter((p) => !seenIds.has(p.id)).slice(0, 6);
   topStories.forEach((p) => seenIds.add(p.id));
 
-  // 4. Trending Ranked Section
+  // 6. Trending Ranked Section (5 unique stories)
   const trendingRanked = (trendingRankedRaw || []).filter((p) => !seenIds.has(p.id)).slice(0, 5);
   trendingRanked.forEach((p) => seenIds.add(p.id));
 
-  // 5. Popular Section
+  // 7. Popular Section (5 unique stories)
   const popular = (popularRaw || []).filter((p) => !seenIds.has(p.id)).slice(0, 5);
   popular.forEach((p) => seenIds.add(p.id));
 
-  // 6. Latest Across Desks (Guaranteed unique; no duplicates from hero/breaking/top)
+  // 8. Latest Across Desks (12 guaranteed unique stories)
   const latestPosts = latestRaw.posts.filter((p) => !seenIds.has(p.id)).slice(0, 12);
+  latestPosts.forEach((p) => seenIds.add(p.id));
 
-  // 7. Sidebar Trending
+  // 9. Sidebar Trending
   const trending = (trendingRaw || []).filter((p) => p.id !== lead?.id).slice(0, 6);
 
   // 8. Instagram-Style Visual Stories
@@ -362,6 +384,11 @@ export default async function HomePage() {
                 <EditorialSpotlightCarousel posts={editorialPosts} />
               ) : null}
 
+              {/* 60-Second Fast Takes Briefing Carousel */}
+              {fastTakesPosts.length > 0 ? (
+                <FastTakesCarousel posts={fastTakesPosts} />
+              ) : null}
+
               {topStories.length > 0 ? (
                 <section>
                   <TopStoriesSection posts={topStories} />
@@ -382,6 +409,9 @@ export default async function HomePage() {
                   ) : null}
                 </div>
               ) : null}
+
+              {/* VIP Real-Time Community Channel Alert Hub */}
+              <CommunityJoinBanner variant="full" />
 
               <section>
                 <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:gap-5">
@@ -438,6 +468,7 @@ export default async function HomePage() {
 
             <div className="flex min-w-0 flex-col gap-6 max-lg:mt-1 max-lg:gap-6 lg:sticky lg:top-20">
               <LiveMarketsAside />
+              <PollOfTheDayWidget />
               <TrendingAside posts={trending} />
             </div>
           </div>

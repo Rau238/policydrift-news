@@ -138,8 +138,42 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className={`${sora.variable} ${jetbrainsMarketsMono.variable}`}
+      suppressHydrationWarning
     >
-      <body className="flex min-h-screen flex-col bg-paper font-sans antialiased text-ink">
+      <body
+        className="flex min-h-screen flex-col bg-paper font-sans antialiased text-ink"
+        suppressHydrationWarning
+      >
+        {/* Shield to prevent 3rd-party browser extensions from triggering Next.js dev error overlays */}
+        <script
+          id="extension-error-shield"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                if (typeof window === 'undefined') return;
+                function isExtensionError(err, filename) {
+                  if (filename && (filename.indexOf('chrome-extension://') !== -1 || filename.indexOf('moz-extension://') !== -1 || filename.indexOf('safari-extension://') !== -1)) return true;
+                  if (err && err.stack && (err.stack.indexOf('chrome-extension://') !== -1 || err.stack.indexOf('moz-extension://') !== -1)) return true;
+                  return false;
+                }
+                window.addEventListener('error', function(e) {
+                  if (isExtensionError(e.error, e.filename)) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                    return true;
+                  }
+                }, true);
+                window.addEventListener('unhandledrejection', function(e) {
+                  if (e.reason && isExtensionError(e.reason, '')) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                    return true;
+                  }
+                }, true);
+              })();
+            `,
+          }}
+        />
         {gaId ? (
           <>
             <script
@@ -172,10 +206,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 __html: `
                   window.OneSignalDeferred = window.OneSignalDeferred || [];
                   OneSignalDeferred.push(async function(OneSignal) {
-                    await OneSignal.init({
-                      appId: '${oneSignalAppId}',
-                      allowLocalhostAsSecureOrigin: true,
-                    });
+                    try {
+                      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        // Skip or safely initialize on local development
+                        await OneSignal.init({
+                          appId: '${oneSignalAppId}',
+                          allowLocalhostAsSecureOrigin: true,
+                        });
+                      } else {
+                        await OneSignal.init({
+                          appId: '${oneSignalAppId}',
+                        });
+                      }
+                    } catch (err) {
+                      // Suppress non-critical origin/domain mismatch on staging/dev
+                      console.debug('[OneSignal] Initialization skipped or caught:', err);
+                    }
                   });
                 `,
               }}
@@ -183,11 +229,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </>
         ) : null}
 
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1508845535613236"
-          crossOrigin="anonymous"
-        />
+        {loadAdsenseScript && (
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1508845535613236"
+            crossOrigin="anonymous"
+          />
+        )}
         <SiteJsonLd />
         <PwaSplash />
         <PushSubscriptionPrompt />

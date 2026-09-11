@@ -590,6 +590,7 @@ export async function createPost(row) {
   const formattedTags = tags ? (typeof tags === 'string' ? tags : JSON.stringify(tags)) : null;
   const cleanGuid = guid ? String(guid).trim().slice(0, 500) : null;
   const cleanImageUrl = image_url && String(image_url).trim().length <= 500 && !String(image_url).trim().startsWith('data:') ? String(image_url).trim() : null;
+  const cleanAuthor = author ? String(author).trim().slice(0, 250) : null;
 
   const [result] = await pool.query(
     `INSERT INTO posts
@@ -615,7 +616,7 @@ export async function createPost(row) {
       status || 'published',
       auto_published ? 1 : 0,
       reading_time_minutes ?? 0,
-      author || null,
+      cleanAuthor,
       formattedTags,
       is_featured ? 1 : 0,
       is_breaking ? 1 : 0,
@@ -676,7 +677,41 @@ export async function getLatestPublishedModTime() {
 }
 
 /**
+ * Retrieve recent published articles for Google News Sitemap (last 48h, up to 1,000).
+ * Google News allows up to 1,000 articles published within the last 48 hours.
+ */
+export async function listRecentPostsForGoogleNews(limit = 1000) {
+  const cleanLimit = Math.min(1000, Math.max(1, parseInt(limit, 10) || 1000));
+  const [rows] = await pool.query(
+    `SELECT id, slug, title, published_at, updated_at
+     FROM posts
+     WHERE status = 'published'
+       AND published_at <= NOW()
+       AND published_at >= NOW() - INTERVAL 48 HOUR
+     ORDER BY published_at DESC
+     LIMIT ?`,
+    [cleanLimit],
+  );
+
+  if (rows.length >= 20) {
+    return rows;
+  }
+
+  // Fallback if low volume in 48h: get latest published articles
+  const [fallback] = await pool.query(
+    `SELECT id, slug, title, published_at, updated_at
+     FROM posts
+     WHERE status = 'published' AND published_at <= NOW()
+     ORDER BY published_at DESC
+     LIMIT ?`,
+    [cleanLimit],
+  );
+  return fallback;
+}
+
+/**
  * Retrieve a chunk of published articles for sitemap generation.
+ * Ordered NEWEST first (id DESC) so Googlebot discovers and indexes latest articles first.
  * Uses index-optimized range scanning that scales to 1,000,000+ articles.
  *
  * @param {{ chunk?: number, limit?: number }} options
@@ -691,7 +726,7 @@ export async function listPublishedPostsChunk({ chunk = 1, limit = 50000 } = {})
       `SELECT id, slug, published_at, updated_at
        FROM posts
        WHERE status = 'published' AND published_at <= NOW()
-       ORDER BY id ASC
+       ORDER BY id DESC
        LIMIT ?`,
       [cleanLimit],
     );
@@ -702,7 +737,7 @@ export async function listPublishedPostsChunk({ chunk = 1, limit = 50000 } = {})
   const [idRows] = await pool.query(
     `SELECT id FROM posts
      WHERE status = 'published' AND published_at <= NOW()
-     ORDER BY id ASC
+     ORDER BY id DESC
      LIMIT 1 OFFSET ?`,
     [offset],
   );
@@ -713,8 +748,8 @@ export async function listPublishedPostsChunk({ chunk = 1, limit = 50000 } = {})
   const [rows] = await pool.query(
     `SELECT id, slug, published_at, updated_at
      FROM posts
-     WHERE status = 'published' AND published_at <= NOW() AND id >= ?
-     ORDER BY id ASC
+     WHERE status = 'published' AND published_at <= NOW() AND id <= ?
+     ORDER BY id DESC
      LIMIT ?`,
     [startId, cleanLimit],
   );

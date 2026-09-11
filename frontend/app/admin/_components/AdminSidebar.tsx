@@ -25,6 +25,7 @@ import {
   Mail,
   Sparkles,
   CalendarDays,
+  Trophy,
 } from 'lucide-react';
 import { BrandMark } from '@/components/BrandMark';
 import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
@@ -114,6 +115,9 @@ export function AdminSidebar({
     }
     if (itemHref === '/admin/calendar') {
       return pathname.startsWith('/admin/calendar');
+    }
+    if (itemHref === '/admin/quiz') {
+      return pathname.startsWith('/admin/quiz');
     }
     if (itemHref === '/admin/activity') {
       return pathname.startsWith('/admin/activity');
@@ -215,6 +219,13 @@ export function AdminSidebar({
       icon: <CalendarDays size={20} />,
       badge: 'Live',
       badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30',
+    },
+    {
+      label: 'Daily Quiz',
+      href: '/admin/quiz',
+      icon: <Trophy size={20} />,
+      badge: 'Arena',
+      badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
     },
     {
       label: 'RSS Sources',

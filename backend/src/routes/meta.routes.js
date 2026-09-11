@@ -6,6 +6,7 @@ const router = Router();
 router.get('/slugs', postController.getSitemapData);
 router.get('/sitemap/index', postController.getSitemapIndexData);
 router.get('/sitemap/articles', postController.getSitemapChunkData);
+router.get('/sitemap/news', postController.getGoogleNewsSitemapData);
 router.get('/trends', trendsController.getTrendsBundle);
 router.post('/trends/refresh', trendsController.postTrendsRefresh);
 

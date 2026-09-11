@@ -122,16 +122,27 @@ export function newsArticleJsonLd(params: {
   const validImages = imageUrls.filter(Boolean);
   const primaryImage = validImages[0] || absoluteUrl('/api/og');
 
+  const authorName = curatorPerson?.name?.trim() || curatorName();
+  const authorUrl = curatorPerson?.url || curatorProfileUrl() || absoluteUrl('/about');
+  const authorImage = curatorPerson?.imageSrc || absoluteUrl('/images/brand-logo.svg');
+
   const authors: object[] = [
     {
       '@type': 'Person',
-      name: curatorPerson?.name?.trim() || curatorName(),
-      jobTitle: 'News Desk Editor',
-      url: curatorPerson?.url || curatorProfileUrl(),
+      name: authorName,
+      jobTitle: 'Senior Intelligence Editor',
+      url: authorUrl,
+      image: authorImage,
+      description: 'Senior news analyst and curator specializing in global policy, macroeconomic catalysts, and breaking technology developments.',
       worksFor: { '@id': orgId() },
+      sameAs: [
+        'https://twitter.com/newsfree365',
+        'https://linkedin.com/company/newsfree365',
+      ],
     },
     {
       '@type': 'NewsMediaOrganization',
+      '@id': orgId(),
       name: siteName,
       url: absoluteUrl('/'),
     },
@@ -154,6 +165,13 @@ export function newsArticleJsonLd(params: {
         image: validImages.length > 0 ? validImages : [primaryImage],
         thumbnailUrl: primaryImage,
         author: authors,
+        editor: {
+          '@type': 'Person',
+          name: curatorName(),
+          jobTitle: 'Managing Editor & Editorial Board',
+          url: curatorProfileUrl() || absoluteUrl('/editorial'),
+          worksFor: { '@id': orgId() },
+        },
         publisher: {
           '@type': 'NewsMediaOrganization',
           '@id': orgId(),
@@ -166,14 +184,25 @@ export function newsArticleJsonLd(params: {
             height: 512,
           },
           publishingPrinciples: absoluteUrl('/editorial'),
+          correctionsPolicy: absoluteUrl('/editorial'),
+          ethicsPolicy: absoluteUrl('/editorial'),
+          actionableFeedbackPolicy: absoluteUrl('/contact'),
         },
+        copyrightHolder: { '@id': orgId() },
         articleSection: section,
         inLanguage: 'en-US',
         isAccessibleForFree: true,
         speakable: {
           '@type': 'SpeakableSpecification',
-          cssSelector: ['#article-headline', '#article-takeaways', '#article-excerpt'],
+          cssSelector: [
+            '#article-headline',
+            '#article-takeaways',
+            '#article-excerpt',
+            '.speakable-headline',
+            '.speakable-takeaways',
+          ],
         },
+        backstory: 'Synthesized with real-time editorial fact-checking and multi-source corroboration from verified global press agencies and policy desks.',
         ...(keyTakeaways ? { abstract: keyTakeaways } : {}),
         ...(articleBody ? { articleBody } : {}),
       },

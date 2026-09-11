@@ -140,8 +140,25 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
         </button>
       </div>
 
-      {/* Right group: Copy link & Share */}
+      {/* Right group: WhatsApp 1-Click, Copy link & Share */}
       <div className="relative flex items-center gap-1.5 sm:gap-2">
+        {/* Direct 1-Click WhatsApp Share */}
+        <button
+          type="button"
+          onClick={() => {
+            const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : `https://www.newsfree365.live/news/${slug}`);
+            const text = encodeURIComponent(`📰 *${title}*\n\nRead full story on NewsFree365:\n`);
+            window.open(`https://api.whatsapp.com/send?text=${text}${url}`, '_blank');
+          }}
+          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-300/80 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100 hover:border-emerald-400 active:scale-95 shadow-xs"
+          title="Share to WhatsApp"
+        >
+          <svg className="h-3.5 w-3.5 fill-emerald-600" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.301-.15-1.782-.879-2.058-.98-.276-.1-.477-.15-.678.15-.2.3-.778.98-.954 1.18-.175.2-.351.225-.652.075-.301-.15-1.27-.468-2.42-1.494-.894-.798-1.498-1.784-1.674-2.085-.175-.301-.019-.464.132-.614.136-.135.301-.351.452-.527.15-.175.2-.301.301-.501.1-.2.05-.376-.025-.526-.075-.15-.678-1.634-.929-2.238-.244-.588-.493-.508-.678-.517-.175-.008-.376-.01-.577-.01-.2 0-.527.075-.803.376-.276.301-1.054 1.03-1.054 2.512s1.079 2.912 1.23 3.113c.15.2 2.124 3.243 5.146 4.548.719.311 1.28.497 1.718.636.723.23 1.38.197 1.9.12.58-.087 1.782-.728 2.032-1.432.251-.704.251-1.308.176-1.432-.076-.124-.276-.2-.577-.35zM12.004 2C6.48 2 2 6.48 2 12.004c0 1.947.558 3.765 1.524 5.308L2 22l4.823-1.503A9.957 9.957 0 0012.004 22C17.528 22 22 17.528 22 12.004 22 6.48 17.528 2 12.004 2z" />
+          </svg>
+          <span className="hidden xs:inline">WhatsApp</span>
+        </button>
+
         <button
           type="button"
           onClick={handleCopyLink}
@@ -172,12 +189,12 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
         </button>
 
         {showShareMenu && (
-          <div className="absolute right-0 top-full z-30 mt-2 flex w-48 flex-col gap-1 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl animate-in fade-in zoom-in-95">
+          <div className="absolute right-0 top-full z-30 mt-2 flex w-52 flex-col gap-1 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl animate-in fade-in zoom-in-95">
             <button
               type="button"
               onClick={() => {
                 const url = encodeURIComponent(window.location.href);
-                const text = encodeURIComponent(title);
+                const text = encodeURIComponent(`📰 ${title}`);
                 window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
                 setShowShareMenu(false);
               }}
@@ -190,14 +207,14 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
               type="button"
               onClick={() => {
                 const url = encodeURIComponent(window.location.href);
-                const text = encodeURIComponent(title);
-                window.open(`https://api.whatsapp.com/send?text=${text}%20${url}`, '_blank');
+                const text = encodeURIComponent(`📰 *${title}*`);
+                window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
                 setShowShareMenu(false);
               }}
               className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-100"
             >
-              <MessageSquare className="h-4 w-4 text-emerald-500" />
-              Share on WhatsApp
+              <MessageSquare className="h-4 w-4 text-sky-600" />
+              Share on Telegram
             </button>
           </div>
         )}
