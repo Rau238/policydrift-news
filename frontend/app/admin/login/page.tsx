@@ -69,14 +69,23 @@ export default function AdminLoginPage() {
 
   if (checkingAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#070b14]">
-        <Loader2 size={32} className="animate-spin text-teal-500" />
+      <div className="flex h-full min-h-screen w-full flex-1 flex-col items-center justify-center bg-[#070b14] px-4 font-sans text-slate-100">
+        <div className="flex flex-col items-center justify-center gap-4 text-center">
+          <div className="relative">
+            <div className="absolute -inset-3 rounded-full bg-teal-500/25 blur-xl animate-pulse" />
+            <BrandMark sizeClass="h-16 w-16" className="relative animate-pulse" />
+          </div>
+          <div className="flex items-center justify-center gap-2 text-xs font-semibold tracking-wider uppercase text-teal-400">
+            <Loader2 size={15} className="animate-spin text-teal-400" />
+            <span>Verifying session…</span>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="relative flex min-h-full w-full flex-1 flex-col items-center justify-center overflow-y-auto bg-[#070b14] px-4 py-8 font-sans text-slate-100 antialiased">
+    <div className="relative flex h-full min-h-screen w-full flex-1 flex-col items-center justify-start overflow-y-auto bg-[#070b14] px-4 pt-12 sm:pt-20 pb-12 font-sans text-slate-100 antialiased">
       {/* Background Radial Glow & Gradient */}
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-950/30 via-[#070b14] to-[#070b14]"
@@ -87,7 +96,7 @@ export default function AdminLoginPage() {
         aria-hidden
       />
 
-      <div className="relative z-10 w-full max-w-md my-auto">
+      <div className="relative z-10 w-full max-w-md">
         {/* Top return link */}
         <div className="mb-4">
           <AnimatedBackButton href="/" label="Return to Public Site" useHistory={false} />

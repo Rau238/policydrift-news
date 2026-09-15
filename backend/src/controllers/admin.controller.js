@@ -92,9 +92,11 @@ export async function listArticles(req, res, next) {
       origin,
     });
 
+    const serializedPosts = data.posts.map(serializePostDates);
     res.json({
       ...data,
-      posts: data.posts.map(serializePostDates),
+      posts: serializedPosts,
+      articles: serializedPosts,
     });
   } catch (e) {
     next(e);

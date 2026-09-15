@@ -115,26 +115,28 @@ export function RemoteStoryImage({
 
   return (
     <span ref={wrapRef} style={{ backgroundColor: bgHex }} className="relative block h-full w-full overflow-hidden rounded-[inherit]">
-      {/* Branded NewsFree365 Logo with Vibrant Card Shade while loading */}
-      <span
-        style={{
-          background: `radial-gradient(circle at center, ${bgHex}d9 0%, ${bgHex} 100%)`,
-        }}
-        className={`pointer-events-none absolute inset-0 z-[1] flex items-center justify-center transition-opacity duration-500 ease-out ${
-          loaded ? 'opacity-0' : 'opacity-100'
-        }`}
-        aria-hidden
-      >
-        <span className="absolute inset-0 animate-pulse bg-gradient-to-r from-white/5 via-white/15 to-white/5" />
-        <span className="relative flex flex-col items-center justify-center gap-2">
-          <BrandMark sizeClass={compact ? 'h-8 w-8' : 'h-12 w-12'} className="animate-pulse ring-1 ring-white/20" />
-          {!compact ? (
-            <span className="text-[10px] font-bold tracking-widest text-white/90 uppercase">
-              NewsFree365
-            </span>
-          ) : null}
+      {/* Branded NewsFree365 Logo with Vibrant Card Shade while loading (only for non-priority lazy images) */}
+      {!priority && (
+        <span
+          style={{
+            background: `radial-gradient(circle at center, ${bgHex}d9 0%, ${bgHex} 100%)`,
+          }}
+          className={`pointer-events-none absolute inset-0 z-0 flex items-center justify-center transition-opacity duration-500 ease-out ${
+            loaded ? 'opacity-0' : 'opacity-100'
+          }`}
+          aria-hidden
+        >
+          <span className="absolute inset-0 animate-pulse bg-gradient-to-r from-white/5 via-white/15 to-white/5" />
+          <span className="relative flex flex-col items-center justify-center gap-2">
+            <BrandMark sizeClass={compact ? 'h-8 w-8' : 'h-12 w-12'} className="animate-pulse ring-1 ring-white/20" />
+            {!compact ? (
+              <span className="text-[10px] font-bold tracking-widest text-white/90 uppercase">
+                NewsFree365
+              </span>
+            ) : null}
+          </span>
         </span>
-      </span>
+      )}
 
       {inView ? (
         /* eslint-disable-next-line @next/next/no-img-element -- intentional for external news CDNs */
@@ -142,7 +144,7 @@ export function RemoteStoryImage({
           src={src}
           alt={safeAlt}
           title={safeTitle}
-          className={`${className ?? ''} pd-img-photo ${loaded ? 'pd-img-photo-ready' : 'pd-img-photo-loading'}`}
+          className={`${className ?? ''} relative z-[1] pd-img-photo ${loaded || priority ? 'pd-img-photo-ready' : 'pd-img-photo-loading'}`}
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
           fetchPriority={priority ? 'high' : 'low'}

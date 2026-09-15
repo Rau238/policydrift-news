@@ -24,6 +24,7 @@ import { formatPublishedAt } from '@/lib/format';
 import { decodeHtmlEntities } from '@/lib/sanitize';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 /** Curated luxury editorial dynamic color themes that rotate on every visit/refresh. */
 const HERO_COLOR_THEMES = [

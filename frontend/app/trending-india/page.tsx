@@ -5,6 +5,7 @@ import { absoluteUrl, siteName } from '@/lib/site';
 import { storyFallbackImageUrl } from '@/lib/story-image';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 const description =
   'See what people in India are searching for on Google, mapped to NewsFree365 desks and matched headlines, updated from our trends cache.';

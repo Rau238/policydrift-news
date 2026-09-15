@@ -148,7 +148,7 @@ export default function AdminSocialPage() {
       }
       if (artRes.ok) {
         const artData = await artRes.json();
-        setArticles(artData.articles || artData.data || []);
+        setArticles(artData.posts || artData.articles || artData.data || []);
       }
 
       // 2. Fetch social accounts telemetry

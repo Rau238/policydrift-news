@@ -29,24 +29,24 @@ export function ParticleStoryImageStack({
 
   return (
     <>
-      <div className="relative w-full max-w-lg sm:max-w-xl mx-auto overflow-hidden rounded-xl sm:rounded-2xl bg-slate-950 shadow-xs group">
-        <div className="relative h-[150px] xs:h-[180px] sm:h-[210px] md:h-[240px] w-full overflow-hidden bg-slate-950">
+      <div className="relative w-full overflow-hidden rounded-xl sm:rounded-2xl bg-slate-950 shadow-sm group">
+        <div className="relative aspect-[16/9] xs:aspect-[16/9] sm:aspect-[21/9] lg:aspect-[16/9] min-h-[220px] xs:min-h-[260px] sm:min-h-[300px] md:min-h-[360px] w-full overflow-hidden bg-slate-950">
           <RemoteStoryImage
             src={mainImageSrc}
             alt={cleanTitle}
             title={cleanTitle}
             category={category}
             priority
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.01]"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
           />
           {/* Subtle gradient vignette at the bottom */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
 
           {/* Fullscreen Expand Button on Hover */}
           <button
             type="button"
             onClick={() => setLightboxOpen(true)}
-            className="absolute right-3 bottom-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/40 bg-black/60 px-3 py-1.5 text-xs font-medium text-white shadow-md backdrop-blur-md opacity-0 transition-opacity duration-200 group-hover:opacity-100 hover:bg-black/80"
+            className="absolute right-3.5 bottom-3.5 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/40 bg-black/60 px-3.5 py-1.5 text-xs font-medium text-white shadow-md backdrop-blur-md opacity-90 sm:opacity-0 transition-all duration-200 group-hover:opacity-100 hover:bg-black/80 hover:scale-105 active:scale-95"
             aria-label="View full image"
           >
             <Maximize2 className="h-3.5 w-3.5" />

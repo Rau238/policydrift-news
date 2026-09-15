@@ -49,6 +49,7 @@ import { CATEGORY_INTRO, categoryFromSlug } from '@/lib/category-routes';
 import { ArrowLeft, ExternalLink, Eye, Zap } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 type Props = {
   params: { slug: string };
@@ -406,7 +407,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
 
               <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs shadow-slate-900/5">
                 {/* Story Hero Image */}
-                <div className="p-3 sm:p-5 pb-0 sm:pb-0 flex justify-center">
+                <div className="w-full">
                   <ParticleStoryImageStack
                     mainImageSrc={heroSrc}
                     mainTitle={post.title}

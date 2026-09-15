@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { Sora, JetBrains_Mono } from 'next/font/google';
+
+const NextScript = Script as React.ComponentType<any>;
 import './globals.css';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
@@ -176,12 +179,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         {gaId ? (
           <>
-            <script
-              async
+            <NextScript
               src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`}
+              strategy="afterInteractive"
             />
-            <script
+            <NextScript
               id="ga-init"
+              strategy="afterInteractive"
               dangerouslySetInnerHTML={{
                 __html: `
                   window.dataLayer = window.dataLayer || [];
@@ -196,19 +200,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {oneSignalAppId ? (
           <>
-            <script
+            <NextScript
               src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
-              defer
+              strategy="lazyOnload"
             />
-            <script
+            <NextScript
               id="onesignal-init"
+              strategy="lazyOnload"
               dangerouslySetInnerHTML={{
                 __html: `
                   window.OneSignalDeferred = window.OneSignalDeferred || [];
                   OneSignalDeferred.push(async function(OneSignal) {
                     try {
                       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                        // Skip or safely initialize on local development
                         await OneSignal.init({
                           appId: '${oneSignalAppId}',
                           allowLocalhostAsSecureOrigin: true,
@@ -219,7 +223,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         });
                       }
                     } catch (err) {
-                      // Suppress non-critical origin/domain mismatch on staging/dev
                       console.debug('[OneSignal] Initialization skipped or caught:', err);
                     }
                   });
@@ -230,9 +233,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ) : null}
 
         {loadAdsenseScript && (
-          <script
-            async
+          <NextScript
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1508845535613236"
+            strategy="lazyOnload"
             crossOrigin="anonymous"
           />
         )}

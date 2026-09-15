@@ -16,11 +16,25 @@ export function CookieConsentBanner() {
     try {
       const consent = localStorage.getItem(STORAGE_KEY);
       if (!consent) {
-        // Small delay for clean initial page load experience
-        const timer = setTimeout(() => {
+        // Wait for page load and initial render settlement to protect Core Web Vitals (FCP/LCP)
+        const showBanner = () => setVisible(true);
+        const timer = setTimeout(showBanner, 3500);
+
+        const onUserAction = () => {
           setVisible(true);
-        }, 800);
-        return () => clearTimeout(timer);
+          cleanup();
+        };
+
+        const cleanup = () => {
+          clearTimeout(timer);
+          window.removeEventListener('scroll', onUserAction);
+          window.removeEventListener('pointerdown', onUserAction);
+        };
+
+        window.addEventListener('scroll', onUserAction, { passive: true, once: true });
+        window.addEventListener('pointerdown', onUserAction, { passive: true, once: true });
+
+        return cleanup;
       }
     } catch {
       // In case localStorage is blocked/restricted

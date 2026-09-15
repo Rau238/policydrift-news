@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 
 type Props = {
   href?: string;
@@ -29,7 +30,7 @@ export function AnimatedBackButton({
     <Link
       href={href}
       onClick={handleClick}
-      className={`group relative inline-flex items-center gap-1.5 overflow-hidden rounded-full border border-teal-500/25 bg-slate-900/90 px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-white shadow-xs backdrop-blur-md transition-all duration-200 ease-out hover:border-teal-400 hover:bg-slate-900 hover:shadow-sm hover:shadow-teal-500/20 active:scale-95 ${className}`}
+      className={`group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-teal-500/30 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-200 shadow-sm backdrop-blur-md transition-all duration-200 ease-out hover:border-teal-400 hover:bg-slate-800 hover:text-white hover:shadow-teal-500/20 active:scale-95 ${className}`}
     >
       {/* Animated Light Sweep Shimmer Effect */}
       <span
@@ -37,34 +38,13 @@ export function AnimatedBackButton({
         className="pointer-events-none absolute -inset-full bg-gradient-to-r from-transparent via-teal-400/15 to-transparent opacity-0 transition-all duration-500 ease-in-out group-hover:translate-x-full group-hover:opacity-100"
       />
 
-      {/* `<<` Double Chevron Icon with Staggered Kinetic Wave */}
-      <div className="relative flex h-4 w-4 sm:h-4.5 sm:w-4.5 shrink-0 items-center justify-center rounded-full bg-teal-500/20 text-teal-300 ring-1 ring-teal-400/30 transition-all duration-200 group-hover:bg-teal-400 group-hover:text-slate-950">
-        <svg
-          width="10"
-          height="10"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="overflow-visible sm:w-2.5 sm:h-2.5"
-        >
-          {/* Lead Chevron (<) */}
-          <polyline
-            points="11 17 6 12 11 7"
-            className="transition-transform duration-200 ease-out group-hover:-translate-x-0.5"
-          />
-          {/* Follower Chevron (<) */}
-          <polyline
-            points="18 17 13 12 18 7"
-            className="opacity-75 transition-all duration-200 ease-out group-hover:-translate-x-0.5 group-hover:opacity-100"
-          />
-        </svg>
+      {/* Crisp Left Arrow with Smooth Slide */}
+      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-500/20 text-teal-300 ring-1 ring-teal-400/30 transition-all duration-200 group-hover:bg-teal-400 group-hover:text-slate-950 group-hover:ring-teal-300">
+        <ArrowLeft className="h-3 w-3 transition-transform duration-200 ease-out group-hover:-translate-x-0.5" strokeWidth={2.5} />
       </div>
 
       {/* Button Text */}
-      <span className="relative font-sans tracking-tight text-slate-200 transition-colors duration-200 group-hover:text-white">
+      <span className="relative font-sans tracking-tight">
         {label}
       </span>
     </Link>
