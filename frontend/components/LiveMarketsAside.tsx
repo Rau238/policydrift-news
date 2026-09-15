@@ -1088,7 +1088,7 @@ export function LiveMarketsAside() {
                           <p className="font-markets-mono text-xs font-black tabular-nums text-slate-950">
                             {formatPrice(q)}
                             {q.currency ? (
-                              <span className="ml-1 text-[9px] font-bold text-slate-400">
+                              <span className="ml-1 text-[9px] font-bold text-slate-500">
                                 {q.currency}
                               </span>
                             ) : null}

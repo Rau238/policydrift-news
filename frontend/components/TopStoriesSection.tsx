@@ -100,11 +100,11 @@ export function TopStoriesSection({ posts }: { posts: PostListItem[] }) {
             </p>
           )}
 
-          <div className="mt-auto flex flex-wrap items-center gap-3 pt-1 text-[11px] font-semibold tabular-nums text-slate-400">
+          <div className="mt-auto flex flex-wrap items-center gap-3 pt-1 text-[11px] font-semibold tabular-nums text-slate-500">
             <time dateTime={hero.published_at}>
               {formatPublishedAt(hero.published_at)}
             </time>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 text-slate-600">
               <Clock className="h-3 w-3" strokeWidth={2.25} aria-hidden />
               {heroReadMin} min read
             </span>

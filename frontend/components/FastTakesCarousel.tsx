@@ -237,10 +237,14 @@ export function FastTakesCarousel({ posts, className = '' }: FastTakesProps) {
                 type="button"
                 onClick={() => setCurrentIndex(i)}
                 aria-label={`Go to slide ${i + 1}`}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  i === currentIndex ? 'w-6 bg-teal-700' : 'w-2 bg-slate-200 hover:bg-slate-400'
-                }`}
-              />
+                className="group flex h-7 items-center justify-center p-1 cursor-pointer focus:outline-none"
+              >
+                <span
+                  className={`block h-2.5 rounded-full transition-all duration-300 ${
+                    i === currentIndex ? 'w-6 bg-teal-700' : 'w-2.5 bg-slate-300 group-hover:bg-slate-400'
+                  }`}
+                />
+              </button>
             ))}
           </div>
 
@@ -326,7 +330,7 @@ export function FastTakesCarousel({ posts, className = '' }: FastTakesProps) {
             {/* Right Takeaways Content */}
             <div className="lg:col-span-7 flex flex-col justify-between space-y-3 sm:space-y-4">
               <div className="space-y-1.5">
-                <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   <span className="inline-flex items-center gap-1 text-teal-700">
                     <Sparkles className="h-3 w-3" />
                     Flash Intelligence

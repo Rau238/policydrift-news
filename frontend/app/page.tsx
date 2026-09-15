@@ -210,7 +210,9 @@ export default async function HomePage() {
   ];
   const storyGroups = buildStoryGroups(allStoryPosts);
 
-  const theme = HERO_COLOR_THEMES[Math.floor(Math.random() * HERO_COLOR_THEMES.length)];
+  // Deterministic daily rotating theme (avoids client/server hydration mismatch while maintaining fresh luxury editorial aesthetics)
+  const dayIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  const theme = HERO_COLOR_THEMES[dayIndex % HERO_COLOR_THEMES.length];
 
   return (
     <div className="min-h-screen max-w-[100vw] overflow-x-clip bg-paper">
@@ -314,16 +316,16 @@ export default async function HomePage() {
                         {decodeHtmlEntities(lead.title)}
                       </h2>
                       {lead.excerpt ? (
-                        <p className="text-xs leading-relaxed text-slate-300/85 line-clamp-2">
+                        <p className="text-xs leading-relaxed text-slate-200 line-clamp-2">
                           {decodeHtmlEntities(lead.excerpt)}
                         </p>
                       ) : null}
                     </div>
-                    <div className="flex items-center justify-between pt-2 text-[11px] text-slate-400">
-                      <time dateTime={lead.published_at} className="font-medium">
+                    <div className="flex items-center justify-between pt-2 text-[11px] text-slate-300 font-medium">
+                      <time dateTime={lead.published_at} className="font-semibold">
                         {formatPublishedAt(lead.published_at)}
                       </time>
-                      <span className="inline-flex items-center gap-1 rounded-full border border-teal-400/30 bg-teal-500/15 px-3 py-1 text-xs font-semibold text-teal-200">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-teal-300/40 bg-teal-400/20 px-3 py-1 text-xs font-bold text-teal-100">
                         Read story
                         <ArrowRight className="h-3.5 w-3.5" />
                       </span>

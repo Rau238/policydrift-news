@@ -299,21 +299,18 @@ body:has([aria-label*='calendar' i]) * {
 
 .pd-img-photo {
   transition:
-    opacity 0.55s ease,
-    filter 0.55s ease,
-    transform 0.55s ease;
-  will-change: opacity, filter, transform;
+    opacity 0.4s ease,
+    transform 0.4s ease;
+  will-change: opacity, transform;
 }
 
 .pd-img-photo-loading {
   opacity: 0;
-  filter: blur(16px);
-  transform: scale(1.06);
+  transform: scale(1.03);
 }
 
 .pd-img-photo-ready {
   opacity: 1;
-  filter: blur(0);
   transform: scale(1);
 }
 
@@ -327,28 +324,27 @@ body:has([aria-label*='calendar' i]) * {
   }
 
   .pd-img-photo-loading {
-    filter: none;
     transform: none;
   }
 }
 
-/* Trending page — always-on outline icon motion */
+/* Trending page — always-on outline icon motion (GPU composited) */
 @keyframes pd-trend-draw {
   0% {
-    stroke-dashoffset: 42;
     opacity: 0.35;
+    transform: scale(0.96);
   }
   45% {
-    stroke-dashoffset: 0;
     opacity: 1;
+    transform: scale(1);
   }
   70% {
-    stroke-dashoffset: 0;
     opacity: 1;
+    transform: scale(1);
   }
   100% {
-    stroke-dashoffset: 42;
     opacity: 0.35;
+    transform: scale(0.96);
   }
 }
 
@@ -391,19 +387,21 @@ body:has([aria-label*='calendar' i]) * {
 }
 
 .pd-trend-line {
-  stroke-dasharray: 42;
-  stroke-dashoffset: 0;
+  transform-origin: center;
   animation: pd-trend-draw 2.4s ease-in-out infinite;
+  will-change: opacity, transform;
 }
 
 .pd-trend-arrow {
   transform-origin: 21px 4px;
   animation: pd-trend-arrow 2.4s ease-in-out infinite;
+  will-change: opacity, transform;
 }
 
 .pd-trend-dot {
   transform-origin: 21px 4px;
   animation: pd-trend-pulse 2.4s ease-in-out infinite;
+  will-change: opacity, transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -412,7 +410,6 @@ body:has([aria-label*='calendar' i]) * {
   .pd-trend-dot {
     animation: none;
     opacity: 1;
-    stroke-dashoffset: 0;
     transform: none;
   }
 }

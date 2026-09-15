@@ -285,48 +285,11 @@ export function LocalConditions() {
       if (cached.place !== MUMBAI.place) fromGeo = true;
     }
 
-    // Start GPS immediately — do not wait for Mumbai API.
-    const geoPromise = readCoords(GEO_TIMEOUT_MS);
-
+    // Load default weather instantly; GPS is only requested if user explicitly chooses to locate
     (async () => {
-      // Interim fallback only while GPS is pending (and we have no cache yet).
       if (!cached) {
-        const mumbai = await conditionsFor(MUMBAI.lat, MUMBAI.lon, MUMBAI.place);
-        if (!cancelled && mumbai && !fromGeo) apply(mumbai, 'fallback');
-      }
-
-      const geo = await geoPromise;
-      if (cancelled) return;
-
-      if (geo) {
-        const [place, wx] = await Promise.all([
-          reversePlace(geo.lat, geo.lon),
-          fetchWeatherAqi(geo.lat, geo.lon),
-        ]);
-        if (cancelled) return;
-        if (wx) {
-          apply({ place, tempC: wx.tempC, aqi: wx.aqi, kind: wx.kind }, 'geo');
-          return;
-        }
-        // Coords ok but weather failed — still show place from GPS.
-        apply(
-          {
-            place,
-            tempC: cached?.tempC ?? 0,
-            aqi: cached?.aqi ?? null,
-            kind: cached?.kind ?? 'unknown',
-          },
-          'geo',
-        );
-        return;
-      }
-
-      // Denied / timed out: keep cache or load Mumbai once.
-      if (fromGeo || cached) return;
-      const mumbai = await conditionsFor(MUMBAI.lat, MUMBAI.lon, MUMBAI.place);
-      if (!cancelled && mumbai) apply(mumbai, 'fallback');
-      else if (!cancelled) {
-        apply({ place: MUMBAI.place, tempC: 0, aqi: null, kind: 'unknown' }, 'fallback');
+        const defaultWx = await conditionsFor(MUMBAI.lat, MUMBAI.lon, MUMBAI.place);
+        if (!cancelled && defaultWx) apply(defaultWx, 'fallback');
       }
     })();
 

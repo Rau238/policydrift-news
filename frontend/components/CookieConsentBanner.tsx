@@ -16,23 +16,26 @@ export function CookieConsentBanner() {
     try {
       const consent = localStorage.getItem(STORAGE_KEY);
       if (!consent) {
-        // Wait for page load and initial render settlement to protect Core Web Vitals (FCP/LCP)
-        const showBanner = () => setVisible(true);
-        const timer = setTimeout(showBanner, 3500);
-
+        // Show banner only after user starts interacting with the page (or after extended idle)
         const onUserAction = () => {
           setVisible(true);
           cleanup();
         };
 
+        const timer = setTimeout(() => {
+          setVisible(true);
+        }, 10000);
+
         const cleanup = () => {
           clearTimeout(timer);
           window.removeEventListener('scroll', onUserAction);
           window.removeEventListener('pointerdown', onUserAction);
+          window.removeEventListener('keydown', onUserAction);
         };
 
         window.addEventListener('scroll', onUserAction, { passive: true, once: true });
         window.addEventListener('pointerdown', onUserAction, { passive: true, once: true });
+        window.addEventListener('keydown', onUserAction, { passive: true, once: true });
 
         return cleanup;
       }
@@ -72,9 +75,8 @@ export function CookieConsentBanner() {
   if (!mounted || !visible) return null;
 
   return (
-    <aside
-      role="dialog"
-      aria-live="polite"
+    <div
+      role="region"
       aria-label="Cookie consent banner"
       className="fixed bottom-0 inset-x-0 z-50 animate-in fade-in slide-in-from-bottom-6 duration-300"
     >
@@ -153,6 +155,6 @@ export function CookieConsentBanner() {
           </div>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

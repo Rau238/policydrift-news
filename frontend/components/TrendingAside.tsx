@@ -50,7 +50,7 @@ export function TrendingAside({ posts }: { posts: PostListItem[] }) {
                     <CategoryGlyph name={p.category} className="h-2.5 w-2.5 text-teal-600" />
                     {categoryLabel(p.category)}
                   </span>
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-[10px] font-medium text-slate-500">
                     • {formatPublishedAt(p.published_at)}
                   </span>
                 </div>

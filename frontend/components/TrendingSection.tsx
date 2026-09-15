@@ -107,7 +107,7 @@ export function TrendingSection({ posts }: { posts: PostListItem[] }) {
                   </h3>
 
                   {/* Meta row */}
-                  <div className="mt-2 flex items-center gap-2 text-[11px] text-slate-400">
+                  <div className="mt-2 flex items-center gap-2 text-[11px] font-medium text-slate-500">
                     <time dateTime={p.published_at}>
                       {formatPublishedAt(p.published_at)}
                     </time>
