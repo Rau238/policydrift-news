@@ -45,7 +45,6 @@ export async function GET() {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
         'Cache-Control': 'public, max-age=300, s-maxage=600, stale-while-revalidate=3600',
-        'X-Robots-Tag': 'noindex',
       },
     });
   } catch (error) {

@@ -19,14 +19,19 @@ export async function GET(_req: Request, { params }: RouteProps) {
       const staticPages: SitemapUrlEntry[] = [
         { loc: absoluteUrl('/'), changefreq: 'hourly', priority: 1.0 },
         { loc: absoluteUrl('/news'), changefreq: 'hourly', priority: 0.9 },
-        { loc: absoluteUrl('/trending-india'), changefreq: 'hourly', priority: 0.8 },
+        { loc: absoluteUrl('/trending-india'), changefreq: 'hourly', priority: 0.85 },
+        { loc: absoluteUrl('/calendar'), changefreq: 'daily', priority: 0.8 },
+        { loc: absoluteUrl('/sports/cricket'), changefreq: 'hourly', priority: 0.8 },
+        { loc: absoluteUrl('/sports/football'), changefreq: 'hourly', priority: 0.8 },
+        { loc: absoluteUrl('/quiz'), changefreq: 'daily', priority: 0.75 },
+        { loc: absoluteUrl('/rss'), changefreq: 'daily', priority: 0.6 },
+        { loc: absoluteUrl('/editorial'), changefreq: 'weekly', priority: 0.6 },
         { loc: absoluteUrl('/about'), changefreq: 'monthly', priority: 0.5 },
         { loc: absoluteUrl('/contact'), changefreq: 'monthly', priority: 0.5 },
-        { loc: absoluteUrl('/editorial'), changefreq: 'monthly', priority: 0.5 },
         { loc: absoluteUrl('/privacy'), changefreq: 'yearly', priority: 0.3 },
         { loc: absoluteUrl('/terms'), changefreq: 'yearly', priority: 0.3 },
         { loc: absoluteUrl('/cookies'), changefreq: 'yearly', priority: 0.3 },
-        { loc: absoluteUrl('/feed.xml'), changefreq: 'hourly', priority: 0.4 },
+        { loc: absoluteUrl('/feed.xml'), changefreq: 'hourly', priority: 0.5 },
       ];
 
       const xml = buildUrlSetXml(staticPages);
@@ -76,7 +81,7 @@ export async function GET(_req: Request, { params }: RouteProps) {
         console.warn('[NewsFree365] Sitemap index check failed, proceeding with chunk fetch:', e);
       }
 
-      const chunkData = await getSitemapArticleChunk(chunk, 50000);
+      const chunkData = await getSitemapArticleChunk(chunk, 30000);
       if (!chunkData || !chunkData.articles || chunkData.articles.length === 0) {
         const emptyXml = buildUrlSetXml([]);
         return new Response(emptyXml, {

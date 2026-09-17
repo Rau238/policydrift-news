@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { Heart, Share2, Bookmark, Check, Copy, MessageSquare, Twitter } from 'lucide-react';
+import { ArticleReadingMode } from '@/components/ArticleReadingMode';
 
 type Props = {
   postId: number;
   slug: string;
   title: string;
+  category?: string;
   initialLikes?: number;
 };
 
-export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: Props) {
+export function ArticleEngagementBar({ postId, slug, title, category, initialLikes = 0 }: Props) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(initialLikes || Math.max(12, (postId * 13) % 150 + 8));
   const [bookmarked, setBookmarked] = useState(false);
@@ -98,8 +100,8 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
   };
 
   return (
-    <div className="relative my-3 sm:my-4 flex items-center justify-between gap-2 overflow-x-auto rounded-2xl border border-slate-200/90 bg-white/80 p-1.5 sm:p-2 shadow-xs backdrop-blur-md">
-      {/* Left group: Like & Bookmark */}
+    <div className="relative my-3 sm:my-4 flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-slate-200/90 bg-white/90 p-2 shadow-xs backdrop-blur-md">
+      {/* Left group: Like, Bookmark & Reader Mode */}
       <div className="flex items-center gap-1.5 sm:gap-2">
         {/* Like Button */}
         <button
@@ -138,6 +140,9 @@ export function ArticleEngagementBar({ postId, slug, title, initialLikes = 0 }: 
             strokeWidth={2}
           />
         </button>
+
+        {/* Distraction-Free Reader Mode Toggle */}
+        <ArticleReadingMode title={title} category={category} />
       </div>
 
       {/* Right group: WhatsApp 1-Click, Copy link & Share */}

@@ -368,23 +368,22 @@ export function FastTakesCarousel({ posts, className = '' }: FastTakesProps) {
                 ))}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+              {/* Action Buttons (Aligned on same line) */}
+              <div className="flex items-center gap-2 sm:gap-3 pt-1">
                 <Link
                   href={`/news/${currentPost.slug}`}
-                  className="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-sm transition hover:bg-teal-800 active:scale-95"
+                  className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl bg-teal-700 px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition hover:bg-teal-800 active:scale-95 whitespace-nowrap"
                 >
-                  <BookOpen className="h-4 w-4" />
+                  <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
                   <span>Read Full Story</span>
-                  <ArrowRight className="h-4 w-4" />
                 </Link>
 
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-xs sm:text-sm font-bold text-emerald-800 transition hover:bg-emerald-100 active:scale-95 shadow-2xs"
+                  className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-emerald-800 transition hover:bg-emerald-100 active:scale-95 shadow-2xs whitespace-nowrap"
                 >
-                  <Share2 className="h-4 w-4 text-emerald-600" />
+                  <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600 shrink-0" />
                   <span>Share Takeaways</span>
                 </button>
               </div>

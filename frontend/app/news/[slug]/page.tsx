@@ -25,6 +25,7 @@ import { ParticleStoryImageStack } from '@/components/ParticleStoryImageStack';
 import { PublisherCreditCard } from '@/components/PublisherCreditCard';
 import { AnimatedBackButton } from '@/components/AnimatedBackButton';
 import { ArticleEngagementBar } from '@/components/ArticleEngagementBar';
+import { ArticleAudioPlayer } from '@/components/ArticleAudioPlayer';
 import { MultiSourceCoverage } from '@/components/MultiSourceCoverage';
 import { CommunityJoinBanner } from '@/components/CommunityJoinBanner';
 import { RemoteStoryImage } from '@/components/RemoteStoryImage';
@@ -33,6 +34,7 @@ import { LiveMarketsAside } from '@/components/LiveMarketsAside';
 import { SidebarPostList } from '@/components/SidebarPostList';
 import { TrendingAside } from '@/components/TrendingAside';
 import { RichStoryBody } from '@/components/RichStoryBody';
+import { RenderTextWithFlags } from '@/components/CountryFlag';
 import { CategoryDeskView } from '@/components/CategoryDeskView';
 import { CategoryDeskHero } from '@/components/CategoryDeskHero';
 import { LiveCricketTicker } from '@/components/LiveCricketTicker';
@@ -223,11 +225,11 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   if (!post) notFound();
 
   const [relatedPack, breakingPack, trendingAll] = await Promise.all([
-    getPosts({ page: 1, limit: 14, category: post.category }),
+    getPosts({ page: 1, limit: 6, category: post.category }),
     post.category !== 'Breaking'
-      ? getPosts({ page: 1, limit: 14, category: 'Breaking' })
-      : Promise.resolve({ posts: [], total: 0, page: 1, limit: 14 }),
-    getTrending(14),
+      ? getPosts({ page: 1, limit: 6, category: 'Breaking' })
+      : Promise.resolve({ posts: [], total: 0, page: 1, limit: 6 }),
+    getTrending(6),
   ]);
 
   const relatedPosts = relatedPack.posts.filter((p) => p.id !== post.id).slice(0, 6);
@@ -322,7 +324,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]">
-      <div className="border-b border-slate-800/80 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white">
+      <div className="pd-subnav-bar border-b border-slate-800/80 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white">
         <div className="mx-auto max-w-7xl px-3 py-1.5 sm:px-6 sm:py-2 lg:px-8 2xl:max-w-[1440px]">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             <AnimatedBackButton href="/news" label="All news" />
@@ -343,16 +345,16 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-3.5 pb-14 pt-4 sm:px-6 sm:pb-20 sm:pt-8 lg:px-8 2xl:max-w-[1440px]">
-        <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-10">
+      <div className="pd-article-container mx-auto max-w-7xl px-3.5 pb-14 pt-4 sm:px-6 sm:pb-20 sm:pt-8 lg:px-8 2xl:max-w-[1440px]">
+        <div className="pd-article-layout-grid grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-10">
           <div className="min-w-0 w-full">
-            <article className="relative w-full min-w-0" itemScope itemType="https://schema.org/NewsArticle">
+            <article className="pd-main-article relative w-full min-w-0" itemScope itemType="https://schema.org/NewsArticle">
               <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
               />
 
-              <header className="mb-6 sm:mb-8 w-full space-y-3.5 sm:space-y-4">
+              <header className="pd-article-header mb-6 sm:mb-8 w-full space-y-3.5 sm:space-y-4">
                 <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs">
                   <Link
                     href={categoryHref(post.category)}
@@ -381,7 +383,7 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                   itemProp="headline"
                   className="w-full font-display text-2xl xs:text-3xl font-bold leading-[1.24] tracking-tight text-slate-950 sm:text-4xl lg:text-[2.65rem] lg:leading-[1.18] [overflow-wrap:anywhere]"
                 >
-                  {decodeHtmlEntities(post.title)}
+                  <RenderTextWithFlags text={decodeHtmlEntities(post.title)} flagSize={28} />
                 </h1>
 
                 {displayDescription ? (
@@ -395,12 +397,22 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
                 ) : null}
 
                 {/* Top Engagement Bar (Likes, Bookmarks, Share) */}
-                <div className="pt-1 sm:pt-2">
+                <div className="pt-1 sm:pt-2 space-y-3">
                   <ArticleEngagementBar
                     postId={post.id}
                     slug={post.slug}
                     title={post.title}
+                    category={post.category}
                     initialLikes={post.like_count}
+                  />
+
+                  {/* AI Listen to Article Audio Player */}
+                  <ArticleAudioPlayer
+                    title={post.title}
+                    excerpt={displayDescription || excerptText}
+                    takeaways={takeaways}
+                    body={rawBody || articleHtml}
+                    category={post.category}
                   />
                 </div>
               </header>

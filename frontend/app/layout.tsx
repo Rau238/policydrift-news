@@ -10,6 +10,7 @@ import { SiteJsonLd } from '@/components/SiteJsonLd';
 import { PwaSplash } from '@/components/PwaSplash';
 import { PushSubscriptionPrompt } from '@/components/PushSubscriptionPrompt';
 import { CookieConsentBanner } from '@/components/CookieConsentBanner';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { storyFallbackImageUrl } from '@/lib/story-image';
 import { absoluteUrl, publicSiteOrigin, siteDescription, siteName } from '@/lib/site';
 
@@ -143,6 +144,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${sora.variable} ${jetbrainsMarketsMono.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Preconnect to major external image CDNs to shave DNS/TLS negotiation time */}
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://static01.nyt.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://ichef.bbci.co.uk" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://static01.nyt.com" />
+        <link rel="dns-prefetch" href="https://ichef.bbci.co.uk" />
+      </head>
       <body
         className="flex min-h-screen flex-col bg-paper font-sans antialiased text-ink"
         suppressHydrationWarning
@@ -239,10 +249,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             crossOrigin="anonymous"
           />
         )}
+
+        {/* Seamless Google Translate Initialization */}
+        <div id="google_translate_element" style={{ display: 'none' }} aria-hidden="true" />
+        <NextScript
+          id="google-translate-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              function googleTranslateElementInit() {
+                try {
+                  if (window.google && window.google.translate) {
+                    new google.translate.TranslateElement({
+                      pageLanguage: 'en',
+                      autoDisplay: false
+                    }, 'google_translate_element');
+                  }
+                } catch(e) {}
+              }
+            `,
+          }}
+        />
+        <NextScript
+          src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          strategy="afterInteractive"
+        />
+
         <SiteJsonLd />
         <PwaSplash />
         <PushSubscriptionPrompt />
         <CookieConsentBanner />
+        <LanguageSwitcher />
         <SiteHeader />
         <main className="min-w-0 max-w-[100vw] flex-1 overflow-x-clip">{children}</main>
         <SiteFooter />

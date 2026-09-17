@@ -15,7 +15,7 @@ export interface CountryFlagProps {
 /**
  * Normalizes input to ISO-2 country code or special token
  */
-function resolveIso(iso?: string, flag?: string, country?: string): string {
+export function resolveIso(iso?: string, flag?: string, country?: string): string {
   if (iso) {
     const c = iso.toLowerCase().trim();
     if (c === 'india') return 'in';
@@ -33,6 +33,20 @@ function resolveIso(iso?: string, flag?: string, country?: string): string {
     return c;
   }
   if (flag) {
+    // Check for standard Regional Indicator Symbol Pairs
+    const codePoints = [...flag].map((c) => c.codePointAt(0) || 0);
+    if (
+      codePoints.length >= 2 &&
+      codePoints[0] >= 0x1f1e6 &&
+      codePoints[0] <= 0x1f1ff &&
+      codePoints[1] >= 0x1f1e6 &&
+      codePoints[1] <= 0x1f1ff
+    ) {
+      const char1 = String.fromCharCode(codePoints[0] - 0x1f1e6 + 65);
+      const char2 = String.fromCharCode(codePoints[1] - 0x1f1e6 + 65);
+      return (char1 + char2).toLowerCase();
+    }
+
     if (flag.includes('🇮🇳')) return 'in';
     if (flag.includes('🇺🇸')) return 'us';
     if (flag.includes('🇪🇺')) return 'eu';
@@ -103,8 +117,44 @@ export function CountryFlag({
       loading="lazy"
       decoding="async"
       onError={() => setError(true)}
-      className={`inline-block shrink-0 rounded-[2.5px] object-cover shadow-xs ring-1 ring-white/20 ${className}`}
+      className={`inline-block shrink-0 rounded-[2.5px] object-cover shadow-xs ring-1 ring-black/10 dark:ring-white/20 align-[-2px] ${className}`}
     />
+  );
+}
+
+const REGIONAL_INDICATOR_REGEX = /([\u{1F1E6}-\u{1F1FF}]{2})/gu;
+
+/**
+ * Renders text while replacing any Unicode regional indicator flag emojis with CountryFlag images
+ */
+export function RenderTextWithFlags({
+  text,
+  flagSize = 20,
+  className = '',
+}: {
+  text: string | null | undefined;
+  flagSize?: number;
+  className?: string;
+}) {
+  if (!text) return null;
+
+  const parts = text.split(REGIONAL_INDICATOR_REGEX);
+  if (parts.length <= 1) return <>{text}</>;
+
+  return (
+    <>
+      {parts.map((part, index) => {
+        if (!part) return null;
+        if (REGIONAL_INDICATOR_REGEX.test(part)) {
+          return (
+            <span key={index} className="inline-flex items-center mx-1 align-baseline">
+              <CountryFlag flag={part} size={flagSize} className={className} />
+            </span>
+          );
+        }
+        return <React.Fragment key={index}>{part}</React.Fragment>;
+      })}
+    </>
   );
 }
 

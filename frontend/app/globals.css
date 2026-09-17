@@ -800,3 +800,289 @@ body:has([aria-label*='calendar' i]) * {
     animation: none;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SEAMLESS BILINGUAL (ENGLISH / HINDI) TRANSLATION ENGINE OVERRIDES
+   ───────────────────────────────────────────────────────────────────────────── */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+.goog-tooltip {
+  display: none !important;
+}
+
+.goog-tooltip:hover {
+  display: none !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.skiptranslate iframe {
+  display: none !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DISTRACTION-FREE EDITORIAL READING MODE STYLES
+   ───────────────────────────────────────────────────────────────────────────── */
+body.pd-reading-mode-active {
+  background-color: #f1f5f9 !important;
+  transition: background-color 0.25s ease;
+}
+
+body.pd-reading-mode-active[data-reading-body-theme='light'] {
+  background-color: #f1f5f9 !important;
+}
+
+body.pd-reading-mode-active[data-reading-body-theme='sepia'] {
+  background-color: #ede3ce !important;
+}
+
+body.pd-reading-mode-active[data-reading-body-theme='dark'] {
+  background-color: #030712 !important;
+}
+
+body.pd-reading-mode-active .pd-site-header,
+body.pd-reading-mode-active .pd-subnav-bar,
+body.pd-reading-mode-active > header,
+body.pd-reading-mode-active footer,
+body.pd-reading-mode-active aside,
+body.pd-reading-mode-active nav[aria-label="Breadcrumb"],
+body.pd-reading-mode-active .pd-sidebar {
+  display: none !important;
+}
+
+/* Center and expand main layout grid without breaking child component grids */
+body.pd-reading-mode-active .pd-article-container,
+body.pd-reading-mode-active .mx-auto.max-w-7xl {
+  max-width: 1040px !important;
+  width: 100% !important;
+  margin-inline: auto !important;
+  padding-inline: 1rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+body.pd-reading-mode-active .pd-article-layout-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: auto !important;
+  grid-template-columns: 1fr !important;
+}
+
+body.pd-reading-mode-active .pd-article-layout-grid > div:first-child {
+  width: 100% !important;
+  max-width: 1000px !important;
+  margin-inline: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+body.pd-reading-mode-active article.pd-main-article {
+  max-width: 1000px !important;
+  width: 100% !important;
+  margin-inline: auto !important;
+  margin-block: 1.5rem 4rem !important;
+  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Ensure PostCards maintain their tight, authentic card structure and don't inherit reader article margins/paddings */
+article.pd-post-card,
+body.pd-reading-mode-active article.pd-post-card {
+  margin-block: 0 !important;
+  margin-inline: 0 !important;
+  padding: 0 !important;
+  max-width: 100% !important;
+  border-radius: 20px !important;
+  box-shadow: none !important;
+  border: none !important;
+  background-color: transparent !important;
+}
+
+body.pd-reading-mode-active .pd-story-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+body.pd-reading-mode-active .article-prose,
+body.pd-reading-mode-active .article-detail-prose {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Ensure Related Stories / Multi-Source Coverage Grid stays multi-column */
+body.pd-reading-mode-active section .grid {
+  display: grid !important;
+}
+
+/* Reader Typography Overrides */
+article.pd-main-article[data-reading-font='serif'] {
+  font-family: Georgia, Cambria, 'Times New Roman', Times, serif !important;
+}
+
+article.pd-main-article[data-reading-font='mono'] {
+  font-family: var(--font-markets-mono), ui-monospace, SFMono-Regular, monospace !important;
+}
+
+article.pd-main-article[data-reading-font='sans'] {
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif !important;
+}
+
+/* Reading font sizes and line heights applied to article content */
+article.pd-main-article[data-reading-theme] .pd-story-content,
+article.pd-main-article[data-reading-theme] .article-detail-prose,
+article.pd-main-article[data-reading-theme] .feed-article-body,
+article.pd-main-article[data-reading-theme] #article-excerpt,
+article.pd-main-article[data-reading-theme] .feed-article-body p,
+article.pd-main-article[data-reading-theme] .article-detail-prose p {
+  font-size: var(--pd-reader-font-size, 18px) !important;
+  line-height: var(--pd-reader-line-height, 1.85) !important;
+}
+
+/* ── Light Mode (Paper White Sheet) ── */
+article.pd-main-article[data-reading-theme='light'] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  padding: 1.25rem 1rem !important;
+  border-radius: 1rem !important;
+  border: 1px solid rgba(226, 232, 240, 0.95) !important;
+  box-shadow: 0 10px 32px -4px rgba(15, 23, 42, 0.08), 0 2px 8px -2px rgba(15, 23, 42, 0.04) !important;
+}
+
+@media (min-width: 640px) {
+  article.pd-main-article[data-reading-theme='light'] {
+    padding: 2.5rem 2rem !important;
+    border-radius: 1.5rem !important;
+  }
+}
+
+article.pd-main-article[data-reading-theme='light'] h1,
+article.pd-main-article[data-reading-theme='light'] #article-headline {
+  color: #020617 !important;
+}
+
+article.pd-main-article[data-reading-theme='light'] #article-excerpt,
+article.pd-main-article[data-reading-theme='light'] .article-detail-prose p,
+article.pd-main-article[data-reading-theme='light'] .feed-article-body p {
+  color: #1e293b !important;
+}
+
+article.pd-main-article[data-reading-theme='light'] .pd-story-wrapper {
+  background-color: #ffffff !important;
+  border-color: rgba(226, 232, 240, 0.85) !important;
+}
+
+/* ── Sepia Mode (Warm Paper Tint) ── */
+article.pd-main-article[data-reading-theme='sepia'] {
+  background-color: #fbf0d9 !important;
+  color: #2c1f14 !important;
+  padding: 1.25rem 1rem !important;
+  border-radius: 1rem !important;
+  border: 1px solid rgba(214, 197, 168, 0.75) !important;
+  box-shadow: 0 10px 32px -4px rgba(67, 52, 34, 0.12) !important;
+}
+
+@media (min-width: 640px) {
+  article.pd-main-article[data-reading-theme='sepia'] {
+    padding: 2.5rem 2rem !important;
+    border-radius: 1.5rem !important;
+  }
+}
+
+article.pd-main-article[data-reading-theme='sepia'] h1,
+article.pd-main-article[data-reading-theme='sepia'] h2,
+article.pd-main-article[data-reading-theme='sepia'] h3,
+article.pd-main-article[data-reading-theme='sepia'] #article-headline {
+  color: #1a1005 !important;
+}
+
+article.pd-main-article[data-reading-theme='sepia'] #article-excerpt,
+article.pd-main-article[data-reading-theme='sepia'] .feed-article-body,
+article.pd-main-article[data-reading-theme='sepia'] .feed-article-body p,
+article.pd-main-article[data-reading-theme='sepia'] .article-detail-prose p,
+article.pd-main-article[data-reading-theme='sepia'] .pd-story-content p {
+  color: #2c1f14 !important;
+}
+
+article.pd-main-article[data-reading-theme='sepia'] .pd-story-wrapper {
+  background-color: #f5ecd4 !important;
+  border-color: rgba(214, 197, 168, 0.6) !important;
+}
+
+/* ── Dark Mode (Deep OLED Night Sheet) ── */
+article.pd-main-article[data-reading-theme='dark'] {
+  background-color: #0b1322 !important;
+  color: #e2e8f0 !important;
+  padding: 1.25rem 1rem !important;
+  border-radius: 1rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.75) !important;
+}
+
+@media (min-width: 640px) {
+  article.pd-main-article[data-reading-theme='dark'] {
+    padding: 2.5rem 2rem !important;
+    border-radius: 1.5rem !important;
+  }
+}
+
+article.pd-main-article[data-reading-theme='dark'] h1,
+article.pd-main-article[data-reading-theme='dark'] h2,
+article.pd-main-article[data-reading-theme='dark'] h3,
+article.pd-main-article[data-reading-theme='dark'] h4,
+article.pd-main-article[data-reading-theme='dark'] #article-headline {
+  color: #ffffff !important;
+}
+
+article.pd-main-article[data-reading-theme='dark'] #article-excerpt,
+article.pd-main-article[data-reading-theme='dark'] .feed-article-body,
+article.pd-main-article[data-reading-theme='dark'] .feed-article-body p,
+article.pd-main-article[data-reading-theme='dark'] .feed-article-body span,
+article.pd-main-article[data-reading-theme='dark'] .article-detail-prose p,
+article.pd-main-article[data-reading-theme='dark'] .pd-story-content p {
+  color: #e2e8f0 !important;
+}
+
+article.pd-main-article[data-reading-theme='dark'] a {
+  color: #2dd4bf !important;
+}
+
+article.pd-main-article[data-reading-theme='dark'] .pd-story-wrapper {
+  background-color: #0d1728 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Ensure standalone dark widgets maintain their styled dark appearance */
+article.pd-main-article[data-reading-theme] section[aria-label*="Community Channels"] {
+  background-color: #020617 !important;
+  color: #ffffff !important;
+  border-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+article.pd-main-article[data-reading-theme] section[aria-label*="Community Channels"] h3 {
+  color: #ffffff !important;
+}
+
+article[data-reading-theme] section[aria-label*="Community Channels"] p {
+  color: #cbd5e1 !important;
+}
+
+

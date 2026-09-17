@@ -70,8 +70,6 @@ export function SiteFooter() {
       />
 
       <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-[1440px]">
-
-
         {/* Global Newsletter Subscription Banner */}
         <div className="mb-10">
           <NewsletterSubscribeBox />
@@ -87,7 +85,6 @@ export function SiteFooter() {
                 <span className="font-display text-xl font-bold tracking-tight text-white">
                   {siteName}
                 </span>
-
               </div>
             </Link>
 
@@ -114,17 +111,23 @@ export function SiteFooter() {
               Global Coverage Desks
             </p>
 
-            <div className="mt-3.5 grid grid-cols-2 gap-1.5">
-              {CATEGORY_ORDER.filter((c) => c !== 'General').map((c) => (
-                <Link
-                  key={c}
-                  href={categoryHref(c)}
-                  className="group flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-2.5 py-1.5 text-xs font-medium text-slate-300 transition hover:border-white/15 hover:bg-white/[0.06] hover:text-white"
-                >
-                  <CategoryGlyph name={c} className="h-3 w-3 text-cyan-300 shrink-0" />
-                  <span className="truncate">{categoryLabel(c)}</span>
-                </Link>
-              ))}
+            <div className="mt-3.5 grid grid-cols-2 gap-2">
+              {CATEGORY_ORDER.map((c) => {
+                const isGeneral = c === 'General';
+                const label = isGeneral ? 'All Desks Wire' : categoryLabel(c);
+                const href = isGeneral ? '/news' : categoryHref(c);
+
+                return (
+                  <Link
+                    key={c}
+                    href={href}
+                    className="group flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-cyan-500/40 hover:bg-cyan-950/30 hover:text-white hover:scale-[1.02] active:scale-95 shadow-xs"
+                  >
+                    <CategoryGlyph name={c} className="h-3.5 w-3.5 text-cyan-300 group-hover:text-cyan-200 shrink-0" />
+                    <span className="truncate">{label}</span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
 

@@ -88,6 +88,7 @@ export function RemoteStoryImage({
     return (
       <CategoryStoryPlaceholder
         category={category}
+        cardBgHex={bgHex}
         className={className}
         compact={compact}
         hideCaption={hideCaption}
@@ -144,7 +145,7 @@ export function RemoteStoryImage({
           src={src}
           alt={safeAlt}
           title={safeTitle}
-          className={`${className ?? ''} relative z-[1] pd-img-photo ${loaded || priority ? 'pd-img-photo-ready' : 'pd-img-photo-loading'}`}
+          className={`${className ?? ''} relative z-[1] pd-img-photo transition-transform duration-700 ease-out group-hover:scale-105 ${loaded || priority ? 'pd-img-photo-ready' : 'pd-img-photo-loading'}`}
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
           fetchPriority={priority ? 'high' : 'low'}

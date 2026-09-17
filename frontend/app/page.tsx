@@ -137,13 +137,13 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const [breakingRaw, latestRaw, trendingRaw, topStoriesRaw, trendingRankedRaw, popularRaw, editorialRaw] = await Promise.all([
-    getPosts({ page: 1, limit: 50, category: 'Breaking' }),
-    getPosts({ page: 1, limit: 60 }),
-    getTrending(10),
-    getTopNews({ limit: 30, days: 3 }),
-    getTrendingNews({ limit: 30 }),
-    getPopularNews({ limit: 40, period: 'day' }),
-    getEditorialNews({ limit: 20 }),
+    getPosts({ page: 1, limit: 12, category: 'Breaking' }),
+    getPosts({ page: 1, limit: 20 }),
+    getTrending(8),
+    getTopNews({ limit: 12, days: 3 }),
+    getTrendingNews({ limit: 12 }),
+    getPopularNews({ limit: 12, period: 'day' }),
+    getEditorialNews({ limit: 8 }),
   ]);
 
   // Strict cross-section deduplication across the entire page
@@ -278,9 +278,10 @@ export default async function HomePage() {
               {lead ? (
                 <Link
                   href={`/news/${lead.slug}`}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/15 shadow-2xl transition-all duration-300 sm:h-[13.5rem] sm:flex-row lg:h-[14rem]"
+                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/15 transition-all duration-300 sm:h-[13.5rem] sm:flex-row lg:h-[14rem]"
                   style={{
                     backgroundColor: getCardBgHex(lead.category, 0, lead.id),
+                    boxShadow: `0 12px 32px -4px ${getCardBgHex(lead.category, 0, lead.id)}55, 0 4px 16px -2px rgba(0,0,0,0.25)`,
                   }}
                 >
                   <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden sm:aspect-auto sm:h-full sm:w-[42%]">
@@ -293,7 +294,7 @@ export default async function HomePage() {
                       cardBgHex={getCardBgHex(lead.category, 0, lead.id)}
                     />
                     <div
-                      className="pointer-events-none absolute inset-0 hidden sm:block"
+                      className="pointer-events-none absolute inset-0 hidden sm:block z-10"
                       style={{
                         background: `linear-gradient(to right, transparent 0%, transparent 65%, ${getCardBgHex(lead.category, 0, lead.id)} 100%)`,
                       }}

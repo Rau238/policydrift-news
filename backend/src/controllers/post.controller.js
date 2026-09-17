@@ -65,6 +65,7 @@ export async function getPostBySlug(req, res, next) {
     }
     await postModel.incrementViews(post.id);
     post.view_count = (post.view_count || 0) + 1;
+    res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
     res.json(serializePostDates(withStoryImageFallback(post)));
   } catch (e) {
     next(e);
@@ -118,7 +119,7 @@ export async function getSitemapIndexData(req, res, next) {
 
     const totalArticles = await postModel.getPublishedPostsCount();
     const latestLastMod = await postModel.getLatestPublishedModTime();
-    const chunkSize = 50000;
+    const chunkSize = 30000;
     const totalChunks = Math.max(1, Math.ceil(totalArticles / chunkSize));
 
     const payload = {

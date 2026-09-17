@@ -239,7 +239,7 @@ export async function getSitemapIndexInfo(): Promise<SitemapIndexInfo> {
 
 export async function getSitemapArticleChunk(
   chunk: number = 1,
-  limit: number = 50000,
+  limit: number = 30000,
 ): Promise<SitemapChunkResult> {
   const res = await fetch(`${getBaseUrl()}/api/meta/sitemap/articles?chunk=${chunk}&limit=${limit}`, {
     next: { revalidate: 600 }, // 10 min revalidation

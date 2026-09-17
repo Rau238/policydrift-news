@@ -3,6 +3,7 @@
 import React from 'react';
 import he from 'he';
 import { Info, AlertTriangle, Lightbulb, CheckCircle2, Quote, ExternalLink } from 'lucide-react';
+import { CountryFlag } from '@/components/CountryFlag';
 
 interface RichStoryBodyProps {
   content: string | null | undefined;
@@ -10,14 +11,16 @@ interface RichStoryBodyProps {
   theme?: 'light' | 'dark';
 }
 
+const REGIONAL_INDICATOR_REGEX = /([\u{1F1E6}-\u{1F1FF}]{2})/gu;
+
 /**
- * Parses inline markdown: **bold**, *italic*, ~~strikethrough~~, `code`, [title](url)
+ * Parses inline markdown: **bold**, *italic*, ~~strikethrough~~, `code`, [title](url), country flags
  */
 function parseInlineMarkdown(text: string, isDark: boolean): React.ReactNode {
   if (!text) return null;
 
-  // Split by inline markdown tokens
-  const tokenRegex = /(\*\*.*?\*\*|\*.*?\*|~~.*?~~|`.*?`|\[.*?\]\(.*?\))/g;
+  // Split by inline markdown tokens and flag emojis
+  const tokenRegex = /(\*\*.*?\*\*|\*.*?\*|~~.*?~~|`.*?`|\[.*?\]\(.*?\)|[\u{1F1E6}-\u{1F1FF}]{2})/gu;
   const parts = text.split(tokenRegex);
 
   return parts.map((part, index) => {
@@ -80,6 +83,15 @@ function parseInlineMarkdown(text: string, isDark: boolean): React.ReactNode {
           {linkMatch[1]}
           <ExternalLink size={11} className="inline opacity-70" />
         </a>
+      );
+    }
+
+    // Flag Emoji (e.g. 🇮🇳, 🇺🇸)
+    if (REGIONAL_INDICATOR_REGEX.test(part)) {
+      return (
+        <span key={index} className="inline-flex items-center mx-1 align-baseline">
+          <CountryFlag flag={part} size={18} />
+        </span>
       );
     }
 

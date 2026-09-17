@@ -35,9 +35,15 @@ app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-// Static serving for generated social cards and uploaded article media
-app.use('/social-cards', express.static(path.resolve(__dirname, '../../frontend/public/social-cards')));
-app.use('/uploads', express.static(path.resolve(__dirname, '../../frontend/public/uploads')));
+// Static serving for generated social cards and uploaded article media with optimal long-term caching
+const staticCacheOptions = {
+  maxAge: env.NODE_ENV === 'production' ? '30d' : '1h',
+  immutable: env.NODE_ENV === 'production',
+  etag: true,
+  lastModified: true,
+};
+app.use('/social-cards', express.static(path.resolve(__dirname, '../../frontend/public/social-cards'), staticCacheOptions));
+app.use('/uploads', express.static(path.resolve(__dirname, '../../frontend/public/uploads'), staticCacheOptions));
 
 app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'newsfree365-api' });

@@ -45,17 +45,34 @@ export default function RootLoading() {
         {/* Main Content Layout Skeleton */}
         <main className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12 2xl:max-w-[1440px]">
           <div className="grid min-w-0 gap-8 max-lg:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,min(380px,100%))] lg:items-start">
-            {/* Left Column: Breaking Desk, Spotlight, Top Stories, Trending, and Latest */}
-            <div className="min-w-0 space-y-10 sm:space-y-12 lg:space-y-14">
+            {/* Left Column: Visual Stories, Breaking Desk, Spotlight, Top Stories, Trending, and Latest */}
+            <div className="min-w-0 space-y-8 max-lg:space-y-8 lg:space-y-12">
+              {/* Visual Stories Rail Skeleton */}
+              <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-3.5 sm:p-4 backdrop-blur-xl">
+                <div className="mb-3 flex items-center justify-between">
+                  <Skeleton className="h-4 w-28 rounded bg-white/20" />
+                </div>
+                <div className="flex items-center gap-3 overflow-hidden py-1">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1.5 shrink-0">
+                      <div className="h-16 w-16 sm:h-[72px] sm:w-[72px] rounded-full p-[2.5px] bg-gradient-to-tr from-amber-500/30 to-teal-500/30">
+                        <Skeleton className="h-full w-full rounded-full bg-slate-800" />
+                      </div>
+                      <Skeleton className="h-2.5 w-12 rounded bg-slate-800" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* 1. Breaking Desk Skeleton */}
-              <section className="space-y-5">
+              <section className="space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-5">
                   <div className="space-y-2">
-                    <Skeleton className="h-5 w-24 rounded-full bg-rose-400/40" />
-                    <Skeleton className="h-8 w-44 rounded-lg bg-slate-800/80" />
-                    <Skeleton className="h-4 w-64 max-w-md rounded-md bg-slate-700/60" />
+                    <Skeleton className="h-5 w-24 rounded-full bg-rose-500/20" />
+                    <Skeleton className="h-8 w-44 rounded-lg bg-slate-900/80" />
+                    <Skeleton className="h-4 w-64 max-w-md rounded-md bg-slate-600/50" />
                   </div>
-                  <Skeleton className="hidden h-10 w-36 rounded-xl bg-slate-800/60 sm:block" />
+                  <Skeleton className="hidden h-10 w-36 rounded-xl bg-slate-200 sm:block" />
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {Array.from({ length: 3 }).map((_, i) => (

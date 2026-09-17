@@ -9,6 +9,7 @@ import {
   CategoryGlyph,
 } from '@/lib/category-theme';
 import {
+  Home,
   ChevronDown,
   ChevronRight,
   CalendarDays,
@@ -280,16 +281,28 @@ export function CategoryNav() {
 
   return (
     <nav
+      suppressHydrationWarning
       className="relative flex flex-nowrap items-center gap-1.5 sm:gap-2 overflow-x-auto sm:overflow-visible scroll-py-1 pb-1 pt-0.5 pd-scrollbar-none"
       aria-label="News desks"
     >
+      {/* Home Pill Button */}
+      <span className="snap-start shrink-0" suppressHydrationWarning>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full font-semibold ring-1 transition-all duration-200 active:scale-[0.98] border-teal-500/35 bg-gradient-to-r from-teal-500/15 to-emerald-500/15 text-teal-200 ring-teal-400/35 hover:bg-teal-500/25 hover:text-white px-2.5 py-1 text-[11px] leading-tight sm:px-3 sm:py-1.5 sm:text-xs shadow-xs"
+          title="Go to Homepage"
+        >
+          <Home className="h-3 w-3 opacity-95 sm:h-3.5 sm:w-3.5 text-teal-300" />
+        </Link>
+      </span>
+
       {PRIMARY_NAV_KEYS.map((key) => {
         const isBankingAndEconomics = key === 'Banking & Economics';
 
         return (
-          <span key={key} className="contents">
+          <span key={key} className="contents" suppressHydrationWarning>
             {/* Standard Category Pill */}
-            <span className="snap-start shrink-0">
+            <span className="snap-start shrink-0" suppressHydrationWarning>
               <Link
                 href={categoryHref(key)}
                 className={deskPillClass(
@@ -306,6 +319,7 @@ export function CategoryNav() {
             {isBankingAndEconomics && (
               <div
                 ref={containerRef}
+                suppressHydrationWarning
                 className={`relative snap-start shrink-0 ${menuOpen ? 'z-50' : ''}`}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
