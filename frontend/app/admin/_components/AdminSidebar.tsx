@@ -26,6 +26,8 @@ import {
   Sparkles,
   CalendarDays,
   Trophy,
+  ShieldCheck,
+  FileCode2,
 } from 'lucide-react';
 import { BrandMark } from '@/components/BrandMark';
 import { AdminConfirmModal, type ConfirmDialogState } from '@/components/AdminConfirmModal';
@@ -122,6 +124,12 @@ export function AdminSidebar({
     if (itemHref === '/admin/activity') {
       return pathname.startsWith('/admin/activity');
     }
+    if (itemHref === '/admin/health') {
+      return pathname.startsWith('/admin/health');
+    }
+    if (itemHref === '/admin/docs') {
+      return pathname.startsWith('/admin/docs');
+    }
     return pathname === itemHref;
   }
 
@@ -195,6 +203,13 @@ export function AdminSidebar({
       badgeColor: 'bg-gradient-to-r from-rose-500 to-amber-500 text-white border-0 shadow-xs font-bold',
     },
     {
+      label: 'AI Suite & Keys',
+      href: '/admin/create?tab=ai',
+      icon: <Sparkles size={20} />,
+      badge: 'Free Tier',
+      badgeColor: 'bg-violet-500/20 text-violet-300 border border-violet-500/30 font-bold',
+    },
+    {
       label: 'Review Queue',
       href: '/admin/dashboard?status=pending',
       icon: <Clock size={20} />,
@@ -238,6 +253,20 @@ export function AdminSidebar({
       href: '/admin/activity',
       icon: <Activity size={20} />,
       badge: null,
+    },
+    {
+      label: 'System Health',
+      href: '/admin/health',
+      icon: <ShieldCheck size={20} />,
+      badge: 'Live',
+      badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+    },
+    {
+      label: 'API Docs & Swagger',
+      href: '/admin/docs',
+      icon: <FileCode2 size={20} />,
+      badge: 'v2.0',
+      badgeColor: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30',
     },
   ];
 
@@ -308,7 +337,7 @@ export function AdminSidebar({
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto px-2.5 py-4 space-y-6 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto px-2.5 py-4 space-y-6 no-scrollbar pd-scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <div>
             {!isCollapsed && (
               <p className="px-2.5 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -323,8 +352,8 @@ export function AdminSidebar({
                     key={item.label}
                     href={item.href}
                     onClick={onCloseMobile}
-                    title={isCollapsed ? item.label : undefined}
-                    className={`group relative flex items-center rounded-xl p-2.5 text-sm font-medium transition-all ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+                    title={item.label}
+                    className={`group relative flex items-center rounded-xl p-2.5 text-sm font-medium transition-all ${isCollapsed ? 'justify-center w-11 h-11 mx-auto my-0.5' : 'justify-between px-3'
                       } ${active
                         ? 'bg-gradient-to-r from-teal-600/90 to-teal-700 text-white shadow-sm shadow-teal-900/40 ring-1 ring-teal-500/40'
                         : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
@@ -343,15 +372,19 @@ export function AdminSidebar({
 
                     {/* Badge */}
                     {item.badge !== null && (
-                      <span
-                        className={`font-bold tabular-nums ${isCollapsed
-                          ? 'absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] text-slate-950 font-black shadow-md'
-                          : `rounded-full px-2 py-0.5 text-[11px] ${item.badgeColor || 'bg-slate-800 text-slate-300'
-                          }`
-                          }`}
-                      >
-                        {item.badge}
-                      </span>
+                      isCollapsed ? (
+                        typeof item.badge === 'number' ? (
+                          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] text-slate-950 font-black shadow-md">
+                            {item.badge}
+                          </span>
+                        ) : (
+                          <span className="absolute top-1.5 right-1.5 flex h-2 w-2 rounded-full bg-teal-400 shadow-sm" />
+                        )
+                      ) : (
+                        <span className={`font-bold tabular-nums rounded-full px-2 py-0.5 text-[11px] ${item.badgeColor || 'bg-slate-800 text-slate-300'}`}>
+                          {item.badge}
+                        </span>
+                      )
                     )}
                   </Link>
                 );
@@ -370,8 +403,8 @@ export function AdminSidebar({
               <Link
                 href="/admin/sources?action=new"
                 onClick={onCloseMobile}
-                title={isCollapsed ? 'Add RSS Source' : undefined}
-                className={`flex items-center rounded-xl border border-teal-500/40 bg-gradient-to-r from-teal-950/60 to-emerald-950/60 p-2 text-xs font-bold text-teal-200 transition hover:border-teal-400 hover:bg-teal-900/60 hover:text-white shadow-sm ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+                title="Add RSS Source"
+                className={`flex items-center rounded-xl border border-teal-500/40 bg-gradient-to-r from-teal-950/60 to-emerald-950/60 p-2 text-xs font-bold text-teal-200 transition hover:border-teal-400 hover:bg-teal-900/60 hover:text-white shadow-sm ${isCollapsed ? 'justify-center w-11 h-11 mx-auto' : 'justify-between px-3'
                   }`}
               >
                 <span className="flex items-center gap-2">
@@ -389,8 +422,8 @@ export function AdminSidebar({
                 <button
                   onClick={onPublishAllReview}
                   disabled={isPublishingReview}
-                  title={isCollapsed ? `Publish All (${pendingCount})` : undefined}
-                  className={`flex w-full items-center rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/70 to-teal-950/70 p-2 text-xs font-bold text-emerald-200 transition hover:border-emerald-400 hover:bg-emerald-900/70 hover:text-white shadow-sm disabled:opacity-50 ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+                  title={`Publish All Review (${pendingCount})`}
+                  className={`flex w-full items-center rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/70 to-teal-950/70 p-2 text-xs font-bold text-emerald-200 transition hover:border-emerald-400 hover:bg-emerald-900/70 hover:text-white shadow-sm disabled:opacity-50 ${isCollapsed ? 'justify-center w-11 h-11 mx-auto' : 'justify-between px-3'
                     }`}
                 >
                   <span className="flex items-center gap-2">
@@ -413,8 +446,8 @@ export function AdminSidebar({
                 <button
                   onClick={onIngest}
                   disabled={ingestLoading}
-                  title={isCollapsed ? 'Ingest RSS Feeds' : undefined}
-                  className={`flex w-full items-center rounded-xl border border-slate-800 bg-slate-900/60 p-2 text-xs font-medium text-slate-300 transition hover:border-teal-500/40 hover:bg-slate-800/80 hover:text-teal-300 disabled:opacity-50 ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+                  title="Ingest RSS Feeds"
+                  className={`flex w-full items-center rounded-xl border border-slate-800 bg-slate-900/60 p-2 text-xs font-medium text-slate-300 transition hover:border-teal-500/40 hover:bg-slate-800/80 hover:text-teal-300 disabled:opacity-50 ${isCollapsed ? 'justify-center w-11 h-11 mx-auto' : 'justify-between px-3'
                     }`}
                 >
                   <span className="flex items-center gap-2">
@@ -432,8 +465,8 @@ export function AdminSidebar({
               <button
                 onClick={handleQuickRanking}
                 disabled={rankingLoading}
-                title={isCollapsed ? 'Run Ranking Pass' : undefined}
-                className={`flex w-full items-center rounded-xl border border-slate-800 bg-slate-900/60 p-2 text-xs font-medium text-slate-300 transition hover:border-amber-500/40 hover:bg-slate-800/80 hover:text-amber-300 disabled:opacity-50 ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+                title="Run Ranking Pass"
+                className={`flex w-full items-center rounded-xl border border-slate-800 bg-slate-900/60 p-2 text-xs font-medium text-slate-300 transition hover:border-amber-500/40 hover:bg-slate-800/80 hover:text-amber-300 disabled:opacity-50 ${isCollapsed ? 'justify-center w-11 h-11 mx-auto' : 'justify-between px-3'
                   }`}
               >
                 <span className="flex items-center gap-2">
@@ -466,8 +499,8 @@ export function AdminSidebar({
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              title={isCollapsed ? 'View Public Portal' : undefined}
-              className={`flex items-center rounded-xl border border-slate-800/60 bg-slate-900/40 p-2 text-xs font-medium text-slate-400 transition hover:bg-slate-800 hover:text-slate-200 ${isCollapsed ? 'justify-center' : 'justify-between px-3'
+              title="View Public Portal"
+              className={`flex items-center rounded-xl border border-slate-800/60 bg-slate-900/40 p-2 text-xs font-medium text-slate-400 transition hover:bg-slate-800 hover:text-slate-200 ${isCollapsed ? 'justify-center w-11 h-11 mx-auto' : 'justify-between px-3'
                 }`}
             >
               <span className="flex items-center gap-2">
@@ -495,8 +528,8 @@ export function AdminSidebar({
             type="button"
             onClick={confirmSignOut}
             disabled={loggingOut}
-            title={isCollapsed ? 'Sign Out' : undefined}
-            className={`flex w-full items-center rounded-xl border border-slate-800 bg-slate-900 p-2 text-xs font-semibold text-slate-300 transition hover:border-red-500/40 hover:bg-red-950/40 hover:text-red-300 active:scale-95 disabled:opacity-50 ${isCollapsed ? 'justify-center' : 'justify-center gap-2'
+            title="Sign Out"
+            className={`flex items-center rounded-xl border border-slate-800 bg-slate-900 p-2 text-xs font-semibold text-slate-300 transition hover:border-red-500/40 hover:bg-red-950/40 hover:text-red-300 active:scale-95 disabled:opacity-50 ${isCollapsed ? 'justify-center w-11 h-11 mx-auto' : 'w-full justify-center gap-2'
               }`}
           >
             {loggingOut ? (

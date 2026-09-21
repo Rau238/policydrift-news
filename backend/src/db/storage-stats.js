@@ -53,3 +53,27 @@ export async function logMysqlStorageOnStartup() {
     console.warn('[MySQL storage] Could not read information_schema:', e.message);
   }
 }
+
+export async function getMysqlStorageMetrics() {
+  const dbName = env.MYSQL_DATABASE;
+  try {
+    const [dbRows] = await pool.execute(
+      `SELECT
+        ROUND(COALESCE(SUM(data_length + index_length), 0) / 1024 / 1024, 2) AS used_mb,
+        ROUND(COALESCE(SUM(data_free), 0) / 1024 / 1024, 2) AS data_free_mb,
+        COUNT(*) AS table_count
+       FROM information_schema.tables
+       WHERE table_schema = ?`,
+      [dbName],
+    );
+    const row = dbRows[0] || {};
+    return {
+      usedMb: Number(row.used_mb) || 0,
+      dataFreeMb: Number(row.data_free_mb) || 0,
+      tableCount: Number(row.table_count) || 0,
+    };
+  } catch {
+    return null;
+  }
+}
+

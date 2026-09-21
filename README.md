@@ -1,150 +1,237 @@
 # NewsFree365
 
-Full-stack news platform: **Node.js + Express**, **MySQL**, **Next.js 14 (App Router)**, **Tailwind CSS**.
+An enterprise-grade, full-stack intelligence and real-time news platform engineered with **Next.js 14 (App Router)**, **Express.js (Node.js)**, **MySQL 8**, and an autonomous **Python Sports Hub**.
 
-- Pulls articles from **RSS feeds**, **rewrites** them into SEO-oriented HTML (OpenAI optional; fallback templates if no key).
-- Persists posts in **MySQL** with **unique slugs** and **URL-hash deduplication**.
-- **REST API** (MVC layout, **connection pooling**).
-- **Cron** runs ingestion **every 30 minutes**.
-- Frontend: **home**, **/blog** with **category filters** and pagination, **/blog/[slug]** with SSR, **trending** sidebar, **meta tags**, **NewsArticle JSON-LD**, **sitemap** and **robots.txt**.
+Designed for high availability, sub-second latency, zero-downtime production deployments, rich interactive readers, real-time sports telemetry, economic agenda tracking, and automated RSS multi-source news synthesis.
 
-## Folder structure
+---
+
+## 🏛️ System Architecture
+
+```mermaid
+flowchart TB
+    subgraph Clients["Clients & Edge"]
+        User["Web & Mobile Users"]
+        SearchEngines["Google / IndexNow Crawlers"]
+        PushSubscribers["Web Push Subscribers"]
+    end
+
+    subgraph WebTier["Frontend Web Tier (Next.js 14)"]
+        NextApp["Next.js App Router (Port 3050)<br/>SSR + React Server Components"]
+        ImageEditor["Interactive Graphic Studio"]
+        ReaderMode["Distraction-Free Reading Mode"]
+        CalendarUI["Financial & Macro Calendars"]
+    end
+
+    subgraph APITier["Backend API Tier (Express.js)"]
+        ExpressAPI["Express API Server (Port 4050)"]
+        RankEngine["5-Factor News Ranking Engine"]
+        RSSManager["Multi-Source RSS Ingestion Service"]
+        NewsletterService["Automated 10 AM Digest Service"]
+        PushService["VAPID Native Push Broadcaster"]
+    end
+
+    subgraph SportsHub["Autonomous Sports Scraper (Python)"]
+        PyHub["Python Sports Hub (hub.py)"]
+        CricScraper["Cricbuzz Live Cricket Scraper"]
+        FootScraper["Tribuna Football Scraper"]
+    end
+
+    subgraph Storage["Data & Cache Layer"]
+        MySQL[("MySQL 8 Database<br/>Indexed Posts, Sources, Telemetry")]
+        DiskCache["Static Storage & Social Media Cards"]
+    end
+
+    User --> NextApp
+    SearchEngines --> NextApp
+    NextApp --> ExpressAPI
+    ExpressAPI --> MySQL
+    PyHub --> CricScraper & FootScraper
+    CricScraper & FootScraper --> ExpressAPI
+    PushService --> PushSubscribers
+```
+
+---
+
+## ⚡ Key Highlights & Capabilities
+
+### 📰 1. Real-Time Multi-Source News Engine
+- **Automated RSS Monitoring**: Continuous background ingestion across global news agencies (BBC, Reuters, Mint, TechCrunch, etc.).
+- **URL & Content Deduplication**: Dual-hash SHA-256 canonical URL & title normalization to prevent duplicate stories.
+- **5-Factor Dynamic Ranking**: Real-time scoring factoring in freshness decay, view velocity, reader engagement, source authority, and breaking editorial weight.
+- **Rich Article Views**: Interactive reader with Text-To-Speech (TTS), distraction-free focus mode, timeline extractions, key takeaways, and social sharing.
+
+### 🏏 2. Unified Sports Intelligence Hub
+- **Live Cricket Telemetry**: Autonomous Playwright/Async scraper extracting live ball-by-ball commentary, wagon wheels, partnership charts, and mini-scorecards.
+- **Football Match Center**: Real-time fixtures, live score updates, standings, and match commentary via Tribuna scrapers.
+- **Zero Rate-Limiting Overhead**: Smart adaptive sync loops that automatically throttle polling rates during inactive match periods.
+
+### 📅 3. Economic & Market Calendars
+- **Macro Economic Calendar**: RBI Repo Rate, US Federal Reserve FOMC, CPI Inflation, GDP, and Industrial Production releases.
+- **Market & Exchange Holidays**: Trading session hours, special Muhurat sessions, and holidays for NSE, BSE, MCX, and NYSE.
+- **Commodities & Energy Agenda**: OPEC+ output quotas, US EIA crude inventories, and bullion contract expiries.
+
+### 📬 4. Multi-Channel Distribution & Engagement
+- **Self-Hosted Native Web Push**: High-throughput VAPID web push engine with OneSignal integration.
+- **Automated Newsletter Broadcasts**: SMTP-powered 10:00 AM daily briefing engine with manual admin broadcast capabilities.
+- **Interactive Newsroom Community**: Poll of the Day and Daily News Intelligence Quiz with real-time tallying.
+- **Graphic Design Studio**: Built-in canvas image editor for creating social media banners, quotes, and branded visual cards.
+
+---
+
+## 📁 Repository Structure
 
 ```
 policydrift-news/
-├── backend/
-│   ├── package.json
-│   ├── sql/schema.sql          # DB `policydrift` + `posts` table
-│   ├── sql/table-posts.sql     # `posts` only (use your existing DB name in Workbench)
-│   └── src/
-│       ├── server.js           # HTTP server + cron
-│       ├── app.js              # Express app
-│       ├── config/env.js
-│       ├── config/rss-feeds.js   # RSS URLs by category (Breaking, India, …)
-│       ├── db/pool.js          # mysql2 pool
-│       ├── models/post.model.js
-│       ├── controllers/post.controller.js
-│       ├── routes/post.routes.js
-│       ├── routes/meta.routes.js
-│       ├── services/
-│       │   ├── rss.service.js
-│       │   ├── rewrite.service.js
-│       │   └── ingestion.service.js
-│       └── utils/hash.js
-├── frontend/                   # Next.js 14
-│   ├── app/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   ├── globals.css
-│   │   ├── blog/page.tsx
-│   │   ├── blog/[slug]/page.tsx
-│   │   ├── sitemap.ts
-│   │   └── robots.ts
-│   ├── components/
-│   └── lib/
-├── scripts/
-│   ├── web-dev.mjs             # next dev -p $WEB_PORT
-│   └── web-start.mjs           # next start -p $WEB_PORT
-├── package.json                # npm workspaces + dev script
-├── .env.example
-└── README.md
+├── backend/                      # Express.js REST API
+│   ├── sql/                      # MySQL database schemas & migration scripts
+│   ├── src/
+│   │   ├── config/               # Environment, symbols, and RSS feed configs
+│   │   ├── controllers/          # Request controllers (admin, news, cricket, etc.)
+│   │   ├── db/                   # MySQL connection pool & storage metrics
+│   │   ├── middleware/           # Auth, rate limiting, and admin protection
+│   │   ├── models/               # Data access layer (posts, sources, polls, quiz)
+│   │   ├── routes/               # Express route definitions
+│   │   ├── services/             # Ingestion, ranking, push, email, sports services
+│   │   ├── workers/              # Dedicated standalone cron worker (worker.js)
+│   │   └── server.js             # API entrypoint
+├── frontend/                     # Next.js 14 App Router
+│   ├── app/                      # Routes (/, /news/[slug], /calendar, /editor, etc.)
+│   ├── components/               # UI components (Header, Footer, ReadingMode, etc.)
+│   ├── lib/                      # API clients, formatting, sanitization, theme tokens
+│   └── types/                    # TypeScript interfaces & types
+├── cricbuzz_scraper/             # Autonomous Python Sports Scraper Hub
+│   ├── hub.py                    # Multi-sport orchestrator
+│   ├── scraper.py                # Playwright cricket scraper
+│   └── football_scraper.py       # Tribuna football scraper
+├── docs/                         # Comprehensive technical documentation
+│   ├── ARCHITECTURE.md           # Deep architectural specification
+│   ├── API_REFERENCE.md          # REST API endpoint reference
+│   ├── SPORTS_HUB.md             # Cricket & Football telemetry details
+│   ├── DEPLOYMENT.md             # Zero-downtime PM2 operations guide
+│   └── news-ranking.md           # 5-factor mathematical ranking guide
+├── scripts/                      # Build guards and execution scripts
+├── ecosystem.config.cjs          # PM2 production multi-process configuration
+├── AGENTS.md                     # Strict build & operational protocol rules
+└── package.json                  # Workspaces & script definitions
 ```
 
-**Full step-by-step setup (install MySQL, `.env`, verify DB, run ingest):** see **[SETUP.md](./SETUP.md)**.
+---
 
-## Prerequisites
+## 🚀 Quick Start Guide
 
-- Node.js 18+
-- MySQL 8 (or compatible)
+### Prerequisites
+- **Node.js**: `v18.x` or `v20.x`+
+- **Python**: `v3.10`+ (with `playwright` & `asyncio`)
+- **MySQL**: `v8.0`+
+- **PM2**: `npm install -g pm2` (for daemon management)
 
-## Setup
+---
 
-### 1. Database
-
-Create the schema (adjust database name if needed):
+### Step 1: Clone and Install Dependencies
 
 ```bash
-mysql -u root -p < backend/sql/schema.sql
+git clone https://github.com/Rau238/policydrift-news.git
+cd policydrift-news
+
+# Install root, backend, and frontend dependencies
+npm install
+
+# Install Python requirements for Sports Hub
+pip install -r cricbuzz_scraper/requirements.txt
+playwright install chromium
 ```
 
-### 2. Environment (development + production)
+---
 
-Copy the example into both env files at the **repository root**:
+### Step 2: Configure Environment Variables
+
+Create `.env.development` and `.env.production` at the root directory:
 
 ```bash
 cp .env.example .env.development
 cp .env.example .env.production
 ```
 
-| File | Used by |
-|------|---------|
-| `.env.development` | `npm run dev`, `npm run build:dev`, local ingest |
-| `.env.production` | `npm run build` / `build:prod`, `npm run start`, PM2 |
+#### Key Environment Variables:
+```ini
+# MySQL Configuration
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=your_password
+MYSQL_DATABASE=policydrift_news
 
-Set `MYSQL_*`, ports, and URLs per environment:
+# Server Ports
+NODE_ENV=development
+API_PORT=4050
+WEB_PORT=3050
 
-- **Development:** API `http://localhost:4001`, web `http://localhost:3001`
-- **Production:** API/web ports `4050` / `3050` (or reverse proxy); `NEXT_PUBLIC_*` = live domain (e.g. `https://www.newsfree365.live`)
+# URLs
+SITE_PUBLIC_URL=https://www.newsfree365.live
+NEXT_PUBLIC_API_URL=https://www.newsfree365.live
+NEXT_PUBLIC_SITE_URL=https://www.newsfree365.live
 
-Optional shared overrides can go in root `.env` (loaded first; env-specific files win).
-
-### 3. Install dependencies
-
-From the repo root:
-
-```bash
-npm install
+# Admin Secret
+ADMIN_SECRET=your_secure_admin_key
 ```
 
-### 4. Run in development
+---
 
-Terminal A + B, or one command:
+### Step 3: Initialize Database
+
+```bash
+mysql -u root -p < backend/sql/schema.sql
+```
+
+Verify the database connectivity:
+```bash
+npm run check
+```
+
+---
+
+### Step 4: Run in Development Mode
 
 ```bash
 npm run dev
 ```
 
-- API: `http://localhost:<API_PORT>` (default **4050**) — health: `GET /health`
-- Web: `http://localhost:<WEB_PORT>` (default **3050**)
+- **Frontend Web**: [http://localhost:3050](http://localhost:3050)
+- **Backend API**: [http://localhost:4050](http://localhost:4050)
+- **Health Check**: [http://localhost:4050/health](http://localhost:4050/health)
 
-### 5. First content load (RSS → MySQL)
+---
 
-Set **`RSS_FEED_URLS`** in `.env`, then either:
+## 🛡️ Production & Zero-Downtime Deployment
 
-```bash
-npm run ingest
-```
-
-or with the API running: `POST /api/posts/ingest` (see SETUP.md).
-
-After that, the **cron** job (every **30 minutes**) will ingest new items automatically unless `CRON_ENABLED=false`.
-
-## API reference
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/health` | Liveness |
-| GET | `/api/posts` | List posts (`?page`, `limit`, `category`) |
-| GET | `/api/posts/:slug` | Post by slug (increments views) |
-| GET | `/api/posts/trending` | Trending (`?limit`, `days`) |
-| GET | `/api/posts/categories` | Category counts |
-| GET | `/api/meta/slugs` | Slugs + `lastmod` for sitemap |
-| POST | `/api/posts/ingest` | Run RSS ingestion manually |
-
-## Builds & production
+The repository enforces a strict **Zero-Downtime Production Deployment Protocol** defined in [`AGENTS.md`](./AGENTS.md) and [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md).
 
 ```bash
-npm run build:dev    # Next build with .env.development (local URLs)
-npm run build:prod   # Next build with .env.production (live URLs) — same as npm run build
-npm run start        # API + web from .env.production
-npm run pm2:start    # PM2 API + web (production)
+# 1. Compile Next.js production build in background (no downtime)
+npx cross-env CONFIRM_BUILD=yes npm run build:prod
+
+# 2. Start / Gracefully reload PM2 processes
+npm run pm2:start
+
+# 3. Inspect process health
+npm run pm2:status
 ```
 
-`NEXT_PUBLIC_*` values are **baked in at build time** — always run `build:prod` before deploying live.
+---
 
-- **Vercel (or any hosted frontend) cannot use `http://127.0.0.1:4050` as the API** — expose the API publicly and set `NEXT_PUBLIC_API_URL` on Vercel, plus `CORS_ORIGIN` on the API. See **[docs/VERCEL_PRODUCTION_API.md](./docs/VERCEL_PRODUCTION_API.md)**.
-- Keep `OPENAI_API_KEY` server-side only (never `NEXT_PUBLIC_*`).
+## 📖 Documentation Index
 
-## License
+| Document | Purpose |
+|---|---|
+| [**Architecture Guide**](./docs/ARCHITECTURE.md) | Technical architecture, data flow diagrams, security boundaries |
+| [**API Reference**](./docs/API_REFERENCE.md) | Complete documentation of all REST API endpoints & payloads |
+| [**Sports Hub Guide**](./docs/SPORTS_HUB.md) | Cricket & Football scraper loops, telemetry, and rate control |
+| [**Deployment Guide**](./docs/DEPLOYMENT.md) | PM2 cluster management, zero-downtime reloads, and operational runbooks |
+| [**News Ranking Engine**](./docs/news-ranking.md) | Mathematical formulas behind trending, top, and popular scores |
 
-Private / your choice.
+---
+
+## 📜 License
+
+Private & Proprietary — NewsFree365 Team.

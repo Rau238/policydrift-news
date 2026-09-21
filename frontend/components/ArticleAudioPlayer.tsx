@@ -10,7 +10,6 @@ import {
   Sparkles,
   Gauge,
   Headphones,
-  Check,
 } from 'lucide-react';
 
 type Props = {

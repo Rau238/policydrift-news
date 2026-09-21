@@ -15,6 +15,7 @@ import rssRoutes from './routes/rss.routes.js';
 import calendarRoutes from './routes/calendar.routes.js';
 import pollRoutes from './routes/poll.routes.js';
 import quizRoutes from './routes/quiz.routes.js';
+import docsRoutes from './routes/docs.routes.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -24,7 +25,13 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    frameguard: false,
+    contentSecurityPolicy: false,
+  }),
+);
 app.use(
   cors({
     origin: env.CORS_ORIGIN === '*' ? true : env.CORS_ORIGIN.split(',').map((s) => s.trim()),
@@ -97,6 +104,9 @@ app.use('/api/calendar', calendarRoutes);
 app.use('/api/polls', pollRoutes);
 // Interactive Daily News Intelligence Quiz endpoints
 app.use('/api/quiz', quizRoutes);
+// Interactive OpenAPI / Swagger Documentation
+app.use('/api/docs', docsRoutes);
+app.use('/docs', docsRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);

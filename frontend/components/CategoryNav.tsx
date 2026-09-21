@@ -19,7 +19,6 @@ import {
   Coins,
   Flame,
   ArrowRight,
-  ExternalLink,
   Compass,
   X,
   Clapperboard,
@@ -28,7 +27,6 @@ import {
   Car,
   Vote,
   Globe,
-  Award,
   Trophy,
 } from 'lucide-react';
 import { CountryFlag } from '@/components/CountryFlag';

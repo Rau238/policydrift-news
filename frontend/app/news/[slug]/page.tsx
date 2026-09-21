@@ -45,10 +45,9 @@ import {
   categoryHref,
   categoryLabel,
   CategoryGlyph,
-  categoryVerticalBarClass,
 } from '@/lib/categories';
 import { CATEGORY_INTRO, categoryFromSlug } from '@/lib/category-routes';
-import { ArrowLeft, ExternalLink, Eye, Zap } from 'lucide-react';
+import { Eye, Zap } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 60;

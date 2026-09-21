@@ -59,6 +59,8 @@ router.delete('/auth', (_req, res) => {
 router.use(requireAdmin);
 
 // ── Overview & Diagnostics ───────────────────────────────────────────────────
+router.get('/health',                      adminController.getSystemHealth);
+router.get('/health-check',                adminController.getSystemHealth);
 router.get('/stats',                       adminController.getStats);
 router.get('/activity',                    adminController.getActivity);
 
@@ -141,6 +143,15 @@ router.post('/newsletter/auto-10am',       async (req, res, next) => {
     next(err);
   }
 });
+
+// ── AI Editorial Assistant & Configuration ────────────────────────────────────
+router.get('/ai/config',                   adminController.getAiConfig);
+router.post('/ai/config',                  adminController.updateAiConfig);
+router.post('/ai/test',                    adminController.testAiConnection);
+router.post('/ai/generate-article',        adminController.generateArticleWithAi);
+router.post('/ai/improve-content',         adminController.improveContentWithAi);
+router.post('/ai/extract-takeaways',       adminController.extractTakeawaysWithAi);
+router.post('/ai/generate-social',          adminController.generateSocialWithAi);
 
 // ── Worker triggers ───────────────────────────────────────────────────────────
 router.post('/ingest',                     adminController.triggerIngest);

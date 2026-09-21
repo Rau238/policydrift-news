@@ -1,8 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   Atom,
-  Bitcoin,
-  Briefcase,
   Building2,
   Car,
   Clapperboard,
@@ -11,15 +9,12 @@ import {
   Globe2,
   HeartPulse,
   Landmark,
-  LineChart,
   MapPin,
   Newspaper,
   Rocket,
-  Scale,
   TrendingUp,
   Trophy,
   Vote,
-  Wallet,
   Zap,
 } from 'lucide-react';
 

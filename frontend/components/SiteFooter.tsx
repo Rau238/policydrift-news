@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import {
-  ArrowRight,
   ArrowUp,
   Building2,
   FileText,
@@ -10,12 +9,10 @@ import {
   Globe,
   Mail,
   Map,
-  Radio,
   Rss,
   Scale,
   Shield,
   TrendingUp,
-  Zap,
 } from 'lucide-react';
 import { siteName } from '@/lib/site';
 import { CATEGORY_ORDER, categoryHref, categoryLabel, CategoryGlyph } from '@/lib/category-theme';

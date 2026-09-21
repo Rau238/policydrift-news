@@ -84,7 +84,7 @@ export async function getMarketQuotesPayload() {
       return { ok: true, ...r.value };
     }
     const msg = r.reason?.message || String(r.reason);
-    console.error(`[market-quotes] ${row.symbol}:`, r.reason);
+    console.warn(`[market-quotes] ${row.symbol}: ${msg}`);
     return {
       ok: false,
       id: row.id,

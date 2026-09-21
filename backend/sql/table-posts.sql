@@ -1,4 +1,9 @@
+-- =============================================================================
+-- NewsFree365 / PolicyDrift — Posts Table Full DDL
+-- Database: policydrift_news
+-- =============================================================================
 
+USE policydrift_news;
 
 CREATE TABLE IF NOT EXISTS posts (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -16,13 +21,42 @@ CREATE TABLE IF NOT EXISTS posts (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   source_feed VARCHAR(512) NULL,
+  source_id INT UNSIGNED NULL,
+  tags JSON NULL,
+  status ENUM('draft','pending','processing','approved','published','rejected','archived') NOT NULL DEFAULT 'published',
+  rejection_reason TEXT NULL,
+  approved_by VARCHAR(128) NULL,
+  approved_at DATETIME NULL,
+  auto_published TINYINT(1) NOT NULL DEFAULT 0,
+  post_kind ENUM('standard','visual_story','curated','breaking') NOT NULL DEFAULT 'standard',
+  score INT NOT NULL DEFAULT 0,
+  engagement_score DECIMAL(8,6) NOT NULL DEFAULT 0.000000,
+  clicks INT UNSIGNED NOT NULL DEFAULT 0,
+  avg_time_on_page INT UNSIGNED NOT NULL DEFAULT 0,
+  is_featured TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  is_breaking TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  breaking_until DATETIME NULL,
+  featured_until DATETIME NULL,
+  editorial_priority ENUM('normal','high','pinned') NOT NULL DEFAULT 'normal',
+  author VARCHAR(255) NULL,
+  scheduled_at DATETIME NULL,
+  like_count INT UNSIGNED NOT NULL DEFAULT 0,
+  comment_count INT UNSIGNED NOT NULL DEFAULT 0,
+  share_count INT UNSIGNED NOT NULL DEFAULT 0,
+  bookmark_count INT UNSIGNED NOT NULL DEFAULT 0,
+  reading_time_minutes TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  content_hash CHAR(64) NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uq_url_hash (url_hash),
   UNIQUE KEY uq_slug (slug),
   KEY idx_category (category),
   KEY idx_published (published_at),
+  KEY idx_status_published (status, published_at DESC),
   KEY idx_views (view_count),
-  KEY idx_trending (published_at, view_count)
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+  KEY idx_trending (published_at, view_count),
+  KEY idx_breaking (is_breaking, breaking_until),
+  KEY idx_featured (is_featured),
+  KEY idx_scheduled (scheduled_at),
+  KEY idx_source_id (source_id),
+  KEY idx_content_hash (content_hash)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

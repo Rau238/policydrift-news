@@ -68,6 +68,9 @@ import {
   Smartphone,
   Monitor,
   Menu,
+  Settings,
+  Key,
+  Cpu,
 } from 'lucide-react';
 import { CATEGORY_ORDER, categoryLabel, categoryChipClass, CategoryGlyph } from '@/lib/categories';
 import { AdminSidebar } from '../_components/AdminSidebar';
@@ -205,11 +208,229 @@ function AdminCreateArticleContent() {
     },
   ]);
 
+  // AI Assistant Modal & Generator State
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiCategory, setAiCategory] = useState('politics');
+  const [aiTone, setAiTone] = useState<'authoritative' | 'analytical' | 'breaking' | 'accessible'>('authoritative');
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiPolishing, setAiPolishing] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  // AI Settings Modal & Keys State
+  const [aiConfigModalOpen, setAiConfigModalOpen] = useState(false);
+  const [aiConfigLoading, setAiConfigLoading] = useState(false);
+  const [aiConfigSaving, setAiConfigSaving] = useState(false);
+  const [aiConfigData, setAiConfigData] = useState<any>(null);
+  const [groqKeyInput, setGroqKeyInput] = useState('');
+  const [groqModelInput, setGroqModelInput] = useState('');
+  const [geminiKeyInput, setGeminiKeyInput] = useState('');
+  const [geminiModelInput, setGeminiModelInput] = useState('');
+  const [openaiKeyInput, setOpenaiKeyInput] = useState('');
+  const [openaiModelInput, setOpenaiModelInput] = useState('');
+  const [priorityInput, setPriorityInput] = useState('groq,gemini,openai');
+  const [testResults, setTestResults] = useState<{ [key: string]: { loading?: boolean; ok?: boolean; msg?: string; latency?: number } }>({});
+  const [configFeedback, setConfigFeedback] = useState<string | null>(null);
+
+  const fetchAiConfig = async () => {
+    setAiConfigLoading(true);
+    try {
+      const res = await fetch('/api/admin/ai/config');
+      const json = await res.json();
+      if (json.ok && json.data) {
+        setAiConfigData(json.data);
+        setGroqKeyInput(json.data.groq_key_masked || '');
+        setGroqModelInput(json.data.groq_model || 'openai/gpt-oss-120b');
+        setGeminiKeyInput(json.data.gemini_key_masked || '');
+        setGeminiModelInput(json.data.gemini_model || 'gemini-3.6-flash');
+        setOpenaiKeyInput(json.data.openai_key_masked || '');
+        setOpenaiModelInput(json.data.openai_model || 'gpt-4o-mini');
+        setPriorityInput(json.data.provider_priority || 'groq,gemini,openai');
+      }
+    } catch (e) {
+      console.error('Failed to load AI config:', e);
+    } finally {
+      setAiConfigLoading(false);
+    }
+  };
+
+  const handleOpenAiConfig = () => {
+    setAiConfigModalOpen(true);
+    fetchAiConfig();
+  };
+
+  useEffect(() => {
+    if (searchParams?.get('tab') === 'ai' || searchParams?.get('ai') === 'true') {
+      handleOpenAiConfig();
+    }
+  }, [searchParams]);
+
+  const handleTestProvider = async (provider: string, apiKey?: string, model?: string) => {
+    setTestResults((prev) => ({ ...prev, [provider]: { loading: true } }));
+    try {
+      const res = await fetch('/api/admin/ai/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider,
+          apiKey: apiKey && !apiKey.includes('••••') ? apiKey : undefined,
+          model: model || undefined,
+        }),
+      });
+      const json = await res.json();
+      if (json.ok && json.data) {
+        setTestResults((prev) => ({
+          ...prev,
+          [provider]: {
+            loading: false,
+            ok: true,
+            msg: `Connected in ${json.data.latency_ms}ms (response: ${json.data.sample || 'OK'})`,
+            latency: json.data.latency_ms,
+          },
+        }));
+      } else {
+        setTestResults((prev) => ({
+          ...prev,
+          [provider]: {
+            loading: false,
+            ok: false,
+            msg: json.error || 'Connection test failed',
+          },
+        }));
+      }
+    } catch (err: any) {
+      setTestResults((prev) => ({
+        ...prev,
+        [provider]: {
+          loading: false,
+          ok: false,
+          msg: err.message || 'Network error during test',
+        },
+      }));
+    }
+  };
+
+  const handleSaveAiConfig = async () => {
+    setAiConfigSaving(true);
+    setConfigFeedback(null);
+    try {
+      const payload: any = {
+        provider_priority: priorityInput,
+        groq_model: groqModelInput,
+        gemini_model: geminiModelInput,
+        openai_model: openaiModelInput,
+      };
+      if (groqKeyInput && !groqKeyInput.includes('••••')) payload.groq_api_key = groqKeyInput;
+      if (geminiKeyInput && !geminiKeyInput.includes('••••')) payload.gemini_api_key = geminiKeyInput;
+      if (openaiKeyInput && !openaiKeyInput.includes('••••')) payload.openai_api_key = openaiKeyInput;
+
+      const res = await fetch('/api/admin/ai/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (json.ok && json.data) {
+        setAiConfigData(json.data);
+        setConfigFeedback('AI settings & API keys updated successfully!');
+        setTimeout(() => setConfigFeedback(null), 4000);
+      } else {
+        throw new Error(json.error || 'Failed to save AI config');
+      }
+    } catch (err: any) {
+      setConfigFeedback('Error: ' + (err.message || 'Could not save'));
+    } finally {
+      setAiConfigSaving(false);
+    }
+  };
+
   // UI state (Preview closed by default for full-width editor)
   const [activeTab, setActiveTab] = useState<'editor' | 'preview' | 'split'>('editor');
   const [submitting, setSubmitting] = useState(false);
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string; publishedSlug?: string } | null>(null);
+
+  const handleAiGenerate = async () => {
+    if (!aiPrompt.trim()) {
+      setAiError('Please enter a headline, topic, or raw facts.');
+      return;
+    }
+
+    setAiGenerating(true);
+    setAiError(null);
+
+    try {
+      const res = await fetch('/api/admin/ai/generate-article', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: aiPrompt.trim(),
+          category: aiCategory,
+          tone: aiTone,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        throw new Error(json.error || 'Failed to generate article with AI.');
+      }
+
+      const { title: aiTitle, excerpt: aiExcerpt, body: aiBody, key_takeaways: aiTakeaways, category: aiCat, tags: aiTags } = json.data;
+
+      if (aiTitle) setTitle(aiTitle);
+      if (aiExcerpt) setExcerpt(aiExcerpt);
+      if (aiBody) setBody(aiBody);
+      if (aiCat) setCategory(aiCat);
+      if (aiTags && Array.isArray(aiTags)) setTagsInput(aiTags.join(', '));
+      if (aiTakeaways && Array.isArray(aiTakeaways) && aiTakeaways.length > 0) {
+        setTakeaways(aiTakeaways);
+      }
+
+      setAiModalOpen(false);
+      setFeedback({
+        type: 'success',
+        message: '✨ AI generated article successfully! Review and edit the fields below.',
+      });
+    } catch (err: any) {
+      setAiError(err.message || 'AI Generation error.');
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
+  const handleAiPolish = async () => {
+    if (!body.trim()) {
+      setFeedback({ type: 'error', message: 'No article body content to polish.' });
+      return;
+    }
+
+    setAiPolishing(true);
+    try {
+      const res = await fetch('/api/admin/ai/improve-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: body,
+          instruction: 'Enhance journalistic clarity, fix grammar, and format with clear subheadings.',
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error || 'Failed to polish content.');
+
+      if (json.data?.improved_html) {
+        setBody(json.data.improved_html);
+        setFeedback({
+          type: 'success',
+          message: '✨ Article body polished by AI!',
+        });
+      }
+    } catch (err: any) {
+      setFeedback({ type: 'error', message: err.message || 'Error polishing content.' });
+    } finally {
+      setAiPolishing(false);
+    }
+  };
 
   // Load article for editing if editId is provided
   useEffect(() => {
@@ -766,6 +987,28 @@ function AdminCreateArticleContent() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* AI Assistant Magic Drafter Button */}
+            <button
+              type="button"
+              onClick={() => setAiModalOpen(true)}
+              className="flex items-center gap-1.5 rounded-xl border border-violet-500/40 bg-linear-to-r from-violet-600/30 to-indigo-600/30 px-3.5 py-1.5 text-xs font-bold text-violet-200 transition hover:from-violet-600/50 hover:to-indigo-600/50 hover:border-violet-400 shadow-md shadow-violet-500/10 active:scale-95"
+              title="Open AI Magic Drafter to generate articles, headlines, takeaways, and SEO"
+            >
+              <Sparkles size={14} className="text-violet-300 animate-pulse" />
+              <span>AI Magic Drafter</span>
+            </button>
+
+            {/* AI Settings & Keys Configuration Button */}
+            <button
+              type="button"
+              onClick={handleOpenAiConfig}
+              className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-1.5 text-xs font-bold text-slate-300 transition hover:bg-slate-700 hover:text-white active:scale-95"
+              title="Configure Groq, Gemini & OpenAI API keys, models, and fallback priority"
+            >
+              <Settings size={14} className="text-slate-400" />
+              <span className="hidden sm:inline">AI Keys</span>
+            </button>
+
             {/* Dedicated Open/Close Live Preview Button */}
             <button
               type="button"
@@ -1753,8 +1996,18 @@ function AdminCreateArticleContent() {
                     </div>
                   </div>
 
-                  {/* Actions: Copy HTML / Copy Markdown / Clean */}
-                  <div className="flex items-center gap-1 self-end sm:self-auto">
+                  {/* Actions: AI Polish / Copy HTML / Copy Markdown / Clean */}
+                  <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                    <button
+                      type="button"
+                      disabled={aiPolishing || !body.trim()}
+                      onClick={handleAiPolish}
+                      title="Polish and enhance article text with AI"
+                      className="flex items-center gap-1 rounded-lg border border-violet-500/40 bg-violet-950/40 px-2.5 py-1 text-[11px] font-bold text-violet-300 hover:bg-violet-900/50 transition disabled:opacity-40"
+                    >
+                      {aiPolishing ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} className="text-violet-400" />}
+                      <span>{aiPolishing ? 'Polishing...' : 'AI Polish'}</span>
+                    </button>
                     <button
                       type="button"
                       title="Copy as clean HTML"
@@ -2184,6 +2437,384 @@ function AdminCreateArticleContent() {
             </div>
           </div>
         </div>
+
+        {/* AI Assistant Magic Drafter Modal */}
+        {aiModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-in fade-in">
+            <div className="relative w-full max-w-xl rounded-2xl border border-violet-500/30 bg-[#0d1322] p-6 shadow-2xl shadow-violet-950/40">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/20 text-violet-400 border border-violet-500/30">
+                    <Sparkles size={18} />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold text-white tracking-tight">AI Magic Article Drafter</h2>
+                    <p className="text-xs text-slate-400">Generate a complete editorial-grade news draft with headlines, body, and takeaways.</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAiModalOpen(false)}
+                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {aiError && (
+                <div className="mt-4 flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs font-semibold text-rose-300">
+                  <AlertCircle size={15} />
+                  <span>{aiError}</span>
+                </div>
+              )}
+
+              <div className="mt-5 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                    Topic / Headline / Raw Facts <span className="text-rose-400">*</span>
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="e.g. Government announces new Green Energy Subsidies for solar manufacturing units in 2026. Target 50GW capacity by 2030..."
+                    className="w-full rounded-xl border border-slate-800 bg-[#080d1a] p-3 text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1.5">Category</label>
+                    <select
+                      value={aiCategory}
+                      onChange={(e) => setAiCategory(e.target.value)}
+                      className="w-full rounded-xl border border-slate-800 bg-[#080d1a] p-2.5 text-xs text-slate-200 focus:border-violet-500 focus:outline-none"
+                    >
+                      {CATEGORY_ORDER.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {categoryLabel(cat)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1.5">Editorial Tone</label>
+                    <select
+                      value={aiTone}
+                      onChange={(e: any) => setAiTone(e.target.value)}
+                      className="w-full rounded-xl border border-slate-800 bg-[#080d1a] p-2.5 text-xs text-slate-200 focus:border-violet-500 focus:outline-none"
+                    >
+                      <option value="authoritative">Authoritative & Verified</option>
+                      <option value="analytical">Analytical Deep-Dive</option>
+                      <option value="breaking">Breaking Fast-Paced</option>
+                      <option value="accessible">Accessible & Explanatory</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-800/80 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setAiModalOpen(false)}
+                  className="rounded-xl border border-slate-800 px-4 py-2 text-xs font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={aiGenerating}
+                  onClick={handleAiGenerate}
+                  className="flex items-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-indigo-600 px-5 py-2 text-xs font-bold text-white shadow-lg shadow-violet-500/25 transition hover:from-violet-500 hover:to-indigo-500 disabled:opacity-50"
+                >
+                  {aiGenerating ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      <span>Generating Full Story...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={14} />
+                      <span>Draft Article with AI</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* AI Settings & Keys Configuration Modal */}
+        {aiConfigModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in">
+            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-700/80 bg-[#0b101c] p-6 shadow-2xl shadow-black/80 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30 shadow-inner">
+                    <Cpu size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold text-white tracking-tight">AI Engine & API Keys Configuration</h2>
+                    <p className="text-xs text-slate-400">Configure free AI providers (Groq & Gemini) with zero-downtime automatic failover.</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAiConfigModalOpen(false)}
+                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {configFeedback && (
+                <div className={`mt-4 flex items-center gap-2 rounded-xl border p-3 text-xs font-semibold ${
+                  configFeedback.startsWith('Error')
+                    ? 'border-rose-500/30 bg-rose-500/10 text-rose-300'
+                    : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                }`}>
+                  {configFeedback.startsWith('Error') ? <AlertCircle size={15} /> : <CheckCircle2 size={15} />}
+                  <span>{configFeedback}</span>
+                </div>
+              )}
+
+              {aiConfigLoading ? (
+                <div className="flex items-center justify-center py-12 text-slate-400 gap-2">
+                  <Loader2 className="animate-spin" size={20} />
+                  <span className="text-xs">Loading AI settings from database...</span>
+                </div>
+              ) : (
+                <div className="mt-5 space-y-6">
+                  {/* 1. Groq Cloud (Free Tier) */}
+                  <div className="rounded-xl border border-slate-800 bg-[#070c16] p-4.5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 ring-4 ring-emerald-950" />
+                        <span className="text-sm font-bold text-white">Groq Cloud</span>
+                        <span className="rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                          100% Free • Ultra Fast
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleTestProvider('groq', groqKeyInput, groqModelInput)}
+                        disabled={testResults.groq?.loading}
+                        className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition disabled:opacity-50"
+                      >
+                        {testResults.groq?.loading ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} className="text-amber-400" />}
+                        <span>Test Groq</span>
+                      </button>
+                    </div>
+
+                    {testResults.groq?.msg && (
+                      <div className={`text-[11px] p-2 rounded-lg border ${
+                        testResults.groq.ok
+                          ? 'border-emerald-500/30 bg-emerald-950/30 text-emerald-300'
+                          : 'border-rose-500/30 bg-rose-950/30 text-rose-300'
+                      }`}>
+                        {testResults.groq.msg}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-400 mb-1">
+                          Groq API Key (starts with gsk_...)
+                        </label>
+                        <input
+                          type="text"
+                          value={groqKeyInput}
+                          onChange={(e) => setGroqKeyInput(e.target.value)}
+                          placeholder="gsk_..."
+                          className="w-full rounded-xl border border-slate-800 bg-[#03060c] p-2.5 text-xs text-white placeholder-slate-600 focus:border-teal-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-400 mb-1">
+                          Model Name
+                        </label>
+                        <input
+                          type="text"
+                          value={groqModelInput}
+                          onChange={(e) => setGroqModelInput(e.target.value)}
+                          placeholder="openai/gpt-oss-120b"
+                          className="w-full rounded-xl border border-slate-800 bg-[#03060c] p-2.5 text-xs text-white placeholder-slate-600 focus:border-teal-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. Google Gemini (Free Tier) */}
+                  <div className="rounded-xl border border-slate-800 bg-[#070c16] p-4.5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-2.5 w-2.5 rounded-full bg-blue-400 ring-4 ring-blue-950" />
+                        <span className="text-sm font-bold text-white">Google Gemini</span>
+                        <span className="rounded-md bg-blue-500/15 border border-blue-500/30 px-2 py-0.5 text-[10px] font-bold text-blue-300">
+                          Free Tier • High Capacity
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleTestProvider('gemini', geminiKeyInput, geminiModelInput)}
+                        disabled={testResults.gemini?.loading}
+                        className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition disabled:opacity-50"
+                      >
+                        {testResults.gemini?.loading ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} className="text-blue-400" />}
+                        <span>Test Gemini</span>
+                      </button>
+                    </div>
+
+                    {testResults.gemini?.msg && (
+                      <div className={`text-[11px] p-2 rounded-lg border ${
+                        testResults.gemini.ok
+                          ? 'border-emerald-500/30 bg-emerald-950/30 text-emerald-300'
+                          : 'border-rose-500/30 bg-rose-950/30 text-rose-300'
+                      }`}>
+                        {testResults.gemini.msg}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-400 mb-1">
+                          Gemini API Key (from AI Studio)
+                        </label>
+                        <input
+                          type="text"
+                          value={geminiKeyInput}
+                          onChange={(e) => setGeminiKeyInput(e.target.value)}
+                          placeholder="AQ... or AIzaSy..."
+                          className="w-full rounded-xl border border-slate-800 bg-[#03060c] p-2.5 text-xs text-white placeholder-slate-600 focus:border-teal-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-400 mb-1">
+                          Model Name
+                        </label>
+                        <input
+                          type="text"
+                          value={geminiModelInput}
+                          onChange={(e) => setGeminiModelInput(e.target.value)}
+                          placeholder="gemini-3.6-flash"
+                          className="w-full rounded-xl border border-slate-800 bg-[#03060c] p-2.5 text-xs text-white placeholder-slate-600 focus:border-teal-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. OpenAI API (Optional Fallback) */}
+                  <div className="rounded-xl border border-slate-800/80 bg-[#070c16] p-4.5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-2.5 w-2.5 rounded-full bg-slate-500 ring-4 ring-slate-800" />
+                        <span className="text-sm font-bold text-white">OpenAI (Optional)</span>
+                        <span className="rounded-md bg-slate-800 border border-slate-700 px-2 py-0.5 text-[10px] font-bold text-slate-400">
+                          Paid Fallback
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleTestProvider('openai', openaiKeyInput, openaiModelInput)}
+                        disabled={testResults.openai?.loading}
+                        className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition disabled:opacity-50"
+                      >
+                        {testResults.openai?.loading ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} className="text-slate-400" />}
+                        <span>Test OpenAI</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-400 mb-1">
+                          OpenAI API Key (sk-...)
+                        </label>
+                        <input
+                          type="text"
+                          value={openaiKeyInput}
+                          onChange={(e) => setOpenaiKeyInput(e.target.value)}
+                          placeholder="sk-..."
+                          className="w-full rounded-xl border border-slate-800 bg-[#03060c] p-2.5 text-xs text-white placeholder-slate-600 focus:border-teal-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-400 mb-1">
+                          Model Name
+                        </label>
+                        <input
+                          type="text"
+                          value={openaiModelInput}
+                          onChange={(e) => setOpenaiModelInput(e.target.value)}
+                          placeholder="gpt-4o-mini"
+                          className="w-full rounded-xl border border-slate-800 bg-[#03060c] p-2.5 text-xs text-white placeholder-slate-600 focus:border-teal-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. Priority & Automatic Failover */}
+                  <div className="rounded-xl border border-slate-800 bg-[#070c16] p-4.5 space-y-2">
+                    <label className="block text-xs font-bold text-slate-300">
+                      Automatic Failover Chain & Provider Priority
+                    </label>
+                    <select
+                      value={priorityInput}
+                      onChange={(e) => setPriorityInput(e.target.value)}
+                      className="w-full rounded-xl border border-slate-800 bg-[#03060c] p-2.5 text-xs text-slate-200 focus:border-teal-500 focus:outline-none"
+                    >
+                      <option value="groq,gemini,openai">Groq (Primary) ➔ Google Gemini ➔ OpenAI</option>
+                      <option value="gemini,groq,openai">Google Gemini (Primary) ➔ Groq ➔ OpenAI</option>
+                      <option value="groq,openai">Groq ➔ OpenAI Only</option>
+                      <option value="gemini,openai">Google Gemini ➔ OpenAI Only</option>
+                    </select>
+                    <p className="text-[11px] text-slate-500">
+                      If the primary provider encounters a rate limit (429) or temporary network timeout, the system automatically falls back to the next provider instantly with zero user interruption.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-6 flex items-center justify-between border-t border-slate-800/80 pt-4">
+                <button
+                  type="button"
+                  onClick={fetchAiConfig}
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-800 px-3 py-2 text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                >
+                  <RefreshCw size={13} />
+                  <span>Reload Current</span>
+                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setAiConfigModalOpen(false)}
+                    className="rounded-xl border border-slate-800 px-4 py-2 text-xs font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    disabled={aiConfigSaving || aiConfigLoading}
+                    onClick={handleSaveAiConfig}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 py-2 text-xs font-bold text-white shadow-lg shadow-teal-900/30 transition hover:from-teal-500 hover:to-emerald-500 disabled:opacity-50"
+                  >
+                    {aiConfigSaving ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin" />
+                        <span>Saving Keys...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save size={14} />
+                        <span>Save & Apply Keys</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Floating Quick Button to Open Live Preview when Editor is in Full Width Mode */}
         {activeTab === 'editor' && (

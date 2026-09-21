@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import Link from 'next/link';
 import {
   BookOpen,
   Sun,
@@ -10,14 +9,13 @@ import {
   Coffee,
   ArrowLeft,
   Glasses,
-  Home,
 } from 'lucide-react';
 
 type ReadingTheme = 'light' | 'sepia' | 'dark';
 type FontFamily = 'sans' | 'serif' | 'mono';
 
 type Props = {
-  title: string;
+  title?: string;
   category?: string;
 };
 

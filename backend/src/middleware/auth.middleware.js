@@ -23,11 +23,15 @@ export function requireAdmin(req, res, next) {
   const cookieHeader = req.headers.cookie || '';
   const cookieMatch = cookieHeader.match(/(?:^|;\s*)pd_admin=([^;]+)/);
   const cookieVal = cookieMatch ? decodeURIComponent(cookieMatch[1]).trim() : '';
+  const querySecret = (req.query?.secret || req.query?.admin_secret || '').toString().trim();
 
-  const token = header || bearer || cookieVal;
+  const token = header || bearer || cookieVal || querySecret;
 
   if (!token || token !== secret) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({
+      error: 'Unauthorized',
+      hint: 'Provide valid admin credentials via x-admin-secret header, Bearer token, cookie, or ?secret= query parameter.',
+    });
   }
 
   next();

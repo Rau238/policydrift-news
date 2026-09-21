@@ -21,6 +21,7 @@ import {
   expireBreakingNews,
   expireFeaturedArticles,
 } from '../services/scheduler.service.js';
+import { env } from '../config/env.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -983,4 +984,318 @@ export async function syncCalendarData(req, res, next) {
   }
 }
 
+export async function getSystemHealth(req, res) {
+  const startTime = Date.now();
+  const memory = process.memoryUsage();
 
+  let dbStatus = 'disconnected';
+  let dbLatencyMs = null;
+  let storageStats = null;
+  let totalPosts = 0;
+  let published24h = 0;
+  let activeSourcesCount = 0;
+  let lastIngested = null;
+
+  try {
+    const { pool, pingDb } = await import('../db/pool.js');
+    const { getMysqlStorageMetrics } = await import('../db/storage-stats.js');
+    const dbPingStart = Date.now();
+    await pingDb();
+    dbLatencyMs = Date.now() - dbPingStart;
+    dbStatus = 'connected';
+
+    const [postCountRows] = await pool.query('SELECT COUNT(*) AS total FROM posts');
+    totalPosts = Number(postCountRows[0]?.total) || 0;
+
+    const [published24hRows] = await pool.query(
+      'SELECT COUNT(*) AS total FROM posts WHERE published_at >= NOW() - INTERVAL 24 HOUR',
+    );
+    published24h = Number(published24hRows[0]?.total) || 0;
+
+    const [sourcesRows] = await pool.query(
+      'SELECT COUNT(*) AS total FROM news_sources WHERE is_active = 1',
+    );
+    activeSourcesCount = Number(sourcesRows[0]?.total) || 0;
+
+    const [latestPostRows] = await pool.query(
+      'SELECT id, title, slug, published_at, created_at FROM posts ORDER BY id DESC LIMIT 1',
+    );
+    lastIngested = latestPostRows[0] || null;
+
+    storageStats = await getMysqlStorageMetrics();
+  } catch (err) {
+    dbStatus = 'error';
+    console.error('[admin-health] Database diagnostic check error:', err.message);
+  }
+
+  let pushSubscribersCount = 0;
+  try {
+    const { pool } = await import('../db/pool.js');
+    const [pushRows] = await pool.query('SELECT COUNT(*) AS total FROM push_subscriptions');
+    pushSubscribersCount = Number(pushRows[0]?.total) || 0;
+  } catch {
+    // optional table
+  }
+
+  let newsletterSubscribersCount = 0;
+  try {
+    const { pool } = await import('../db/pool.js');
+    const [subRows] = await pool.query(
+      'SELECT COUNT(*) AS total FROM newsletter_subscribers WHERE status = "active"',
+    );
+    newsletterSubscribersCount = Number(subRows[0]?.total) || 0;
+  } catch {
+    // optional table
+  }
+
+  let configuredFeedsCount = 0;
+  try {
+    const { getFeedEntries } = await import('../config/rss-feeds.js');
+    configuredFeedsCount = getFeedEntries(env).length;
+  } catch {
+    configuredFeedsCount = 0;
+  }
+
+  const isHealthy = dbStatus === 'connected';
+  const responseTimeMs = Date.now() - startTime;
+
+  const payload = {
+    ok: isHealthy,
+    status: isHealthy ? 'healthy' : 'unhealthy',
+    timestamp: new Date().toISOString(),
+    responseTimeMs,
+    system: {
+      uptimeSeconds: Math.floor(process.uptime()),
+      uptimeFormatted: `${Math.floor(process.uptime() / 3600)}h ${Math.floor(
+        (process.uptime() % 3600) / 60,
+      )}m ${Math.floor(process.uptime() % 60)}s`,
+      environment: env.NODE_ENV,
+      nodeVersion: process.version,
+      platform: process.platform,
+      arch: process.arch,
+      pid: process.pid,
+      memory: {
+        rssMb: Math.round((memory.rss / 1024 / 1024) * 100) / 100,
+        heapUsedMb: Math.round((memory.heapUsed / 1024 / 1024) * 100) / 100,
+        heapTotalMb: Math.round((memory.heapTotal / 1024 / 1024) * 100) / 100,
+        externalMb: Math.round((memory.external / 1024 / 1024) * 100) / 100,
+      },
+    },
+    database: {
+      status: dbStatus,
+      pingLatencyMs: dbLatencyMs,
+      host: env.MYSQL_HOST,
+      port: env.MYSQL_PORT,
+      database: env.MYSQL_DATABASE,
+      poolLimit: env.MYSQL_POOL_LIMIT,
+      totalPosts,
+      published24h,
+      activeSourcesCount,
+      storage: storageStats || undefined,
+    },
+    services: {
+      rssWorker: {
+        workerEnabled: env.WORKER_ENABLED,
+        cronEnabled: env.CRON_ENABLED,
+        configuredFeedsCount,
+        lastIngestedPost: lastIngested
+          ? {
+              id: lastIngested.id,
+              title: lastIngested.title,
+              slug: lastIngested.slug,
+              publishedAt: lastIngested.published_at,
+              createdAt: lastIngested.created_at,
+            }
+          : null,
+      },
+      trends: {
+        enabled: env.TRENDS_ENABLED,
+        geo: env.TRENDS_GEO,
+        cron: env.TRENDS_CRON,
+      },
+      pushNotifications: {
+        vapidConfigured: Boolean(env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY),
+        activeSubscribers: pushSubscribersCount,
+      },
+      newsletter: {
+        smtpConfigured: Boolean(env.SMTP_HOST && env.SMTP_USER),
+        activeSubscribers: newsletterSubscribersCount,
+      },
+    },
+  };
+
+  return res.status(isHealthy ? 200 : 503).json(payload);
+}
+
+// ── AI Editorial Assistant Handlers ──────────────────────────────────────────
+
+export async function generateArticleWithAi(req, res, next) {
+  try {
+    const { aiService } = await import('../services/ai.service.js').catch(err => {
+      throw new Error('AI service error: ' + err.message);
+    });
+    const { generateArticle } = await import('../services/ai.service.js');
+    const { prompt, category, tone, post_kind } = req.body || {};
+
+    if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
+      return res.status(400).json({ error: 'Missing required field: prompt' });
+    }
+
+    const result = await generateArticle({ prompt: prompt.trim(), category, tone, post_kind });
+    return res.json({ ok: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function improveContentWithAi(req, res, next) {
+  try {
+    const { improveContent } = await import('../services/ai.service.js');
+    const { content, instruction } = req.body || {};
+
+    if (!content || typeof content !== 'string' || !content.trim()) {
+      return res.status(400).json({ error: 'Missing required field: content' });
+    }
+
+    const result = await improveContent({ content: content.trim(), instruction });
+    return res.json({ ok: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function extractTakeawaysWithAi(req, res, next) {
+  try {
+    const { extractTakeawaysAndFaqs } = await import('../services/ai.service.js');
+    const { title, body } = req.body || {};
+
+    if (!body || typeof body !== 'string' || !body.trim()) {
+      return res.status(400).json({ error: 'Missing required field: body' });
+    }
+
+    const result = await extractTakeawaysAndFaqs({ title: title || '', body: body.trim() });
+    return res.json({ ok: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function generateSocialWithAi(req, res, next) {
+  try {
+    const { generateSocialPosts } = await import('../services/ai.service.js');
+    const { title, excerpt, url } = req.body || {};
+
+    if (!title || typeof title !== 'string' || !title.trim()) {
+      return res.status(400).json({ error: 'Missing required field: title' });
+    }
+
+    const result = await generateSocialPosts({ title: title.trim(), excerpt: excerpt || '', url });
+    return res.json({ ok: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+function maskKey(key) {
+  if (!key || typeof key !== 'string') return '';
+  const s = key.trim();
+  if (s.length <= 8) return '••••••••';
+  return s.slice(0, 4) + '••••••••' + s.slice(-4);
+}
+
+export async function getAiConfig(req, res, next) {
+  try {
+    const { getAiSettings } = await import('../models/ai-config.model.js');
+    const settings = await getAiSettings();
+    return res.json({
+      ok: true,
+      data: {
+        provider_priority: settings.provider_priority || 'groq,gemini,openai',
+        gemini_configured: Boolean(settings.gemini_api_key),
+        gemini_model: settings.gemini_model || 'gemini-1.5-flash',
+        gemini_key_masked: maskKey(settings.gemini_api_key),
+        groq_configured: Boolean(settings.groq_api_key),
+        groq_model: settings.groq_model || 'llama-3.3-70b-versatile',
+        groq_key_masked: maskKey(settings.groq_api_key),
+        openai_configured: Boolean(settings.openai_api_key),
+        openai_model: settings.openai_model || 'gpt-4o-mini',
+        openai_key_masked: maskKey(settings.openai_api_key),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateAiConfig(req, res, next) {
+  try {
+    const { updateAiSettings, getAiSettings } = await import('../models/ai-config.model.js');
+    const {
+      provider_priority,
+      gemini_api_key,
+      gemini_model,
+      groq_api_key,
+      groq_model,
+      openai_api_key,
+      openai_model,
+    } = req.body || {};
+
+    const updates = {};
+    if (provider_priority !== undefined) updates.provider_priority = String(provider_priority);
+    if (gemini_api_key !== undefined && gemini_api_key.trim() && !gemini_api_key.includes('••••')) {
+      updates.gemini_api_key = gemini_api_key.trim();
+    }
+    if (gemini_model !== undefined) updates.gemini_model = gemini_model.trim();
+    if (groq_api_key !== undefined && groq_api_key.trim() && !groq_api_key.includes('••••')) {
+      updates.groq_api_key = groq_api_key.trim();
+    }
+    if (groq_model !== undefined) updates.groq_model = groq_model.trim();
+    if (openai_api_key !== undefined && openai_api_key.trim() && !openai_api_key.includes('••••')) {
+      updates.openai_api_key = openai_api_key.trim();
+    }
+    if (openai_model !== undefined) updates.openai_model = openai_model.trim();
+
+    await updateAiSettings(updates);
+    const updated = await getAiSettings();
+
+    return res.json({
+      ok: true,
+      message: 'AI Configuration updated successfully',
+      data: {
+        provider_priority: updated.provider_priority,
+        gemini_configured: Boolean(updated.gemini_api_key),
+        gemini_model: updated.gemini_model,
+        gemini_key_masked: maskKey(updated.gemini_api_key),
+        groq_configured: Boolean(updated.groq_api_key),
+        groq_model: updated.groq_model,
+        groq_key_masked: maskKey(updated.groq_api_key),
+        openai_configured: Boolean(updated.openai_api_key),
+        openai_model: updated.openai_model,
+        openai_key_masked: maskKey(updated.openai_api_key),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function testAiConnection(req, res, next) {
+  try {
+    const { testAIProvider } = await import('../services/ai.service.js');
+    const { provider, apiKey, model } = req.body || {};
+
+    if (!provider) {
+      return res.status(400).json({ error: 'Missing provider to test (groq | gemini | openai)' });
+    }
+
+    const testResult = await testAIProvider({
+      provider: provider.toLowerCase(),
+      apiKey: apiKey && !apiKey.includes('••••') ? apiKey.trim() : undefined,
+      model: model ? model.trim() : undefined,
+    });
+
+    return res.json({ ok: true, data: testResult });
+  } catch (err) {
+    return res.status(400).json({ ok: false, error: err.message });
+  }
+}
