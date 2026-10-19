@@ -175,98 +175,105 @@ export function AdminSidebar({
     }
   }
 
-  const navItems = [
+  const navGroups = [
     {
-      label: 'Dashboard',
-      href: '/admin/dashboard',
-      icon: <LayoutDashboard size={20} />,
-      badge: null,
+      title: 'Editorial & Content',
+      items: [
+        {
+          label: 'Dashboard',
+          href: '/admin/dashboard',
+          icon: <LayoutDashboard size={18} />,
+          badge: null,
+        },
+        {
+          label: 'Write Story',
+          href: '/admin/create',
+          icon: <Plus size={18} />,
+          badge: 'Studio',
+          badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-500/30',
+        },
+        {
+          label: 'All Articles',
+          href: '/admin/dashboard?status=all',
+          icon: <Newspaper size={18} />,
+          badge: null,
+        },
+        {
+          label: 'Visual Stories',
+          href: '/admin/dashboard?status=visual_stories',
+          icon: <Sparkles size={18} />,
+          badge: 'Takes',
+          badgeColor: 'bg-gradient-to-r from-rose-500 to-amber-500 text-white border-0 shadow-xs font-bold',
+        },
+        {
+          label: 'Review Queue',
+          href: '/admin/dashboard?status=pending',
+          icon: <Clock size={18} />,
+          badge: pendingCount && pendingCount > 0 ? pendingCount : null,
+          badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
+        },
+      ],
     },
     {
-      label: 'Write Story',
-      href: '/admin/create',
-      icon: <Plus size={20} />,
-      badge: 'Studio',
-      badgeColor: 'bg-teal-500/20 text-teal-300 border border-teal-500/30',
+      title: 'Audience & Engagement',
+      items: [
+        {
+          label: 'Social Media Hub',
+          href: '/admin/social',
+          icon: <Share2 size={18} />,
+          badge: null,
+        },
+        {
+          label: 'Email Newsletter',
+          href: '/admin/newsletter',
+          icon: <Mail size={18} />,
+          badge: null,
+        },
+        {
+          label: 'Calendar Desk',
+          href: '/admin/calendar',
+          icon: <CalendarDays size={18} />,
+          badge: 'Live',
+          badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30',
+        },
+        {
+          label: 'Daily Quiz',
+          href: '/admin/quiz',
+          icon: <Trophy size={18} />,
+          badge: null,
+        },
+      ],
     },
     {
-      label: 'Articles',
-      href: '/admin/dashboard?status=all',
-      icon: <Newspaper size={20} />,
-      badge: null,
-    },
-    {
-      label: 'Visual Stories',
-      href: '/admin/dashboard?status=visual_stories',
-      icon: <Sparkles size={20} />,
-      badge: 'Fast Takes',
-      badgeColor: 'bg-gradient-to-r from-rose-500 to-amber-500 text-white border-0 shadow-xs font-bold',
-    },
-    {
-      label: 'AI Suite & Keys',
-      href: '/admin/create?tab=ai',
-      icon: <Sparkles size={20} />,
-      badge: 'Free Tier',
-      badgeColor: 'bg-violet-500/20 text-violet-300 border border-violet-500/30 font-bold',
-    },
-    {
-      label: 'Review Queue',
-      href: '/admin/dashboard?status=pending',
-      icon: <Clock size={20} />,
-      badge: pendingCount && pendingCount > 0 ? pendingCount : null,
-      badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
-    },
-    {
-      label: 'Social Media Hub',
-      href: '/admin/social',
-      icon: <Share2 size={20} />,
-      badge: null,
-    },
-    {
-      label: 'Email Newsletter',
-      href: '/admin/newsletter',
-      icon: <Mail size={20} />,
-      badge: null,
-    },
-    {
-      label: 'Calendar Desk',
-      href: '/admin/calendar',
-      icon: <CalendarDays size={20} />,
-      badge: 'Live',
-      badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30',
-    },
-    {
-      label: 'Daily Quiz',
-      href: '/admin/quiz',
-      icon: <Trophy size={20} />,
-      badge: 'Arena',
-      badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
-    },
-    {
-      label: 'RSS Sources',
-      href: '/admin/sources',
-      icon: <Radio size={20} />,
-      badge: null,
-    },
-    {
-      label: 'System & Workers',
-      href: '/admin/activity',
-      icon: <Activity size={20} />,
-      badge: null,
-    },
-    {
-      label: 'System Health',
-      href: '/admin/health',
-      icon: <ShieldCheck size={20} />,
-      badge: 'Live',
-      badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
-    },
-    {
-      label: 'API Docs & Swagger',
-      href: '/admin/docs',
-      icon: <FileCode2 size={20} />,
-      badge: 'v2.0',
-      badgeColor: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30',
+      title: 'Pipelines & System',
+      items: [
+        {
+          label: 'RSS Feeds & Sources',
+          href: '/admin/sources',
+          icon: <Radio size={18} />,
+          badge: null,
+        },
+        {
+          label: 'Workers & Activity',
+          href: '/admin/activity',
+          icon: <Activity size={18} />,
+          badge: null,
+        },
+        {
+          label: 'System Health',
+          href: '/admin/health',
+          icon: <ShieldCheck size={18} />,
+          badge: 'Live',
+          badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+        },
+        {
+          label: 'API Documentation',
+          href: '/admin/docs',
+          icon: <FileCode2 size={18} />,
+          badge: 'v2.0',
+          badgeColor: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30',
+        },
+      ],
     },
   ];
 
@@ -337,60 +344,64 @@ export function AdminSidebar({
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto px-2.5 py-4 space-y-6 no-scrollbar pd-scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          <div>
-            {!isCollapsed && (
-              <p className="px-2.5 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Management
-              </p>
-            )}
-            <nav className="space-y-1">
-              {navItems.map((item) => {
-                const active = isItemActive(item.href);
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    onClick={onCloseMobile}
-                    title={item.label}
-                    className={`group relative flex items-center rounded-xl p-2.5 text-sm font-medium transition-all ${isCollapsed ? 'justify-center w-11 h-11 mx-auto my-0.5' : 'justify-between px-3'
-                      } ${active
-                        ? 'bg-gradient-to-r from-teal-600/90 to-teal-700 text-white shadow-sm shadow-teal-900/40 ring-1 ring-teal-500/40'
-                        : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
+        <div className="flex-1 overflow-y-auto px-2.5 py-4 space-y-5 no-scrollbar pd-scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          {navGroups.map((group, gIdx) => (
+            <div key={group.title} className={gIdx > 0 ? 'pt-2 border-t border-slate-800/50' : ''}>
+              {!isCollapsed && (
+                <p className="px-2.5 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {group.title}
+                </p>
+              )}
+              <nav className="space-y-1">
+                {group.items.map((item) => {
+                  const active = isItemActive(item.href);
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      onClick={onCloseMobile}
+                      title={item.label}
+                      className={`group relative flex items-center rounded-xl p-2.5 text-xs font-semibold transition-all ${
+                        isCollapsed ? 'justify-center w-11 h-11 mx-auto my-0.5' : 'justify-between px-3'
+                      } ${
+                        active
+                          ? 'bg-gradient-to-r from-teal-600/90 to-teal-700 text-white shadow-sm shadow-teal-900/40 ring-1 ring-teal-500/40'
+                          : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
                       }`}
-                  >
-                    <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
-                      <span
-                        className={
-                          active ? 'text-white' : 'text-slate-400 group-hover:text-teal-400'
-                        }
-                      >
-                        {item.icon}
-                      </span>
-                      {!isCollapsed && <span className="truncate">{item.label}</span>}
-                    </div>
+                    >
+                      <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
+                        <span
+                          className={
+                            active ? 'text-white' : 'text-slate-400 group-hover:text-teal-400'
+                          }
+                        >
+                          {item.icon}
+                        </span>
+                        {!isCollapsed && <span className="truncate">{item.label}</span>}
+                      </div>
 
-                    {/* Badge */}
-                    {item.badge !== null && (
-                      isCollapsed ? (
-                        typeof item.badge === 'number' ? (
-                          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] text-slate-950 font-black shadow-md">
+                      {/* Badge */}
+                      {item.badge !== null && (
+                        isCollapsed ? (
+                          typeof item.badge === 'number' ? (
+                            <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] text-slate-950 font-black shadow-md">
+                              {item.badge}
+                            </span>
+                          ) : (
+                            <span className="absolute top-1.5 right-1.5 flex h-2 w-2 rounded-full bg-teal-400 shadow-sm" />
+                          )
+                        ) : (
+                          <span className={`font-bold tabular-nums rounded-full px-2 py-0.5 text-[10px] ${item.badgeColor || 'bg-slate-800 text-slate-300'}`}>
                             {item.badge}
                           </span>
-                        ) : (
-                          <span className="absolute top-1.5 right-1.5 flex h-2 w-2 rounded-full bg-teal-400 shadow-sm" />
                         )
-                      ) : (
-                        <span className={`font-bold tabular-nums rounded-full px-2 py-0.5 text-[11px] ${item.badgeColor || 'bg-slate-800 text-slate-300'}`}>
-                          {item.badge}
-                        </span>
-                      )
-                    )}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+                      )}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          ))}
 
           {/* Quick Actions */}
           <div>

@@ -153,26 +153,10 @@ export default function AdminHealthPage() {
 
   return (
     <div className="flex h-full w-full overflow-hidden bg-[#070b14] text-slate-100">
-      {/* Sidebar for Desktop */}
-      <div className="hidden md:flex md:flex-shrink-0 h-full">
-        <AdminSidebar />
-      </div>
-
-      {/* Mobile Sidebar */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          <div className="relative z-50 flex">
-            <AdminSidebar
-              mobileOpen={mobileMenuOpen}
-              onCloseMobile={() => setMobileMenuOpen(false)}
-            />
-          </div>
-        </div>
-      )}
+      <AdminSidebar
+        mobileOpen={mobileMenuOpen}
+        onCloseMobile={() => setMobileMenuOpen(false)}
+      />
 
       {/* Main Content Viewport */}
       <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
