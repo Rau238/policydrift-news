@@ -5,7 +5,7 @@
 	admin localhost:2019
 }
 
-newsfree365.live, www.newsfree365.live {
+:80, newsfree365.live, www.newsfree365.live {
 	# Encode with gzip and zstd for optimal compression
 	encode zstd gzip
 

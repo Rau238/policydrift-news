@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node ../scripts/build-guard.mjs --backend",
-    "dev": "node --watch src/server.js",
+    "dev": "node --watch-path=src src/server.js",
     "start": "node src/server.js",
     "check": "node scripts/check-setup.mjs",
     "feeds:check": "node scripts/check-feeds.mjs",

@@ -52,6 +52,7 @@ export async function getPosts(params: {
   page?: number;
   limit?: number;
   category?: string;
+  skipCount?: boolean;
 }): Promise<{ posts: PostListItem[]; total: number; page: number; limit: number }> {
   const page = params.page ?? 1;
   const limit = params.limit ?? 12;
@@ -59,6 +60,7 @@ export async function getPosts(params: {
   sp.set('page', String(page));
   sp.set('limit', String(limit));
   if (params.category && params.category !== 'all') sp.set('category', params.category);
+  if (params.skipCount) sp.set('skipCount', '1');
   const q = sp.toString();
   return safeFetchJson(`/api/posts?${q}`, { posts: [], total: 0, page, limit }, { next: { revalidate: 30 } });
 }

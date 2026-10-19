@@ -18,20 +18,6 @@ const fileEnv = {
 
 const processes = [
   {
-    name: 'MYSQL',
-    cmd: 'F:\\mariadb\\mariadb-10.11.8-winx64\\bin\\mysqld.exe',
-    args: ['--datadir=F:\\mariadb\\data', '--port=3306', '--console'],
-    cwd: root,
-    env: process.env,
-  },
-  {
-    name: 'CADDY',
-    cmd: path.join(root, 'caddy', 'caddy.exe'),
-    args: ['run', '--config', path.join(root, 'Caddyfile')],
-    cwd: root,
-    env: process.env,
-  },
-  {
     name: 'API',
     cmd: process.execPath,
     args: ['src/server.js'],

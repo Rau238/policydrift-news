@@ -224,9 +224,9 @@ export default async function NewsSlugPage({ params, searchParams }: Props) {
   if (!post) notFound();
 
   const [relatedPack, breakingPack, trendingAll] = await Promise.all([
-    getPosts({ page: 1, limit: 6, category: post.category }),
+    getPosts({ page: 1, limit: 6, category: post.category, skipCount: true }),
     post.category !== 'Breaking'
-      ? getPosts({ page: 1, limit: 6, category: 'Breaking' })
+      ? getPosts({ page: 1, limit: 6, category: 'Breaking', skipCount: true })
       : Promise.resolve({ posts: [], total: 0, page: 1, limit: 6 }),
     getTrending(6),
   ]);

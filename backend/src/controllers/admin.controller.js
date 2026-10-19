@@ -43,10 +43,12 @@ export async function getActivity(req, res, next) {
     // Fetch latest 15 articles created or updated
     const [recentArticles] = await pool.query(
       `SELECT p.id, p.title, p.slug, p.status, p.category, p.created_at, p.published_at, p.view_count, ns.name AS source_name
-       FROM posts p
+       FROM (
+         SELECT id FROM posts ORDER BY id DESC LIMIT 15
+       ) sub
+       JOIN posts p ON p.id = sub.id
        LEFT JOIN news_sources ns ON ns.id = p.source_id
-       ORDER BY p.created_at DESC
-       LIMIT 15`,
+       ORDER BY p.id DESC`,
     );
 
     // Fetch latest active sources status

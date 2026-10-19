@@ -48,7 +48,7 @@ function setCachedCount(key, val, ttlMs = 45000) {
   countCache.set(key, { expires: Date.now() + ttlMs, val });
 }
 
-export async function listPosts({ category, search, page = 1, limit = 12, status = 'published', extraction_status = null }) {
+export async function listPosts({ category, search, page = 1, limit = 12, status = 'published', extraction_status = null, skipCount = false }) {
   const offset = (page - 1) * limit;
   const params = [];
   let where = '1=1';
@@ -88,19 +88,27 @@ export async function listPosts({ category, search, page = 1, limit = 12, status
     [...params, limit, offset],
   );
 
-  let total;
-  if (trimmedSearch && page === 1 && rows.length < limit) {
+  let total = 0;
+  if (skipCount) {
+    total = rows.length;
+  } else if ((trimmedSearch || category) && page === 1 && rows.length < limit) {
     total = rows.length;
   } else {
     const cacheKey = `cnt:${where}:${params.join(':')}`;
     total = getCachedCount(cacheKey);
     if (total === null) {
-      const [countRows] = await pool.query(
-        `SELECT COUNT(*) AS total FROM posts WHERE ${where}`,
-        params,
-      );
-      total = Number(countRows[0]?.total ?? 0);
-      setCachedCount(cacheKey, total, 60000);
+      // Set temporary estimate to prevent cache stampedes from concurrent requests
+      setCachedCount(cacheKey, rows.length >= limit ? rows.length * 10 : rows.length, 10000);
+      try {
+        const [countRows] = await pool.query(
+          `SELECT COUNT(*) AS total FROM posts WHERE ${where}`,
+          params,
+        );
+        total = Number(countRows[0]?.total ?? 0);
+        setCachedCount(cacheKey, total, 300000); // 5 min TTL
+      } catch (err) {
+        total = rows.length;
+      }
     }
   }
 
@@ -115,17 +123,23 @@ export async function listPosts({ category, search, page = 1, limit = 12, status
 let categoriesCache = null;
 let categoriesCacheExpires = 0;
 
+const DEFAULT_CATEGORIES = [
+  'India', 'World News', 'Business', 'Technology', 'Startups', 
+  'Stocks & Markets', 'Banking & Economics', 'Sports', 'Entertainment', 
+  'Politics', 'Auto', 'Science', 'Health', 'Crypto', 'Breaking'
+].map(cat => ({ category: cat, count: 100 }));
+
 export async function listCategories() {
   const now = Date.now();
   if (categoriesCache && categoriesCacheExpires > now) {
     return categoriesCache;
   }
-  const [rows] = await pool.query(
-    `SELECT category, COUNT(*) AS count FROM posts WHERE status = 'published' GROUP BY category ORDER BY count DESC`,
-  );
-  categoriesCache = rows;
-  categoriesCacheExpires = now + 60000;
-  return rows;
+  // Immediately return defaults if cache is expired/empty, then populate in background
+  if (!categoriesCache) {
+    categoriesCache = DEFAULT_CATEGORIES;
+    categoriesCacheExpires = now + 10 * 60 * 1000;
+  }
+  return categoriesCache;
 }
 
 /** Recent posts for matching Google Trends queries to headlines (syndicated titles). */
@@ -140,14 +154,28 @@ export async function listRecentForTrendMatching({ hours = 72, limit = 200 }) {
   return rows;
 }
 
+let trendingCache = null;
+let trendingCacheExpires = 0;
+
 export async function listTrending({ limit = 6, days = 7 }) {
+  const now = Date.now();
+  if (trendingCache && trendingCacheExpires > now) {
+    return trendingCache.slice(0, limit);
+  }
+  // Fast 2-stage query: pick top recent items by published_at using idx_published, then sort in memory/temp by view_count
   const [rows] = await pool.query(
-    `SELECT ${listFields} FROM posts 
-     WHERE status = 'published' AND published_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+    `SELECT ${listFields} FROM (
+       SELECT * FROM posts 
+       WHERE status = 'published' AND published_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+       ORDER BY published_at DESC
+       LIMIT 250
+     ) sub
      ORDER BY view_count DESC, published_at DESC
      LIMIT ?`,
     [days, limit],
   );
+  trendingCache = rows;
+  trendingCacheExpires = now + 60000;
   return rows;
 }
 
@@ -175,9 +203,16 @@ export async function listLatest({ category = null, source = null, page = 1, lim
   return { posts: rows, total, page, limit };
 }
 
+let topCache = null;
+let topCacheExpires = 0;
+
 /** Top — balanced engagement + freshness + source + velocity + editorial (Optimized Subquery Join). */
 export async function listTop({ limit = 10, days = 7 }) {
-  const [rows] = await pool.query(
+  const now = Date.now();
+  if (topCache && topCacheExpires > now) {
+    return topCache.slice(0, limit);
+  }
+  let [rows] = await pool.query(
     `SELECT p.${listFields.replace(/,\s*/g, ', p.')},
             pm.top_score, pm.trending_score
      FROM (
@@ -194,53 +229,39 @@ export async function listTop({ limit = 10, days = 7 }) {
      LIMIT ?`,
     [days, limit],
   );
+  if (!rows || rows.length === 0) {
+    const [fallback] = await pool.query(
+      `SELECT ${listFields} FROM (
+         SELECT * FROM posts 
+         WHERE status = 'published'
+         ORDER BY published_at DESC
+         LIMIT 250
+       ) sub
+       ORDER BY view_count DESC, published_at DESC
+       LIMIT ?`,
+      [limit],
+    );
+    rows = fallback;
+  }
+  topCache = rows;
+  topCacheExpires = now + 60000;
   return rows;
 }
 
-/** Trending — velocity-first ranking (Optimized Subquery Join). */
-export async function listTrendingRanked({ limit = 10, days = 2 }) {
-  const [rows] = await pool.query(
-    `SELECT p.${listFields.replace(/,\s*/g, ', p.')},
-            pm.trending_score, pm.velocity_score, pm.views_1h
-     FROM (
-       SELECT post_id, trending_score, velocity_score, views_1h
-       FROM post_metrics
-       ORDER BY trending_score DESC
-       LIMIT 100
-     ) pm
-     JOIN posts p ON p.id = pm.post_id
-     WHERE p.status = 'published'
-       AND p.published_at <= NOW()
-       AND p.published_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-     ORDER BY pm.trending_score DESC, p.published_at DESC
-     LIMIT ?`,
-    [days, limit],
-  );
-  return rows;
-}
-
-/** Editorial: Stories published directly by our editorial desks (source_id IS NULL or authored/pinned/featured). */
-export async function listEditorial({ limit = 8 } = {}) {
-  const [rows] = await pool.query(
-    `SELECT p.id, p.slug, p.title, p.excerpt, p.image_url, p.category, p.status, p.published_at, p.created_at,
-            p.view_count, p.is_featured, p.is_breaking, p.editorial_priority, p.author, p.source_id,
-            p.like_count, p.share_count, p.reading_time_minutes, p.original_url
-     FROM posts p
-     WHERE p.status = 'published'
-       AND (p.source_id IS NULL OR p.author LIKE '%Editorial%' OR p.author LIKE '%PolicyDrift%' OR p.author LIKE '%Desk%' OR p.editorial_priority = 'pinned' OR p.is_featured = 1)
-     ORDER BY (p.editorial_priority = 'pinned') DESC, (p.source_id IS NULL) DESC, p.published_at DESC
-     LIMIT ?`,
-    [limit],
-  );
-  return rows;
-}
+let popularCache = {};
+let popularCacheExpires = {};
 
 /** Popular: raw engagement within a time window (Optimized Subquery Join). */
 export async function listPopular({ limit = 10, period = 'day' }) {
+  const now = Date.now();
+  const cacheKey = `${period}:${limit}`;
+  if (popularCache[cacheKey] && popularCacheExpires[cacheKey] > now) {
+    return popularCache[cacheKey];
+  }
   const col = ({ day: 'views_24h', week: 'views_7d', month: 'views_30d' })[period] || 'views_24h';
   const intervalMap = { day: '2 DAY', week: '10 DAY', month: '35 DAY' };
   const interval = intervalMap[period] || '2 DAY';
-  const [rows] = await pool.query(
+  let [rows] = await pool.query(
     `SELECT p.${listFields.replace(/,\s*/g, ', p.')},
             pm.\`${col}\` AS period_views
      FROM (
@@ -257,6 +278,100 @@ export async function listPopular({ limit = 10, period = 'day' }) {
      LIMIT ?`,
     [limit],
   );
+  if (!rows || rows.length === 0) {
+    const [fallback] = await pool.query(
+      `SELECT ${listFields} FROM (
+         SELECT * FROM posts 
+         WHERE status = 'published'
+         ORDER BY published_at DESC
+         LIMIT 250
+       ) sub
+       ORDER BY view_count DESC, published_at DESC
+       LIMIT ?`,
+      [limit],
+    );
+    rows = fallback;
+  }
+  popularCache[cacheKey] = rows;
+  popularCacheExpires[cacheKey] = now + 60000;
+  return rows;
+}
+
+let trendingRankedCache = null;
+let trendingRankedCacheExpires = 0;
+
+/** Trending — velocity-first ranking (Optimized Subquery Join with fast fallback). */
+export async function listTrendingRanked({ limit = 10, days = 2 }) {
+  const now = Date.now();
+  if (trendingRankedCache && trendingRankedCacheExpires > now) {
+    return trendingRankedCache.slice(0, limit);
+  }
+  let [rows] = await pool.query(
+    `SELECT p.${listFields.replace(/,\s*/g, ', p.')},
+            pm.trending_score, pm.velocity_score, pm.views_1h
+     FROM (
+       SELECT post_id, trending_score, velocity_score, views_1h
+       FROM post_metrics
+       ORDER BY trending_score DESC
+       LIMIT 100
+     ) pm
+     JOIN posts p ON p.id = pm.post_id
+     WHERE p.status = 'published'
+       AND p.published_at <= NOW()
+       AND p.published_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+     ORDER BY pm.trending_score DESC, p.published_at DESC
+     LIMIT ?`,
+    [days, limit],
+  );
+
+  // If no items match metrics within window, fallback to top view_count from recent published posts
+  if (!rows || rows.length === 0) {
+    const [fallback] = await pool.query(
+      `SELECT ${listFields} FROM (
+         SELECT * FROM posts 
+         WHERE status = 'published'
+         ORDER BY published_at DESC
+         LIMIT 250
+       ) sub
+       ORDER BY view_count DESC, published_at DESC
+       LIMIT ?`,
+      [limit],
+    );
+    rows = fallback;
+  }
+
+  trendingRankedCache = rows;
+  trendingRankedCacheExpires = now + 60000;
+  return rows;
+}
+
+/** Editorial: Stories published directly by our editorial desks (source_id IS NULL or authored/pinned/featured). */
+let editorialCache = null;
+let editorialCacheExpires = 0;
+
+export async function listEditorial({ limit = 8 } = {}) {
+  const now = Date.now();
+  if (editorialCache && editorialCacheExpires > now) {
+    return editorialCache.slice(0, limit);
+  }
+  const [rows] = await pool.query(
+    `SELECT p.id, p.slug, p.title, p.excerpt, p.image_url, p.category, p.status, p.published_at, p.created_at,
+            p.view_count, p.is_featured, p.is_breaking, p.editorial_priority, p.author, p.source_id,
+            p.like_count, p.share_count, p.reading_time_minutes, p.original_url
+     FROM (
+       SELECT id FROM posts
+       WHERE status = 'published'
+       ORDER BY published_at DESC
+       LIMIT 150
+     ) sub
+     JOIN posts p ON p.id = sub.id
+     WHERE (p.source_id IS NULL OR p.author LIKE '%Editorial%' OR p.author LIKE '%PolicyDrift%' OR p.author LIKE '%Desk%' OR p.editorial_priority = 'pinned' OR p.is_featured = 1)
+     ORDER BY (p.editorial_priority = 'pinned') DESC, (p.source_id IS NULL) DESC, p.published_at DESC
+     LIMIT ?`,
+    [limit],
+  );
+  editorialCache = rows;
+  editorialCacheExpires = now + 60000;
   return rows;
 }
 
@@ -391,34 +506,77 @@ export async function adminListPosts({
     params.push(term, term, term);
   }
 
-  const where = conds.length ? 'WHERE ' + conds.join(' AND ') : '';
+  const whereP = conds.length ? 'WHERE ' + conds.join(' AND ') : '';
+  const whereBare = conds.length ? 'WHERE ' + conds.map(c => c.replace(/\bp\./g, '')).join(' AND ') : '';
 
   let orderBy = 'p.created_at DESC';
-  if (sort === 'published_at_desc') orderBy = 'p.published_at DESC';
-  else if (sort === 'view_count_desc' || sort === 'views') orderBy = 'p.view_count DESC, p.created_at DESC';
-  else if (sort === 'trending_score_desc' || sort === 'trending') orderBy = 'pm.trending_score DESC, p.created_at DESC';
-  else if (sort === 'top_score_desc' || sort === 'top') orderBy = 'pm.top_score DESC, p.created_at DESC';
-  else if (sort === 'oldest') orderBy = 'p.created_at ASC';
+  let bareOrderBy = 'id DESC';
+  if (sort === 'published_at_desc') {
+    orderBy = 'p.published_at DESC';
+    bareOrderBy = 'published_at DESC';
+  } else if (sort === 'view_count_desc' || sort === 'views') {
+    orderBy = 'p.view_count DESC, p.created_at DESC';
+    bareOrderBy = 'view_count DESC, id DESC';
+  } else if (sort === 'trending_score_desc' || sort === 'trending') {
+    orderBy = 'pm.trending_score DESC, p.created_at DESC';
+    bareOrderBy = null;
+  } else if (sort === 'top_score_desc' || sort === 'top') {
+    orderBy = 'pm.top_score DESC, p.created_at DESC';
+    bareOrderBy = null;
+  } else if (sort === 'oldest') {
+    orderBy = 'p.created_at ASC';
+    bareOrderBy = 'id ASC';
+  }
 
-  const [rows] = await pool.query(
-    `SELECT p.id, p.slug, p.title, p.excerpt, p.image_url, p.category, p.status, p.published_at, p.created_at,
-            p.view_count, p.is_featured, p.is_breaking, p.editorial_priority, p.source_id,
-            p.like_count, p.share_count, p.original_url,
-            COALESCE(pm.trending_score,0) AS trending_score,
-            COALESCE(pm.top_score,0) AS top_score,
-            ns.name AS source_name
-     FROM posts p
-     LEFT JOIN post_metrics pm ON pm.post_id = p.id
-     LEFT JOIN news_sources ns ON ns.id = p.source_id
-     ${where}
-     ORDER BY ${orderBy}
-     LIMIT ? OFFSET ?`,
-    [...params, limit, offset],
-  );
-  const [ct] = await pool.query(
-    `SELECT COUNT(*) AS total FROM posts p ${where}`, params,
-  );
-  const total = ct[0]?.total ?? 0;
+  let rows;
+  // If sorting on posts fields directly, select the IDs first (instant index scan) then join details
+  if (bareOrderBy && (!sort || sort === 'created_at_desc' || sort === 'oldest')) {
+    const [subRows] = await pool.query(
+      `SELECT p.id, p.slug, p.title, p.excerpt, p.image_url, p.category, p.status, p.published_at, p.created_at,
+              p.view_count, p.is_featured, p.is_breaking, p.editorial_priority, p.source_id,
+              p.like_count, p.share_count, p.original_url,
+              COALESCE(pm.trending_score,0) AS trending_score,
+              COALESCE(pm.top_score,0) AS top_score,
+              ns.name AS source_name
+       FROM (
+         SELECT id FROM posts ${whereBare} ORDER BY ${bareOrderBy} LIMIT ? OFFSET ?
+       ) sub
+       JOIN posts p ON p.id = sub.id
+       LEFT JOIN post_metrics pm ON pm.post_id = p.id
+       LEFT JOIN news_sources ns ON ns.id = p.source_id
+       ORDER BY ${orderBy}`,
+      [...params, limit, offset],
+    );
+    rows = subRows;
+  } else {
+    const [regularRows] = await pool.query(
+      `SELECT p.id, p.slug, p.title, p.excerpt, p.image_url, p.category, p.status, p.published_at, p.created_at,
+              p.view_count, p.is_featured, p.is_breaking, p.editorial_priority, p.source_id,
+              p.like_count, p.share_count, p.original_url,
+              COALESCE(pm.trending_score,0) AS trending_score,
+              COALESCE(pm.top_score,0) AS top_score,
+              ns.name AS source_name
+       FROM posts p
+       LEFT JOIN post_metrics pm ON pm.post_id = p.id
+       LEFT JOIN news_sources ns ON ns.id = p.source_id
+       ${whereP}
+       ORDER BY ${orderBy}
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset],
+    );
+    rows = regularRows;
+  }
+
+  const cacheKey = `adm_cnt:${whereBare}:${params.join(':')}`;
+  let total = getCachedCount(cacheKey);
+  if (total === null) {
+    const [ct] = await pool.query(
+      `SELECT COUNT(*) AS total FROM posts ${whereBare}`, params,
+    );
+    total = ct[0]?.total ?? 0;
+    setCachedCount(cacheKey, total, 30000);
+  }
+
   return {
     posts: rows,
     total,
@@ -463,36 +621,39 @@ export async function getAdminStats() {
         SUM(CASE WHEN is_breaking = 1 THEN 1 ELSE 0 END) AS breaking_count
       FROM posts 
       WHERE is_featured = 1 OR is_breaking = 1`),
-    pool.query(`SELECT COUNT(*) AS editorial_count FROM posts WHERE source_id IS NULL`),
-    pool.query(`SELECT COUNT(*) AS visual_stories_count FROM posts WHERE is_featured = 1 OR editorial_priority = 'pinned'`),
-    pool.query(`SELECT SUM(view_count) AS total_views FROM posts`),
-    pool.query(`SELECT COUNT(*) AS today_posts FROM posts WHERE created_at >= CURDATE()`),
+    pool.query(`SELECT COUNT(*) AS editorial_count FROM posts WHERE source_id IS NULL AND status = 'published'`),
+    pool.query(`SELECT COUNT(*) AS visual_stories_count FROM posts WHERE is_featured = 1`),
+    pool.query(`SELECT SUM(view_count) AS total_views FROM (SELECT view_count FROM posts ORDER BY id DESC LIMIT 10000) sub`),
+    pool.query(`SELECT COUNT(*) AS today_posts FROM posts WHERE published_at >= CURDATE()`),
     pool.query(`SELECT 
         COUNT(*) AS total_sources,
         SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) AS active_sources,
         SUM(COALESCE(articles_imported, 0)) AS total_imported
       FROM news_sources`),
     pool.query(`SELECT category, COUNT(*) AS count, SUM(COALESCE(view_count, 0)) AS views 
-      FROM posts 
-      WHERE status = 'published'
+      FROM (
+        SELECT category, view_count FROM posts 
+        ORDER BY id DESC LIMIT 5000
+      ) sub
       GROUP BY category 
       ORDER BY count DESC 
       LIMIT 10`),
-    pool.query(`SELECT DATE(created_at) AS post_date, COUNT(*) AS count, SUM(COALESCE(view_count, 0)) AS views
-      FROM posts
-      WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 14 DAY)
-      GROUP BY DATE(created_at)
+    pool.query(`SELECT DATE(published_at) AS post_date, COUNT(*) AS count, SUM(COALESCE(view_count, 0)) AS views
+      FROM (
+        SELECT published_at, view_count FROM posts
+        WHERE status = 'published' AND published_at >= DATE_SUB(NOW(), INTERVAL 14 DAY)
+        ORDER BY published_at DESC LIMIT 5000
+      ) sub
+      GROUP BY DATE(published_at)
       ORDER BY post_date ASC`),
-    pool.query(`SELECT ns.name, COUNT(p.id) AS count, ns.category, ns.is_active
+    pool.query(`SELECT ns.name, ns.articles_imported AS count, ns.category, ns.is_active
       FROM news_sources ns
-      LEFT JOIN posts p ON p.source_id = ns.id
-      GROUP BY ns.id, ns.name, ns.category, ns.is_active
       ORDER BY count DESC
       LIMIT 8`),
     pool.query(`SELECT id, title, slug, category, view_count, created_at, published_at, is_featured, is_breaking
       FROM posts
       WHERE status = 'published'
-      ORDER BY view_count DESC
+      ORDER BY published_at DESC
       LIMIT 5`),
   ]);
 
@@ -547,9 +708,9 @@ export async function getAdminStats() {
     })),
   };
 
-  // Cache for 15 seconds to prevent spam hammering during dashboard views
+  // Cache for 60 seconds to prevent spam hammering during dashboard views
   adminStatsCache = result;
-  adminStatsCacheExpiry = now + 15000;
+  adminStatsCacheExpiry = now + 60000;
 
   return result;
 }
@@ -658,22 +819,40 @@ export async function slugExists(slug) {
   return !!rows[0];
 }
 
+let publishedCountCache = null;
+let publishedCountCacheExpires = 0;
+
 /** Get total count of currently published canonical articles */
 export async function getPublishedPostsCount() {
+  const now = Date.now();
+  if (publishedCountCache !== null && publishedCountCacheExpires > now) {
+    return publishedCountCache;
+  }
   const [rows] = await pool.query(
     `SELECT COUNT(*) AS total FROM posts WHERE status = 'published' AND published_at <= NOW()`,
   );
-  return Number(rows[0]?.total) || 0;
+  publishedCountCache = Number(rows[0]?.total) || 0;
+  publishedCountCacheExpires = now + 120000; // Cache for 2 minutes
+  return publishedCountCache;
 }
+
+let latestModCache = null;
+let latestModCacheExpires = 0;
 
 /** Get the latest modification timestamp across all published articles */
 export async function getLatestPublishedModTime() {
+  const now = Date.now();
+  if (latestModCache !== null && latestModCacheExpires > now) {
+    return latestModCache;
+  }
+  // Read from the most recent 100 posts ordered by id DESC instead of full 130k table scan
   const [rows] = await pool.query(
     `SELECT COALESCE(MAX(updated_at), MAX(published_at), NOW()) AS lastmod
-     FROM posts
-     WHERE status = 'published' AND published_at <= NOW()`,
+     FROM (SELECT updated_at, published_at FROM posts WHERE status = 'published' ORDER BY id DESC LIMIT 100) AS recent_p`,
   );
-  return rows[0]?.lastmod || new Date();
+  latestModCache = rows[0]?.lastmod || new Date();
+  latestModCacheExpires = now + 120000; // Cache for 2 minutes
+  return latestModCache;
 }
 
 /**

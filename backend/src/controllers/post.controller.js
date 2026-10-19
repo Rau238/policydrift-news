@@ -21,13 +21,14 @@ export async function listPosts(req, res, next) {
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit || '12', 10)));
     const category = req.query.category || 'all';
     const search = (req.query.search || req.query.q || '').trim();
+    const skipCount = req.query.skipCount === '1' || req.query.skipCount === 'true';
 
     const searchKey = search ? search.toLowerCase().slice(0, 60) : '';
     // Cache search queries (30s) and unsearched top pages (15s)
     const cacheKey = searchKey
       ? `search:${searchKey}:${category}:${page}:${limit}`
       : page <= 3
-      ? `list:${category}:${page}:${limit}`
+      ? `list:${category}:${page}:${limit}:${skipCount}`
       : null;
 
     if (cacheKey) {
@@ -38,7 +39,7 @@ export async function listPosts(req, res, next) {
       }
     }
 
-    const data = await postModel.listPosts({ category, search, page, limit });
+    const data = await postModel.listPosts({ category, search, page, limit, skipCount });
     const payload = {
       ...data,
       posts: data.posts.map((p) => serializePostDates(withStoryImageFallback(p))),

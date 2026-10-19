@@ -137,7 +137,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const [breakingRaw, latestRaw, trendingRaw, topStoriesRaw, trendingRankedRaw, popularRaw, editorialRaw] = await Promise.all([
-    getPosts({ page: 1, limit: 12, category: 'Breaking' }),
+    getPosts({ page: 1, limit: 12, category: 'Breaking', skipCount: true }),
     getPosts({ page: 1, limit: 20 }),
     getTrending(8),
     getTopNews({ limit: 12, days: 3 }),
