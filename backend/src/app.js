@@ -56,6 +56,10 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'newsfree365-api' });
 });
 
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true, service: 'newsfree365-api' });
+});
+
 // Dynamic social card endpoint fallback
 app.get('/api/social/card', async (req, res) => {
   const query = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';

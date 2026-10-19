@@ -13,6 +13,7 @@ dist/
 dist-ssr/
 .next/
 .next-dev/
+caddy/
 *.local
 .vercel/
 

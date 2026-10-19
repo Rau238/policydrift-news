@@ -18,6 +18,21 @@ const apiPort = String(fileEnv.API_PORT || process.env.API_PORT || '4050');
 module.exports = {
   apps: [
     // ─────────────────────────────────────────────────────────────────────────
+    // DATABASE — MariaDB / MySQL Server on port 3306
+    // ─────────────────────────────────────────────────────────────────────────
+    {
+      name: 'newsfree365-mysql',
+      cwd: root,
+      script: path.join(root, 'scripts', 'mysql-daemon.mjs'),
+      interpreter: 'node',
+      instances: 1,
+      exec_mode: 'fork',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '800M',
+    },
+
+    // ─────────────────────────────────────────────────────────────────────────
     // WORKER — RSS ingestion cron (runs independently, NEVER scales > 1)
     // ─────────────────────────────────────────────────────────────────────────
     {
@@ -82,24 +97,19 @@ module.exports = {
     },
 
     // ─────────────────────────────────────────────────────────────────────────
-    // SPORTS HUB — Unified Cricket + Football scraper daemon
-    // Runs cricbuzz_scraper/hub.py (PM2 script must be a real file path)
+    // ─────────────────────────────────────────────────────────────────────────
+    // CADDY REVERSE PROXY — Automatic HTTPS & Edge Routing
     // ─────────────────────────────────────────────────────────────────────────
     {
-      name: 'newsfree365-sports',
+      name: 'newsfree365-caddy',
       cwd: root,
-      script: path.join(root, 'cricbuzz_scraper', 'hub.py'),
-      interpreter: 'python',
+      script: path.join(root, 'scripts', 'caddy-daemon.mjs'),
+      interpreter: 'node',
       instances: 1,
       exec_mode: 'fork',
       autorestart: true,
       watch: false,
-      max_memory_restart: '600M',
-      env_production: {
-        PYTHONUNBUFFERED: '1',
-        PYTHONPATH: root,
-        ...fileEnv,
-      },
+      max_memory_restart: '300M',
     },
   ],
 };

@@ -1,0 +1,40 @@
+# NewsFree365 Caddyfile — Production Reverse Proxy
+# Automates SSL/TLS certificates and proxies traffic to Next.js and Express backend.
+{
+	email policy.drift.yt@gmail.com
+	admin localhost:2019
+}
+
+newsfree365.live, www.newsfree365.live {
+	# Encode with gzip and zstd for optimal compression
+	encode zstd gzip
+
+	# Route /docs and /api/docs to Express backend swagger/docs
+	handle /docs* {
+		reverse_proxy 127.0.0.1:4050
+	}
+
+	# Route health checks to Express backend
+	handle /health* {
+		reverse_proxy 127.0.0.1:4050
+	}
+
+	# Route backend uploads and social cards to Express static files
+	handle /social-cards/* {
+		reverse_proxy 127.0.0.1:4050
+	}
+
+	handle /uploads/* {
+		reverse_proxy 127.0.0.1:4050
+	}
+
+	# Route API endpoints directly to Express backend
+	handle /api/* {
+		reverse_proxy 127.0.0.1:4050
+	}
+
+	# Route everything else to Next.js frontend (Port 3050)
+	handle {
+		reverse_proxy 127.0.0.1:3050
+	}
+}

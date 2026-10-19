@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s 'http://localhost:4001/api/admin/posts/pending?page=1&limit=20' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc4NjY5MjUwNywiZXhwIjoxNzg2Nzc4OTA3fQ.Pd5E83yZ-6qOJByC9oOuT6WGHxl5Hln9SlTQ8HhcNi0')",
+      "Bash(curl *)"
+    ]
+  }
+}

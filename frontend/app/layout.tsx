@@ -68,7 +68,7 @@ export const metadata: Metadata = {
   applicationName: siteName,
   icons: {
     icon: [{ url: '/images/brand-logo.svg', type: 'image/svg+xml' }],
-    apple: [{ url: '/apple-icon', sizes: '180x180', type: 'image/png' }],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   keywords: [
     'news',
